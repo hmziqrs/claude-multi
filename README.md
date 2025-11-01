@@ -32,7 +32,7 @@ npm link
 ### Create instances
 
 ```bash
-# Create instance with default config path (~/.claude-glm)
+# Create instance (interactive - prompts for copying settings)
 claude-multi add glm
 
 # Create instance with custom config path
@@ -40,7 +40,17 @@ claude-multi add work --config ~/configs/claude-work
 
 # Create instance with custom binary path
 claude-multi add minimax --binary ~/.local/bin/claude-minimax
+
+# Non-interactive modes
+claude-multi add glm --copy-settings      # Copy only settings.json
+claude-multi add glm --copy-all           # Copy all files (settings, CLAUDE.md, plugins)
+claude-multi add glm --skip-prompts       # Start fresh, no prompts
 ```
+
+**Interactive prompt options:**
+- **Nothing - start fresh**: Empty config directory
+- **Only settings.json**: Copy your settings (API keys, preferences)
+- **All files**: Copy settings, CLAUDE.md, plugins, etc. (excludes history, debug logs)
 
 ### Use instances
 

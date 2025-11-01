@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -79,4 +79,97 @@ export async function getInstance(name: string): Promise<Instance | null> {
 export async function listInstances(): Promise<Instance[]> {
   const config = await loadConfig();
   return config.instances;
+}
+
+/**
+ * Get the default Claude directory path
+ */
+export function getDefaultClaudeDir(): string {
+  return join(homedir(), ".claude");
+}
+
+/**
+ * Check if default Claude directory exists and has settings.json
+ */
+export function hasDefaultClaudeConfig(): boolean {
+  const defaultDir = getDefaultClaudeDir();
+  const settingsFile = join(defaultDir, "settings.json");
+  return existsSync(defaultDir) && existsSync(settingsFile);
+}
+
+/**
+ * Copy settings.json from default Claude to new instance
+ */
+export async function copySettingsFromDefault(
+  targetConfigDir: string
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+  const sourceSettings = join(defaultDir, "settings.json");
+  const targetSettings = join(targetConfigDir, "settings.json");
+
+  if (!existsSync(sourceSettings)) {
+    throw new Error("Default Claude settings.json not found");
+  }
+
+  if (!existsSync(targetConfigDir)) {
+    await mkdir(targetConfigDir, { recursive: true });
+  }
+
+  await copyFile(sourceSettings, targetSettings);
+}
+
+/**
+ * Copy all files from default Claude to new instance
+ * Excludes: config.json, history.jsonl, debug/, session-env/, todos/
+ */
+export async function copyAllFromDefault(
+  targetConfigDir: string
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+
+  if (!existsSync(defaultDir)) {
+    throw new Error("Default Claude directory not found");
+  }
+
+  if (!existsSync(targetConfigDir)) {
+    await mkdir(targetConfigDir, { recursive: true });
+  }
+
+  const excludeFiles = [
+    "config.json",
+    ".config.json",
+    "history.jsonl",
+    "debug",
+    "session-env",
+    "todos",
+    "file-history",
+    "shell-snapshots",
+    "statsig",
+  ];
+
+  const copyRecursive = async (source: string, target: string) => {
+    const entries = readdirSync(source);
+
+    for (const entry of entries) {
+      const sourcePath = join(source, entry);
+      const targetPath = join(target, entry);
+      const stat = statSync(sourcePath);
+
+      // Skip excluded files/directories
+      if (excludeFiles.includes(entry)) {
+        continue;
+      }
+
+      if (stat.isDirectory()) {
+        if (!existsSync(targetPath)) {
+          await mkdir(targetPath, { recursive: true });
+        }
+        await copyRecursive(sourcePath, targetPath);
+      } else {
+        await copyFile(sourcePath, targetPath);
+      }
+    }
+  };
+
+  await copyRecursive(defaultDir, targetConfigDir);
 }

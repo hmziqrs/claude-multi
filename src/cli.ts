@@ -2,6 +2,7 @@
 
 import { Command } from "commander";
 import chalk from "chalk";
+import prompts from "prompts";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
@@ -9,6 +10,9 @@ import {
   removeInstance,
   listInstances,
   getInstance,
+  hasDefaultClaudeConfig,
+  copySettingsFromDefault,
+  copyAllFromDefault,
   type Instance,
 } from "./config.ts";
 import {
@@ -40,18 +44,79 @@ program
   )
   .option(
     "-b, --binary <path>",
-    "Binary path (default: /usr/local/bin/claude-<name>)"
+    "Binary path (default: ~/.local/bin/claude-<name>)"
+  )
+  .option(
+    "--copy-settings",
+    "Copy settings.json from default Claude"
+  )
+  .option(
+    "--copy-all",
+    "Copy all files from default Claude"
+  )
+  .option(
+    "--skip-prompts",
+    "Skip interactive prompts (start fresh)"
   )
   .action(
     async (
       name: string,
-      options: { config?: string; binary?: string }
+      options: {
+        config?: string;
+        binary?: string;
+        copySettings?: boolean;
+        copyAll?: boolean;
+        skipPrompts?: boolean;
+      }
     ) => {
       try {
         const configDir =
           options.config || join(homedir(), `.claude-${name}`);
         const binaryPath =
           options.binary || getDefaultBinaryPath(name);
+
+        // Check if default Claude config exists
+        const hasDefaultConfig = hasDefaultClaudeConfig();
+
+        let copySettings = false;
+        let copyAllFiles = false;
+
+        // Non-interactive mode (flags provided)
+        if (options.copySettings || options.copyAll || options.skipPrompts) {
+          if (options.copyAll) {
+            copyAllFiles = true;
+            copySettings = true;
+          } else if (options.copySettings) {
+            copySettings = true;
+          }
+          // skipPrompts means start fresh (both false)
+        } else if (hasDefaultConfig) {
+          // Interactive mode
+          console.log(chalk.gray("\nFound existing Claude Code configuration at ~/.claude"));
+
+          const response = await prompts([
+            {
+              type: "select",
+              name: "copyOption",
+              message: "What would you like to copy from default Claude?",
+              choices: [
+                { title: "Nothing - start fresh", value: "none" },
+                { title: "Only settings.json", value: "settings" },
+                { title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
+              ],
+              initial: 1,
+            },
+          ]);
+
+          // Handle Ctrl+C
+          if (response.copyOption === undefined) {
+            console.log(chalk.yellow("\n✗ Cancelled"));
+            process.exit(0);
+          }
+
+          copySettings = response.copyOption === "settings" || response.copyOption === "all";
+          copyAllFiles = response.copyOption === "all";
+        }
 
         const instance: Instance = {
           name,
@@ -63,7 +128,16 @@ program
         await addInstance(instance);
         await createWrapper(instance);
 
-        console.log(chalk.green(`✓ Instance '${name}' created successfully!`));
+        // Copy files if requested
+        if (copySettings && !copyAllFiles) {
+          await copySettingsFromDefault(configDir);
+          console.log(chalk.green("✓ Copied settings.json"));
+        } else if (copyAllFiles) {
+          await copyAllFromDefault(configDir);
+          console.log(chalk.green("✓ Copied all files from default Claude"));
+        }
+
+        console.log(chalk.green(`\n✓ Instance '${name}' created successfully!`));
         console.log(chalk.gray(`  Binary: ${binaryPath}`));
         console.log(chalk.gray(`  Config: ${configDir}`));
         console.log();
