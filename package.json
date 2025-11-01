@@ -18,8 +18,16 @@
     "multi-instance",
     "wrapper"
   ],
-  "author": "",
+  "author": "hmziqrs",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hmziqrs/claude-multi.git"
+  },
+  "homepage": "https://github.com/hmziqrs/claude-multi#readme",
+  "bugs": {
+    "url": "https://github.com/hmziqrs/claude-multi/issues"
+  },
   "peerDependencies": {
     "@anthropic-ai/claude-code": ">=2.0.0"
   },

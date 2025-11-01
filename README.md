@@ -181,6 +181,12 @@ Instance metadata is stored in `~/.claude-multi/config.json`:
 }
 ```
 
+## CI/CD
+
+- **CI**: Runs on PRs and pushes to master (Node 20.x)
+- **Publish**: Auto-publishes to npm when version tags are pushed
+- **Requirements**: `NPM_TOKEN` secret configured in GitHub
+
 ## License
 
 MIT
