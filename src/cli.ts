@@ -67,7 +67,22 @@ program
         console.log(chalk.gray(`  Binary: ${binaryPath}`));
         console.log(chalk.gray(`  Config: ${configDir}`));
         console.log();
-        console.log(chalk.cyan(`Run: claude-${name} --help`));
+
+        // Check if binary directory is in PATH
+        const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
+        const pathEnv = process.env.PATH || "";
+        const isInPath = pathEnv.split(":").some(p => p === binDir);
+
+        if (!isInPath) {
+          console.log(chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`));
+          console.log(chalk.gray(`Add to PATH by running:`));
+          console.log(chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`));
+          console.log(chalk.cyan(`  source ~/.zshrc`));
+          console.log();
+          console.log(chalk.gray(`Or run directly: ${binaryPath} --help`));
+        } else {
+          console.log(chalk.cyan(`Run: claude-${name} --help`));
+        }
       } catch (error) {
         console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
         process.exit(1);

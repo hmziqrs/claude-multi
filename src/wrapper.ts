@@ -87,12 +87,12 @@ export function removeWrapper(binaryPath: string): void {
 
 /**
  * Gets the default binary path for a given instance name
- * Uses /usr/local/bin on Unix-like systems
+ * Uses ~/.local/bin on Unix-like systems (user-writable, no sudo needed)
  */
 export function getDefaultBinaryPath(name: string): string {
   const binDir = process.platform === "win32"
     ? resolve(process.env.APPDATA || "", "npm")
-    : "/usr/local/bin";
+    : resolve(process.env.HOME || "", ".local", "bin");
 
   const binaryName = `claude-${name}`;
   return resolve(binDir, binaryName);
