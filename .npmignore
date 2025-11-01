@@ -1,0 +1,35 @@
+# Source files (only publish dist/)
+src/
+*.ts
+!*.d.ts
+
+# Development files
+tsconfig.json
+.gitignore
+.editorconfig
+.prettierrc
+.eslintrc
+
+# Test files
+test/
+test-bin/
+*.test.js
+*.spec.js
+
+# Documentation (keep README.md)
+docs/
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Misc
+.DS_Store
+*.log
+coverage/
+.env
+.env.*
+node_modules/
