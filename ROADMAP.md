@@ -15,48 +15,20 @@ Claude Multi is a CLI tool for managing multiple Claude Code instances with diff
   claude-multi backup import <file.tar.gz>    # Restore into local config dirs
   ```
 - **Scope**: Local archives only; no cloud providers, encryption, or auto-sync
-- **Manifest**: Include a small JSON manifest describing included instances/templates
+- **Manifest**: Include a small JSON manifest describing included instances
 
 ### 2. Enhanced Interactive Mode
 **Goal**: More powerful and user-friendly interactive interface
 
 #### Features:
-- **Search & Filter**:
-  - Fuzzy search for instances
-  - Filter by status, creation date, tags
-  - Quick jump to frequently used instances
-
-- **Quick Actions**:
-  ```
-  📋 Instance Management
-  ┌─────────────────────────────────────────┐
-  │ 🔍 Search: _______  🏷️ Filter: All    │
-  │                                         │
-  │  [ ] work-main      🟢 Active  2h ago  │
-  │  [★] personal-blog  🟡 Idle    1d ago  │
-  │  [ ] exp-testing    🔴 Stopped 3d ago  │
-  │                                         │
-  │ Actions: [Add] [Remove] [Backup] [Exit] │
-  └─────────────────────────────────────────┘
-  ```
-
-### 3. Instance Templates
-**Goal**: Pre-configured templates for quick instance setup once backups feel solid
-
-#### Features:
-- **Template System**: Keep a small set of reusable skeletons (work, personal, experimental)
-- **Template Commands**:
-  ```bash
-  claude-multi template list            # Show available templates
-  claude-multi template add <name>      # Create template from current config
-  claude-multi add <instance> --template <name>
-  claude-multi template remove <name>
-  ```
-- **Template Storage**: Save under `~/.claude-multi/templates/<name>/` with an optional manifest
+- **Simplified Interface**:
+  - Clean list view of all instances
+  - Basic status indicators
+  - Easy navigation without complex filtering
 
 ## 🔧 Quality of Life Improvements
 
-### 4. Shell Integration
+### 3. Shell Integration
 **Goal**: Seamless terminal experience
 
 #### Features:
@@ -73,12 +45,11 @@ Claude Multi is a CLI tool for managing multiple Claude Code instances with diff
 - **Prompt Integration**:
   - (Future consideration) Optional prompt snippet showing last used instance
 
-### 5. Configuration Management
+### 4. Configuration Management
 **Goal**: Advanced configuration handling
 
 #### Features:
 - **Global Defaults**:
-  - Default template selection
   - Preferred paths and settings
   - Environment-specific overrides
 
@@ -89,7 +60,6 @@ Claude Multi is a CLI tool for managing multiple Claude Code instances with diff
 
 - **Settings Inheritance**:
   - Global settings inheritance
-  - Template overrides
   - Instance-specific customizations
 
 ## 🎯 Implementation Priority
@@ -99,26 +69,14 @@ Claude Multi is a CLI tool for managing multiple Claude Code instances with diff
 2. **Enhanced Interactive Mode** - Improves daily usage
 
 ### Phase 2: Additional Capabilities
-3. **Instance Templates** - Reusable starting points
-4. **Shell Integration** - Better terminal experience
-5. **Configuration Management** - Power user defaults
-
-## 📅 Timeline Estimates
-
-| Feature | Estimate | Dependencies |
-|---------|----------|--------------|
-| Basic Backup & Restore | 2-3 days | None |
-| Enhanced Interactive Mode | 3-4 days | None |
-| Instance Templates | 3-4 days | Backup & Restore |
-| Shell Integration | 2-3 days | Instance Templates |
-| Configuration Management | 2-3 days | Instance Templates |
+3. **Shell Integration** - Better terminal experience
+4. **Configuration Management** - Power user defaults
 
 ## 🔧 Technical Considerations
 
 ### Configuration Storage
 - Keep config JSON lean; validate shape before save
 - Use atomic writes when updating config metadata
-- Templates stored on disk with simple manifests
 
 ### Performance
 - Keep operations synchronous and fast; avoid premature abstractions
@@ -148,12 +106,10 @@ Claude Multi is a CLI tool for managing multiple Claude Code instances with diff
 - Integration with Claude Code's official instance management when available
 
 ### Potential Integrations
-- Shareable template library (if adoption grows)
 - Optional VS Code tasks/snippets
 
 ---
 
 This roadmap is a living document and will evolve based on user feedback and changing requirements. Priority may be adjusted based on community needs and technical feasibility.
 
-**Last Updated**: November 4, 2024
-**Next Review**: December 15, 2024
+**Last Updated**: November 2024
