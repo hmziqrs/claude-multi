@@ -335,5 +335,304 @@ program
     }
   });
 
+// Interactive mode command
+program
+  .command("interactive")
+  .alias("i")
+  .description("Launch interactive mode for managing Claude Code instances")
+  .action(async () => {
+    try {
+      await runInteractiveMode();
+    } catch (error) {
+      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+      process.exit(1);
+    }
+  });
+
+async function runInteractiveMode(): Promise<void> {
+  console.log(chalk.bold.cyan("\n🤖 Claude Multi - Interactive Mode"));
+  console.log(chalk.gray("Manage your Claude Code instances with ease\n"));
+
+  while (true) {
+    try {
+      const instances = await listInstances();
+
+      // Show quick status
+      if (instances.length > 0) {
+        console.log(chalk.gray(`You have ${instances.length} instance(s): ${instances.map(i => chalk.cyan(i.name)).join(", ")}\n`));
+      }
+
+      const { action } = await prompts({
+        type: "select",
+        name: "action",
+        message: "What would you like to do?",
+        choices: [
+          { title: "➕ Add new instance", value: "add" },
+          { title: "📋 List all instances", value: "list" },
+          ...(instances.length > 0 ? [
+            { title: "ℹ️  Show instance details", value: "info" },
+            { title: "🗑️  Remove instance", value: "remove" }
+          ] : []),
+          { title: "🚪 Exit", value: "exit" }
+        ],
+        initial: 0
+      });
+
+      if (!action || action === "exit") {
+        console.log(chalk.gray("\n👋 Goodbye!"));
+        break;
+      }
+
+    switch (action) {
+      case "add":
+        await handleAddInstance();
+        break;
+      case "list":
+        await handleListInstances(instances);
+        break;
+      case "info":
+        await handleShowInstanceInfo(instances);
+        break;
+      case "remove":
+        await handleRemoveInstance(instances);
+        break;
+    }
+
+    if (action !== "exit") {
+      console.log();
+      const { continue: shouldContinue } = await prompts({
+        type: "confirm",
+        name: "continue",
+        message: "Continue managing instances?",
+        initial: true
+      });
+
+      if (!shouldContinue) {
+        console.log(chalk.gray("\n👋 Goodbye!"));
+        break;
+      }
+      console.log();
+    }
+    } catch (error) {
+      // Handle Ctrl+C gracefully
+      if (error instanceof Error && error.message === 'cancelled') {
+        console.log(chalk.gray("\n👋 Goodbye!"));
+        break;
+      }
+      throw error;
+    }
+  }
+}
+
+async function handleAddInstance(): Promise<void> {
+  console.log(chalk.bold("\n➕ Add New Instance\n"));
+
+  const { name } = await prompts({
+    type: "text",
+    name: "name",
+    message: "Instance name:",
+    validate: (value: string) => {
+      if (!value.trim()) return "Name is required";
+      if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
+        return "Name can only contain letters, numbers, hyphens, and underscores";
+      }
+      return true;
+    }
+  });
+
+  if (!name) return;
+
+  // Check if instance already exists
+  const existing = await getInstance(name);
+  if (existing) {
+    console.log(chalk.red(`✗ Instance '${name}' already exists`));
+    return;
+  }
+
+  const { useDefaults } = await prompts({
+    type: "confirm",
+    name: "useDefaults",
+    message: "Use default paths and settings?",
+    initial: true
+  });
+
+  let configDir: string;
+  let binaryPath: string;
+
+  if (useDefaults) {
+    configDir = join(homedir(), `.claude-${name}`);
+    binaryPath = getDefaultBinaryPath(name);
+  } else {
+    const configResponse = await prompts([
+      {
+        type: "text",
+        name: "configDir",
+        message: "Config directory path:",
+        initial: join(homedir(), `.claude-${name}`)
+      },
+      {
+        type: "text",
+        name: "binaryPath",
+        message: "Binary path:",
+        initial: getDefaultBinaryPath(name)
+      }
+    ]);
+
+    if (!configResponse.configDir || !configResponse.binaryPath) return;
+
+    configDir = configResponse.configDir;
+    binaryPath = configResponse.binaryPath;
+  }
+
+  // Handle copying from default Claude
+  let copySettings = false;
+  let copyAllFiles = false;
+
+  const hasDefaultConfig = hasDefaultClaudeConfig();
+  if (hasDefaultConfig) {
+    const { copyOption } = await prompts({
+      type: "select",
+      name: "copyOption",
+      message: "What would you like to copy from default Claude?",
+      choices: [
+        { title: "Nothing - start fresh", value: "none" },
+        { title: "Only settings.json", value: "settings" },
+        { title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
+      ],
+      initial: 1
+    });
+
+    if (!copyOption) return;
+
+    copySettings = copyOption === "settings" || copyOption === "all";
+    copyAllFiles = copyOption === "all";
+  }
+
+  const instance: Instance = {
+    name,
+    configDir,
+    binaryPath,
+    createdAt: new Date().toISOString(),
+  };
+
+  await addInstance(instance);
+  await createWrapper(instance);
+
+  if (copySettings && !copyAllFiles) {
+    await copySettingsFromDefault(configDir);
+    console.log(chalk.green("✓ Copied settings.json"));
+  } else if (copyAllFiles) {
+    await copyAllFromDefault(configDir);
+    console.log(chalk.green("✓ Copied all files from default Claude"));
+  }
+
+  console.log(chalk.green(`\n✓ Instance '${name}' created successfully!`));
+  console.log(chalk.gray(`  Binary: ${binaryPath}`));
+  console.log(chalk.gray(`  Config: ${configDir}`));
+
+  // Check PATH
+  const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
+  const pathEnv = process.env.PATH || "";
+  const isInPath = pathEnv.split(":").some(p => p === binDir);
+
+  if (!isInPath) {
+    console.log(chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`));
+    console.log(chalk.gray(`Add to PATH by running:`));
+    console.log(chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`));
+    console.log(chalk.cyan(`  source ~/.zshrc`));
+  } else {
+    console.log(chalk.cyan(`Run: claude-${name} --help`));
+  }
+}
+
+async function handleListInstances(instances: Instance[]): Promise<void> {
+  console.log(chalk.bold("\n📋 All Instances\n"));
+
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    console.log(chalk.gray("Choose 'Add new instance' to create one."));
+    return;
+  }
+
+  for (const instance of instances) {
+    console.log(chalk.cyan(`● ${instance.name}`));
+    console.log(chalk.gray(`  Binary:  ${instance.binaryPath}`));
+    console.log(chalk.gray(`  Config:  ${instance.configDir}`));
+    console.log(chalk.gray(`  Created: ${new Date(instance.createdAt).toLocaleString()}`));
+    console.log();
+  }
+}
+
+async function handleShowInstanceInfo(instances: Instance[]): Promise<void> {
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    return;
+  }
+
+  console.log(chalk.bold("\nℹ️ Instance Details\n"));
+
+  const { instanceName } = await prompts({
+    type: "select",
+    name: "instanceName",
+    message: "Select an instance:",
+    choices: instances.map(instance => ({
+      title: instance.name,
+      value: instance.name
+    }))
+  });
+
+  if (!instanceName) return;
+
+  const instance = instances.find(i => i.name === instanceName);
+  if (!instance) return;
+
+  console.log(chalk.bold(`\nInstance: ${chalk.cyan(instance.name)}`));
+  console.log(`${chalk.gray("Binary:")}  ${instance.binaryPath}`);
+  console.log(`${chalk.gray("Config:")}  ${instance.configDir}`);
+  console.log(`${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`);
+}
+
+async function handleRemoveInstance(instances: Instance[]): Promise<void> {
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    return;
+  }
+
+  console.log(chalk.bold("\n🗑️ Remove Instance\n"));
+
+  const { instanceName } = await prompts({
+    type: "select",
+    name: "instanceName",
+    message: "Select an instance to remove:",
+    choices: instances.map(instance => ({
+      title: `${instance.name} (${instance.configDir})`,
+      value: instance.name
+    }))
+  });
+
+  if (!instanceName) return;
+
+  const instance = instances.find(i => i.name === instanceName);
+  if (!instance) return;
+
+  const { confirm } = await prompts({
+    type: "confirm",
+    name: "confirm",
+    message: `Are you sure you want to remove instance '${instanceName}'?`,
+    initial: false
+  });
+
+  if (!confirm) {
+    console.log(chalk.yellow("✗ Cancelled"));
+    return;
+  }
+
+  await removeInstance(instanceName);
+  removeWrapper(instance.binaryPath);
+
+  console.log(chalk.green(`✓ Instance '${instanceName}' removed successfully!`));
+  console.log(chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`));
+}
+
 // Parse arguments
 program.parse();

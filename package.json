@@ -7,9 +7,11 @@
     "claude-multi": "./dist/cli.js"
   },
   "scripts": {
-    "build": "bun build src/cli.ts --outdir dist --target node --format esm",
+    "build": "bun build src/cli.ts --outdir dist --target node --format esm && chmod +x dist/cli.js",
     "dev": "bun run src/cli.ts",
-    "prepublishOnly": "bun run build"
+    "prepublishOnly": "bun run build",
+    "test:binary": "./dist/cli.js",
+    "install:global": "npm link"
   },
   "keywords": [
     "claude",
