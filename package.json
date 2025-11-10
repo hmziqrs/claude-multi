@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
     "bun-types": "latest"
   },
   "dependencies": {
