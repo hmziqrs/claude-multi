@@ -11,8 +11,12 @@ import {
   listInstances,
   getInstance,
   hasDefaultClaudeConfig,
+  hasDefaultMcpConfig,
   copySettingsFromDefault,
   copyAllFromDefault,
+  copyMcpServersFromDefault,
+  copyMcpServersBetweenInstances,
+  listMcpServers,
   type Instance,
 } from "./config.ts";
 import {
@@ -55,6 +59,10 @@ program
     "Copy all files from default Claude"
   )
   .option(
+    "--copy-mcp",
+    "Copy MCP server configurations from default Claude"
+  )
+  .option(
     "--skip-prompts",
     "Skip interactive prompts (start fresh)"
   )
@@ -66,6 +74,7 @@ program
         binary?: string;
         copySettings?: boolean;
         copyAll?: boolean;
+        copyMcp?: boolean;
         skipPrompts?: boolean;
       }
     ) => {
@@ -77,33 +86,53 @@ program
 
         // Check if default Claude config exists
         const hasDefaultConfig = hasDefaultClaudeConfig();
+        const hasDefaultMcp = await hasDefaultMcpConfig();
 
         let copySettings = false;
         let copyAllFiles = false;
+        let copyMcpServers = false;
 
         // Non-interactive mode (flags provided)
-        if (options.copySettings || options.copyAll || options.skipPrompts) {
+        if (options.copySettings || options.copyAll || options.copyMcp || options.skipPrompts) {
           if (options.copyAll) {
             copyAllFiles = true;
             copySettings = true;
           } else if (options.copySettings) {
             copySettings = true;
+          } else if (options.copyMcp) {
+            copyMcpServers = true;
           }
           // skipPrompts means start fresh (both false)
-        } else if (hasDefaultConfig) {
+        } else if (hasDefaultConfig || hasDefaultMcp) {
           // Interactive mode
           console.log(chalk.gray("\nFound existing Claude Code configuration at ~/.claude"));
+
+          const choices = [
+            { title: "Nothing - start fresh", value: "none" },
+          ];
+
+          if (hasDefaultConfig) {
+            choices.push({ title: "Only settings.json", value: "settings" });
+          }
+
+          if (hasDefaultMcp) {
+            choices.push({ title: "Only MCP servers", value: "mcp" });
+          }
+
+          if (hasDefaultConfig && hasDefaultMcp) {
+            choices.push({ title: "Settings + MCP servers", value: "settings+mcp" });
+          }
+
+          if (hasDefaultConfig) {
+            choices.push({ title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" });
+          }
 
           const response = await prompts([
             {
               type: "select",
               name: "copyOption",
               message: "What would you like to copy from default Claude?",
-              choices: [
-                { title: "Nothing - start fresh", value: "none" },
-                { title: "Only settings.json", value: "settings" },
-                { title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
-              ],
+              choices,
               initial: 1,
             },
           ]);
@@ -114,7 +143,8 @@ program
             process.exit(0);
           }
 
-          copySettings = response.copyOption === "settings" || response.copyOption === "all";
+          copySettings = response.copyOption === "settings" || response.copyOption === "settings+mcp" || response.copyOption === "all";
+          copyMcpServers = response.copyOption === "mcp" || response.copyOption === "settings+mcp" || response.copyOption === "all";
           copyAllFiles = response.copyOption === "all";
         }
 
@@ -132,7 +162,18 @@ program
         if (copySettings && !copyAllFiles) {
           await copySettingsFromDefault(configDir);
           console.log(chalk.green("✓ Copied settings.json"));
-        } else if (copyAllFiles) {
+        }
+
+        if (copyMcpServers && !copyAllFiles) {
+          try {
+            await copyMcpServersFromDefault(configDir);
+            console.log(chalk.green("✓ Copied MCP server configurations"));
+          } catch (error) {
+            console.log(chalk.yellow(`⚠ Warning: ${(error as Error).message}`));
+          }
+        }
+
+        if (copyAllFiles) {
           await copyAllFromDefault(configDir);
           console.log(chalk.green("✓ Copied all files from default Claude"));
         }
@@ -487,24 +528,44 @@ async function handleAddInstance(): Promise<void> {
   // Handle copying from default Claude
   let copySettings = false;
   let copyAllFiles = false;
+  let copyMcpServers = false;
 
   const hasDefaultConfig = hasDefaultClaudeConfig();
-  if (hasDefaultConfig) {
+  const hasDefaultMcp = await hasDefaultMcpConfig();
+
+  if (hasDefaultConfig || hasDefaultMcp) {
+    const choices = [
+      { title: "Nothing - start fresh", value: "none" },
+    ];
+
+    if (hasDefaultConfig) {
+      choices.push({ title: "Only settings.json", value: "settings" });
+    }
+
+    if (hasDefaultMcp) {
+      choices.push({ title: "Only MCP servers", value: "mcp" });
+    }
+
+    if (hasDefaultConfig && hasDefaultMcp) {
+      choices.push({ title: "Settings + MCP servers", value: "settings+mcp" });
+    }
+
+    if (hasDefaultConfig) {
+      choices.push({ title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" });
+    }
+
     const { copyOption } = await prompts({
       type: "select",
       name: "copyOption",
       message: "What would you like to copy from default Claude?",
-      choices: [
-        { title: "Nothing - start fresh", value: "none" },
-        { title: "Only settings.json", value: "settings" },
-        { title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
-      ],
+      choices,
       initial: 1
     });
 
     if (!copyOption) return;
 
-    copySettings = copyOption === "settings" || copyOption === "all";
+    copySettings = copyOption === "settings" || copyOption === "settings+mcp" || copyOption === "all";
+    copyMcpServers = copyOption === "mcp" || copyOption === "settings+mcp" || copyOption === "all";
     copyAllFiles = copyOption === "all";
   }
 
@@ -521,7 +582,18 @@ async function handleAddInstance(): Promise<void> {
   if (copySettings && !copyAllFiles) {
     await copySettingsFromDefault(configDir);
     console.log(chalk.green("✓ Copied settings.json"));
-  } else if (copyAllFiles) {
+  }
+
+  if (copyMcpServers && !copyAllFiles) {
+    try {
+      await copyMcpServersFromDefault(configDir);
+      console.log(chalk.green("✓ Copied MCP server configurations"));
+    } catch (error) {
+      console.log(chalk.yellow(`⚠ Warning: ${(error as Error).message}`));
+    }
+  }
+
+  if (copyAllFiles) {
     await copyAllFromDefault(configDir);
     console.log(chalk.green("✓ Copied all files from default Claude"));
   }
@@ -632,6 +704,208 @@ async function handleRemoveInstance(instances: Instance[]): Promise<void> {
 
   console.log(chalk.green(`✓ Instance '${instanceName}' removed successfully!`));
   console.log(chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`));
+}
+
+// MCP command
+program
+  .command("mcp")
+  .description("Manage MCP server configurations")
+  .argument("[action]", "Action to perform (list, copy, verify)", "list")
+  .argument("[instance]", "Instance name (for list/verify)", "")
+  .argument("[source]", "Source instance name (for copy)", "")
+  .argument("[target]", "Target instance name (for copy)", "")
+  .action(async (action = "list", instance = "", source = "", target = "") => {
+    try {
+      switch (action) {
+        case "list":
+          await handleMcpList(instance);
+          break;
+        case "copy":
+          await handleMcpCopy(source, target);
+          break;
+        case "verify":
+          await handleMcpVerify(instance);
+          break;
+        default:
+          console.error(chalk.red(`✗ Unknown action: ${action}`));
+          console.log(chalk.gray("Available actions: list, copy, verify"));
+          process.exit(1);
+      }
+    } catch (error) {
+      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+      process.exit(1);
+    }
+  });
+
+async function handleMcpList(instanceName: string): Promise<void> {
+  const instances = await listInstances();
+
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    console.log(chalk.gray("Create an instance with: claude-multi add <name>"));
+    return;
+  }
+
+  if (!instanceName) {
+    // Show all instances with MCP status
+    console.log(chalk.bold("\n📋 MCP Servers by Instance\n"));
+
+    for (const instance of instances) {
+      const mcpServers = await listMcpServers(instance.name);
+      const hasMcp = mcpServers && Object.keys(mcpServers).length > 0;
+
+      console.log(chalk.cyan(`● ${instance.name}`));
+      console.log(
+        chalk.gray(
+          `  MCP Servers: ${hasMcp ? Object.keys(mcpServers!).length : "None"}`
+        )
+      );
+
+      if (hasMcp) {
+        for (const [serverName, serverConfig] of Object.entries(mcpServers!)) {
+          console.log(chalk.gray(`    • ${serverName} (${serverConfig.type})`));
+        }
+      }
+      console.log();
+    }
+  } else {
+    // Show MCP servers for specific instance
+    const mcpServers = await listMcpServers(instanceName);
+
+    if (!mcpServers) {
+      console.log(chalk.yellow(`No MCP servers found in instance '${instanceName}'`));
+      return;
+    }
+
+    console.log(chalk.bold(`\n📋 MCP Servers in '${instanceName}'\n`));
+
+    for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
+      console.log(chalk.cyan(`● ${serverName}`));
+      console.log(chalk.gray(`  Type: ${serverConfig.type}`));
+
+      if (serverConfig.command) {
+        console.log(chalk.gray(`  Command: ${serverConfig.command}`));
+        if (serverConfig.args && serverConfig.args.length > 0) {
+          console.log(chalk.gray(`  Args: ${serverConfig.args.join(" ")}`));
+        }
+      }
+
+      if (serverConfig.url) {
+        console.log(chalk.gray(`  URL: ${serverConfig.url}`));
+      }
+
+      if (serverConfig.env && Object.keys(serverConfig.env).length > 0) {
+        console.log(chalk.gray(`  Environment variables: ${Object.keys(serverConfig.env).length}`));
+      }
+
+      console.log();
+    }
+  }
+}
+
+async function handleMcpCopy(sourceInstanceName: string, targetInstanceName: string): Promise<void> {
+  const instances = await listInstances();
+
+  if (instances.length < 2) {
+    console.log(chalk.yellow("Need at least 2 instances to copy MCP servers between them."));
+    return;
+  }
+
+  let source = sourceInstanceName;
+  let target = targetInstanceName;
+
+  if (!source) {
+    const { selectedSource } = await prompts({
+      type: "select",
+      name: "selectedSource",
+      message: "Select source instance:",
+      choices: instances.map(instance => ({
+        title: instance.name,
+        value: instance.name
+      }))
+    });
+
+    if (!selectedSource) return;
+    source = selectedSource;
+  }
+
+  if (!target) {
+    const availableTargets = instances.filter(i => i.name !== source);
+    const { selectedTarget } = await prompts({
+      type: "select",
+      name: "selectedTarget",
+      message: "Select target instance:",
+      choices: availableTargets.map(instance => ({
+        title: instance.name,
+        value: instance.name
+      }))
+    });
+
+    if (!selectedTarget) return;
+    target = selectedTarget;
+  }
+
+  if (source === target) {
+    console.log(chalk.yellow("Source and target instances must be different."));
+    return;
+  }
+
+  console.log(chalk.bold(`\n🔄 Copying MCP servers from '${source}' to '${target}'\n`));
+
+  await copyMcpServersBetweenInstances(source, target);
+
+  console.log(chalk.green(`✓ MCP servers copied successfully!`));
+}
+
+async function handleMcpVerify(instanceName: string): Promise<void> {
+  const instances = await listInstances();
+
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    return;
+  }
+
+  let instance = instanceName;
+
+  if (!instance) {
+    const { selectedInstance } = await prompts({
+      type: "select",
+      name: "selectedInstance",
+      message: "Select instance to verify:",
+      choices: instances.map(i => ({
+        title: i.name,
+        value: i.name
+      }))
+    });
+
+    if (!selectedInstance) return;
+    instance = selectedInstance;
+  }
+
+  console.log(chalk.bold(`\n🔍 Verifying MCP configuration in '${instance}'\n`));
+
+  const mcpServers = await listMcpServers(instance);
+
+  if (!mcpServers) {
+    console.log(chalk.yellow("⚠ No MCP configuration found"));
+    return;
+  }
+
+  const serverCount = Object.keys(mcpServers).length;
+  console.log(chalk.green(`✓ Found ${serverCount} MCP server(s)`));
+
+  for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
+    console.log(chalk.gray(`  • ${serverName}: ${serverConfig.type}`));
+
+    // Basic validation
+    if (serverConfig.type === "stdio" && !serverConfig.command) {
+      console.log(chalk.yellow(`    ⚠ Missing command for stdio server`));
+    } else if ((serverConfig.type === "http" || serverConfig.type === "sse") && !serverConfig.url) {
+      console.log(chalk.yellow(`    ⚠ Missing URL for ${serverConfig.type} server`));
+    } else {
+      console.log(chalk.green(`    ✓ Configuration looks valid`));
+    }
+  }
 }
 
 // Parse arguments

@@ -3,6 +3,19 @@ import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
+export interface McpServer {
+  type: "http" | "sse" | "stdio";
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+  headers?: Record<string, string>;
+}
+
+export interface McpConfiguration {
+  mcpServers: Record<string, McpServer>;
+}
+
 export interface Instance {
   name: string;
   configDir: string;
@@ -145,6 +158,10 @@ export async function copyAllFromDefault(
     "file-history",
     "shell-snapshots",
     "statsig",
+    // MCP-related files to exclude (will be handled separately)
+    "mcp-cache",
+    "mcp-logs",
+    ".mcp-temp",
   ];
 
   const copyRecursive = async (source: string, target: string) => {
@@ -172,4 +189,162 @@ export async function copyAllFromDefault(
   };
 
   await copyRecursive(defaultDir, targetConfigDir);
+}
+
+/**
+ * Detect MCP configurations in a directory
+ */
+export async function detectMcpConfigurations(configDir: string): Promise<McpConfiguration | null> {
+  if (!existsSync(configDir)) {
+    return null;
+  }
+
+  // Check for MCP configurations in settings.json
+  const settingsFile = join(configDir, "settings.json");
+  if (existsSync(settingsFile)) {
+    try {
+      const settingsContent = await readFile(settingsFile, "utf-8");
+      const settings = JSON.parse(settingsContent);
+
+      if (settings.mcpServers && typeof settings.mcpServers === "object") {
+        return { mcpServers: settings.mcpServers };
+      }
+    } catch (error) {
+      // Ignore parsing errors, continue to other files
+    }
+  }
+
+  // Check for separate MCP configuration files
+  const mcpFiles = ["mcp.json", "mcp-servers.json", "claude-mcp.json"];
+
+  for (const mcpFile of mcpFiles) {
+    const mcpFilePath = join(configDir, mcpFile);
+    if (existsSync(mcpFilePath)) {
+      try {
+        const mcpContent = await readFile(mcpFilePath, "utf-8");
+        const mcpConfig = JSON.parse(mcpContent);
+
+        if (mcpConfig.mcpServers && typeof mcpConfig.mcpServers === "object") {
+          return mcpConfig as McpConfiguration;
+        }
+      } catch (error) {
+        // Ignore parsing errors, continue to next file
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Check if default Claude has MCP configurations
+ */
+export async function hasDefaultMcpConfig(): Promise<boolean> {
+  const defaultDir = getDefaultClaudeDir();
+  const mcpConfig = await detectMcpConfigurations(defaultDir);
+  return mcpConfig !== null;
+}
+
+/**
+ * Copy MCP server configurations from default Claude to target instance
+ */
+export async function copyMcpServersFromDefault(
+  targetConfigDir: string
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+  const mcpConfig = await detectMcpConfigurations(defaultDir);
+
+  if (!mcpConfig) {
+    throw new Error("No MCP configurations found in default Claude");
+  }
+
+  if (!existsSync(targetConfigDir)) {
+    await mkdir(targetConfigDir, { recursive: true });
+  }
+
+  // Check if target already has MCP configurations
+  const existingMcpConfig = await detectMcpConfigurations(targetConfigDir);
+
+  if (existingMcpConfig) {
+    // Merge MCP configurations, with target taking precedence
+    const mergedConfig = {
+      mcpServers: {
+        ...mcpConfig.mcpServers,
+        ...existingMcpConfig.mcpServers
+      }
+    };
+
+    await writeMcpConfiguration(targetConfigDir, mergedConfig);
+  } else {
+    // Copy MCP configurations directly
+    await writeMcpConfiguration(targetConfigDir, mcpConfig);
+  }
+}
+
+/**
+ * Write MCP configuration to appropriate file in target directory
+ */
+async function writeMcpConfiguration(
+  targetConfigDir: string,
+  mcpConfig: McpConfiguration
+): Promise<void> {
+  const settingsFile = join(targetConfigDir, "settings.json");
+
+  if (existsSync(settingsFile)) {
+    // Update existing settings.json
+    try {
+      const settingsContent = await readFile(settingsFile, "utf-8");
+      const settings = JSON.parse(settingsContent);
+      settings.mcpServers = mcpConfig.mcpServers;
+      await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
+      return;
+    } catch (error) {
+      // If we can't parse/update settings.json, fall back to separate file
+    }
+  }
+
+  // Create separate mcp.json file
+  const mcpFile = join(targetConfigDir, "mcp.json");
+  await writeFile(mcpFile, JSON.stringify(mcpConfig, null, 2), "utf-8");
+}
+
+/**
+ * Copy MCP configurations between instances
+ */
+export async function copyMcpServersBetweenInstances(
+  sourceInstanceName: string,
+  targetInstanceName: string
+): Promise<void> {
+  const sourceInstance = await getInstance(sourceInstanceName);
+  const targetInstance = await getInstance(targetInstanceName);
+
+  if (!sourceInstance) {
+    throw new Error(`Source instance '${sourceInstanceName}' not found`);
+  }
+
+  if (!targetInstance) {
+    throw new Error(`Target instance '${targetInstanceName}' not found`);
+  }
+
+  const sourceMcpConfig = await detectMcpConfigurations(sourceInstance.configDir);
+
+  if (!sourceMcpConfig) {
+    throw new Error(`No MCP configurations found in instance '${sourceInstanceName}'`);
+  }
+
+  await writeMcpConfiguration(targetInstance.configDir, sourceMcpConfig);
+}
+
+/**
+ * List MCP servers in an instance
+ */
+export async function listMcpServers(instanceName: string): Promise<Record<string, McpServer> | null> {
+  const instance = await getInstance(instanceName);
+
+  if (!instance) {
+    throw new Error(`Instance '${instanceName}' not found`);
+  }
+
+  const mcpConfig = await detectMcpConfigurations(instance.configDir);
+  return mcpConfig?.mcpServers || null;
 }
