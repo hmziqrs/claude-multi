@@ -17,7 +17,9 @@ describe("Wrapper Script Generation", () => {
       const script = generateWrapperScript(options);
 
       expect(script).toContain("#!/usr/bin/env node");
-      expect(script).toContain('process.env.CLAUDE_CONFIG_DIR = "/home/user/.claude-test"');
+      expect(script).toContain(
+        'process.env.CLAUDE_CONFIG_DIR = "/home/user/.claude-test"',
+      );
       expect(script).toContain("claude-multi");
       expect(script).toContain("spawn");
     });
@@ -34,7 +36,9 @@ describe("Wrapper Script Generation", () => {
       const script = generateWindowsWrapperScript(options);
 
       expect(script).toContain("@echo off");
-      expect(script).toContain('set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"');
+      expect(script).toContain(
+        'set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"',
+      );
       expect(script).toContain("claude-multi");
       expect(script).toContain("%*");
     });

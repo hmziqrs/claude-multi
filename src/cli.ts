@@ -41,31 +41,17 @@ program
 program
   .command("add <name>")
   .description("Add a new Claude Code instance")
-  .option(
-    "-c, --config <dir>",
-    "Config directory path",
-    (name: string) => join(homedir(), `.claude-${name}`)
+  .option("-c, --config <dir>", "Config directory path", (name: string) =>
+    join(homedir(), `.claude-${name}`),
   )
   .option(
     "-b, --binary <path>",
-    "Binary path (default: ~/.local/bin/claude-<name>)"
+    "Binary path (default: ~/.local/bin/claude-<name>)",
   )
-  .option(
-    "--copy-settings",
-    "Copy settings.json from default Claude"
-  )
-  .option(
-    "--copy-all",
-    "Copy all files from default Claude"
-  )
-  .option(
-    "--copy-mcp",
-    "Copy MCP server configurations from default Claude"
-  )
-  .option(
-    "--skip-prompts",
-    "Skip interactive prompts (start fresh)"
-  )
+  .option("--copy-settings", "Copy settings.json from default Claude")
+  .option("--copy-all", "Copy all files from default Claude")
+  .option("--copy-mcp", "Copy MCP server configurations from default Claude")
+  .option("--skip-prompts", "Skip interactive prompts (start fresh)")
   .action(
     async (
       name: string,
@@ -76,13 +62,11 @@ program
         copyAll?: boolean;
         copyMcp?: boolean;
         skipPrompts?: boolean;
-      }
+      },
     ) => {
       try {
-        const configDir =
-          options.config || join(homedir(), `.claude-${name}`);
-        const binaryPath =
-          options.binary || getDefaultBinaryPath(name);
+        const configDir = options.config || join(homedir(), `.claude-${name}`);
+        const binaryPath = options.binary || getDefaultBinaryPath(name);
 
         // Check if default Claude config exists
         const hasDefaultConfig = hasDefaultClaudeConfig();
@@ -93,7 +77,12 @@ program
         let copyMcpServers = false;
 
         // Non-interactive mode (flags provided)
-        if (options.copySettings || options.copyAll || options.copyMcp || options.skipPrompts) {
+        if (
+          options.copySettings ||
+          options.copyAll ||
+          options.copyMcp ||
+          options.skipPrompts
+        ) {
           if (options.copyAll) {
             copyAllFiles = true;
             copySettings = true;
@@ -105,11 +94,13 @@ program
           // skipPrompts means start fresh (both false)
         } else if (hasDefaultConfig || hasDefaultMcp) {
           // Interactive mode
-          console.log(chalk.gray("\nFound existing Claude Code configuration at ~/.claude"));
+          console.log(
+            chalk.gray(
+              "\nFound existing Claude Code configuration at ~/.claude",
+            ),
+          );
 
-          const choices = [
-            { title: "Nothing - start fresh", value: "none" },
-          ];
+          const choices = [{ title: "Nothing - start fresh", value: "none" }];
 
           if (hasDefaultConfig) {
             choices.push({ title: "Only settings.json", value: "settings" });
@@ -120,11 +111,17 @@ program
           }
 
           if (hasDefaultConfig && hasDefaultMcp) {
-            choices.push({ title: "Settings + MCP servers", value: "settings+mcp" });
+            choices.push({
+              title: "Settings + MCP servers",
+              value: "settings+mcp",
+            });
           }
 
           if (hasDefaultConfig) {
-            choices.push({ title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" });
+            choices.push({
+              title: "All files (settings, CLAUDE.md, plugins, etc.)",
+              value: "all",
+            });
           }
 
           const response = await prompts([
@@ -143,8 +140,14 @@ program
             process.exit(0);
           }
 
-          copySettings = response.copyOption === "settings" || response.copyOption === "settings+mcp" || response.copyOption === "all";
-          copyMcpServers = response.copyOption === "mcp" || response.copyOption === "settings+mcp" || response.copyOption === "all";
+          copySettings =
+            response.copyOption === "settings" ||
+            response.copyOption === "settings+mcp" ||
+            response.copyOption === "all";
+          copyMcpServers =
+            response.copyOption === "mcp" ||
+            response.copyOption === "settings+mcp" ||
+            response.copyOption === "all";
           copyAllFiles = response.copyOption === "all";
         }
 
@@ -169,7 +172,9 @@ program
             await copyMcpServersFromDefault(configDir);
             console.log(chalk.green("✓ Copied MCP server configurations"));
           } catch (error) {
-            console.log(chalk.yellow(`⚠ Warning: ${(error as Error).message}`));
+            console.log(
+              chalk.yellow(`⚠ Warning: ${(error as Error).message}`),
+            );
           }
         }
 
@@ -178,7 +183,9 @@ program
           console.log(chalk.green("✓ Copied all files from default Claude"));
         }
 
-        console.log(chalk.green(`\n✓ Instance '${name}' created successfully!`));
+        console.log(
+          chalk.green(`\n✓ Instance '${name}' created successfully!`),
+        );
         console.log(chalk.gray(`  Binary: ${binaryPath}`));
         console.log(chalk.gray(`  Config: ${configDir}`));
         console.log();
@@ -186,12 +193,18 @@ program
         // Check if binary directory is in PATH
         const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
         const pathEnv = process.env.PATH || "";
-        const isInPath = pathEnv.split(":").some(p => p === binDir);
+        const isInPath = pathEnv.split(":").some((p) => p === binDir);
 
         if (!isInPath) {
-          console.log(chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`));
+          console.log(
+            chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`),
+          );
           console.log(chalk.gray(`Add to PATH by running:`));
-          console.log(chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`));
+          console.log(
+            chalk.cyan(
+              `  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`,
+            ),
+          );
           console.log(chalk.cyan(`  source ~/.zshrc`));
           console.log();
           console.log(chalk.gray(`Or run directly: ${binaryPath} --help`));
@@ -202,7 +215,7 @@ program
         console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
         process.exit(1);
       }
-    }
+    },
   );
 
 // Remove command
@@ -226,13 +239,13 @@ program
         console.log();
         console.log(
           chalk.yellow(
-            "Note: Config directory will NOT be deleted automatically."
-          )
+            "Note: Config directory will NOT be deleted automatically.",
+          ),
         );
         console.log(
           chalk.gray(
-            "Run with --force to skip this confirmation, or Ctrl+C to cancel."
-          )
+            "Run with --force to skip this confirmation, or Ctrl+C to cancel.",
+          ),
         );
         console.log();
       }
@@ -243,9 +256,7 @@ program
       console.log(chalk.green(`✓ Instance '${name}' removed successfully!`));
       console.log();
       console.log(
-        chalk.gray(
-          `To remove config files, run: rm -rf ${instance.configDir}`
-        )
+        chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`),
       );
     } catch (error) {
       console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
@@ -277,8 +288,8 @@ program
         console.log(chalk.gray(`  Config:  ${instance.configDir}`));
         console.log(
           chalk.gray(
-            `  Created: ${new Date(instance.createdAt).toLocaleString()}`
-          )
+            `  Created: ${new Date(instance.createdAt).toLocaleString()}`,
+          ),
         );
         console.log();
       }
@@ -305,7 +316,7 @@ program
       console.log(`${chalk.gray("Binary:")}  ${instance.binaryPath}`);
       console.log(`${chalk.gray("Config:")}  ${instance.configDir}`);
       console.log(
-        `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`
+        `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`,
       );
     } catch (error) {
       console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
@@ -325,26 +336,20 @@ program
 
       if (versionInfo.current) {
         console.log(
-          `${chalk.gray("Installed:")} ${chalk.cyan(versionInfo.current)}`
+          `${chalk.gray("Installed:")} ${chalk.cyan(versionInfo.current)}`,
         );
       } else {
-        console.log(
-          chalk.yellow("Claude Code is not installed globally")
-        );
+        console.log(chalk.yellow("Claude Code is not installed globally"));
       }
 
       console.log(
-        `${chalk.gray("Latest:")}    ${chalk.cyan(versionInfo.latest)}`
+        `${chalk.gray("Latest:")}    ${chalk.cyan(versionInfo.latest)}`,
       );
       console.log();
 
       if (versionInfo.updateAvailable) {
-        console.log(
-          chalk.yellow(`⚠ Update available: ${versionInfo.latest}`)
-        );
-        console.log(
-          chalk.gray("Run 'claude-multi update' to update")
-        );
+        console.log(chalk.yellow(`⚠ Update available: ${versionInfo.latest}`));
+        console.log(chalk.gray("Run 'claude-multi update' to update"));
       } else if (versionInfo.current) {
         console.log(chalk.green("✓ You're up to date!"));
       }
@@ -364,7 +369,7 @@ program
 
       if (!versionInfo.updateAvailable && versionInfo.current) {
         console.log(
-          chalk.green(`✓ Already up to date (${versionInfo.current})`)
+          chalk.green(`✓ Already up to date (${versionInfo.current})`),
         );
         return;
       }
@@ -400,7 +405,11 @@ async function runInteractiveMode(): Promise<void> {
 
       // Show quick status
       if (instances.length > 0) {
-        console.log(chalk.gray(`You have ${instances.length} instance(s): ${instances.map(i => chalk.cyan(i.name)).join(", ")}\n`));
+        console.log(
+          chalk.gray(
+            `You have ${instances.length} instance(s): ${instances.map((i) => chalk.cyan(i.name)).join(", ")}\n`,
+          ),
+        );
       }
 
       const { action } = await prompts({
@@ -410,13 +419,15 @@ async function runInteractiveMode(): Promise<void> {
         choices: [
           { title: "➕ Add new instance", value: "add" },
           { title: "📋 List all instances", value: "list" },
-          ...(instances.length > 0 ? [
-            { title: "ℹ️  Show instance details", value: "info" },
-            { title: "🗑️  Remove instance", value: "remove" }
-          ] : []),
-          { title: "🚪 Exit", value: "exit" }
+          ...(instances.length > 0
+            ? [
+                { title: "ℹ️  Show instance details", value: "info" },
+                { title: "🗑️  Remove instance", value: "remove" },
+              ]
+            : []),
+          { title: "🚪 Exit", value: "exit" },
         ],
-        initial: 0
+        initial: 0,
       });
 
       if (!action || action === "exit") {
@@ -424,39 +435,39 @@ async function runInteractiveMode(): Promise<void> {
         break;
       }
 
-    switch (action) {
-      case "add":
-        await handleAddInstance();
-        break;
-      case "list":
-        await handleListInstances(instances);
-        break;
-      case "info":
-        await handleShowInstanceInfo(instances);
-        break;
-      case "remove":
-        await handleRemoveInstance(instances);
-        break;
-    }
-
-    if (action !== "exit") {
-      console.log();
-      const { continue: shouldContinue } = await prompts({
-        type: "confirm",
-        name: "continue",
-        message: "Continue managing instances?",
-        initial: true
-      });
-
-      if (!shouldContinue) {
-        console.log(chalk.gray("\n👋 Goodbye!"));
-        break;
+      switch (action) {
+        case "add":
+          await handleAddInstance();
+          break;
+        case "list":
+          await handleListInstances(instances);
+          break;
+        case "info":
+          await handleShowInstanceInfo(instances);
+          break;
+        case "remove":
+          await handleRemoveInstance(instances);
+          break;
       }
-      console.log();
-    }
+
+      if (action !== "exit") {
+        console.log();
+        const { continue: shouldContinue } = await prompts({
+          type: "confirm",
+          name: "continue",
+          message: "Continue managing instances?",
+          initial: true,
+        });
+
+        if (!shouldContinue) {
+          console.log(chalk.gray("\n👋 Goodbye!"));
+          break;
+        }
+        console.log();
+      }
     } catch (error) {
       // Handle Ctrl+C gracefully
-      if (error instanceof Error && error.message === 'cancelled') {
+      if (error instanceof Error && error.message === "cancelled") {
         console.log(chalk.gray("\n👋 Goodbye!"));
         break;
       }
@@ -478,7 +489,7 @@ async function handleAddInstance(): Promise<void> {
         return "Name can only contain letters, numbers, hyphens, and underscores";
       }
       return true;
-    }
+    },
   });
 
   if (!name) return;
@@ -494,7 +505,7 @@ async function handleAddInstance(): Promise<void> {
     type: "confirm",
     name: "useDefaults",
     message: "Use default paths and settings?",
-    initial: true
+    initial: true,
   });
 
   let configDir: string;
@@ -509,14 +520,14 @@ async function handleAddInstance(): Promise<void> {
         type: "text",
         name: "configDir",
         message: "Config directory path:",
-        initial: join(homedir(), `.claude-${name}`)
+        initial: join(homedir(), `.claude-${name}`),
       },
       {
         type: "text",
         name: "binaryPath",
         message: "Binary path:",
-        initial: getDefaultBinaryPath(name)
-      }
+        initial: getDefaultBinaryPath(name),
+      },
     ]);
 
     if (!configResponse.configDir || !configResponse.binaryPath) return;
@@ -534,9 +545,7 @@ async function handleAddInstance(): Promise<void> {
   const hasDefaultMcp = await hasDefaultMcpConfig();
 
   if (hasDefaultConfig || hasDefaultMcp) {
-    const choices = [
-      { title: "Nothing - start fresh", value: "none" },
-    ];
+    const choices = [{ title: "Nothing - start fresh", value: "none" }];
 
     if (hasDefaultConfig) {
       choices.push({ title: "Only settings.json", value: "settings" });
@@ -551,7 +560,10 @@ async function handleAddInstance(): Promise<void> {
     }
 
     if (hasDefaultConfig) {
-      choices.push({ title: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" });
+      choices.push({
+        title: "All files (settings, CLAUDE.md, plugins, etc.)",
+        value: "all",
+      });
     }
 
     const { copyOption } = await prompts({
@@ -559,13 +571,19 @@ async function handleAddInstance(): Promise<void> {
       name: "copyOption",
       message: "What would you like to copy from default Claude?",
       choices,
-      initial: 1
+      initial: 1,
     });
 
     if (!copyOption) return;
 
-    copySettings = copyOption === "settings" || copyOption === "settings+mcp" || copyOption === "all";
-    copyMcpServers = copyOption === "mcp" || copyOption === "settings+mcp" || copyOption === "all";
+    copySettings =
+      copyOption === "settings" ||
+      copyOption === "settings+mcp" ||
+      copyOption === "all";
+    copyMcpServers =
+      copyOption === "mcp" ||
+      copyOption === "settings+mcp" ||
+      copyOption === "all";
     copyAllFiles = copyOption === "all";
   }
 
@@ -605,12 +623,14 @@ async function handleAddInstance(): Promise<void> {
   // Check PATH
   const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
   const pathEnv = process.env.PATH || "";
-  const isInPath = pathEnv.split(":").some(p => p === binDir);
+  const isInPath = pathEnv.split(":").some((p) => p === binDir);
 
   if (!isInPath) {
     console.log(chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`));
     console.log(chalk.gray(`Add to PATH by running:`));
-    console.log(chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`));
+    console.log(
+      chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`),
+    );
     console.log(chalk.cyan(`  source ~/.zshrc`));
   } else {
     console.log(chalk.cyan(`Run: claude-${name} --help`));
@@ -630,7 +650,9 @@ async function handleListInstances(instances: Instance[]): Promise<void> {
     console.log(chalk.cyan(`● ${instance.name}`));
     console.log(chalk.gray(`  Binary:  ${instance.binaryPath}`));
     console.log(chalk.gray(`  Config:  ${instance.configDir}`));
-    console.log(chalk.gray(`  Created: ${new Date(instance.createdAt).toLocaleString()}`));
+    console.log(
+      chalk.gray(`  Created: ${new Date(instance.createdAt).toLocaleString()}`),
+    );
     console.log();
   }
 }
@@ -647,21 +669,23 @@ async function handleShowInstanceInfo(instances: Instance[]): Promise<void> {
     type: "select",
     name: "instanceName",
     message: "Select an instance:",
-    choices: instances.map(instance => ({
+    choices: instances.map((instance) => ({
       title: instance.name,
-      value: instance.name
-    }))
+      value: instance.name,
+    })),
   });
 
   if (!instanceName) return;
 
-  const instance = instances.find(i => i.name === instanceName);
+  const instance = instances.find((i) => i.name === instanceName);
   if (!instance) return;
 
   console.log(chalk.bold(`\nInstance: ${chalk.cyan(instance.name)}`));
   console.log(`${chalk.gray("Binary:")}  ${instance.binaryPath}`);
   console.log(`${chalk.gray("Config:")}  ${instance.configDir}`);
-  console.log(`${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`);
+  console.log(
+    `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`,
+  );
 }
 
 async function handleRemoveInstance(instances: Instance[]): Promise<void> {
@@ -676,22 +700,22 @@ async function handleRemoveInstance(instances: Instance[]): Promise<void> {
     type: "select",
     name: "instanceName",
     message: "Select an instance to remove:",
-    choices: instances.map(instance => ({
+    choices: instances.map((instance) => ({
       title: `${instance.name} (${instance.configDir})`,
-      value: instance.name
-    }))
+      value: instance.name,
+    })),
   });
 
   if (!instanceName) return;
 
-  const instance = instances.find(i => i.name === instanceName);
+  const instance = instances.find((i) => i.name === instanceName);
   if (!instance) return;
 
   const { confirm } = await prompts({
     type: "confirm",
     name: "confirm",
     message: `Are you sure you want to remove instance '${instanceName}'?`,
-    initial: false
+    initial: false,
   });
 
   if (!confirm) {
@@ -702,8 +726,12 @@ async function handleRemoveInstance(instances: Instance[]): Promise<void> {
   await removeInstance(instanceName);
   removeWrapper(instance.binaryPath);
 
-  console.log(chalk.green(`✓ Instance '${instanceName}' removed successfully!`));
-  console.log(chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`));
+  console.log(
+    chalk.green(`✓ Instance '${instanceName}' removed successfully!`),
+  );
+  console.log(
+    chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`),
+  );
 }
 
 // MCP command
@@ -757,8 +785,8 @@ async function handleMcpList(instanceName: string): Promise<void> {
       console.log(chalk.cyan(`● ${instance.name}`));
       console.log(
         chalk.gray(
-          `  MCP Servers: ${hasMcp ? Object.keys(mcpServers!).length : "None"}`
-        )
+          `  MCP Servers: ${hasMcp ? Object.keys(mcpServers!).length : "None"}`,
+        ),
       );
 
       if (hasMcp) {
@@ -773,7 +801,9 @@ async function handleMcpList(instanceName: string): Promise<void> {
     const mcpServers = await listMcpServers(instanceName);
 
     if (!mcpServers) {
-      console.log(chalk.yellow(`No MCP servers found in instance '${instanceName}'`));
+      console.log(
+        chalk.yellow(`No MCP servers found in instance '${instanceName}'`),
+      );
       return;
     }
 
@@ -795,7 +825,11 @@ async function handleMcpList(instanceName: string): Promise<void> {
       }
 
       if (serverConfig.env && Object.keys(serverConfig.env).length > 0) {
-        console.log(chalk.gray(`  Environment variables: ${Object.keys(serverConfig.env).length}`));
+        console.log(
+          chalk.gray(
+            `  Environment variables: ${Object.keys(serverConfig.env).length}`,
+          ),
+        );
       }
 
       console.log();
@@ -803,11 +837,18 @@ async function handleMcpList(instanceName: string): Promise<void> {
   }
 }
 
-async function handleMcpCopy(sourceInstanceName: string, targetInstanceName: string): Promise<void> {
+async function handleMcpCopy(
+  sourceInstanceName: string,
+  targetInstanceName: string,
+): Promise<void> {
   const instances = await listInstances();
 
   if (instances.length < 2) {
-    console.log(chalk.yellow("Need at least 2 instances to copy MCP servers between them."));
+    console.log(
+      chalk.yellow(
+        "Need at least 2 instances to copy MCP servers between them.",
+      ),
+    );
     return;
   }
 
@@ -819,10 +860,10 @@ async function handleMcpCopy(sourceInstanceName: string, targetInstanceName: str
       type: "select",
       name: "selectedSource",
       message: "Select source instance:",
-      choices: instances.map(instance => ({
+      choices: instances.map((instance) => ({
         title: instance.name,
-        value: instance.name
-      }))
+        value: instance.name,
+      })),
     });
 
     if (!selectedSource) return;
@@ -830,15 +871,15 @@ async function handleMcpCopy(sourceInstanceName: string, targetInstanceName: str
   }
 
   if (!target) {
-    const availableTargets = instances.filter(i => i.name !== source);
+    const availableTargets = instances.filter((i) => i.name !== source);
     const { selectedTarget } = await prompts({
       type: "select",
       name: "selectedTarget",
       message: "Select target instance:",
-      choices: availableTargets.map(instance => ({
+      choices: availableTargets.map((instance) => ({
         title: instance.name,
-        value: instance.name
-      }))
+        value: instance.name,
+      })),
     });
 
     if (!selectedTarget) return;
@@ -850,7 +891,9 @@ async function handleMcpCopy(sourceInstanceName: string, targetInstanceName: str
     return;
   }
 
-  console.log(chalk.bold(`\n🔄 Copying MCP servers from '${source}' to '${target}'\n`));
+  console.log(
+    chalk.bold(`\n🔄 Copying MCP servers from '${source}' to '${target}'\n`),
+  );
 
   await copyMcpServersBetweenInstances(source, target);
 
@@ -872,17 +915,19 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
       type: "select",
       name: "selectedInstance",
       message: "Select instance to verify:",
-      choices: instances.map(i => ({
+      choices: instances.map((i) => ({
         title: i.name,
-        value: i.name
-      }))
+        value: i.name,
+      })),
     });
 
     if (!selectedInstance) return;
     instance = selectedInstance;
   }
 
-  console.log(chalk.bold(`\n🔍 Verifying MCP configuration in '${instance}'\n`));
+  console.log(
+    chalk.bold(`\n🔍 Verifying MCP configuration in '${instance}'\n`),
+  );
 
   const mcpServers = await listMcpServers(instance);
 
@@ -900,8 +945,13 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
     // Basic validation
     if (serverConfig.type === "stdio" && !serverConfig.command) {
       console.log(chalk.yellow(`    ⚠ Missing command for stdio server`));
-    } else if ((serverConfig.type === "http" || serverConfig.type === "sse") && !serverConfig.url) {
-      console.log(chalk.yellow(`    ⚠ Missing URL for ${serverConfig.type} server`));
+    } else if (
+      (serverConfig.type === "http" || serverConfig.type === "sse") &&
+      !serverConfig.url
+    ) {
+      console.log(
+        chalk.yellow(`    ⚠ Missing URL for ${serverConfig.type} server`),
+      );
     } else {
       console.log(chalk.green(`    ✓ Configuration looks valid`));
     }
