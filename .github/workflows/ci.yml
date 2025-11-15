@@ -34,10 +34,18 @@ jobs:
       - name: Build project
         run: bun run build
 
-      - name: Check build artifacts
+      - name: Check build artifacts (Unix)
+        if: runner.os != 'Windows'
         run: |
           ls -la dist/
           test -f dist/cli.js || exit 1
+
+      - name: Check build artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Get-ChildItem -Force dist/
+          if (-not (Test-Path dist/cli.js)) { exit 1 }
+        shell: pwsh
 
       - name: Verify CLI works (Unix)
         if: runner.os != 'Windows'
