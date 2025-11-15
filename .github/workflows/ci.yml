@@ -100,13 +100,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const version = '${{ needs.check-version.outputs.package_version }}';
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'publish.yml',
               ref: 'master',
               inputs: {
-                version: '${{ needs.check-version.outputs.package_version }}'
+                version: version
               }
             });
-            console.log('✅ Triggered publish workflow for version ${{ needs.check-version.outputs.package_version }}');</parameter>
+            console.log(`Triggered publish workflow for version ${version}`);
