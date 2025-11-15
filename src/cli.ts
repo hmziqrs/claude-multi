@@ -17,6 +17,7 @@ import {
   copyMcpServersFromDefault,
   copyMcpServersBetweenInstances,
   listMcpServers,
+  createSettingsFromTemplate,
   type Instance,
 } from "./config.ts";
 import {
@@ -29,13 +30,14 @@ import {
   updateClaudeCode,
   getCurrentVersion,
 } from "./version.ts";
+import { getAvailableProviders, getProviderTemplate } from "./templates.ts";
 
 const program = new Command();
 
 program
   .name("claude-multi")
   .description("Manage multiple Claude Code instances with different aliases")
-  .version("0.1.0");
+  .version("0.3.0");
 
 // Add command
 program
@@ -52,6 +54,8 @@ program
   .option("--copy-all", "Copy all files from default Claude")
   .option("--copy-mcp", "Copy MCP server configurations from default Claude")
   .option("--skip-prompts", "Skip interactive prompts (start fresh)")
+  .option("--provider <name>", "Use a provider template (glm, minimax)")
+  .option("--api-key <key>", "API key for the provider")
   .action(
     async (
       name: string,
@@ -62,6 +66,8 @@ program
         copyAll?: boolean;
         copyMcp?: boolean;
         skipPrompts?: boolean;
+        provider?: string;
+        apiKey?: string;
       },
     ) => {
       try {
@@ -75,13 +81,40 @@ program
         let copySettings = false;
         let copyAllFiles = false;
         let copyMcpServers = false;
+        let useProviderTemplate = false;
+        let providerTemplate: any = null;
+        let apiKey = "";
+
+        // Handle provider template in CLI mode
+        if (options.provider) {
+          providerTemplate = getProviderTemplate(options.provider);
+          if (!providerTemplate) {
+            console.error(
+              chalk.red(
+                `✗ Unknown provider '${options.provider}'. Available: glm, minimax`,
+              ),
+            );
+            process.exit(1);
+          }
+
+          if (!options.apiKey) {
+            console.error(
+              chalk.red("✗ --api-key is required when using --provider"),
+            );
+            process.exit(1);
+          }
+
+          apiKey = options.apiKey;
+          useProviderTemplate = true;
+        }
 
         // Non-interactive mode (flags provided)
         if (
           options.copySettings ||
           options.copyAll ||
           options.copyMcp ||
-          options.skipPrompts
+          options.skipPrompts ||
+          options.provider
         ) {
           if (options.copyAll) {
             copyAllFiles = true;
@@ -181,6 +214,25 @@ program
         if (copyAllFiles) {
           await copyAllFromDefault(configDir);
           console.log(chalk.green("✓ Copied all files from default Claude"));
+        }
+
+        // Apply provider template if selected (but not if copying settings)
+        if (
+          useProviderTemplate &&
+          providerTemplate &&
+          !copySettings &&
+          !copyAllFiles
+        ) {
+          await createSettingsFromTemplate(configDir, providerTemplate, apiKey);
+          console.log(
+            chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
+          );
+        } else if (useProviderTemplate && (copySettings || copyAllFiles)) {
+          console.log(
+            chalk.yellow(
+              "⚠ Provider template skipped (copied settings from default Claude)",
+            ),
+          );
         }
 
         console.log(
@@ -501,6 +553,57 @@ async function handleAddInstance(): Promise<void> {
     return;
   }
 
+  // Ask about provider template
+  const { useProvider } = await prompts({
+    type: "confirm",
+    name: "useProvider",
+    message: "Would you like to use a provider template (GLM, MiniMax)?",
+    initial: false,
+  });
+
+  let providerTemplate: any = null;
+  let apiKey = "";
+
+  if (useProvider) {
+    const providers = getAvailableProviders();
+    const providerChoices = [
+      ...providers.map((p) => ({
+        title: `${p.displayName} - ${p.description}`,
+        value: p.name,
+      })),
+      { title: "None / Custom", value: "none" },
+    ];
+
+    const { selectedProvider } = await prompts({
+      type: "select",
+      name: "selectedProvider",
+      message: "Select a provider:",
+      choices: providerChoices,
+      initial: 0,
+    });
+
+    if (!selectedProvider || selectedProvider === "none") {
+      // Continue without template
+    } else {
+      providerTemplate = getProviderTemplate(selectedProvider);
+
+      if (providerTemplate) {
+        const { inputApiKey } = await prompts({
+          type: "password",
+          name: "inputApiKey",
+          message: `Enter your ${providerTemplate.displayName} API key:`,
+          validate: (value: string) => {
+            if (!value.trim()) return "API key is required";
+            return true;
+          },
+        });
+
+        if (!inputApiKey) return;
+        apiKey = inputApiKey;
+      }
+    }
+  }
+
   const { useDefaults } = await prompts({
     type: "confirm",
     name: "useDefaults",
@@ -614,6 +717,20 @@ async function handleAddInstance(): Promise<void> {
   if (copyAllFiles) {
     await copyAllFromDefault(configDir);
     console.log(chalk.green("✓ Copied all files from default Claude"));
+  }
+
+  // Apply provider template if selected (but not if copying settings)
+  if (providerTemplate && !copySettings && !copyAllFiles) {
+    await createSettingsFromTemplate(configDir, providerTemplate, apiKey);
+    console.log(
+      chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
+    );
+  } else if (providerTemplate && (copySettings || copyAllFiles)) {
+    console.log(
+      chalk.yellow(
+        "⚠ Provider template skipped (copied settings from default Claude)",
+      ),
+    );
   }
 
   console.log(chalk.green(`\n✓ Instance '${name}' created successfully!`));

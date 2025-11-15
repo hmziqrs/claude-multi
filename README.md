@@ -11,6 +11,7 @@ Claude Code supports multiple AI providers (Anthropic, GLM, Minimax), but switch
 - 🔄 **Multiple Instances**: Run different Claude Code configs simultaneously
 - 🎯 **Simple CLI**: Easy-to-use commands for managing instances
 - 🔒 **Isolated Configs**: Each instance has its own settings and history
+- 🎨 **Provider Templates**: Built-in templates for GLM, MiniMax, and more
 - ✅ **Legal**: Uses wrapper scripts, no code modification
 - 🚀 **Auto-sync**: Always uses the latest official Claude Code
 
@@ -25,6 +26,31 @@ bun run build
 
 # Install globally (optional)
 npm link
+```
+
+## Quick Start
+
+Get started with a provider template in 30 seconds:
+
+```bash
+# Install claude-multi
+npm link  # or npm install -g claude-multi
+
+# Create a GLM instance
+claude-multi add glm --provider glm --api-key "your-glm-api-key"
+
+# Use it!
+claude-glm --help
+```
+
+**Or use interactive mode:**
+
+```bash
+claude-multi add myinstance
+# Choose "Yes" when asked about provider templates
+# Select GLM or MiniMax
+# Enter your API key
+# Done!
 ```
 
 ### Windows Setup
@@ -46,8 +72,12 @@ After adding to PATH, restart your terminal for changes to take effect.
 ### Create instances
 
 ```bash
-# Create instance (interactive - prompts for copying settings)
+# Create instance (interactive - prompts for provider templates and copying settings)
 claude-multi add glm
+
+# Create instance with provider template (CLI mode)
+claude-multi add glm --provider glm --api-key "your-api-key-here"
+claude-multi add minimax --provider minimax --api-key "your-api-key-here"
 
 # Create instance with custom config path
 claude-multi add work --config ~/configs/claude-work
@@ -61,10 +91,17 @@ claude-multi add glm --copy-all           # Copy all files (settings, CLAUDE.md,
 claude-multi add glm --skip-prompts       # Start fresh, no prompts
 ```
 
+**Provider Templates:**
+- **GLM (智谱AI)**: GLM-4.5-air and GLM-4.6 models via z.ai
+- **MiniMax**: MiniMax-M2 model via minimax.io
+
 **Interactive prompt options:**
+- **Provider templates**: Choose GLM, MiniMax, or None/Custom
 - **Nothing - start fresh**: Empty config directory
 - **Only settings.json**: Copy your settings (API keys, preferences)
 - **All files**: Copy settings, CLAUDE.md, plugins, etc. (excludes history, debug logs)
+
+When using a provider template, you'll be prompted to enter your API key securely.
 
 ### Use instances
 
@@ -130,13 +167,20 @@ claude-personal  # Personal projects
 claude-work      # Work projects
 ```
 
-### Paid + Free Providers
+### Different AI Providers
 ```bash
-claude-multi add anthropic  # Paid subscription
-claude-multi add glm        # Free GLM API
+# Interactive mode with provider template
+claude-multi add anthropic  # Use Anthropic (prompted for API key)
+claude-multi add glm        # Use GLM template (prompted for API key)
+claude-multi add minimax    # Use MiniMax template (prompted for API key)
 
-claude-anthropic  # High-quality, paid
-claude-glm        # Free tier
+# CLI mode with provider template
+claude-multi add glm --provider glm --api-key "sk-..."
+claude-multi add minimax --provider minimax --api-key "sk-..."
+
+claude-anthropic  # Uses Anthropic Claude
+claude-glm        # Uses GLM-4.6
+claude-minimax    # Uses MiniMax-M2
 ```
 
 ### Multiple Environments
@@ -147,6 +191,29 @@ claude-multi add dev
 
 # Different configs for each
 ```
+
+## Provider Templates
+
+Built-in templates for popular AI providers. Each template auto-configures the API endpoint, model mappings, and optimal settings.
+
+### Available Providers
+
+**GLM (智谱AI)**: GLM-4.5-air and GLM-4.6 models via `api.z.ai`
+
+**MiniMax**: MiniMax-M2 model via `api.minimax.io`
+
+### Usage
+
+```bash
+# CLI mode
+claude-multi add glm --provider glm --api-key "your-api-key"
+
+# Interactive mode
+claude-multi add myinstance
+# Select provider when prompted and enter API key
+```
+
+Customize later by editing `~/.claude-{name}/settings.json`
 
 ## Development
 

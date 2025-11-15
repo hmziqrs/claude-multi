@@ -2,6 +2,8 @@ import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import type { ProviderTemplate } from "./templates.js";
+import { applyProviderTemplate } from "./templates.js";
 
 export interface McpServer {
   type: "http" | "sse" | "stdio";
@@ -356,4 +358,22 @@ export async function listMcpServers(
 
   const mcpConfig = await detectMcpConfigurations(instance.configDir);
   return mcpConfig?.mcpServers || null;
+}
+
+/**
+ * Create settings.json with provider template
+ */
+export async function createSettingsFromTemplate(
+  targetConfigDir: string,
+  template: ProviderTemplate,
+  apiKey: string,
+): Promise<void> {
+  if (!existsSync(targetConfigDir)) {
+    await mkdir(targetConfigDir, { recursive: true });
+  }
+
+  const settings = applyProviderTemplate(template, apiKey);
+  const settingsFile = join(targetConfigDir, "settings.json");
+
+  await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
 }

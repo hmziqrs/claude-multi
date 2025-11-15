@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-01-XX
+
+### Added
+- **Provider Templates**: Built-in templates for popular AI providers
+  - GLM (智谱AI) template with GLM-4.5-air and GLM-4.6 models
+  - MiniMax template with MiniMax-M2 model
+  - Interactive provider selection with secure API key prompt
+  - CLI flags: `--provider <name>` and `--api-key <key>`
+  - Auto-configuration of base URLs, model mappings, and optimal settings
+- **Quick Start Guide**: Added quick start section with provider template examples
+
+### Changed
+- Interactive mode now prompts for provider templates before config copying
+- Enhanced instance creation flow with provider-first approach
+
 ## [0.2.0] - 2025-01-XX
 
 ### Added
@@ -45,5 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.3.0]: https://github.com/hmziqrs/claude-multi/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/hmziqrs/claude-multi/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/hmziqrs/claude-multi/releases/tag/v0.1.0
