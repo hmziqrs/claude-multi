@@ -81,12 +81,13 @@ export async function removeInstance(name: string): Promise<Instance | null> {
 
   const [removed] = config.instances.splice(index, 1);
   await saveConfig(config);
-  return removed;
+  return removed ?? null;
 }
 
 export async function getInstance(name: string): Promise<Instance | null> {
   const config = await loadConfig();
-  return config.instances.find((i) => i.name === name) ?? null;
+  const instance = config.instances.find((i) => i.name === name);
+  return instance !== undefined ? instance : null;
 }
 
 export async function listInstances(): Promise<Instance[]> {
@@ -114,7 +115,7 @@ export function hasDefaultClaudeConfig(): boolean {
  * Copy settings.json from default Claude to new instance
  */
 export async function copySettingsFromDefault(
-  targetConfigDir: string
+  targetConfigDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
   const sourceSettings = join(defaultDir, "settings.json");
@@ -136,7 +137,7 @@ export async function copySettingsFromDefault(
  * Excludes: config.json, history.jsonl, debug/, session-env/, todos/
  */
 export async function copyAllFromDefault(
-  targetConfigDir: string
+  targetConfigDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
@@ -194,7 +195,9 @@ export async function copyAllFromDefault(
 /**
  * Detect MCP configurations in a directory
  */
-export async function detectMcpConfigurations(configDir: string): Promise<McpConfiguration | null> {
+export async function detectMcpConfigurations(
+  configDir: string,
+): Promise<McpConfiguration | null> {
   if (!existsSync(configDir)) {
     return null;
   }
@@ -249,7 +252,7 @@ export async function hasDefaultMcpConfig(): Promise<boolean> {
  * Copy MCP server configurations from default Claude to target instance
  */
 export async function copyMcpServersFromDefault(
-  targetConfigDir: string
+  targetConfigDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
   const mcpConfig = await detectMcpConfigurations(defaultDir);
@@ -270,8 +273,8 @@ export async function copyMcpServersFromDefault(
     const mergedConfig = {
       mcpServers: {
         ...mcpConfig.mcpServers,
-        ...existingMcpConfig.mcpServers
-      }
+        ...existingMcpConfig.mcpServers,
+      },
     };
 
     await writeMcpConfiguration(targetConfigDir, mergedConfig);
@@ -286,7 +289,7 @@ export async function copyMcpServersFromDefault(
  */
 async function writeMcpConfiguration(
   targetConfigDir: string,
-  mcpConfig: McpConfiguration
+  mcpConfig: McpConfiguration,
 ): Promise<void> {
   const settingsFile = join(targetConfigDir, "settings.json");
 
@@ -313,7 +316,7 @@ async function writeMcpConfiguration(
  */
 export async function copyMcpServersBetweenInstances(
   sourceInstanceName: string,
-  targetInstanceName: string
+  targetInstanceName: string,
 ): Promise<void> {
   const sourceInstance = await getInstance(sourceInstanceName);
   const targetInstance = await getInstance(targetInstanceName);
@@ -326,10 +329,14 @@ export async function copyMcpServersBetweenInstances(
     throw new Error(`Target instance '${targetInstanceName}' not found`);
   }
 
-  const sourceMcpConfig = await detectMcpConfigurations(sourceInstance.configDir);
+  const sourceMcpConfig = await detectMcpConfigurations(
+    sourceInstance.configDir,
+  );
 
   if (!sourceMcpConfig) {
-    throw new Error(`No MCP configurations found in instance '${sourceInstanceName}'`);
+    throw new Error(
+      `No MCP configurations found in instance '${sourceInstanceName}'`,
+    );
   }
 
   await writeMcpConfiguration(targetInstance.configDir, sourceMcpConfig);
@@ -338,7 +345,9 @@ export async function copyMcpServersBetweenInstances(
 /**
  * List MCP servers in an instance
  */
-export async function listMcpServers(instanceName: string): Promise<Record<string, McpServer> | null> {
+export async function listMcpServers(
+  instanceName: string,
+): Promise<Record<string, McpServer> | null> {
   const instance = await getInstance(instanceName);
 
   if (!instance) {

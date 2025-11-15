@@ -3,6 +3,28 @@
 ## Overview
 Claude Multi is a CLI tool for managing multiple Claude Code instances with different aliases and configurations. This roadmap outlines planned features and improvements.
 
+## ✅ Completed Features
+
+### Cross-Platform Support (v0.2.0)
+**Status**: ✅ Completed
+
+- **Windows Support**: Full support for Windows platform
+  - `.cmd` batch wrapper generation
+  - Platform-specific path detection (`where` vs `which`)
+  - Proper handling of Windows-specific paths (`%APPDATA%\npm`)
+  - Skip Unix-specific operations (chmod) on Windows
+
+- **macOS Support**: Full support for macOS platform
+  - Native shebang-based wrapper scripts
+  - `~/.local/bin` default path
+
+- **Linux Support**: Full support for Linux distributions
+  - Native shebang-based wrapper scripts
+  - `~/.local/bin` default path
+
+- **Cross-Platform CI**: GitHub Actions testing on all three platforms
+- **Test Coverage**: Comprehensive unit tests for platform-specific behavior
+
 ## 🚀 Priority Features
 
 ### 1. Basic Backup & Restore

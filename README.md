@@ -27,6 +27,20 @@ bun run build
 npm link
 ```
 
+### Windows Setup
+
+On Windows, ensure `%APPDATA%\npm` is in your PATH to use the wrapper commands:
+
+```cmd
+# Check if npm directory is in PATH
+echo %PATH%
+
+# Add to PATH if needed (PowerShell as Administrator)
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:APPDATA\npm", "User")
+```
+
+After adding to PATH, restart your terminal for changes to take effect.
+
 ## Usage
 
 ### Create instances
@@ -157,6 +171,26 @@ bun run dev remove test --force
 - Node.js >= 18
 - Bun (for development)
 - `@anthropic-ai/claude-code` installed globally
+
+## Platform Support
+
+**claude-multi** supports all major operating systems:
+
+- ✅ **Linux**: Fully supported
+- ✅ **macOS**: Fully supported  
+- ✅ **Windows**: Fully supported
+
+### Platform-Specific Notes
+
+**Windows:**
+- Wrapper scripts are created as `.cmd` batch files
+- Binary path defaults to `%APPDATA%\npm`
+- Example: `claude-glm.cmd` instead of `claude-glm`
+
+**Unix/Linux/macOS:**
+- Wrapper scripts are Node.js scripts with shebangs
+- Binary path defaults to `~/.local/bin`
+- Scripts are automatically marked as executable
 
 ## Project Structure
 
