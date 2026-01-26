@@ -21,6 +21,11 @@ import {
   updateInstanceAutoSync,
   syncPluginsAndSkills,
   unsyncPluginsAndSkills,
+  getEnabledPlugins,
+  setEnabledPlugins,
+  enablePlugin,
+  disablePlugin,
+  listAvailablePlugins,
   type Instance,
 } from "./config.ts";
 import {
@@ -493,6 +498,189 @@ program
     }
   });
 
+// Plugins command
+program
+  .command("plugins")
+  .description("Manage enabled plugins for instances")
+  .argument("[action]", "Action to perform (list, enable, disable, copy)", "list")
+  .argument("[instance]", "Instance name (for list/enable/disable)", "")
+  .argument("[plugins...]", "Plugin IDs to enable/disable", [])
+  .action(async (action = "list", instanceName = "", plugins: string[] = []) => {
+    try {
+      switch (action) {
+        case "list":
+          await handlePluginsList(instanceName);
+          break;
+        case "enable":
+          await handlePluginsEnable(instanceName, plugins);
+          break;
+        case "disable":
+          await handlePluginsDisable(instanceName, plugins);
+          break;
+        case "copy":
+          await handlePluginsCopy(instanceName);
+          break;
+        default:
+          console.error(chalk.red(`✗ Unknown action: ${action}`));
+          console.log(chalk.gray("Available actions: list, enable, disable, copy"));
+          process.exit(1);
+      }
+    } catch (error) {
+      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+      process.exit(1);
+    }
+  });
+
+async function handlePluginsList(instanceName: string): Promise<void> {
+  const instances = await listInstances();
+
+  if (!instanceName) {
+    // Show plugins for all instances
+    console.log(chalk.bold("\n📋 Enabled Plugins by Instance\n"));
+
+    const defaultPlugins = await listAvailablePlugins();
+
+    if (defaultPlugins) {
+      console.log(chalk.gray(`Default Claude (~/.claude):`));
+      const enabledCount = Object.values(defaultPlugins).filter((v) => v === true).length;
+      console.log(chalk.gray(`  Plugins: ${enabledCount} enabled\n`));
+      for (const [pluginId, enabled] of Object.entries(defaultPlugins)) {
+        const status = enabled ? chalk.green("✓") : chalk.gray("✗");
+        console.log(chalk.gray(`    ${status} ${pluginId}`));
+      }
+      console.log();
+    }
+
+    if (instances.length === 0) {
+      console.log(chalk.yellow("No instances found."));
+      return;
+    }
+
+    for (const instance of instances) {
+      const plugins = await getEnabledPlugins(instance.configDir);
+      console.log(chalk.cyan(`${instance.name}:`));
+
+      if (plugins) {
+        const enabledCount = Object.values(plugins).filter((v) => v === true).length;
+        console.log(chalk.gray(`  Plugins: ${enabledCount} enabled\n`));
+        for (const [pluginId, enabled] of Object.entries(plugins)) {
+          const status = enabled ? chalk.green("✓") : chalk.gray("✗");
+          console.log(chalk.gray(`    ${status} ${pluginId}`));
+        }
+      } else {
+        console.log(chalk.yellow("  No plugins configured"));
+      }
+      console.log();
+    }
+  } else {
+    // Show plugins for specific instance
+    const instance = await getInstance(instanceName);
+    if (!instance) {
+      console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+      process.exit(1);
+    }
+
+    const plugins = await getEnabledPlugins(instance.configDir);
+
+    if (!plugins) {
+      console.log(chalk.yellow(`No plugins configured for '${instanceName}'`));
+      return;
+    }
+
+    console.log(chalk.bold(`\n📋 Enabled Plugins for '${instanceName}'\n`));
+
+    for (const [pluginId, enabled] of Object.entries(plugins)) {
+      const status = enabled ? chalk.green("✓") : chalk.gray("✗");
+      console.log(`${status} ${chalk.cyan(pluginId)}`);
+    }
+  }
+}
+
+async function handlePluginsEnable(instanceName: string, plugins: string[]): Promise<void> {
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  if (plugins.length === 0) {
+    console.error(chalk.red("✗ No plugins specified"));
+    console.log(chalk.gray("Usage: claude-multi plugins enable <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
+  let updated = false;
+
+  for (const pluginId of plugins) {
+    if (currentPlugins[pluginId] === true) {
+      console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already enabled`));
+    } else {
+      currentPlugins[pluginId] = true;
+      await enablePlugin(instance.configDir, pluginId);
+      console.log(chalk.green(`✓ Enabled plugin '${pluginId}'`));
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    console.log(chalk.green(`\n✓ Updated plugins for '${instanceName}'`));
+  }
+}
+
+async function handlePluginsDisable(instanceName: string, plugins: string[]): Promise<void> {
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  if (plugins.length === 0) {
+    console.error(chalk.red("✗ No plugins specified"));
+    console.log(chalk.gray("Usage: claude-multi plugins disable <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
+  let updated = false;
+
+  for (const pluginId of plugins) {
+    if (currentPlugins[pluginId] === false) {
+      console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already disabled`));
+    } else {
+      currentPlugins[pluginId] = false;
+      await disablePlugin(instance.configDir, pluginId);
+      console.log(chalk.green(`✓ Disabled plugin '${pluginId}'`));
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    console.log(chalk.green(`\n✓ Updated plugins for '${instanceName}'`));
+  }
+}
+
+async function handlePluginsCopy(instanceName: string): Promise<void> {
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  const defaultPlugins = await listAvailablePlugins();
+  if (!defaultPlugins) {
+    console.log(chalk.yellow("No plugins found in default Claude settings"));
+    return;
+  }
+
+  console.log(chalk.bold(`\n📋 Copying plugins from default Claude to '${instanceName}'\n`));
+
+  await setEnabledPlugins(instance.configDir, defaultPlugins);
+
+  const enabledCount = Object.values(defaultPlugins).filter((v) => v === true).length;
+  console.log(chalk.green(`✓ Copied ${enabledCount} enabled plugins to '${instanceName}'`));
+}
+
 // Interactive mode command
 program
   .command("interactive")
@@ -534,6 +722,7 @@ async function runInteractiveMode(): Promise<void> {
           ...(instances.length > 0
             ? [
                 { title: "ℹ️  Show instance details", value: "info" },
+                { title: "🔌 Manage plugins", value: "plugins" },
                 { title: "🔄 Toggle auto-sync", value: "autosync" },
                 { title: "🗑️  Remove instance", value: "remove" },
               ]
@@ -557,6 +746,9 @@ async function runInteractiveMode(): Promise<void> {
           break;
         case "info":
           await handleShowInstanceInfo(instances);
+          break;
+        case "plugins":
+          await handleManagePlugins(instances);
           break;
         case "autosync":
           await handleToggleAutoSync(instances);
@@ -1001,6 +1193,126 @@ async function handleToggleAutoSync(instances: Instance[]): Promise<void> {
     console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${instanceName}'`));
   } catch (error) {
     console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+  }
+}
+
+async function handleManagePlugins(instances: Instance[]): Promise<void> {
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    return;
+  }
+
+  console.log(chalk.bold("\n🔌 Manage Plugins\n"));
+
+  const { action } = await prompts({
+    type: "select",
+    name: "action",
+    message: "What would you like to do?",
+    choices: [
+      { title: "📋 List all plugins", value: "list" },
+      { title: "📋 Plugins for instance", value: "instance" },
+      { title: "✅ Enable plugins", value: "enable" },
+      { title: "❌ Disable plugins", value: "disable" },
+      { title: "📋 Copy from default", value: "copy" },
+      { title: "Cancel", value: "cancel" },
+    ],
+    initial: 0,
+  });
+
+  if (!action || action === "cancel") {
+    console.log(chalk.yellow("✗ Cancelled"));
+    return;
+  }
+
+  switch (action) {
+    case "list":
+      await handlePluginsList("");
+      break;
+    case "instance":
+      const { listInstance } = await prompts({
+        type: "select",
+        name: "listInstance",
+        message: "Select an instance:",
+        choices: instances.map((i) => ({ title: i.name, value: i.name })),
+      });
+      if (listInstance) {
+        await handlePluginsList(listInstance);
+      }
+      break;
+    case "enable": {
+      const { enableInstance } = await prompts({
+        type: "select",
+        name: "enableInstance",
+        message: "Select an instance:",
+        choices: instances.map((i) => ({ title: i.name, value: i.name })),
+      });
+      if (!enableInstance) return;
+
+      const plugins = await getEnabledPlugins(
+        instances.find((i) => i.name === enableInstance)!.configDir,
+      );
+      if (!plugins) {
+        console.log(chalk.yellow("No plugins configured for this instance"));
+        return;
+      }
+
+      const { pluginsToEnable } = await prompts({
+        type: "multiselect",
+        name: "pluginsToEnable",
+        message: "Select plugins to enable:",
+        choices: Object.entries(plugins)
+          .filter(([_, enabled]) => !enabled)
+          .map(([pluginId, _]) => ({ title: pluginId, value: pluginId })),
+      });
+
+      if (pluginsToEnable && pluginsToEnable.length > 0) {
+        await handlePluginsEnable(enableInstance, pluginsToEnable);
+      }
+      break;
+    }
+    case "disable": {
+      const { disableInstance } = await prompts({
+        type: "select",
+        name: "disableInstance",
+        message: "Select an instance:",
+        choices: instances.map((i) => ({ title: i.name, value: i.name })),
+      });
+      if (!disableInstance) return;
+
+      const plugins = await getEnabledPlugins(
+        instances.find((i) => i.name === disableInstance)!.configDir,
+      );
+      if (!plugins) {
+        console.log(chalk.yellow("No plugins configured for this instance"));
+        return;
+      }
+
+      const { pluginsToDisable } = await prompts({
+        type: "multiselect",
+        name: "pluginsToDisable",
+        message: "Select plugins to disable:",
+        choices: Object.entries(plugins)
+          .filter(([_, enabled]) => enabled)
+          .map(([pluginId, _]) => ({ title: pluginId, value: pluginId })),
+      });
+
+      if (pluginsToDisable && pluginsToDisable.length > 0) {
+        await handlePluginsDisable(disableInstance, pluginsToDisable);
+      }
+      break;
+    }
+    case "copy": {
+      const { copyInstance } = await prompts({
+        type: "select",
+        name: "copyInstance",
+        message: "Select an instance:",
+        choices: instances.map((i) => ({ title: i.name, value: i.name })),
+      });
+      if (copyInstance) {
+        await handlePluginsCopy(copyInstance);
+      }
+      break;
+    }
   }
 }
 

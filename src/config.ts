@@ -19,6 +19,12 @@ export interface McpConfiguration {
   mcpServers: Record<string, McpServer>;
 }
 
+export interface ClaudeSettings {
+  enabledPlugins?: Record<string, boolean>;
+  mcpServers?: Record<string, McpServer>;
+  [key: string]: any;
+}
+
 export interface Instance {
   name: string;
   configDir: string;
@@ -522,4 +528,101 @@ export async function unsyncPluginsAndSkills(
     await copyRecursive(sourcePath, targetPath);
     console.log(chalk.green(`  ✓ Copied files for ${dir}`));
   }
+}
+
+/**
+ * Read Claude settings.json file
+ */
+export async function readClaudeSettings(
+  configDir: string,
+): Promise<ClaudeSettings | null> {
+  const settingsFile = join(configDir, "settings.json");
+
+  if (!existsSync(settingsFile)) {
+    return null;
+  }
+
+  try {
+    const content = await readFile(settingsFile, "utf-8");
+    return JSON.parse(content) as ClaudeSettings;
+  } catch (error) {
+    console.error(chalk.yellow(`Warning: Failed to parse settings.json: ${error}`));
+    return null;
+  }
+}
+
+/**
+ * Write Claude settings.json file
+ */
+export async function writeClaudeSettings(
+  configDir: string,
+  settings: ClaudeSettings,
+): Promise<void> {
+  const settingsFile = join(configDir, "settings.json");
+
+  if (!existsSync(configDir)) {
+    await mkdir(configDir, { recursive: true });
+  }
+
+  await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
+}
+
+/**
+ * Get enabled plugins from a Claude instance
+ */
+export async function getEnabledPlugins(
+  configDir: string,
+): Promise<Record<string, boolean> | null> {
+  const settings = await readClaudeSettings(configDir);
+  return settings?.enabledPlugins || null;
+}
+
+/**
+ * Set enabled plugins for a Claude instance
+ */
+export async function setEnabledPlugins(
+  configDir: string,
+  enabledPlugins: Record<string, boolean>,
+): Promise<void> {
+  const settings = (await readClaudeSettings(configDir)) || {};
+  settings.enabledPlugins = enabledPlugins;
+  await writeClaudeSettings(configDir, settings);
+}
+
+/**
+ * Enable a plugin for a Claude instance
+ */
+export async function enablePlugin(
+  configDir: string,
+  pluginId: string,
+): Promise<void> {
+  const settings = (await readClaudeSettings(configDir)) || {};
+  if (!settings.enabledPlugins) {
+    settings.enabledPlugins = {};
+  }
+  settings.enabledPlugins[pluginId] = true;
+  await writeClaudeSettings(configDir, settings);
+}
+
+/**
+ * Disable a plugin for a Claude instance
+ */
+export async function disablePlugin(
+  configDir: string,
+  pluginId: string,
+): Promise<void> {
+  const settings = (await readClaudeSettings(configDir)) || {};
+  if (!settings.enabledPlugins) {
+    settings.enabledPlugins = {};
+  }
+  settings.enabledPlugins[pluginId] = false;
+  await writeClaudeSettings(configDir, settings);
+}
+
+/**
+ * List all available plugins from default Claude
+ */
+export async function listAvailablePlugins(): Promise<Record<string, boolean> | null> {
+  const defaultSettings = await readClaudeSettings(getDefaultClaudeDir());
+  return defaultSettings?.enabledPlugins || null;
 }
