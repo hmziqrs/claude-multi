@@ -18,14 +18,7 @@ Claude Code supports multiple AI providers (Anthropic, GLM, Minimax), but switch
 ## Installation
 
 ```bash
-# Install dependencies
-bun install
-
-# Build the project
-bun run build
-
-# Install globally (optional)
-npm link
+npm install -g claude-multi
 ```
 
 ## Quick Start
@@ -33,9 +26,6 @@ npm link
 Get started with a provider template in 30 seconds:
 
 ```bash
-# Install claude-multi
-npm link  # or npm install -g claude-multi
-
 # Create a GLM instance
 claude-multi add glm --provider glm --api-key "your-glm-api-key"
 
@@ -140,22 +130,6 @@ claude-multi version
 claude-multi update
 ```
 
-## How It Works
-
-`claude-multi` creates wrapper scripts that set the `CLAUDE_CONFIG_DIR` environment variable before calling the original `claude` binary:
-
-```javascript
-#!/usr/bin/env node
-process.env.CLAUDE_CONFIG_DIR = "/Users/you/.claude-glm"
-import("/usr/local/bin/claude")
-```
-
-This approach:
-- ✅ Doesn't modify Anthropic's code (legal)
-- ✅ Uses official Claude Code (no forking)
-- ✅ Auto-syncs with upstream (no version tracking needed)
-- ✅ Simple and maintainable
-
 ## Use Cases
 
 ### Personal + Work
@@ -215,28 +189,9 @@ claude-multi add myinstance
 
 Customize later by editing `~/.claude-{name}/settings.json`
 
-## Development
-
-```bash
-# Install dependencies
-bun install
-
-# Run in dev mode
-bun run dev
-
-# Build
-bun run build
-
-# Test
-bun run dev add test --binary ./test-bin/claude-test
-bun run dev list
-bun run dev remove test --force
-```
-
 ## Requirements
 
 - Node.js >= 18
-- Bun (for development)
 - `@anthropic-ai/claude-code` installed globally
 
 ## Platform Support
@@ -259,45 +214,6 @@ bun run dev remove test --force
 - Binary path defaults to `~/.local/bin`
 - Scripts are automatically marked as executable
 
-## Project Structure
-
-```
-claude-multi/
-├── src/
-│   ├── cli.ts       # Main CLI interface
-│   ├── config.ts    # Instance config management
-│   ├── wrapper.ts   # Wrapper script generation
-│   └── version.ts   # Version checking
-├── docs/
-│   └── raw-plan.md  # Detailed implementation plan
-├── package.json
-└── README.md
-```
-
-## Configuration
-
-Instance metadata is stored in `~/.claude-multi/config.json`:
-
-```json
-{
-  "instances": [
-    {
-      "name": "glm",
-      "configDir": "/Users/you/.claude-glm",
-      "binaryPath": "/usr/local/bin/claude-glm",
-      "createdAt": "2025-11-02T03:57:41.000Z"
-    }
-  ],
-  "version": "1.0.0"
-}
-```
-
-## CI/CD
-
-- **CI**: Runs on PRs and pushes to master (Node 20.x)
-- **Publish**: Auto-publishes to npm when version tags are pushed
-- **Requirements**: `NPM_TOKEN` secret configured in GitHub
-
 ## License
 
 MIT
@@ -307,3 +223,9 @@ MIT
 Built with [Bun](https://bun.sh) and [Commander.js](https://github.com/tj/commander.js)
 
 Wrapper for [@anthropic-ai/claude-code](https://www.npmjs.com/package/@anthropic-ai/claude-code)
+
+## Support
+
+For technical documentation, development setup, and contribution guidelines, see [development.md](development.md).
+
+For issues, questions, or feature requests, please visit the project's issue tracker.
