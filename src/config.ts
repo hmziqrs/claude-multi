@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync, type Stats } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import type { ProviderTemplate } from "./templates.js";
 import { applyProviderTemplate } from "./templates.js";
 import chalk from "chalk";
@@ -40,6 +40,67 @@ export interface Config {
 
 const CONFIG_DIR = join(homedir(), ".claude-multi");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
+
+const SYNC_DIRS = ["plugins", "skills"] as const;
+
+function lstatSafe(path: string): Stats | null {
+  try {
+    return lstatSync(path);
+  } catch {
+    return null;
+  }
+}
+
+function resolveSymlinkTarget(symlinkPath: string): string | null {
+  try {
+    const link = readlinkSync(symlinkPath);
+    if (isAbsolute(link)) return link;
+    return resolve(dirname(symlinkPath), link);
+  } catch {
+    return null;
+  }
+}
+
+async function ensureDirSymlink(params: {
+  configDir: string;
+  sourceBaseDir: string;
+  dir: (typeof SYNC_DIRS)[number];
+  logLabel?: string;
+}): Promise<"linked" | "already" | "skipped"> {
+  const { configDir, sourceBaseDir, dir, logLabel } = params;
+  const targetPath = join(configDir, dir);
+  const sourcePath = join(sourceBaseDir, dir);
+
+  if (!existsSync(sourcePath)) {
+    if (logLabel) {
+      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${logLabel}, skipping`));
+    }
+    return "skipped";
+  }
+
+  const existing = lstatSafe(targetPath);
+  if (existing) {
+    if (existing.isSymbolicLink()) {
+      const resolvedExisting = resolveSymlinkTarget(targetPath);
+      if (resolvedExisting === sourcePath) {
+        if (logLabel) console.log(chalk.gray(`  ✓ ${dir} already synced`));
+        return "already";
+      }
+      rmSync(targetPath, { force: true });
+    } else {
+      rmSync(targetPath, { force: true, recursive: true });
+    }
+  }
+
+  const linkTarget = relative(configDir, sourcePath);
+  const type = process.platform === "win32" ? "junction" : "dir";
+  await symlink(linkTarget, targetPath, type);
+
+  if (logLabel) {
+    console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ${logLabel}/${dir}`));
+  }
+  return "linked";
+}
 
 export function ensureConfigDir(): void {
   if (!existsSync(CONFIG_DIR)) {
@@ -166,8 +227,6 @@ function isBrokenSymlink(path: string): boolean {
     // Check if the target exists
     // For absolute paths, check directly
     // For relative paths, resolve relative to the symlink's directory
-    const { resolve, dirname, isAbsolute } = require("node:path");
-
     let targetPath: string;
     if (isAbsolute(target)) {
       targetPath = target;
@@ -189,10 +248,9 @@ export function detectBrokenSymlinks(configDir: string): {
   broken: string[];
   all: string[];
 } {
-  const symlinkDirs = ["plugins", "skills"];
-  const result = { broken: [], all: [] };
+  const result: { broken: string[]; all: string[] } = { broken: [], all: [] };
 
-  for (const dir of symlinkDirs) {
+  for (const dir of SYNC_DIRS) {
     const targetPath = join(configDir, dir);
     // Use lstatSync instead of existsSync to detect broken symlinks
     try {
@@ -285,9 +343,6 @@ export async function copyAllFromDefault(
     await mkdir(targetConfigDir, { recursive: true });
   }
 
-  // Directories to symlink instead of copy (when autoSync is enabled)
-  const symlinkDirs = ["plugins", "skills"];
-
   const excludeFiles = [
     "config.json",
     ".config.json",
@@ -319,29 +374,12 @@ export async function copyAllFromDefault(
 
       if (stat.isDirectory()) {
         // Use symlink for plugins and skills when autoSync is enabled
-        if (autoSync && symlinkDirs.includes(entry)) {
-          // Remove existing symlink or directory if it exists
-          if (existsSync(targetPath)) {
-            const absoluteSource = join(homedir(), ".claude", entry);
-            const stat = lstatSync(targetPath);
-
-            if (stat.isSymbolicLink()) {
-              const currentTarget = readlinkSync(targetPath);
-              // Check if symlink points to the correct absolute target
-              if (currentTarget === absoluteSource) {
-                console.log(`  ✓ Already symlinked: ${entry}`);
-                continue; // Skip, already correct
-              }
-              console.log(chalk.yellow(`  ⚠ Replacing incorrect symlink: ${entry}`));
-            } else {
-              console.log(chalk.yellow(`  ⚠ Removing existing directory: ${entry}`));
-            }
-            rmSync(targetPath, { force: true, recursive: true });
-          }
-          // Create absolute symlink to ~/.claude/<entry>
-          const absoluteSource = join(homedir(), ".claude", entry);
-          await symlink(absoluteSource, targetPath, "dir");
-          console.log(`  Symlinked: ${entry} -> ~/.claude/${entry}`);
+        if (autoSync && (SYNC_DIRS as readonly string[]).includes(entry)) {
+          await ensureDirSymlink({
+            configDir: target,
+            sourceBaseDir: defaultDir,
+            dir: entry as (typeof SYNC_DIRS)[number],
+          });
         } else {
           if (!existsSync(targetPath)) {
             await mkdir(targetPath, { recursive: true });
@@ -548,45 +586,18 @@ export async function syncPluginsAndSkills(
   configDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
-  const symlinkDirs = ["plugins", "skills"];
 
   if (!existsSync(configDir)) {
     throw new Error("Instance config directory does not exist");
   }
 
-  for (const dir of symlinkDirs) {
-    const targetPath = join(configDir, dir);
-    const sourcePath = join(defaultDir, dir);
-
-    // Skip if source doesn't exist
-    if (!existsSync(sourcePath)) {
-      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ~/.claude, skipping`));
-      continue;
-    }
-
-    // Remove existing symlink or directory
-    if (existsSync(targetPath)) {
-      // Check if it's already a symlink pointing to the right place
-      try {
-        const linkTarget = readlinkSync(targetPath);
-        const expectedTarget = join("..", "..", ".claude", dir);
-        if (linkTarget === expectedTarget || linkTarget === sourcePath) {
-          console.log(chalk.gray(`  ✓ ${dir} already synced`));
-          continue;
-        }
-        // It's a symlink but pointing to the wrong place, remove it
-        // Use rmSync without recursive to avoid following symlinks on macOS
-        rmSync(targetPath, { force: true });
-      } catch {
-        // Not a symlink, must be a directory - remove it recursively
-        rmSync(targetPath, { force: true, recursive: true });
-      }
-    }
-
-    // Create symlink
-    const relativePath = join("..", "..", ".claude", dir);
-    await symlink(relativePath, targetPath, "dir");
-    console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ~/.claude/${dir}`));
+  for (const dir of SYNC_DIRS) {
+    await ensureDirSymlink({
+      configDir,
+      sourceBaseDir: defaultDir,
+      dir,
+      logLabel: defaultDir,
+    });
   }
 }
 
@@ -597,19 +608,18 @@ export async function unsyncPluginsAndSkills(
   configDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
-  const symlinkDirs = ["plugins", "skills"];
 
   if (!existsSync(configDir)) {
     throw new Error("Instance config directory does not exist");
   }
 
-  for (const dir of symlinkDirs) {
+  for (const dir of SYNC_DIRS) {
     const targetPath = join(configDir, dir);
     const sourcePath = join(defaultDir, dir);
 
     // Skip if source doesn't exist
     if (!existsSync(sourcePath)) {
-      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ~/.claude, skipping`));
+      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
       continue;
     }
 

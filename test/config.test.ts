@@ -8,6 +8,7 @@ import {
   detectBrokenSymlinks,
 } from "../src/config";
 import { AutoSyncTestHelper } from "./test-utils";
+import { dirname, join, relative } from "node:path";
 
 describe("syncPluginsAndSkills", () => {
   let helper: AutoSyncTestHelper;
@@ -48,6 +49,21 @@ describe("syncPluginsAndSkills", () => {
       // Should be relative paths
       expect(pluginsLink).toContain(".claude");
       expect(skillsLink).toContain(".claude");
+    });
+
+    it("should compute correct relative symlink targets for sibling config dirs", async () => {
+      const baseDir = dirname(defaultClaudeDir);
+      const siblingInstanceDir = join(baseDir, ".claude-sibling");
+      await helper.createDirectory(siblingInstanceDir);
+
+      await syncPluginsAndSkills(siblingInstanceDir);
+
+      const { readlink } = await import("node:fs/promises");
+      const pluginsLink = await readlink(`${siblingInstanceDir}/plugins`);
+      const skillsLink = await readlink(`${siblingInstanceDir}/skills`);
+
+      expect(pluginsLink).toBe(relative(siblingInstanceDir, join(defaultClaudeDir, "plugins")));
+      expect(skillsLink).toBe(relative(siblingInstanceDir, join(defaultClaudeDir, "skills")));
     });
 
     it("should create symlinks that resolve to actual files", async () => {
@@ -458,6 +474,18 @@ describe("copyAllFromDefault", () => {
 
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
       helper.assertSymlink(`${instanceConfigDir}/skills`);
+    });
+
+    it("should replace broken symlinks before creating new ones", async () => {
+      const { symlink } = await import("node:fs/promises");
+      await symlink("/nonexistent/path", `${instanceConfigDir}/plugins`, "dir");
+
+      await copyAllFromDefault(instanceConfigDir, true);
+
+      helper.assertSymlink(`${instanceConfigDir}/plugins`);
+      const { readlink } = await import("node:fs/promises");
+      const linkTarget = await readlink(`${instanceConfigDir}/plugins`);
+      expect(linkTarget).toContain(".claude");
     });
 
     it("should copy settings.json when autoSync is true", async () => {
