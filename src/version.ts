@@ -1,9 +1,60 @@
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export interface VersionInfo {
   current: string | null;
   latest: string;
   updateAvailable: boolean;
+}
+
+export interface ClaudeMultiUpdateInfo {
+  current: string;
+  latest: string;
+  updateAvailable: boolean;
+}
+
+/**
+ * Gets the current version of claude-multi from package.json
+ */
+export function getClaudeMultiVersion(): string {
+  const pkgPath = join(process.cwd(), "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+  return pkg.version;
+}
+
+/**
+ * Gets the latest version of claude-multi from npm registry
+ */
+export async function getLatestClaudeMultiVersion(): Promise<string> {
+  const response = await fetch("https://registry.npmjs.org/claude-multi/latest");
+  const data = await response.json();
+  return data.version;
+}
+
+/**
+ * Checks if a claude-multi update is available
+ */
+export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInfo> {
+  try {
+    const current = getClaudeMultiVersion();
+    const latest = await getLatestClaudeMultiVersion();
+    return {
+      current,
+      latest,
+      updateAvailable: current !== latest,
+    };
+  } catch {
+    // On error, return no update available
+    return { current: "", latest: "", updateAvailable: false };
+  }
+}
+
+/**
+ * Upgrades claude-multi to the latest version
+ */
+export function upgradeClaudeMulti(): void {
+  execSync("bun upgrade -g claude-multi", { stdio: "inherit" });
 }
 
 /**

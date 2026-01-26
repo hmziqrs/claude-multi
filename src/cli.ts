@@ -37,6 +37,8 @@ import {
   checkForUpdates,
   updateClaudeCode,
   getCurrentVersion,
+  checkForClaudeMultiUpdates,
+  upgradeClaudeMulti,
 } from "./version.ts";
 import { getAvailableProviders, getProviderTemplate } from "./templates.ts";
 
@@ -1542,3 +1544,36 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
 
 // Parse arguments
 program.parse();
+
+// Update check for claude-multi
+async function runUpdateCheck() {
+  try {
+    const updateInfo = await checkForClaudeMultiUpdates();
+
+    if (updateInfo.updateAvailable) {
+      console.log();
+      console.log(chalk.yellow(`New version available: claude-multi ${updateInfo.latest}`));
+      console.log(chalk.gray(`Current version: ${updateInfo.current}`));
+      console.log();
+
+      const { shouldUpdate } = await prompts({
+        type: "confirm",
+        name: "shouldUpdate",
+        message: "Would you like to update now?",
+        initial: true,
+      });
+
+      if (shouldUpdate) {
+        console.log(chalk.cyan("\nUpdating claude-multi...\n"));
+        upgradeClaudeMulti();
+        console.log(chalk.green("\nUpdate complete! Please run your command again.\n"));
+        process.exit(0);
+      }
+    }
+  } catch {
+    // Silent fail - don't interrupt CLI usage
+  }
+}
+
+// Start update check (non-blocking)
+runUpdateCheck().catch(() => {});
