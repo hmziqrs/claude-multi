@@ -1240,6 +1240,9 @@ async function handleToggleAutoSync(instances: Instance[]): Promise<void> {
     message: `Auto-sync is currently ${chalk.cyan(currentStatus ? "enabled" : "disabled")}. What would you like to do?`,
     choices: [
       { title: currentStatus ? "Turn off (copy files locally)" : "Turn on (use symlinks)", value: "toggle" },
+      ...(currentStatus
+        ? [{ title: "Force re-sync now (rebuild symlinks)", value: "force-sync" }]
+        : []),
       { title: "Cancel", value: "cancel" },
     ],
     initial: 0,
@@ -1250,11 +1253,17 @@ async function handleToggleAutoSync(instances: Instance[]): Promise<void> {
     return;
   }
 
-  const newStatus = !currentStatus;
-
-  console.log(chalk.bold(`\n🔄 ${newStatus ? "Enabling" : "Disabling"} auto-sync for '${instanceName}'...\n`));
-
   try {
+    if (action === "force-sync") {
+      console.log(chalk.bold(`\n🔄 Re-syncing symlinks for '${instanceName}'...\n`));
+      await syncPluginsAndSkills(instance.configDir);
+      console.log(chalk.green(`\n✓ Symlinks rebuilt for '${instanceName}'`));
+      return;
+    }
+
+    const newStatus = !currentStatus;
+    console.log(chalk.bold(`\n🔄 ${newStatus ? "Enabling" : "Disabling"} auto-sync for '${instanceName}'...\n`));
+
     // Update the instance setting
     await updateInstanceAutoSync(instanceName, newStatus);
 
