@@ -18,6 +18,9 @@ import {
   copyMcpServersBetweenInstances,
   listMcpServers,
   createSettingsFromTemplate,
+  updateInstanceAutoSync,
+  syncPluginsAndSkills,
+  unsyncPluginsAndSkills,
   type Instance,
 } from "./config.ts";
 import {
@@ -448,6 +451,48 @@ program
     }
   });
 
+// Auto-sync command
+program
+  .command("auto-sync <name> <status>")
+  .description("Toggle auto-sync for plugins/skills (on/off)")
+  .action(async (name: string, status: string) => {
+    try {
+      const instance = await getInstance(name);
+
+      if (!instance) {
+        console.error(chalk.red(`✗ Instance '${name}' not found`));
+        process.exit(1);
+      }
+
+      const newStatus = status.toLowerCase() === "on" || status.toLowerCase() === "true" || status === "1";
+      const currentStatus = instance.autoSync !== false;
+
+      if (currentStatus === newStatus) {
+        console.log(
+          chalk.yellow(`Auto-sync is already ${newStatus ? "enabled" : "disabled"} for '${name}'`),
+        );
+        return;
+      }
+
+      // Update the instance setting
+      await updateInstanceAutoSync(name, newStatus);
+
+      // Apply the sync/unsync
+      console.log(chalk.bold(`\n🔄 ${newStatus ? "Enabling" : "Disabling"} auto-sync for '${name}'...\n`));
+
+      if (newStatus) {
+        await syncPluginsAndSkills(instance.configDir);
+      } else {
+        await unsyncPluginsAndSkills(instance.configDir);
+      }
+
+      console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${name}'`));
+    } catch (error) {
+      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+      process.exit(1);
+    }
+  });
+
 // Interactive mode command
 program
   .command("interactive")
@@ -489,6 +534,7 @@ async function runInteractiveMode(): Promise<void> {
           ...(instances.length > 0
             ? [
                 { title: "ℹ️  Show instance details", value: "info" },
+                { title: "🔄 Toggle auto-sync", value: "autosync" },
                 { title: "🗑️  Remove instance", value: "remove" },
               ]
             : []),
@@ -511,6 +557,9 @@ async function runInteractiveMode(): Promise<void> {
           break;
         case "info":
           await handleShowInstanceInfo(instances);
+          break;
+        case "autosync":
+          await handleToggleAutoSync(instances);
           break;
         case "remove":
           await handleRemoveInstance(instances);
@@ -888,6 +937,71 @@ async function handleRemoveInstance(instances: Instance[]): Promise<void> {
   console.log(
     chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`),
   );
+}
+
+async function handleToggleAutoSync(instances: Instance[]): Promise<void> {
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    return;
+  }
+
+  console.log(chalk.bold("\n🔄 Toggle Auto-Sync\n"));
+
+  const { instanceName } = await prompts({
+    type: "select",
+    name: "instanceName",
+    message: "Select an instance:",
+    choices: instances.map((instance) => {
+      const currentStatus = instance.autoSync !== false ? "on" : "off";
+      return {
+        title: `${instance.name} (auto-sync: ${currentStatus})`,
+        value: instance.name,
+      };
+    }),
+  });
+
+  if (!instanceName) return;
+
+  const instance = instances.find((i) => i.name === instanceName);
+  if (!instance) return;
+
+  const currentStatus = instance.autoSync !== false;
+
+  const { action } = await prompts({
+    type: "select",
+    name: "action",
+    message: `Auto-sync is currently ${chalk.cyan(currentStatus ? "enabled" : "disabled")}. What would you like to do?`,
+    choices: [
+      { title: currentStatus ? "Turn off (copy files locally)" : "Turn on (use symlinks)", value: "toggle" },
+      { title: "Cancel", value: "cancel" },
+    ],
+    initial: 0,
+  });
+
+  if (!action || action === "cancel") {
+    console.log(chalk.yellow("✗ Cancelled"));
+    return;
+  }
+
+  const newStatus = !currentStatus;
+
+  console.log(chalk.bold(`\n🔄 ${newStatus ? "Enabling" : "Disabling"} auto-sync for '${instanceName}'...\n`));
+
+  try {
+    // Update the instance setting
+    await updateInstanceAutoSync(instanceName, newStatus);
+
+    // Apply the sync/unsync
+    if (newStatus) {
+      await syncPluginsAndSkills(instance.configDir);
+    } else {
+      await unsyncPluginsAndSkills(instance.configDir);
+    }
+
+    console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${instanceName}'`));
+  } catch (error) {
+    console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+  }
 }
 
 // MCP command

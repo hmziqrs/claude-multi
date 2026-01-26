@@ -1,9 +1,10 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ProviderTemplate } from "./templates.js";
 import { applyProviderTemplate } from "./templates.js";
+import chalk from "chalk";
 
 export interface McpServer {
   type: "http" | "sse" | "stdio";
@@ -96,6 +97,22 @@ export async function getInstance(name: string): Promise<Instance | null> {
 export async function listInstances(): Promise<Instance[]> {
   const config = await loadConfig();
   return config.instances;
+}
+
+export async function updateInstanceAutoSync(
+  name: string,
+  autoSync: boolean,
+): Promise<Instance | null> {
+  const config = await loadConfig();
+  const index = config.instances.findIndex((i) => i.name === name);
+
+  if (index === -1) {
+    return null;
+  }
+
+  config.instances[index].autoSync = autoSync;
+  await saveConfig(config);
+  return config.instances[index];
 }
 
 /**
@@ -394,4 +411,115 @@ export async function createSettingsFromTemplate(
   const settingsFile = join(targetConfigDir, "settings.json");
 
   await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
+}
+
+/**
+ * Sync plugins and skills via symlinks for an existing instance
+ */
+export async function syncPluginsAndSkills(
+  configDir: string,
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+  const symlinkDirs = ["plugins", "skills"];
+
+  if (!existsSync(configDir)) {
+    throw new Error("Instance config directory does not exist");
+  }
+
+  for (const dir of symlinkDirs) {
+    const targetPath = join(configDir, dir);
+    const sourcePath = join(defaultDir, dir);
+
+    // Skip if source doesn't exist
+    if (!existsSync(sourcePath)) {
+      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ~/.claude, skipping`));
+      continue;
+    }
+
+    // Remove existing symlink or directory
+    if (existsSync(targetPath)) {
+      // Check if it's already a symlink pointing to the right place
+      try {
+        const linkTarget = readlinkSync(targetPath);
+        const expectedTarget = join("..", "..", ".claude", dir);
+        if (linkTarget === expectedTarget || linkTarget === sourcePath) {
+          console.log(chalk.gray(`  ✓ ${dir} already synced`));
+          continue;
+        }
+      } catch {
+        // Not a symlink or can't read, continue with removal
+      }
+      unlinkSync(targetPath);
+    }
+
+    // Create symlink
+    const relativePath = join("..", "..", ".claude", dir);
+    await symlink(relativePath, targetPath, "dir");
+    console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ~/.claude/${dir}`));
+  }
+}
+
+/**
+ * Unsync plugins and skills by copying actual files and removing symlinks
+ */
+export async function unsyncPluginsAndSkills(
+  configDir: string,
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+  const symlinkDirs = ["plugins", "skills"];
+
+  if (!existsSync(configDir)) {
+    throw new Error("Instance config directory does not exist");
+  }
+
+  for (const dir of symlinkDirs) {
+    const targetPath = join(configDir, dir);
+    const sourcePath = join(defaultDir, dir);
+
+    // Skip if source doesn't exist
+    if (!existsSync(sourcePath)) {
+      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ~/.claude, skipping`));
+      continue;
+    }
+
+    // Check if it's currently a symlink
+    let isSymlink = false;
+    try {
+      readlinkSync(targetPath);
+      isSymlink = true;
+    } catch {
+      // Not a symlink
+    }
+
+    if (isSymlink) {
+      // Remove symlink
+      unlinkSync(targetPath);
+      console.log(chalk.gray(`  ✓ Removed symlink for ${dir}`));
+    } else if (!existsSync(targetPath)) {
+      // Neither symlink nor directory exists
+    } else {
+      console.log(chalk.yellow(`  ⚠ ${dir} is already a regular directory, skipping`));
+      continue;
+    }
+
+    // Copy files from source
+    await mkdir(targetPath, { recursive: true });
+    const copyRecursive = async (source: string, target: string) => {
+      const entries = readdirSync(source);
+      for (const entry of entries) {
+        const sourceEntry = join(source, entry);
+        const targetEntry = join(target, entry);
+        const stat = statSync(sourceEntry);
+
+        if (stat.isDirectory()) {
+          await mkdir(targetEntry, { recursive: true });
+          await copyRecursive(sourceEntry, targetEntry);
+        } else {
+          await copyFile(sourceEntry, targetEntry);
+        }
+      }
+    };
+    await copyRecursive(sourcePath, targetPath);
+    console.log(chalk.green(`  ✓ Copied files for ${dir}`));
+  }
 }
