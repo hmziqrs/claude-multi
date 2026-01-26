@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2026-01-26
+
+### Added
+- **Broken Symlink Detection**: Automatically detect and fix broken symlinks
+  - New `isBrokenSymlink()` and `detectBrokenSymlinks()` functions
+  - Auto-fix broken symlinks when creating or updating instances
+  - Handles edge cases: broken symlinks, existing directories, incorrect symlink targets
+- **`fix-symlinks` Command**: Fix broken symlinks for existing instances
+  - Interactive instance selection with multi-select support
+  - `--all` flag to fix all instances at once
+  - Auto-fixes instances with auto-sync enabled, warns for manual mode
+  - Clear status indicators for broken symlinks vs. valid symlinks
+- **Interactive Re-sync**: Added "Re-sync symlinks" option to interactive mode menu
+  - Quick access to symlink diagnosis and repair from interactive UI
+- **Test Suite**: Comprehensive tests for symlink detection and fixing
+  - Tests for broken symlink detection
+  - Tests for valid symlink handling
+  - Tests for mixed scenarios (broken + valid symlinks)
+  - Error handling tests for non-existent paths
+
+### Fixed
+- Symlink creation now uses `lstatSync` for proper broken symlink detection
+- Previously, `existsSync()` returned `false` for broken symlinks, preventing detection
+- Now correctly identifies and repairs broken symlinks in all scenarios
+
+[0.4.3]: https://github.com/hmziqrs/claude-multi/compare/v0.4.2...v0.4.3
+
 ## [0.4.2] - 2026-01-26
 
 ### Fixed
