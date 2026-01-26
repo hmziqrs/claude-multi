@@ -273,9 +273,9 @@ export async function copyAllFromDefault(
               rmSync(targetPath, { force: true, recursive: true });
             }
           }
-          // Create relative symlink
-          const relativePath = join("..", "..", ".claude", entry);
-          await symlink(relativePath, targetPath, "dir");
+          // Create absolute symlink to ~/.claude/<entry>
+          const absoluteSource = join(homedir(), ".claude", entry);
+          await symlink(absoluteSource, targetPath, "dir");
           console.log(`  Symlinked: ${entry} -> ~/.claude/${entry}`);
         } else {
           if (!existsSync(targetPath)) {
