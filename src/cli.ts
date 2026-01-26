@@ -21,6 +21,7 @@ import {
   updateInstanceAutoSync,
   syncPluginsAndSkills,
   unsyncPluginsAndSkills,
+  detectBrokenSymlinks,
   getEnabledPlugins,
   setEnabledPlugins,
   enablePlugin,
@@ -500,6 +501,15 @@ program
     }
   });
 
+// Fix-symlinks command
+program
+  .command("fix-symlinks [name...]")
+  .description("Fix broken symlinks for instances (auto-detects and repairs)")
+  .option("-a, --all", "Fix all instances")
+  .action(async (names, options) => {
+    await handleFixSymlinks(names, options.all);
+  });
+
 // Plugins command
 program
   .command("plugins")
@@ -683,6 +693,65 @@ async function handlePluginsCopy(instanceName: string): Promise<void> {
   console.log(chalk.green(`✓ Copied ${enabledCount} enabled plugins to '${instanceName}'`));
 }
 
+async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void> {
+  const instances = await listInstances();
+
+  if (instances.length === 0) {
+    console.log(chalk.yellow("No instances found."));
+    return;
+  }
+
+  let instancesToFix: Instance[];
+
+  if (fixAll) {
+    instancesToFix = instances;
+  } else if (names.length > 0) {
+    instancesToFix = names.map(name => instances.find(i => i.name === name)).filter(Boolean) as Instance[];
+  } else {
+    // Interactive selection
+    const { selected } = await prompts({
+      type: "multiselect",
+      name: "selected",
+      message: "Select instances to fix:",
+      choices: instances.map(i => ({
+        title: `${i.name} ${i.autoSync ? "(auto-sync)" : "(manual)"}`,
+        value: i.name,
+      })),
+    });
+    instancesToFix = selected.map((name: string) => instances.find(i => i.name === name)).filter(Boolean) as Instance[];
+  }
+
+  for (const instance of instancesToFix) {
+    const diagnosis = detectBrokenSymlinks(instance.configDir);
+    const needsFix = diagnosis.broken.length > 0;
+
+    console.log(chalk.bold(`\n🔍 ${instance.name}`));
+    console.log(`  Config: ${instance.configDir}`);
+    console.log(`  Auto-sync: ${instance.autoSync ? "enabled" : "disabled"}`);
+
+    if (diagnosis.all.length === 0) {
+      console.log(chalk.gray("  No symlinks found (manual mode)"));
+      continue;
+    }
+
+    if (needsFix) {
+      console.log(chalk.red(`  ❌ Broken: ${diagnosis.broken.join(", ")}`));
+
+      if (instance.autoSync) {
+        // Auto-fix without prompting (user chose auto-fix behavior)
+        await syncPluginsAndSkills(instance.configDir);
+        console.log(chalk.green(`  ✅ Fixed: ${diagnosis.broken.join(", ")}`));
+      } else {
+        console.log(chalk.yellow("  ⚠ Auto-sync is disabled. Enable it first."));
+      }
+    } else {
+      console.log(chalk.green(`  ✅ All symlinks OK: ${diagnosis.all.join(", ")}`));
+    }
+  }
+
+  console.log(chalk.bold("\n✨ Done!"));
+}
+
 // Interactive mode command
 program
   .command("interactive")
@@ -726,6 +795,7 @@ async function runInteractiveMode(): Promise<void> {
                 { title: "ℹ️  Show instance details", value: "info" },
                 { title: "🔌 Manage plugins", value: "plugins" },
                 { title: "🔄 Toggle auto-sync", value: "autosync" },
+                { title: "🔄 Re-sync symlinks", value: "resync" },
                 { title: "🗑️  Remove instance", value: "remove" },
               ]
             : []),
@@ -754,6 +824,9 @@ async function runInteractiveMode(): Promise<void> {
           break;
         case "autosync":
           await handleToggleAutoSync(instances);
+          break;
+        case "resync":
+          await handleFixSymlinks([], false);
           break;
         case "remove":
           await handleRemoveInstance(instances);

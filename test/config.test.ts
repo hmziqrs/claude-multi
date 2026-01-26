@@ -5,6 +5,7 @@ import {
   copySettingsFromDefault,
   copyAllFromDefault,
   readClaudeSettings,
+  detectBrokenSymlinks,
 } from "../src/config";
 import { AutoSyncTestHelper } from "./test-utils";
 
@@ -712,6 +713,81 @@ describe("Integration tests", () => {
       // The modified file should still be there
       const content = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(content)).toEqual({ name: "plugin1-modified" });
+    });
+  });
+});
+
+describe("detectBrokenSymlinks", () => {
+  let helper: AutoSyncTestHelper;
+  let instanceConfigDir: string;
+
+  beforeEach(async () => {
+    helper = new AutoSyncTestHelper();
+    const setup = await helper.setup();
+    instanceConfigDir = setup.instanceConfigDir;
+  });
+
+  afterEach(() => {
+    helper.teardown();
+    helper.cleanup();
+  });
+
+  describe("detecting broken symlinks", () => {
+    it("should detect broken symlinks", async () => {
+      await helper.createDirectory(instanceConfigDir);
+
+      // Create a broken symlink
+      const { symlink } = await import("node:fs/promises");
+      await symlink("/nonexistent/path", `${instanceConfigDir}/skills`, "dir");
+
+      const result = detectBrokenSymlinks(instanceConfigDir);
+      expect(result.broken).toContain("skills");
+      expect(result.all).toContain("skills");
+    });
+
+    it("should not break valid symlinks", async () => {
+      await helper.createDirectory(instanceConfigDir);
+      await syncPluginsAndSkills(instanceConfigDir);
+
+      const result = detectBrokenSymlinks(instanceConfigDir);
+      expect(result.broken).toHaveLength(0);
+      expect(result.all).toContain("plugins");
+      expect(result.all).toContain("skills");
+    });
+
+    it("should return empty arrays when no symlinks exist", async () => {
+      await helper.createDirectory(instanceConfigDir);
+
+      const result = detectBrokenSymlinks(instanceConfigDir);
+      expect(result.broken).toHaveLength(0);
+      expect(result.all).toHaveLength(0);
+    });
+
+    it("should detect only broken symlinks when mix exists", async () => {
+      await helper.createDirectory(instanceConfigDir);
+
+      // Create valid symlink for plugins
+      await syncPluginsAndSkills(instanceConfigDir);
+
+      // Create broken symlink for skills
+      const { rmSync } = await import("node:fs");
+      const { symlink } = await import("node:fs/promises");
+      rmSync(`${instanceConfigDir}/skills`, { force: true });
+      await symlink("/nonexistent/path", `${instanceConfigDir}/skills`, "dir");
+
+      const result = detectBrokenSymlinks(instanceConfigDir);
+      expect(result.broken).toContain("skills");
+      expect(result.broken).not.toContain("plugins");
+      expect(result.all).toHaveLength(2);
+    });
+  });
+
+  describe("error handling", () => {
+    it("should handle non-existent directory gracefully", async () => {
+      const nonExistentDir = "/tmp/claude-test-non-existent-xyz";
+      const result = detectBrokenSymlinks(nonExistentDir);
+      expect(result.broken).toHaveLength(0);
+      expect(result.all).toHaveLength(0);
     });
   });
 });

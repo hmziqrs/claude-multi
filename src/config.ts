@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -151,6 +151,65 @@ export function getDefaultClaudeDir(): string {
 }
 
 /**
+ * Check if a symlink is broken (points to non-existent target)
+ */
+function isBrokenSymlink(path: string): boolean {
+  try {
+    // Use lstatSync to check if path exists (including broken symlinks)
+    const stats = lstatSync(path);
+    if (!stats.isSymbolicLink()) return false; // Not a symlink
+
+    // Try to read the link target
+    const target = readlinkSync(path);
+    if (!target) return true; // No target means broken
+
+    // Check if the target exists
+    // For absolute paths, check directly
+    // For relative paths, resolve relative to the symlink's directory
+    const { resolve, dirname, isAbsolute } = require("node:path");
+
+    let targetPath: string;
+    if (isAbsolute(target)) {
+      targetPath = target;
+    } else {
+      targetPath = resolve(dirname(path), target);
+    }
+
+    return !existsSync(targetPath);
+  } catch {
+    // lstatSync throws for non-existent paths
+    return false;
+  }
+}
+
+/**
+ * Detect broken symlinks in an instance
+ */
+export function detectBrokenSymlinks(configDir: string): {
+  broken: string[];
+  all: string[];
+} {
+  const symlinkDirs = ["plugins", "skills"];
+  const result = { broken: [], all: [] };
+
+  for (const dir of symlinkDirs) {
+    const targetPath = join(configDir, dir);
+    // Use lstatSync instead of existsSync to detect broken symlinks
+    try {
+      const stats = lstatSync(targetPath);
+      result.all.push(dir);
+      if (stats.isSymbolicLink() && isBrokenSymlink(targetPath)) {
+        result.broken.push(dir);
+      }
+    } catch {
+      // Path doesn't exist at all (not even as a broken symlink)
+    }
+  }
+
+  return result;
+}
+
+/**
  * Check if default Claude directory exists and has settings.json
  */
 export function hasDefaultClaudeConfig(): boolean {
@@ -263,15 +322,21 @@ export async function copyAllFromDefault(
         if (autoSync && symlinkDirs.includes(entry)) {
           // Remove existing symlink or directory if it exists
           if (existsSync(targetPath)) {
-            // Check if it's a symlink
-            try {
-              readlinkSync(targetPath);
-              // It's a symlink, remove it with unlinkSync
-              unlinkSync(targetPath);
-            } catch {
-              // Not a symlink, must be a directory - remove it recursively
-              rmSync(targetPath, { force: true, recursive: true });
+            const absoluteSource = join(homedir(), ".claude", entry);
+            const stat = lstatSync(targetPath);
+
+            if (stat.isSymbolicLink()) {
+              const currentTarget = readlinkSync(targetPath);
+              // Check if symlink points to the correct absolute target
+              if (currentTarget === absoluteSource) {
+                console.log(`  ✓ Already symlinked: ${entry}`);
+                continue; // Skip, already correct
+              }
+              console.log(chalk.yellow(`  ⚠ Replacing incorrect symlink: ${entry}`));
+            } else {
+              console.log(chalk.yellow(`  ⚠ Removing existing directory: ${entry}`));
             }
+            rmSync(targetPath, { force: true, recursive: true });
           }
           // Create absolute symlink to ~/.claude/<entry>
           const absoluteSource = join(homedir(), ".claude", entry);
