@@ -56,6 +56,8 @@ program
   .option("--skip-prompts", "Skip interactive prompts (start fresh)")
   .option("--provider <name>", "Use a provider template (glm, minimax)")
   .option("--api-key <key>", "API key for the provider")
+  .option("--auto-sync", "Auto-sync plugins/skills via symlinks (default)")
+  .option("--manual", "Manually manage plugins/skills (copy files)")
   .action(
     async (
       name: string,
@@ -68,6 +70,8 @@ program
         skipPrompts?: boolean;
         provider?: string;
         apiKey?: string;
+        autoSync?: boolean;
+        manual?: boolean;
       },
     ) => {
       try {
@@ -84,6 +88,8 @@ program
         let useProviderTemplate = false;
         let providerTemplate: any = null;
         let apiKey = "";
+        // Default to auto-sync enabled
+        let autoSync = !options.manual;
 
         // Handle provider template in CLI mode
         if (options.provider) {
@@ -189,6 +195,7 @@ program
           configDir,
           binaryPath,
           createdAt: new Date().toISOString(),
+          autoSync,
         };
 
         await addInstance(instance);
@@ -212,8 +219,12 @@ program
         }
 
         if (copyAllFiles) {
-          await copyAllFromDefault(configDir);
-          console.log(chalk.green("✓ Copied all files from default Claude"));
+          await copyAllFromDefault(configDir, autoSync);
+          if (autoSync) {
+            console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
+          } else {
+            console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
+          }
         }
 
         // Apply provider template if selected (but not if copying settings)
@@ -343,6 +354,8 @@ program
             `  Created: ${new Date(instance.createdAt).toLocaleString()}`,
           ),
         );
+        const autoSyncStatus = instance.autoSync !== false ? chalk.green("on") : chalk.yellow("off");
+        console.log(chalk.gray(`  Auto-sync: ${autoSyncStatus}`));
         console.log();
       }
     } catch (error) {
@@ -370,6 +383,8 @@ program
       console.log(
         `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`,
       );
+      const autoSyncStatus = instance.autoSync !== false ? chalk.green("✓ Enabled") : chalk.yellow("✗ Disabled");
+      console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
     } catch (error) {
       console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
       process.exit(1);
@@ -690,11 +705,27 @@ async function handleAddInstance(): Promise<void> {
     copyAllFiles = copyOption === "all";
   }
 
+  // Ask about auto-sync for plugins/skills
+  let autoSync = true;
+  if (copyAllFiles) {
+    const { autoSync: autoSyncResponse } = await prompts({
+      type: "confirm",
+      name: "autoSync",
+      message: "Auto-sync plugins and skills via symlinks?",
+      initial: true,
+      hint: "When enabled, plugins/skills are symlinked from ~/.claude (shared across instances)",
+    });
+
+    if (autoSyncResponse === undefined) return;
+    autoSync = autoSyncResponse;
+  }
+
   const instance: Instance = {
     name,
     configDir,
     binaryPath,
     createdAt: new Date().toISOString(),
+    autoSync,
   };
 
   await addInstance(instance);
@@ -715,8 +746,12 @@ async function handleAddInstance(): Promise<void> {
   }
 
   if (copyAllFiles) {
-    await copyAllFromDefault(configDir);
-    console.log(chalk.green("✓ Copied all files from default Claude"));
+    await copyAllFromDefault(configDir, autoSync);
+    if (autoSync) {
+      console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
+    } else {
+      console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
+    }
   }
 
   // Apply provider template if selected (but not if copying settings)
@@ -770,6 +805,8 @@ async function handleListInstances(instances: Instance[]): Promise<void> {
     console.log(
       chalk.gray(`  Created: ${new Date(instance.createdAt).toLocaleString()}`),
     );
+    const autoSyncStatus = instance.autoSync !== false ? chalk.green("on") : chalk.yellow("off");
+    console.log(chalk.gray(`  Auto-sync: ${autoSyncStatus}`));
     console.log();
   }
 }
@@ -803,6 +840,8 @@ async function handleShowInstanceInfo(instances: Instance[]): Promise<void> {
   console.log(
     `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`,
   );
+  const autoSyncStatus = instance.autoSync !== false ? chalk.green("✓ Enabled") : chalk.yellow("✗ Disabled");
+  console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
 }
 
 async function handleRemoveInstance(instances: Instance[]): Promise<void> {
