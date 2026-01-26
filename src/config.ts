@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -121,10 +121,32 @@ export async function updateInstanceAutoSync(
   return config.instances[index];
 }
 
+// Test-only: Override default Claude directory
+let _testDefaultClaudeDir: string | undefined;
+
+/**
+ * Test-only: Set a custom default Claude directory for testing
+ * @internal
+ */
+export function setTestDefaultClaudeDir(dir: string): void {
+  _testDefaultClaudeDir = dir;
+}
+
+/**
+ * Test-only: Clear the test override for default Claude directory
+ * @internal
+ */
+export function clearTestDefaultClaudeDir(): void {
+  _testDefaultClaudeDir = undefined;
+}
+
 /**
  * Get the default Claude directory path
  */
 export function getDefaultClaudeDir(): string {
+  if (_testDefaultClaudeDir) {
+    return _testDefaultClaudeDir;
+  }
   return join(homedir(), ".claude");
 }
 
@@ -139,23 +161,50 @@ export function hasDefaultClaudeConfig(): boolean {
 
 /**
  * Copy settings.json from default Claude to new instance
+ * SECURITY: Only copies safe, non-sensitive settings using a whitelist approach.
+ * The "env" key and all sensitive data are never copied to prevent API key exposure.
  */
 export async function copySettingsFromDefault(
   targetConfigDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
   const sourceSettings = join(defaultDir, "settings.json");
-  const targetSettings = join(targetConfigDir, "settings.json");
 
   if (!existsSync(sourceSettings)) {
     throw new Error("Default Claude settings.json not found");
   }
 
+  // Read the source settings
+  const content = await readFile(sourceSettings, "utf-8");
+  const settings = JSON.parse(content);
+
+  // Filter out sensitive data - only copy safe settings
+  const safeSettings: Record<string, unknown> = {};
+
+  // Safe settings whitelist - only these keys will be copied
+  const SAFE_SETTINGS = [
+    'includeCoAuthoredBy',
+    'alwaysThinkingEnabled',
+    'enabledPlugins'
+  ];
+
+  // Only copy whitelisted settings
+  for (const key of SAFE_SETTINGS) {
+    if (settings[key] !== undefined) {
+      safeSettings[key] = settings[key];
+    }
+  }
+
+  // SECURITY: The whitelist approach ensures the "env" key is NEVER copied
+  // along with any other sensitive data not in the whitelist
+
+  // Write filtered settings
   if (!existsSync(targetConfigDir)) {
     await mkdir(targetConfigDir, { recursive: true });
   }
 
-  await copyFile(sourceSettings, targetSettings);
+  const targetSettings = join(targetConfigDir, "settings.json");
+  await writeFile(targetSettings, JSON.stringify(safeSettings, null, 2), "utf-8");
 }
 
 /**
@@ -214,7 +263,15 @@ export async function copyAllFromDefault(
         if (autoSync && symlinkDirs.includes(entry)) {
           // Remove existing symlink or directory if it exists
           if (existsSync(targetPath)) {
-            unlinkSync(targetPath);
+            // Check if it's a symlink
+            try {
+              readlinkSync(targetPath);
+              // It's a symlink, remove it with unlinkSync
+              unlinkSync(targetPath);
+            } catch {
+              // Not a symlink, must be a directory - remove it recursively
+              rmSync(targetPath, { force: true, recursive: true });
+            }
           }
           // Create relative symlink
           const relativePath = join("..", "..", ".claude", entry);
@@ -452,10 +509,13 @@ export async function syncPluginsAndSkills(
           console.log(chalk.gray(`  ✓ ${dir} already synced`));
           continue;
         }
+        // It's a symlink but pointing to the wrong place, remove it
+        // Use rmSync without recursive to avoid following symlinks on macOS
+        rmSync(targetPath, { force: true });
       } catch {
-        // Not a symlink or can't read, continue with removal
+        // Not a symlink, must be a directory - remove it recursively
+        rmSync(targetPath, { force: true, recursive: true });
       }
-      unlinkSync(targetPath);
     }
 
     // Create symlink
@@ -499,7 +559,7 @@ export async function unsyncPluginsAndSkills(
 
     if (isSymlink) {
       // Remove symlink
-      unlinkSync(targetPath);
+      rmSync(targetPath, { force: true });
       console.log(chalk.gray(`  ✓ Removed symlink for ${dir}`));
     } else if (!existsSync(targetPath)) {
       // Neither symlink nor directory exists
