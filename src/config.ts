@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
-import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
+import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { ProviderTemplate } from "./templates.js";
@@ -136,6 +136,7 @@ export async function copySettingsFromDefault(
 
 /**
  * Copy all files from default Claude to new instance
+ * Uses symlinks for plugins and skills directories
  * Excludes: config.json, history.jsonl, debug/, session-env/, todos/
  */
 export async function copyAllFromDefault(
@@ -151,6 +152,9 @@ export async function copyAllFromDefault(
     await mkdir(targetConfigDir, { recursive: true });
   }
 
+  // Directories to symlink instead of copy
+  const symlinkDirs = ["plugins", "skills"];
+
   const excludeFiles = [
     "config.json",
     ".config.json",
@@ -165,6 +169,8 @@ export async function copyAllFromDefault(
     "mcp-cache",
     "mcp-logs",
     ".mcp-temp",
+    // These are handled as symlinks
+    ...symlinkDirs,
   ];
 
   const copyRecursive = async (source: string, target: string) => {
@@ -181,10 +187,22 @@ export async function copyAllFromDefault(
       }
 
       if (stat.isDirectory()) {
-        if (!existsSync(targetPath)) {
-          await mkdir(targetPath, { recursive: true });
+        // Use symlink for plugins and skills
+        if (symlinkDirs.includes(entry)) {
+          // Remove existing symlink or directory if it exists
+          if (existsSync(targetPath)) {
+            unlinkSync(targetPath);
+          }
+          // Create relative symlink
+          const relativePath = join("..", "..", ".claude", entry);
+          await symlink(relativePath, targetPath, "dir");
+          console.log(`  Symlinked: ${entry} -> ~/.claude/${entry}`);
+        } else {
+          if (!existsSync(targetPath)) {
+            await mkdir(targetPath, { recursive: true });
+          }
+          await copyRecursive(sourcePath, targetPath);
         }
-        await copyRecursive(sourcePath, targetPath);
       } else {
         await copyFile(sourcePath, targetPath);
       }
