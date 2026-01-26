@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-01-26
+
+### Fixed
+- Auto-sync symlinks now use absolute paths instead of relative paths
+  - Previously used hardcoded `../../.claude/` which assumed instances were in `~/.claude-instances/`
+  - Now uses `homedir()` to resolve absolute paths, working for any instance location
+  - Fixes broken symlinks when instances are created directly in home directory (e.g., `~/.claude-tester/`)
+
+### Added
+- Symlink test suite to verify both relative and absolute symlink behaviors
+
+[0.4.2]: https://github.com/hmziqrs/claude-multi/compare/v0.4.1...v0.4.2
+
 ## [0.4.1] - 2025-01-26
 
 ### Added
