@@ -40,7 +40,7 @@ const program = new Command();
 program
   .name("claude-multi")
   .description("Manage multiple Claude Code instances with different aliases")
-  .version("0.3.0");
+  .version("0.4.0");
 
 // Add command
 program
