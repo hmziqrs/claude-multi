@@ -44,10 +44,10 @@ jobs:
         run: |
           ls -la dist/
           test -f dist/cli.js || exit 1
-          node dist/cli.js --version
+          bun dist/cli.js --version
 
       - name: Publish to NPM
-        run: npm publish --provenance --access public
+        run: bun publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

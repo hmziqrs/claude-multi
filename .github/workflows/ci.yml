@@ -50,14 +50,14 @@ jobs:
       - name: Verify CLI works (Unix)
         if: runner.os != 'Windows'
         run: |
-          node dist/cli.js --help
-          node dist/cli.js --version
+          bun dist/cli.js --help
+          bun dist/cli.js --version
 
       - name: Verify CLI works (Windows)
         if: runner.os == 'Windows'
         run: |
-          node dist/cli.js --help
-          node dist/cli.js --version
+          bun dist/cli.js --help
+          bun dist/cli.js --version
         shell: cmd
 
   check-version:

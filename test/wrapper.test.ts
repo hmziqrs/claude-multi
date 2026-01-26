@@ -16,7 +16,7 @@ describe("Wrapper Script Generation", () => {
 
       const script = generateWrapperScript(options);
 
-      expect(script).toContain("#!/usr/bin/env node");
+      expect(script).toContain("#!/usr/bin/env bun");
       expect(script).toContain(
         'process.env.CLAUDE_CONFIG_DIR = "/home/user/.claude-test"',
       );
@@ -71,7 +71,7 @@ describe("Wrapper Script Generation", () => {
       });
 
       const path = getDefaultBinaryPath("test");
-      expect(path).toContain("npm");
+      expect(path).toContain("bun");
       expect(path).toContain("claude-test.cmd");
 
       Object.defineProperty(process, "platform", {

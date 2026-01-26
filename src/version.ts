@@ -11,7 +11,7 @@ export interface VersionInfo {
  */
 export function getCurrentVersion(): string | null {
   try {
-    const output = execSync("npm list -g @anthropic-ai/claude-code --json", {
+    const output = execSync("bun pm ls -g @anthropic-ai/claude-code --json", {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "ignore"],
     });
@@ -30,7 +30,7 @@ export function getCurrentVersion(): string | null {
 export async function getLatestVersion(): Promise<string> {
   try {
     const output = execSync(
-      "npm view @anthropic-ai/claude-code version",
+      "bun pm npm view @anthropic-ai/claude-code version",
       {
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "ignore"],
@@ -83,7 +83,7 @@ export function compareVersions(v1: string, v2: string): number {
 export async function updateClaudeCode(): Promise<void> {
   try {
     console.log("Updating @anthropic-ai/claude-code...");
-    execSync("npm install -g @anthropic-ai/claude-code@latest", {
+    execSync("bun install -g @anthropic-ai/claude-code@latest", {
       stdio: "inherit",
     });
     console.log("Update completed successfully!");
