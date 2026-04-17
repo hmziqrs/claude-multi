@@ -2,6 +2,25 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+/**
+ * Detects whether bun is available in PATH
+ */
+function hasBun(): boolean {
+  try {
+    execSync("which bun", { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns the package manager command to use (bun or npm)
+ */
+function getPM(): "bun" | "npm" {
+  return hasBun() ? "bun" : "npm";
+}
+
 export interface VersionInfo {
   current: string | null;
   latest: string;
@@ -54,15 +73,24 @@ export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInf
  * Upgrades claude-multi to the latest version
  */
 export function upgradeClaudeMulti(): void {
-  execSync("bun upgrade -g claude-multi", { stdio: "inherit" });
+  const pm = getPM();
+  if (pm === "bun") {
+    execSync("bun upgrade -g claude-multi", { stdio: "inherit" });
+  } else {
+    execSync("npm update -g claude-multi", { stdio: "inherit" });
+  }
 }
 
 /**
  * Gets the currently installed version of @anthropic-ai/claude-code
  */
 export function getCurrentVersion(): string | null {
+  const pm = getPM();
   try {
-    const output = execSync("bun pm ls -g @anthropic-ai/claude-code --json", {
+    const cmd = pm === "bun"
+      ? "bun pm ls -g @anthropic-ai/claude-code --json"
+      : "npm ls -g @anthropic-ai/claude-code --json";
+    const output = execSync(cmd, {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "ignore"],
     });
@@ -79,14 +107,15 @@ export function getCurrentVersion(): string | null {
  * Gets the latest version of @anthropic-ai/claude-code from npm registry
  */
 export async function getLatestVersion(): Promise<string> {
+  const pm = getPM();
   try {
-    const output = execSync(
-      "bun pm npm view @anthropic-ai/claude-code version",
-      {
-        encoding: "utf-8",
-        stdio: ["pipe", "pipe", "ignore"],
-      }
-    );
+    const cmd = pm === "bun"
+      ? "bun pm npm view @anthropic-ai/claude-code version"
+      : "npm view @anthropic-ai/claude-code version";
+    const output = execSync(cmd, {
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "ignore"],
+    });
     return output.trim();
   } catch (error) {
     throw new Error(
@@ -132,11 +161,13 @@ export function compareVersions(v1: string, v2: string): number {
  * Updates @anthropic-ai/claude-code to the latest version
  */
 export async function updateClaudeCode(): Promise<void> {
+  const pm = getPM();
   try {
     console.log("Updating @anthropic-ai/claude-code...");
-    execSync("bun install -g @anthropic-ai/claude-code@latest", {
-      stdio: "inherit",
-    });
+    const cmd = pm === "bun"
+      ? "bun install -g @anthropic-ai/claude-code@latest"
+      : "npm install -g @anthropic-ai/claude-code@latest";
+    execSync(cmd, { stdio: "inherit" });
     console.log("Update completed successfully!");
   } catch (error) {
     throw new Error(`Failed to update @anthropic-ai/claude-code: ${error}`);

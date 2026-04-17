@@ -1,10 +1,9 @@
-#!/usr/bin/env bun
-
 import { Command } from "commander";
 import chalk from "chalk";
 import prompts from "prompts";
 import { homedir } from "node:os";
 import { join } from "node:path";
+declare const PKG_VERSION: string;
 import {
   addInstance,
   removeInstance,
@@ -28,27 +27,27 @@ import {
   disablePlugin,
   listAvailablePlugins,
   type Instance,
-} from "./config.ts";
+} from "./config.js";
 import {
   createWrapper,
   removeWrapper,
   getDefaultBinaryPath,
-} from "./wrapper.ts";
+} from "./wrapper.js";
 import {
   checkForUpdates,
   updateClaudeCode,
   getCurrentVersion,
   checkForClaudeMultiUpdates,
   upgradeClaudeMulti,
-} from "./version.ts";
-import { getAvailableProviders, getProviderTemplate } from "./templates.ts";
+} from "./version.js";
+import { getAvailableProviders, getProviderTemplate } from "./templates.js";
 
 const program = new Command();
 
 program
   .name("claude-multi")
   .description("Manage multiple Claude Code instances with different aliases")
-  .version("0.4.0");
+  .version(PKG_VERSION);
 
 // Add command
 program
@@ -265,21 +264,32 @@ program
         console.log();
 
         // Check if binary directory is in PATH
-        const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
+        const sep = process.platform === "win32" ? "\\" : "/";
+        const pathSep = process.platform === "win32" ? ";" : ":";
+        const binDir = binaryPath.substring(0, binaryPath.lastIndexOf(sep));
         const pathEnv = process.env.PATH || "";
-        const isInPath = pathEnv.split(":").some((p) => p === binDir);
+        const isInPath = pathEnv.split(pathSep).some((p) => p === binDir);
 
         if (!isInPath) {
           console.log(
             chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`),
           );
-          console.log(chalk.gray(`Add to PATH by running:`));
-          console.log(
-            chalk.cyan(
-              `  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`,
-            ),
-          );
-          console.log(chalk.cyan(`  source ~/.zshrc`));
+          if (process.platform === "win32") {
+            console.log(chalk.gray(`Add to PATH in PowerShell:`));
+            console.log(
+              chalk.cyan(
+                `  $p = [Environment]::GetEnvironmentVariable("PATH", "User"); [Environment]::SetEnvironmentVariable("PATH", "${binDir};$p", "User")`,
+              ),
+            );
+          } else {
+            console.log(chalk.gray(`Add to PATH by running:`));
+            console.log(
+              chalk.cyan(
+                `  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`,
+              ),
+            );
+            console.log(chalk.cyan(`  source ~/.zshrc`));
+          }
           console.log();
           console.log(chalk.gray(`Or run directly: ${binaryPath} --help`));
         } else {
@@ -1089,17 +1099,28 @@ async function handleAddInstance(): Promise<void> {
   console.log(chalk.gray(`  Config: ${configDir}`));
 
   // Check PATH
-  const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
+  const sep = process.platform === "win32" ? "\\" : "/";
+  const pathSep = process.platform === "win32" ? ";" : ":";
+  const binDir = binaryPath.substring(0, binaryPath.lastIndexOf(sep));
   const pathEnv = process.env.PATH || "";
-  const isInPath = pathEnv.split(":").some((p) => p === binDir);
+  const isInPath = pathEnv.split(pathSep).some((p) => p === binDir);
 
   if (!isInPath) {
     console.log(chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`));
-    console.log(chalk.gray(`Add to PATH by running:`));
-    console.log(
-      chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`),
-    );
-    console.log(chalk.cyan(`  source ~/.zshrc`));
+    if (process.platform === "win32") {
+      console.log(chalk.gray(`Add to PATH in PowerShell:`));
+      console.log(
+        chalk.cyan(
+          `  $p = [Environment]::GetEnvironmentVariable("PATH", "User"); [Environment]::SetEnvironmentVariable("PATH", "${binDir};$p", "User")`,
+        ),
+      );
+    } else {
+      console.log(chalk.gray(`Add to PATH by running:`));
+      console.log(
+        chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`),
+      );
+      console.log(chalk.cyan(`  source ~/.zshrc`));
+    }
   } else {
     console.log(chalk.cyan(`Run: claude-${name} --help`));
   }

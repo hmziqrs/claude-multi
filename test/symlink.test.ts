@@ -1,4 +1,4 @@
-import { symlink, readFile, mkdir, unlink } from "node:fs/promises";
+import { symlink, readFile, mkdir, unlink, writeFile } from "node:fs/promises";
 import { existsSync, readlinkSync, lstatSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
@@ -19,7 +19,7 @@ async function runTest() {
 
   console.log("1. Setting up test environment...");
   await mkdir(originDir, { recursive: true });
-  await Bun.write(join(originDir, "file.txt"), "Hello from origin!");
+  await writeFile(join(originDir, "file.txt"), "Hello from origin!");
   console.log(`   Created: ${originDir}/file.txt`);
 
   console.log("\n2. Creating relative directory symlink...");

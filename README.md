@@ -14,12 +14,17 @@ Claude Code supports multiple AI providers (Anthropic, GLM, Minimax), but switch
 - 🎨 **Provider Templates**: Built-in templates for GLM, MiniMax, and more
 - ✅ **Legal**: Uses wrapper scripts, no code modification
 - 🚀 **Auto-sync**: Always uses the latest official Claude Code
+- 🖥️ **Cross-Platform**: Works on Linux, macOS, and Windows
+- 🔗 **Native CLI**: Wrapper scripts call the native `claude` CLI directly (zero JS runtime overhead)
 
 ## Installation
 
 ```bash
+npm install -g @anthropic-ai/claude-code
 npm install -g claude-multi
 ```
+
+> **Note:** `@anthropic-ai/claude-code` is an optional peer dependency. Install it separately before using claude-multi.
 
 ## Quick Start
 
@@ -47,12 +52,10 @@ claude-multi add myinstance
 
 On Windows, ensure `%APPDATA%\npm` is in your PATH to use the wrapper commands:
 
-```cmd
-# Check if npm directory is in PATH
-echo %PATH%
-
-# Add to PATH if needed (PowerShell as Administrator)
-[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:APPDATA\npm", "User")
+```powershell
+# Add npm global bin to PATH (PowerShell)
+$p = [Environment]::GetEnvironmentVariable("PATH", "User")
+[Environment]::SetEnvironmentVariable("PATH", "$env:APPDATA\npm;$p", "User")
 ```
 
 After adding to PATH, restart your terminal for changes to take effect.
@@ -192,27 +195,17 @@ Customize later by editing `~/.claude-{name}/settings.json`
 ## Requirements
 
 - Node.js >= 18
-- `@anthropic-ai/claude-code` installed globally
+- `@anthropic-ai/claude-code` installed globally (via `npm install -g` or native installer)
 
 ## Platform Support
 
-**claude-multi** supports all major operating systems:
+| Platform | Status | Wrapper Type | Binary Path |
+|----------|--------|-------------|-------------|
+| Linux    | ✅      | Shell script (`#!/bin/sh`) | `~/.local/bin` |
+| macOS    | ✅      | Shell script (`#!/bin/sh`) | `~/.local/bin` |
+| Windows  | ✅      | Batch file (`.cmd`) | `%APPDATA%\npm` |
 
-- ✅ **Linux**: Fully supported
-- ✅ **macOS**: Fully supported  
-- ✅ **Windows**: Fully supported
-
-### Platform-Specific Notes
-
-**Windows:**
-- Wrapper scripts are created as `.cmd` batch files
-- Binary path defaults to `%APPDATA%\npm`
-- Example: `claude-glm.cmd` instead of `claude-glm`
-
-**Unix/Linux/macOS:**
-- Wrapper scripts are Node.js scripts with shebangs
-- Binary path defaults to `~/.local/bin`
-- Scripts are automatically marked as executable
+Wrapper scripts call the native `claude` CLI directly — no Bun or Node.js runtime overhead for instance execution. The claude-multi management tool itself runs on Node.js.
 
 ## License
 
@@ -220,7 +213,7 @@ MIT
 
 ## Credits
 
-Built with [Bun](https://bun.sh) and [Commander.js](https://github.com/tj/commander.js)
+Built with [Commander.js](https://github.com/tj/commander.js), [tsup](https://tsup.egoist.dev/), and [vitest](https://vitest.dev/)
 
 Wrapper for [@anthropic-ai/claude-code](https://www.npmjs.com/package/@anthropic-ai/claude-code)
 

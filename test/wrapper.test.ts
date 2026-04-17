@@ -1,13 +1,13 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect } from "vitest";
 import {
   generateWrapperScript,
   generateWindowsWrapperScript,
   getDefaultBinaryPath,
-} from "../src/wrapper";
+} from "../src/wrapper.js";
 
 describe("Wrapper Script Generation", () => {
   describe("Unix wrapper", () => {
-    it("should generate a valid Node.js wrapper script", () => {
+    it("should generate a valid shell wrapper script", () => {
       const options = {
         name: "test",
         configDir: "/home/user/.claude-test",
@@ -16,12 +16,12 @@ describe("Wrapper Script Generation", () => {
 
       const script = generateWrapperScript(options);
 
-      expect(script).toContain("#!/usr/bin/env bun");
+      expect(script).toContain("#!/bin/sh");
       expect(script).toContain(
-        'process.env.CLAUDE_CONFIG_DIR = "/home/user/.claude-test"',
+        'CLAUDE_CONFIG_DIR="/home/user/.claude-test"',
       );
       expect(script).toContain("claude-multi");
-      expect(script).toContain("spawn");
+      expect(script).toContain('exec');
     });
   });
 
@@ -71,7 +71,7 @@ describe("Wrapper Script Generation", () => {
       });
 
       const path = getDefaultBinaryPath("test");
-      expect(path).toContain("bun");
+      expect(path).toContain("npm");
       expect(path).toContain("claude-test.cmd");
 
       Object.defineProperty(process, "platform", {

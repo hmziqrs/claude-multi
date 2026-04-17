@@ -1,18 +1,21 @@
 {
   "name": "claude-multi",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Manage multiple Claude Code instances with different aliases and configurations",
   "type": "module",
   "bin": {
     "claude-multi": "./dist/cli.js"
   },
+  "files": [
+    "dist/cli.js"
+  ],
   "scripts": {
-    "build": "bun build src/cli.ts --outdir dist --target bun --format esm && chmod +x dist/cli.js",
-    "dev": "bun run src/cli.ts",
-    "test": "bun test",
-    "prepublishOnly": "bun run build",
+    "build": "tsup && chmod +x dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run --exclude '**/symlink.test.ts'",
+    "prepublishOnly": "npm run build",
     "test:binary": "./dist/cli.js",
-    "install:global": "bun link"
+    "install:global": "npm link"
   },
   "keywords": [
     "claude",
@@ -34,10 +37,18 @@
   "peerDependencies": {
     "@anthropic-ai/claude-code": ">=2.0.0"
   },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/claude-code": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/prompts": "^2.4.9",
-    "bun-types": "latest"
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.0.0"
   },
   "dependencies": {
     "chalk": "^5.3.0",
