@@ -59,6 +59,7 @@ claude-multi update       # update Claude Code
 |----------|--------|-------------|
 | **GLM** (智谱AI) | GLM-5.1, GLM-5-Turbo | `api.z.ai` |
 | **MiniMax** | MiniMax-M2.7 | `api.minimax.io` |
+| **DeepSeek** | DeepSeek-V4-Pro, DeepSeek-V4-Flash | `api.deepseek.com` |
 
 Customize any template by editing `~/.claude-<name>/settings.json`.
 

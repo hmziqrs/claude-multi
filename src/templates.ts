@@ -54,6 +54,27 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
       alwaysThinkingEnabled: true,
     },
   },
+  deepseek: {
+    name: "deepseek",
+    displayName: "DeepSeek",
+    description: "DeepSeek-V4-Pro and DeepSeek-V4-Flash models via deepseek.com",
+    settings: {
+      env: {
+        ANTHROPIC_AUTH_TOKEN: "",
+        ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+        API_TIMEOUT_MS: "3000000",
+        ANTHROPIC_MODEL: "deepseek-v4-pro[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "deepseek-v4-pro[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "deepseek-v4-pro[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "deepseek-v4-flash",
+        ANTHROPIC_SMALL_FAST_MODEL: "deepseek-v4-flash",
+        CLAUDE_CODE_SUBAGENT_MODEL: "deepseek-v4-flash",
+        CLAUDE_CODE_EFFORT_LEVEL: "max",
+      },
+      includeCoAuthoredBy: false,
+      alwaysThinkingEnabled: false,
+    },
+  },
 };
 
 /**

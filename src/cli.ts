@@ -108,7 +108,7 @@ program
           if (!providerTemplate) {
             console.error(
               chalk.red(
-                `✗ Unknown provider '${options.provider}'. Available: glm, minimax`,
+                `✗ Unknown provider '${options.provider}'. Available: glm, minimax, deepseek`,
               ),
             );
             process.exit(1);
@@ -888,7 +888,7 @@ async function handleAddInstance(): Promise<void> {
   const { useProvider } = await prompts({
     type: "confirm",
     name: "useProvider",
-    message: "Would you like to use a provider template (GLM, MiniMax)?",
+    message: "Would you like to use a provider template (GLM, MiniMax, DeepSeek)?",
     initial: false,
   });
 
