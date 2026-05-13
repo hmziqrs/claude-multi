@@ -27,6 +27,7 @@ import {
   enablePlugin,
   disablePlugin,
   listAvailablePlugins,
+  initializeInstanceState,
   type Instance,
 } from "./config.ts";
 import {
@@ -211,6 +212,7 @@ program
 
         await addInstance(instance);
         await createWrapper(instance);
+        await initializeInstanceState(configDir);
 
         // Copy files if requested
         if (copySettings && !copyAllFiles) {

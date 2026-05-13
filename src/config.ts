@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync, type Stats } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
+import { randomBytes } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import type { ProviderTemplate } from "./templates.js";
 import { applyProviderTemplate } from "./templates.js";
@@ -577,6 +578,40 @@ export async function createSettingsFromTemplate(
   const settingsFile = join(targetConfigDir, "settings.json");
 
   await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
+}
+
+/**
+ * Initialize .claude.json state to skip onboarding screens
+ */
+export async function initializeInstanceState(
+  configDir: string,
+): Promise<void> {
+  const stateFile = join(configDir, ".claude.json");
+  if (existsSync(stateFile)) return;
+
+  if (!existsSync(configDir)) {
+    await mkdir(configDir, { recursive: true });
+  }
+
+  const state = {
+    numStartups: 1,
+    installMethod: "global",
+    autoUpdates: false,
+    hasSeenTasksHint: true,
+    hasCompletedOnboarding: true,
+    lastOnboardingVersion: "2.0.31",
+    firstStartTime: new Date().toISOString(),
+    userID: randomBytes(32).toString("hex"),
+    promptQueueUseCount: 0,
+    sonnet45MigrationComplete: true,
+    opus45MigrationComplete: true,
+    thinkingMigrationComplete: true,
+    sonnet1m45MigrationComplete: true,
+    opusProMigrationComplete: true,
+    migrationVersion: 13,
+  };
+
+  await writeFile(stateFile, JSON.stringify(state, null, 2), "utf-8");
 }
 
 /**

@@ -23,6 +23,7 @@ import {
   createSettingsFromTemplate,
   copyMcpServersBetweenInstances,
   listMcpServers,
+  initializeInstanceState,
   type Instance,
   type Config,
 } from "../../config.js";
@@ -111,5 +112,6 @@ export function useConfig() {
     getProviderTemplate,
     updateInstanceAutoSync,
     syncPluginsAndSkills,
+    initializeInstanceState,
   };
 }

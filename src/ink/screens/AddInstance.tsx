@@ -181,6 +181,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       await cfg.addInstance(instance);
       await cfg.createWrapper(instance);
+      await cfg.initializeInstanceState(cDir);
 
       const copySettings = ["settings", "settings+mcp", "all"].includes(copyOpt);
       const copyMcp = ["mcp", "settings+mcp", "all"].includes(copyOpt);
