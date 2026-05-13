@@ -138,9 +138,11 @@ program
           if (options.copyAll) {
             copyAllFiles = true;
             copySettings = true;
-          } else if (options.copySettings) {
+          }
+          if (options.copySettings && !options.copyAll) {
             copySettings = true;
-          } else if (options.copyMcp) {
+          }
+          if (options.copyMcp) {
             copyMcpServers = true;
           }
           // skipPrompts means start fresh (both false)

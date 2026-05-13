@@ -460,32 +460,37 @@ export async function copyMcpServersFromDefault(
   targetConfigDir: string,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
-  const mcpConfig = await detectMcpConfigurations(defaultDir);
-
-  if (!mcpConfig) {
-    throw new Error("No MCP configurations found in default Claude");
-  }
 
   if (!existsSync(targetConfigDir)) {
     await mkdir(targetConfigDir, { recursive: true });
   }
 
-  // Check if target already has MCP configurations
-  const existingMcpConfig = await detectMcpConfigurations(targetConfigDir);
+  // Symlink plugins directory — MCP servers come from plugins
+  const pluginsDir = join(targetConfigDir, "plugins");
+  const defaultPluginsDir = join(defaultDir, "plugins");
+  if (existsSync(defaultPluginsDir) && !existsSync(pluginsDir)) {
+    await ensureDirSymlink({
+      configDir: targetConfigDir,
+      sourceBaseDir: defaultDir,
+      dir: "plugins",
+    });
+  }
 
-  if (existingMcpConfig) {
-    // Merge MCP configurations, with target taking precedence
-    const mergedConfig = {
-      mcpServers: {
-        ...mcpConfig.mcpServers,
-        ...existingMcpConfig.mcpServers,
-      },
-    };
-
-    await writeMcpConfiguration(targetConfigDir, mergedConfig);
-  } else {
-    // Copy MCP configurations directly
-    await writeMcpConfiguration(targetConfigDir, mcpConfig);
+  // Also copy any explicit mcpServers from settings.json
+  const mcpConfig = await detectMcpConfigurations(defaultDir);
+  if (mcpConfig) {
+    const existingMcpConfig = await detectMcpConfigurations(targetConfigDir);
+    if (existingMcpConfig) {
+      const mergedConfig = {
+        mcpServers: {
+          ...mcpConfig.mcpServers,
+          ...existingMcpConfig.mcpServers,
+        },
+      };
+      await writeMcpConfiguration(targetConfigDir, mergedConfig);
+    } else {
+      await writeMcpConfiguration(targetConfigDir, mcpConfig);
+    }
   }
 }
 

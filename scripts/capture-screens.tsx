@@ -82,7 +82,7 @@ const screens: Record<string, React.ReactElement> = {
   "04-add-instance-name": (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={1} total={4} label="Instance Name" />
+      <StepIndicator current={1} total={3} label="Instance Name" />
       <Box flexDirection="column" gap={1}>
         <Text>Instance name:</Text>
         <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
@@ -95,13 +95,15 @@ const screens: Record<string, React.ReactElement> = {
   "04-add-instance-provider": (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={2} total={4} label="Provider Template" />
+      <StepIndicator current={2} total={3} label="Provider Template" />
       <Box flexDirection="column" gap={1}>
-        <Text>Use a provider template? (GLM, MiniMax, DeepSeek)</Text>
+        <Text>Select a provider:</Text>
         <Box>
-          <Text>Y/n </Text>
-          <Text color="green">❯</Text>
+          <Text color="green">❯ </Text><Text>GLM (智谱AI) — GLM-5.1 via z.ai</Text>
         </Box>
+        <Box><Text>   </Text><Text>MiniMax — MiniMax-M2.7 via minimax.io</Text></Box>
+        <Box><Text>   </Text><Text>DeepSeek — DeepSeek-V4 via deepseek.com</Text></Box>
+        <Box><Text>   </Text><Text dimColor>None / Custom</Text></Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
     </Box>
@@ -178,7 +180,7 @@ const screens: Record<string, React.ReactElement> = {
   "08-add-success": (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={4} total={4} label="Complete" />
+      <StepIndicator current={3} total={3} label="Complete" />
       <Box flexDirection="column" gap={1}>
         <StatusBar message="Instance 'deepseek' created successfully!" type="success" />
         <Box marginLeft={2} flexDirection="column">

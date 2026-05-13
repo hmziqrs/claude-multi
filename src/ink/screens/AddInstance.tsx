@@ -41,7 +41,6 @@ const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string 
 
 type Step =
   | "name"
-  | "provider-confirm"
   | "provider-select"
   | "provider-apikey"
   | "paths-confirm"
@@ -52,8 +51,7 @@ type Step =
 
 const STEP_TITLES: Record<Step, string> = {
   name: "Instance Name",
-  "provider-confirm": "Provider Template",
-  "provider-select": "Select Provider",
+  "provider-select": "Provider Template",
   "provider-apikey": "API Key",
   "paths-confirm": "Paths",
   "copy-options": "Copy Options",
@@ -63,7 +61,7 @@ const STEP_TITLES: Record<Step, string> = {
 };
 
 const STEP_ORDER: Step[] = [
-  "name", "provider-confirm", "provider-select", "provider-apikey",
+  "name", "provider-select", "provider-apikey",
   "paths-confirm", "copy-options", "autosync", "creating", "done",
 ];
 
@@ -78,7 +76,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [step, setStep] = useState<Step>("name");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [useProvider, setUseProvider] = useState<boolean | null>(null);
+  const [useProvider, setUseProvider] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [autoSync, setAutoSync] = useState(true);
@@ -96,10 +94,9 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const goBack = useCallback(() => {
     const prevMap: Partial<Record<Step, Step>> = {
-      "provider-confirm": "name",
-      "provider-select": "provider-confirm",
+      "provider-select": "name",
       "provider-apikey": "provider-select",
-      "paths-confirm": "provider-confirm",
+      "paths-confirm": "provider-select",
       "copy-options": "paths-confirm",
       autosync: "copy-options",
     };
@@ -120,12 +117,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
     setError("");
     setName(value);
-    setStep("provider-confirm");
-  }, []);
-
-  const handleProviderConfirm = useCallback((confirmed: boolean) => {
-    setUseProvider(confirmed);
-    setStep(confirmed ? "provider-select" : "paths-confirm");
+    setStep("provider-select");
   }, []);
 
   const handleProviderSelect = useCallback((value: string) => {
@@ -224,7 +216,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={stepNumber(step)} total={4} label={STEP_TITLES[step]} />
+      <StepIndicator current={stepNumber(step)} total={3} label={STEP_TITLES[step]} />
 
       {error && <StatusBar message={error} type="error" />}
 
@@ -233,17 +225,6 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text>Instance name:</Text>
           <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
           <TextInput placeholder="my-instance" onSubmit={handleNameSubmit} />
-        </Box>
-      )}
-
-      {step === "provider-confirm" && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Use a provider template? (GLM, MiniMax, DeepSeek)</Text>
-          <ConfirmInput
-            defaultChoice="cancel"
-            onConfirm={() => handleProviderConfirm(true)}
-            onCancel={() => handleProviderConfirm(false)}
-          />
         </Box>
       )}
 
