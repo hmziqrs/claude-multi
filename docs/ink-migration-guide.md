@@ -2,14 +2,13 @@
 
 ## Executive Summary
 
-This guide provides a comprehensive roadmap for migrating **Claude Multi** from a `prompts`-based CLI to a modern **Ink**-based terminal UI. The migration will transform the CLI into a visually stunning, social-media-worthy interface while maintaining all existing functionality.
+This guide migrates **Claude Multi** from a `prompts`-based CLI to an **Ink** (React-for-terminals) UI while preserving all existing functionality.
 
 **Target Benefits:**
-- 🎨 Beautiful, responsive layouts
-- 🔄 Real-time updates and animations  
-- 📱 Modern React-based architecture
-- 🎯 Improved user experience
-- 📸 Screenshot-worthy UI for Reddit/X
+- Composable layouts via flexbox
+- Persistent UI state across multi-step flows
+- Modern React component model
+- Real-time feedback (spinners, progress, errors)
 
 **Migration Complexity:** Medium-High (28 interactive elements to convert)
 
@@ -368,7 +367,7 @@ bun add ink react @inkjs/ui
 | Feature | Current | Target | Package |
 |---------|---------|--------|---------|
 | Select menus | `prompts.select` | `Select` | `@inkjs/ui` |
-| Multi-select | `prompts.multiselect` | Custom or `ink-select-input` | Custom |
+| Multi-select | `prompts.multiselect` | `MultiSelect` | `@inkjs/ui` |
 | Text input | `prompts.text` | `TextInput` | `@inkjs/ui` |
 | Password | `prompts.password` | `PasswordInput` (preferred) or `TextInput` with `mask` | `@inkjs/ui` / `ink-text-input` |
 | Confirm | `prompts.confirm` | `ConfirmInput` | `@inkjs/ui` |
@@ -429,32 +428,36 @@ const { name } = await prompts({
 });
 ```
 
-**After (Ink):**
+**After (Ink — `@inkjs/ui`):**
 ```typescript
-import { TextInput } from 'ink-text-input';
+import { TextInput } from '@inkjs/ui';
+import { Text } from 'ink';
 import { useState } from 'react';
 
-const [name, setName] = useState('');
 const [error, setError] = useState('');
 
-<TextInput
-  placeholder="Instance name"
-  value={name}
-  onChange={setName}
-  onSubmit={() => {
-    if (!name.trim()) {
-      setError('Name is required');
-      return;
-    }
-    if (!/^[a-zA-Z0-9-_]+$/.test(name)) {
-      setError('Invalid name format');
-      return;
-    }
-    // Proceed with valid name
-  }}
-/>
-{error && <Text color="red">{error}</Text>}
+<>
+  <TextInput
+    placeholder="Instance name"
+    onSubmit={(value) => {
+      if (!value.trim()) {
+        setError('Name is required');
+        return;
+      }
+      if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
+        setError('Invalid name format');
+        return;
+      }
+      setError('');
+      // Proceed with valid name
+    }}
+  />
+  {error && <Text color="red">{error}</Text>}
+</>
 ```
+
+> `@inkjs/ui`'s `TextInput` is uncontrolled — read the value via `onSubmit(value)` / `onChange(value)` instead of `value=`.
+> If you need controlled input, install `ink-text-input` and use its default export instead.
 
 ### 3. Password Input → PasswordInput Component
 
@@ -533,7 +536,7 @@ import { ConfirmInput } from '@inkjs/ui';
 > `ConfirmInput` props: `defaultChoice: 'confirm' | 'cancel'` (default `'confirm'`),
 > `submitOnEnter: boolean` (default `true`), plus `onConfirm` / `onCancel`.
 
-### 5. Multi-Select → Custom Component
+### 5. Multi-Select → MultiSelect Component
 
 **Before (prompts):**
 ```typescript
@@ -548,50 +551,27 @@ const { selected } = await prompts({
 });
 ```
 
-**After (Ink):**
+**After (Ink — `@inkjs/ui`):**
 ```typescript
-import { useInput } from 'ink';
+import { MultiSelect } from '@inkjs/ui';
+import { Box, Text } from 'ink';
 
-const MultiSelect = ({ options, onSelect }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [selectedItems, setSelectedItems] = useState(new Set());
-
-  useInput((input, key) => {
-    if (key.upArrow) setSelectedIndex(i => Math.max(0, i - 1));
-    if (key.downArrow) setSelectedIndex(i => Math.min(options.length - 1, i + 1));
-    if (input === ' ') {
-      const item = options[selectedIndex];
-      setSelectedItems(prev => {
-        const next = new Set(prev);
-        if (next.has(item.value)) {
-          next.delete(item.value);
-        } else {
-          next.add(item.value);
-        }
-        return next;
-      });
-    }
-    if (key.return && selectedItems.size > 0) {
-      onSelect(Array.from(selectedItems));
-    }
-  });
-
-  return (
-    <Box flexDirection="column">
-      <Text>Select instances (space to toggle, enter to confirm):</Text>
-      {options.map((option, i) => (
-        <Box key={option.value}>
-          <Text color={i === selectedIndex ? 'green' : 'white'}>
-            {i === selectedIndex ? '> ' : '  '}
-            {selectedItems.has(option.value) ? '[x] ' : '[ ] '}
-            {option.label}
-          </Text>
-        </Box>
-      ))}
-    </Box>
-  );
-};
+<Box flexDirection="column">
+  <Text>Select instances to fix (space to toggle, enter to submit):</Text>
+  <MultiSelect
+    options={instances.map(i => ({
+      label: `${i.name} ${i.autoSync ? '(auto-sync)' : '(manual)'}`,
+      value: i.name,
+    }))}
+    onSubmit={(selected) => {
+      // `selected` is a string[] of chosen instance names
+      fixSymlinks(selected);
+    }}
+  />
+</Box>
 ```
+
+> `MultiSelect` props: `options`, `defaultValue?: string[]`, `highlightText?`, `onChange(value: string[])`, `onSubmit(value: string[])`.
 
 ---
 
@@ -759,14 +739,13 @@ Ordered task groups. No fixed timeline — work through them sequentially.
 // src/ink/screens/AddInstance.tsx
 import React, { useState } from 'react';
 import { Box, Text, useApp } from 'ink';
-import TextInput from 'ink-text-input';
-import { Select, ConfirmInput, PasswordInput } from '@inkjs/ui';
+import { TextInput, Select, ConfirmInput, PasswordInput } from '@inkjs/ui';
 import { useConfig } from '../hooks/useConfig';
 
 export const AddInstance = () => {
   const { exit } = useApp();
   const { addInstance, createWrapper } = useConfig();
-  
+
   const [step, setStep] = useState<'name' | 'provider' | 'paths' | 'copy' | 'done'>('name');
   const [instanceName, setInstanceName] = useState('');
   const [useProvider, setUseProvider] = useState<boolean | null>(null);
@@ -774,16 +753,17 @@ export const AddInstance = () => {
   const [apiKey, setApiKey] = useState('');
   const [error, setError] = useState('');
 
-  const handleNameSubmit = async () => {
-    if (!instanceName.trim()) {
+  const handleNameSubmit = (value: string) => {
+    if (!value.trim()) {
       setError('Name is required');
       return;
     }
-    if (!/^[a-zA-Z0-9-_]+$/.test(instanceName)) {
+    if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
       setError('Invalid name format');
       return;
     }
     setError('');
+    setInstanceName(value);
     setStep('provider');
   };
 
@@ -856,10 +836,8 @@ export const AddInstance = () => {
           <Text>Enter instance name:</Text>
           <Text dimColor>(letters, numbers, hyphens, underscores only)</Text>
           <TextInput
-            value={instanceName}
-            onChange={setInstanceName}
-            onSubmit={handleNameSubmit}
             placeholder="my-instance"
+            onSubmit={handleNameSubmit}
           />
           <Text dimColor>Press Enter to continue</Text>
         </Box>
@@ -885,6 +863,24 @@ export const AddInstance = () => {
               { label: 'DeepSeek', value: 'deepseek' },
             ]}
             onChange={setSelectedProvider}
+          />
+        </Box>
+      )}
+
+      {step === 'provider' && selectedProvider && !apiKey && (
+        <Box flexDirection="column">
+          <Text>Enter your {selectedProvider} API key:</Text>
+          <PasswordInput
+            placeholder="sk-..."
+            onSubmit={(value) => {
+              if (!value.trim()) {
+                setError('API key is required');
+                return;
+              }
+              setError('');
+              setApiKey(value);
+              handleComplete();
+            }}
           />
         </Box>
       )}
@@ -1013,21 +1009,36 @@ export const App = () => {
 
 ## Testing Strategy
 
+Use [`ink-testing-library`](https://github.com/vadimdemedes/ink-testing-library) (v4) to render components and assert on frame output / simulated keypresses.
+
+```bash
+bun add -d ink-testing-library
+```
+
 ### Unit Testing
 
 ```typescript
-// test/ink/components.test.tsx
+// test/ink/AddInstance.test.tsx
+import { test, expect } from 'bun:test';
 import { render } from 'ink-testing-library';
-import { AddInstance } from '../src/ink/screens/AddInstance';
+import { AddInstance } from '../../src/ink/screens/AddInstance';
 
-describe('AddInstance', () => {
-  it('should validate instance name', async () => {
-    const { lastFrame } = render(<AddInstance />);
-    
-    // Test name validation
-    // Test provider selection
-    // Test API key input
-  });
+test('rejects empty instance name', () => {
+  const { stdin, lastFrame } = render(<AddInstance />);
+  stdin.write('\r'); // press Enter with empty input
+  expect(lastFrame()).toContain('Name is required');
+});
+
+test('rejects invalid characters in name', () => {
+  const { stdin, lastFrame } = render(<AddInstance />);
+  stdin.write('bad name!\r');
+  expect(lastFrame()).toContain('Invalid name format');
+});
+
+test('advances to provider step on valid name', () => {
+  const { stdin, lastFrame } = render(<AddInstance />);
+  stdin.write('my-instance\r');
+  expect(lastFrame()).toContain('Would you like to use a provider template?');
 });
 ```
 
@@ -1035,12 +1046,35 @@ describe('AddInstance', () => {
 
 ```typescript
 // test/ink/flows.test.tsx
-describe('Add Instance Flow', () => {
-  it('should complete full add instance flow', async () => {
-    // Test complete user journey
-  });
+import { test, expect } from 'bun:test';
+import { render } from 'ink-testing-library';
+import { App } from '../../src/ink/App';
+
+test('main menu navigates to Add Instance', () => {
+  const { stdin, lastFrame } = render(<App />);
+  // Default selection is "Add new instance"; Enter to confirm.
+  stdin.write('\r');
+  expect(lastFrame()).toContain('Add New Instance');
+});
+
+test('q exits the app', () => {
+  const { stdin, frames } = render(<App />);
+  stdin.write('q');
+  // App should unmount; final frame stops updating.
+  expect(frames.at(-1)).toBeDefined();
 });
 ```
+
+### Key simulation reference
+
+| Action | `stdin.write(...)` |
+|---|---|
+| Enter | `'\r'` |
+| Arrow down | `'[B'` |
+| Arrow up | `'[A'` |
+| Space | `' '` |
+| Escape | `''` |
+| Ctrl+C | `''` |
 
 ### Manual Testing Checklist
 
@@ -1181,8 +1215,3 @@ const useInkUI = process.env.CLAUDE_MULTI_INK !== 'false';
 | `Esc` | Cancel |
 | `1-9` | Quick select |
 
----
-
-**Last Updated:** 2026-05-13  
-**Version:** 1.0.0  
-**Maintainer:** Claude Multi Team
