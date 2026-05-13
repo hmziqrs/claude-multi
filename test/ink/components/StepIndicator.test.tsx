@@ -10,7 +10,7 @@ describe("StepIndicator", () => {
     const { lastFrame } = render(
       <StepIndicator current={2} total={4} label="Provider" />,
     );
-    expect(lastFrame()).toContain("Step 2/4");
+    expect(lastFrame()).toContain("[2/4]");
     expect(lastFrame()).toContain("Provider");
   });
 
@@ -18,6 +18,6 @@ describe("StepIndicator", () => {
     const { lastFrame } = render(
       <StepIndicator current={1} total={3} label="Name" />,
     );
-    expect(lastFrame()).toContain("Step 1/3");
+    expect(lastFrame()).toContain("[1/3]");
   });
 });

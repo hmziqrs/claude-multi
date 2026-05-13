@@ -4,8 +4,38 @@ import { MultiSelect } from "@inkjs/ui";
 import { Header } from "../components/Header.js";
 import { useNavigation } from "../hooks/useNavigation.js";
 import { useConfig } from "../hooks/useConfig.js";
+import { useStaggeredReveal, useFadeIn } from "../hooks/useAnimations.js";
 
 type Step = "select" | "fixing" | "done";
+
+const SymlinkResults: React.FC<{
+  results: { name: string; broken: string[]; all: string[]; fixed: boolean }[];
+}> = ({ results }) => {
+  const visibleCount = useStaggeredReveal(results.length, 80);
+  const showDone = useFadeIn(results.length * 80 + 100);
+
+  return (
+    <Box flexDirection="column" gap={0}>
+      {results.slice(0, visibleCount).map((r) => (
+        <Box key={r.name} marginLeft={2} flexDirection="column">
+          <Box gap={1}>
+            <Text bold>{r.name}</Text>
+            {r.broken.length > 0 ? (
+              r.fixed
+                ? <Text color="green">✅ Fixed: {r.broken.join(", ")}</Text>
+                : <Text color="red">❌ Failed: {r.broken.join(", ")}</Text>
+            ) : r.all.length > 0 ? (
+              <Text color="green">✅ All OK: {r.all.join(", ")}</Text>
+            ) : (
+              <Text dimColor>no symlinks (manual)</Text>
+            )}
+          </Box>
+        </Box>
+      ))}
+      {showDone && <Box marginTop={1}><Text bold>✨ Done!</Text></Box>}
+    </Box>
+  );
+};
 
 export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, detectBrokenSymlinks, syncPluginsAndSkills } = useConfig();
@@ -22,13 +52,18 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   if (instances.length === 0) {
     return (
-      <Box flexDirection="column" padding={1}>
+      <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🔄 Re-sync Symlinks" />
         <Text color="yellow">No instances found.</Text>
         <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
       </Box>
     );
   }
+
+  const instanceOptions = instances.map((i) => ({
+    label: `${i.name} ${i.autoSync !== false ? "(auto-sync)" : "(manual)"}`,
+    value: i.name,
+  }));
 
   const handleSelect = async (selectedNames: string[]) => {
     setStep("fixing");
@@ -57,7 +92,7 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   };
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🔄 Re-sync Symlinks" />
 
       {error && <Box marginBottom={1}><Text color="red">✗ {error}</Text></Box>}
@@ -66,10 +101,8 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           <Text>Select instances to fix:</Text>
           <MultiSelect
-            options={instances.map((i) => ({
-              label: `${i.name} ${i.autoSync !== false ? "(auto-sync)" : "(manual)"}`,
-              value: i.name,
-            }))}
+            options={instanceOptions}
+            visibleOptionCount={instanceOptions.length}
             onSubmit={handleSelect}
           />
         </Box>
@@ -78,25 +111,7 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       {step === "fixing" && <Text dimColor>Fixing symlinks...</Text>}
 
       {step === "done" && (
-        <Box flexDirection="column" gap={0}>
-          {results.map((r) => (
-            <Box key={r.name} marginLeft={2} flexDirection="column">
-              <Box gap={1}>
-                <Text bold>{r.name}</Text>
-                {r.broken.length > 0 ? (
-                  r.fixed
-                    ? <Text color="green">✅ Fixed: {r.broken.join(", ")}</Text>
-                    : <Text color="red">❌ Failed: {r.broken.join(", ")}</Text>
-                ) : r.all.length > 0 ? (
-                  <Text color="green">✅ All OK: {r.all.join(", ")}</Text>
-                ) : (
-                  <Text dimColor>no symlinks (manual)</Text>
-                )}
-              </Box>
-            </Box>
-          ))}
-          <Box marginTop={1}><Text bold>✨ Done!</Text></Box>
-        </Box>
+        <SymlinkResults results={results} />
       )}
 
       <Box marginTop={1}>

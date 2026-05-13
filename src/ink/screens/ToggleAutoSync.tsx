@@ -5,8 +5,37 @@ import { Header } from "../components/Header.js";
 import { StatusBar } from "../components/StatusBar.js";
 import { useNavigation } from "../hooks/useNavigation.js";
 import { useConfig } from "../hooks/useConfig.js";
+import { useFadeIn } from "../hooks/useAnimations.js";
 
 type Step = "select" | "action" | "syncing" | "done";
+
+const ToggleAction: React.FC<{
+  selected: { name: string; autoSync?: boolean };
+  actionOptions: { label: string; value: string }[];
+  onAction: (value: string) => void;
+}> = ({ selected, actionOptions, onAction }) => {
+  const showStatus = useFadeIn(50);
+  const showOptions = useFadeIn(150);
+  return (
+    <Box flexDirection="column" gap={1}>
+      {showStatus && (
+        <Box>
+          <Text>Auto-sync for <Text bold color="cyan">{selected.name}</Text> is currently <Text bold color={selected.autoSync !== false ? "green" : "red"}>{selected.autoSync !== false ? "ON" : "OFF"}</Text></Text>
+        </Box>
+      )}
+      {showOptions && (
+        <>
+          <Text>What would you like to do?</Text>
+          <Select
+            options={actionOptions}
+            visibleOptionCount={actionOptions.length}
+            onChange={onAction}
+          />
+        </>
+      )}
+    </Box>
+  );
+};
 
 export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, toggleAutoSync } = useConfig();
@@ -28,13 +57,18 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
   if (instances.length === 0) {
     return (
-      <Box flexDirection="column" padding={1}>
+      <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🔄 Toggle Auto-Sync" />
         <Text color="yellow">No instances found.</Text>
         <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
       </Box>
     );
   }
+
+  const instanceOptions = instances.map((i) => ({
+    label: `${i.name} (${i.autoSync !== false ? "on" : "off"})`,
+    value: i.name,
+  }));
 
   const handleSelect = (value: string) => {
     const inst = instances.find((i) => i.name === value);
@@ -65,8 +99,19 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     }
   };
 
+  const actionOptions = [
+    {
+      label: selected?.autoSync !== false ? "Turn off (copy files locally)" : "Turn on (use symlinks)",
+      value: "toggle",
+    },
+    ...(selected?.autoSync !== false
+      ? [{ label: "Force re-sync (rebuild symlinks)", value: "force-sync" }]
+      : []),
+    { label: "Cancel", value: "cancel" },
+  ];
+
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🔄 Toggle Auto-Sync" />
 
       {error && <StatusBar message={error} type="error" />}
@@ -75,35 +120,19 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         <Box flexDirection="column" gap={1}>
           <Text>Select an instance:</Text>
           <Select
-            options={instances.map((i) => ({
-              label: `${i.name} (${i.autoSync !== false ? "on" : "off"})`,
-              value: i.name,
-            }))}
+            options={instanceOptions}
+            visibleOptionCount={instanceOptions.length}
             onChange={handleSelect}
           />
         </Box>
       )}
 
       {step === "action" && selected && (
-        <Box flexDirection="column" gap={1}>
-          <Box marginLeft={2}>
-            <Text>Auto-sync for <Text bold color="cyan">{selected.name}</Text> is currently <Text bold color={selected.autoSync !== false ? "green" : "red"}>{selected.autoSync !== false ? "ON" : "OFF"}</Text></Text>
-          </Box>
-          <Text>What would you like to do?</Text>
-          <Select
-            options={[
-              {
-                label: selected.autoSync !== false ? "Turn off (copy files locally)" : "Turn on (use symlinks)",
-                value: "toggle",
-              },
-              ...(selected.autoSync !== false
-                ? [{ label: "Force re-sync (rebuild symlinks)", value: "force-sync" }]
-                : []),
-              { label: "Cancel", value: "cancel" },
-            ]}
-            onChange={handleAction}
-          />
-        </Box>
+        <ToggleAction
+          selected={selected}
+          actionOptions={actionOptions}
+          onAction={handleAction}
+        />
       )}
 
       {step === "syncing" && <Text dimColor>Syncing...</Text>}

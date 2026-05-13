@@ -1,12 +1,61 @@
 import React, { useState } from "react";
-import { Box, Text, useApp, useInput } from "ink";
+import { Box, Text, useApp } from "ink";
 import { Select, ConfirmInput } from "@inkjs/ui";
 import { Header } from "../components/Header.js";
 import { StatusBar } from "../components/StatusBar.js";
 import { useNavigation } from "../hooks/useNavigation.js";
 import { useConfig } from "../hooks/useConfig.js";
+import { useFadeIn } from "../hooks/useAnimations.js";
 
 type Step = "select" | "confirm" | "removing" | "done";
+
+const RemoveConfirm: React.FC<{
+  selected: { name: string; binaryPath: string; configDir: string };
+  onConfirm: () => void;
+  onCancel: () => void;
+}> = ({ selected, onConfirm, onCancel }) => {
+  const showWarning = useFadeIn(50);
+  const showDetails = useFadeIn(120);
+  const showConfirm = useFadeIn(250);
+
+  return (
+    <Box flexDirection="column" gap={1}>
+      {showWarning && (
+        <Box gap={1}>
+          <Text bold color="red">⚠ About to remove</Text>
+          <Text bold color="red">'{selected.name}'</Text>
+        </Box>
+      )}
+      {showDetails && (
+        <>
+          <Box marginLeft={2} flexDirection="column">
+            <Box gap={1}>
+              <Text dimColor>├─</Text>
+              <Text dimColor bold>Binary:</Text>
+              <Text dimColor>{selected.binaryPath}</Text>
+            </Box>
+            <Box gap={1}>
+              <Text dimColor>└─</Text>
+              <Text dimColor bold>Config:</Text>
+              <Text dimColor>{selected.configDir}</Text>
+            </Box>
+          </Box>
+          <Text dimColor>Config directory will NOT be deleted automatically.</Text>
+        </>
+      )}
+      {showConfirm && (
+        <>
+          <Text>Confirm removal?</Text>
+          <ConfirmInput
+            defaultChoice="cancel"
+            onConfirm={onConfirm}
+            onCancel={onCancel}
+          />
+        </>
+      )}
+    </Box>
+  );
+};
 
 export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { exit } = useApp();
@@ -16,7 +65,6 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   const [error, setError] = useState("");
   const [removedConfig, setRemovedConfig] = useState("");
 
-  // ESC navigates back contextually
   useNavigation(() => {
     if (step === "confirm") {
       setStep("select");
@@ -30,13 +78,18 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
   if (instances.length === 0) {
     return (
-      <Box flexDirection="column" padding={1}>
+      <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🗑️ Remove Instance" />
         <Text color="yellow">No instances found.</Text>
         <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
       </Box>
     );
   }
+
+  const instanceOptions = instances.map((i) => ({
+    label: `${i.name} (${i.configDir})`,
+    value: i.name,
+  }));
 
   const handleSelect = (value: string) => {
     const inst = instances.find((i) => i.name === value);
@@ -70,7 +123,7 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   };
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🗑️ Remove Instance" />
 
       {error && <StatusBar message={error} type="error" />}
@@ -79,38 +132,19 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         <Box flexDirection="column" gap={1}>
           <Text>Select an instance to remove:</Text>
           <Select
-            options={instances.map((i) => ({
-              label: `${i.name} (${i.configDir})`,
-              value: i.name,
-            }))}
+            options={instanceOptions}
+            visibleOptionCount={instanceOptions.length}
             onChange={handleSelect}
           />
         </Box>
       )}
 
       {step === "confirm" && selected && (
-        <Box flexDirection="column" gap={1}>
-          <Box borderStyle="round" borderColor="red" paddingX={1} flexDirection="column">
-            <Text bold color="red">⚠ About to remove '{selected.name}'</Text>
-          </Box>
-          <Box marginLeft={2} flexDirection="column">
-            <Box gap={2}>
-              <Text dimColor bold>Binary:</Text>
-              <Text dimColor>{selected.binaryPath}</Text>
-            </Box>
-            <Box gap={2}>
-              <Text dimColor bold>Config:</Text>
-              <Text dimColor>{selected.configDir}</Text>
-            </Box>
-          </Box>
-          <Text dimColor>Config directory will NOT be deleted automatically.</Text>
-          <Text>Confirm removal?</Text>
-          <ConfirmInput
-            defaultChoice="cancel"
-            onConfirm={() => handleConfirm(true)}
-            onCancel={() => handleConfirm(false)}
-          />
-        </Box>
+        <RemoveConfirm
+          selected={selected}
+          onConfirm={() => handleConfirm(true)}
+          onCancel={() => handleConfirm(false)}
+        />
       )}
 
       {step === "removing" && <Text dimColor>Removing...</Text>}

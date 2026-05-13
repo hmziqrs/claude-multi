@@ -4,6 +4,7 @@ import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "./components/Header.js";
 import { Footer } from "./components/Footer.js";
 import { useConfig } from "./hooks/useConfig.js";
+import { useFadeIn, useTypewriter } from "./hooks/useAnimations.js";
 import { AddInstance } from "./screens/AddInstance.js";
 import { ListInstances } from "./screens/ListInstances.js";
 import { ShowInstanceInfo } from "./screens/ShowInstanceInfo.js";
@@ -25,13 +26,34 @@ type Screen =
   | "mcp"
   | "goodbye";
 
+const GoodbyeScreen: React.FC = () => {
+  const msg = useTypewriter("👋 Goodbye!", 40);
+  return (
+    <Box paddingX={2} paddingY={1}>
+      <Text dimColor>{msg}</Text>
+    </Box>
+  );
+};
+
+const InstanceLine: React.FC<{ instances: { name: string }[] }> = ({ instances }) => {
+  const visible = useFadeIn(100);
+  if (!visible || instances.length === 0) return null;
+  return (
+    <Box marginBottom={1}>
+      <Text dimColor>
+        {instances.length} instance(s):{" "}
+        {instances.map((i) => i.name).join(", ")}
+      </Text>
+    </Box>
+  );
+};
+
 export const App: React.FC = () => {
   const { exit } = useApp();
   const { instances, loading } = useConfig();
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
 
-  // Only handle q on menu — sub-screens handle their own nav
   useInput((input, key) => {
     if (screen !== "menu") return;
     if (input === "q" || key.escape) {
@@ -42,7 +64,7 @@ export const App: React.FC = () => {
 
   if (loading) {
     return (
-      <Box padding={1}>
+      <Box paddingX={2} paddingY={1}>
         <Spinner label="Loading..." />
       </Box>
     );
@@ -54,11 +76,7 @@ export const App: React.FC = () => {
   };
 
   if (screen === "goodbye") {
-    return (
-      <Box padding={1}>
-        <Text dimColor>👋 Goodbye!</Text>
-      </Box>
-    );
+    return <GoodbyeScreen />;
   }
 
   if (screen !== "menu") {
@@ -70,7 +88,6 @@ export const App: React.FC = () => {
     return null;
   }
 
-  // ── Main Menu ──
   const menuOptions = [
     { label: "➕ Add new instance", value: "add" },
     { label: "📋 List all instances", value: "list" },
@@ -88,21 +105,15 @@ export const App: React.FC = () => {
   ];
 
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🤖 Claude Multi" subtitle="Interactive Mode" />
 
-      {instances.length > 0 && (
-        <Box marginBottom={1}>
-          <Text dimColor>
-            {instances.length} instance(s):{" "}
-            {instances.map((i) => i.name).join(", ")}
-          </Text>
-        </Box>
-      )}
+      <InstanceLine instances={instances} />
 
       <Select
         key={menuKey}
         options={menuOptions}
+        visibleOptionCount={menuOptions.length}
         onChange={(value) => {
           if (value === "exit") {
             setScreen("goodbye");

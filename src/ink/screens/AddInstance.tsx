@@ -9,8 +9,35 @@ import {
   useConfig,
   type Instance,
 } from "../hooks/useConfig.js";
+import { useFadeIn } from "../hooks/useAnimations.js";
 import { join } from "node:path";
 import { homedir } from "node:os";
+
+const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string }> = ({
+  name, binaryPath, configDir,
+}) => {
+  const showStatus = useFadeIn(50);
+  const showPaths = useFadeIn(200);
+  return (
+    <Box flexDirection="column" gap={1}>
+      {showStatus && <StatusBar message={`Instance '${name}' created successfully!`} type="success" />}
+      {showPaths && (
+        <Box marginLeft={2} flexDirection="column">
+          <Box gap={1}>
+            <Text dimColor>├─</Text>
+            <Text dimColor bold>Binary:</Text>
+            <Text>{binaryPath}</Text>
+          </Box>
+          <Box gap={1}>
+            <Text dimColor>└─</Text>
+            <Text dimColor bold>Config:</Text>
+            <Text>{configDir}</Text>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+};
 
 type Step =
   | "name"
@@ -58,13 +85,11 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [copyOption, setCopyOption] = useState<string>("none");
   const [result, setResult] = useState<{ configDir: string; binaryPath: string } | null>(null);
 
-  // ESC goes back from done, otherwise to menu
   useNavigation(() => {
     if (step === "done") onBack();
     else onBack();
   });
 
-  // q works globally
   useInput((input) => {
     if (input === "q" && step === "done") exit();
   });
@@ -180,8 +205,23 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const hasDefaultConfig = cfg.hasDefaultConfig();
 
+  const providerOptions = [
+    ...cfg.getAvailableProviders().map((p) => ({
+      label: `${p.displayName} — ${p.description}`,
+      value: p.name,
+    })),
+    { label: "None / Custom", value: "none" },
+  ];
+
+  const copyOptions = [
+    { label: "Nothing — start fresh", value: "none" },
+    { label: "Only settings.json", value: "settings" },
+    { label: "Settings + MCP servers", value: "settings+mcp" },
+    { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
+  ];
+
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
       <StepIndicator current={stepNumber(step)} total={4} label={STEP_TITLES[step]} />
 
@@ -210,13 +250,8 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           <Text>Select a provider:</Text>
           <Select
-            options={[
-              ...cfg.getAvailableProviders().map((p) => ({
-                label: `${p.displayName} — ${p.description}`,
-                value: p.name,
-              })),
-              { label: "None / Custom", value: "none" },
-            ]}
+            options={providerOptions}
+            visibleOptionCount={providerOptions.length}
             onChange={handleProviderSelect}
           />
         </Box>
@@ -256,12 +291,8 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text>Found existing Claude config at ~/.claude</Text>
           <Text>What to copy?</Text>
           <Select
-            options={[
-              { label: "Nothing — start fresh", value: "none" },
-              { label: "Only settings.json", value: "settings" },
-              { label: "Settings + MCP servers", value: "settings+mcp" },
-              { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
-            ]}
+            options={copyOptions}
+            visibleOptionCount={copyOptions.length}
             onChange={handleCopyOption}
           />
         </Box>
@@ -283,19 +314,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       )}
 
       {step === "done" && result && (
-        <Box flexDirection="column" gap={1}>
-          <StatusBar message={`Instance '${name}' created successfully!`} type="success" />
-          <Box marginLeft={2} flexDirection="column">
-            <Box gap={2}>
-              <Text dimColor bold>Binary:</Text>
-              <Text>{result.binaryPath}</Text>
-            </Box>
-            <Box gap={2}>
-              <Text dimColor bold>Config:</Text>
-              <Text>{result.configDir}</Text>
-            </Box>
-          </Box>
-        </Box>
+        <AddResult name={name} binaryPath={result.binaryPath} configDir={result.configDir} />
       )}
 
       <Box marginTop={1}>

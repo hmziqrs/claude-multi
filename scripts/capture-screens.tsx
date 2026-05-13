@@ -1,7 +1,5 @@
 import React from "react";
-import { Writable } from "node:stream";
-import * as ink from "ink";
-import { Box, Text } from "ink";
+import { renderToString, Box, Text } from "ink";
 import { Header } from "../src/ink/components/Header.js";
 import { Footer } from "../src/ink/components/Footer.js";
 import { InstanceCard } from "../src/ink/components/InstanceCard.js";
@@ -9,10 +7,8 @@ import { StatusBar } from "../src/ink/components/StatusBar.js";
 import { StepIndicator } from "../src/ink/components/StepIndicator.js";
 import { writeFileSync, mkdirSync } from "node:fs";
 
-if (!process.env.FORCE_COLOR) {
-  console.error("Run with FORCE_COLOR=1 to get ANSI color output");
-  process.exit(1);
-}
+// Ensure static renders (skip animations)
+process.env.CAPTURE_MODE = "1";
 
 const SCREENSHOTS_DIR = "./screenshots";
 mkdirSync(SCREENSHOTS_DIR, { recursive: true });
@@ -23,9 +19,11 @@ const testInstances = [
   { name: "g2", configDir: "/Users/hmziq/.claude-g2", binaryPath: "/Users/hmziq/.local/bin/claude-g2", createdAt: "2025-06-01T00:00:00.000Z", autoSync: false },
 ];
 
+const COLS = 120;
+
 const screens: Record<string, React.ReactElement> = {
   "01-main-menu": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🤖 Claude Multi" subtitle="Interactive Mode" />
       <Box marginBottom={1}>
         <Text dimColor>3 instance(s): glm, mm, g2</Text>
@@ -48,12 +46,14 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "02-list-instances": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="📋 All Instances" />
       <Text bold>Found 3 instance(s):</Text>
-      <InstanceCard instance={testInstances[0]} />
-      <InstanceCard instance={testInstances[1]} />
-      <InstanceCard instance={testInstances[2]} />
+      <Box flexDirection="column">
+        <InstanceCard instance={testInstances[0]} />
+        <InstanceCard instance={testInstances[1]} />
+        <InstanceCard instance={testInstances[2]} />
+      </Box>
       <Box marginTop={1}>
         <Text dimColor>ESC to go back</Text>
       </Box>
@@ -61,17 +61,18 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "03-instance-detail": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="ℹ️ Instance Details" />
-      <Box flexDirection="column" gap={1}>
-        <Box borderStyle="round" borderColor="cyan" paddingX={1}>
-          <Text bold><Text color="cyan">glm</Text></Text>
+      <Box flexDirection="column" gap={0}>
+        <Box gap={1}>
+          <Text color="cyan">●</Text>
+          <Text bold color="cyan">glm</Text>
         </Box>
         <Box marginLeft={2} flexDirection="column">
-          <Box gap={2}><Text dimColor bold>Binary:</Text><Text>/Users/hmziq/.local/bin/claude-glm</Text></Box>
-          <Box gap={2}><Text dimColor bold>Config:</Text><Text>/Users/hmziq/.claude-glm</Text></Box>
-          <Box gap={2}><Text dimColor bold>Created:</Text><Text>1/1/2025, 12:00:00 AM</Text></Box>
-          <Box gap={2}><Text dimColor bold>Auto-sync:</Text><Text color="green">✓ Enabled</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Binary:</Text><Text>/Users/hmziq/.local/bin/claude-glm</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Config:</Text><Text>/Users/hmziq/.claude-glm</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Created:</Text><Text>1/1/2025, 12:00:00 AM</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Auto-sync:</Text><Text color="green">✓ Enabled</Text></Box>
         </Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
@@ -79,22 +80,20 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "04-add-instance-name": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
       <StepIndicator current={1} total={4} label="Instance Name" />
       <Box flexDirection="column" gap={1}>
         <Text>Instance name:</Text>
         <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
-        <Box borderStyle="single" borderColor="gray" paddingX={1}>
-          <Text>my-instance_</Text>
-        </Box>
+        <Text>my-instance_</Text>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
     </Box>
   ),
 
   "04-add-instance-provider": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
       <StepIndicator current={2} total={4} label="Provider Template" />
       <Box flexDirection="column" gap={1}>
@@ -109,15 +108,16 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "05-remove-confirm": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🗑️ Remove Instance" />
       <Box flexDirection="column" gap={1}>
-        <Box borderStyle="round" borderColor="red" paddingX={1} flexDirection="column">
-          <Text bold color="red">⚠ About to remove 'g2'</Text>
+        <Box gap={1}>
+          <Text bold color="red">⚠ About to remove</Text>
+          <Text bold color="red">'g2'</Text>
         </Box>
         <Box marginLeft={2} flexDirection="column">
-          <Box gap={2}><Text dimColor bold>Binary:</Text><Text dimColor>/Users/hmziq/.local/bin/claude-g2</Text></Box>
-          <Box gap={2}><Text dimColor bold>Config:</Text><Text dimColor>/Users/hmziq/.claude-g2</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Binary:</Text><Text dimColor>/Users/hmziq/.local/bin/claude-g2</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Config:</Text><Text dimColor>/Users/hmziq/.claude-g2</Text></Box>
         </Box>
         <Text dimColor>Config directory will NOT be deleted automatically.</Text>
         <Text>Confirm removal?</Text>
@@ -131,10 +131,10 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "06-autosync-toggle": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🔄 Toggle Auto-Sync" />
       <Box flexDirection="column" gap={1}>
-        <Box marginLeft={2}>
+        <Box>
           <Text>Auto-sync for <Text bold color="cyan">g2</Text> is currently <Text bold color="red">OFF</Text></Text>
         </Box>
         <Text>What would you like to do?</Text>
@@ -148,29 +148,27 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "07-mcp-details": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="⚙️ Manage MCP Servers" />
-      <Box flexDirection="column" gap={1}>
-        <StatusBar message="3 MCP server(s) found" type="success" />
-        <Box marginLeft={2} flexDirection="column">
-          <Box gap={1}>
-            <Text bold color="cyan">context7</Text>
-            <Text color="green">✓</Text>
-          </Box>
-          <Box marginLeft={2} flexDirection="column">
-            <Box gap={2}><Text dimColor bold>Type:</Text><Text>http</Text></Box>
-            <Box gap={2}><Text dimColor bold>URL:</Text><Text>https://api.context7.com</Text></Box>
-          </Box>
+      <StatusBar message="3 MCP server(s) found" type="success" />
+      <Box marginLeft={2} flexDirection="column">
+        <Box gap={1}>
+          <Text bold color="cyan">context7</Text>
+          <Text color="green">✓</Text>
         </Box>
         <Box marginLeft={2} flexDirection="column">
-          <Box gap={1}>
-            <Text bold color="cyan">playwright</Text>
-            <Text color="green">✓</Text>
-          </Box>
-          <Box marginLeft={2} flexDirection="column">
-            <Box gap={2}><Text dimColor bold>Type:</Text><Text>stdio</Text></Box>
-            <Box gap={2}><Text dimColor bold>Command:</Text><Text>npx @playwright/mcp</Text></Box>
-          </Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Type:</Text><Text>http</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>URL:</Text><Text>https://api.context7.com</Text></Box>
+        </Box>
+      </Box>
+      <Box marginLeft={2} flexDirection="column" marginTop={1}>
+        <Box gap={1}>
+          <Text bold color="cyan">playwright</Text>
+          <Text color="green">✓</Text>
+        </Box>
+        <Box marginLeft={2} flexDirection="column">
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Type:</Text><Text>stdio</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Command:</Text><Text>npx @playwright/mcp</Text></Box>
         </Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
@@ -178,14 +176,14 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "08-add-success": (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
       <StepIndicator current={4} total={4} label="Complete" />
       <Box flexDirection="column" gap={1}>
         <StatusBar message="Instance 'deepseek' created successfully!" type="success" />
         <Box marginLeft={2} flexDirection="column">
-          <Box gap={2}><Text dimColor bold>Binary:</Text><Text>/Users/hmziq/.local/bin/claude-deepseek</Text></Box>
-          <Box gap={2}><Text dimColor bold>Config:</Text><Text>/Users/hmziq/.claude-deepseek</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Binary:</Text><Text>/Users/hmziq/.local/bin/claude-deepseek</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Config:</Text><Text>/Users/hmziq/.claude-deepseek</Text></Box>
         </Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
@@ -193,7 +191,7 @@ const screens: Record<string, React.ReactElement> = {
   ),
 
   "09-goodbye": (
-    <Box padding={1}>
+    <Box paddingX={2} paddingY={1}>
       <Text dimColor>👋 Goodbye!</Text>
     </Box>
   ),
@@ -281,21 +279,8 @@ function ansiToHtml(text: string): string {
   return html;
 }
 
-async function captureScreen(name: string, component: React.ReactElement): Promise<void> {
-  const chunks: string[] = [];
-  const stdout = new Writable({
-    write(chunk, _encoding, callback) {
-      chunks.push(chunk.toString());
-      callback();
-    },
-  });
-
-  const { unmount } = ink.render(component, { stdout });
-
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  unmount();
-
-  const ansiOutput = chunks.join("");
+for (const [name, component] of Object.entries(screens)) {
+  const ansiOutput = renderToString(component, { columns: COLS });
   const htmlContent = ansiToHtml(ansiOutput);
 
   const fullHtml = `<!DOCTYPE html>
@@ -306,7 +291,7 @@ async function captureScreen(name: string, component: React.ReactElement): Promi
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, monospace;
     font-size: 14px; line-height: 1.5; color: #cdd6f4;
     background: #1e1e2e; border: 2px solid #313244;
-    border-radius: 8px; padding: 16px; min-width: 600px;
+    border-radius: 8px; padding: 16px; max-width: ${COLS}ch;
     white-space: pre; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
 </style></head>
@@ -316,9 +301,4 @@ async function captureScreen(name: string, component: React.ReactElement): Promi
   console.log(`Captured: ${name}`);
 }
 
-(async () => {
-  for (const [name, component] of Object.entries(screens)) {
-    await captureScreen(name, component);
-  }
-  console.log(`\nAll screens captured to ${SCREENSHOTS_DIR}/`);
-})();
+console.log(`\nAll screens captured to ${SCREENSHOTS_DIR}/`);

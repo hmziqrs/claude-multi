@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
+import { useFadeIn } from "../hooks/useAnimations.js";
 
 export const StatusBar: React.FC<{
   message: string;
@@ -7,18 +8,14 @@ export const StatusBar: React.FC<{
 }> = ({ message, type = "info" }) => {
   const colors = { success: "green", error: "red", warning: "yellow", info: "gray" } as const;
   const icons = { success: "✓", error: "✗", warning: "⚠", info: "ℹ" } as const;
-  const bgColors = { success: "green", error: "red", warning: "yellow", info: "blue" } as const;
+  const visible = useFadeIn(50);
+
+  if (!visible) return null;
 
   return (
-    <Box
-      borderStyle="round"
-      borderColor={colors[type]}
-      paddingX={1}
-      marginBottom={1}
-    >
-      <Text color={colors[type]} bold>
-        {icons[type]} {message}
-      </Text>
+    <Box marginBottom={1}>
+      <Text color={colors[type]} bold>{icons[type]}</Text>
+      <Text> {message}</Text>
     </Box>
   );
 };

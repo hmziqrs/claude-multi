@@ -5,8 +5,15 @@ import { Header } from "../components/Header.js";
 import { StatusBar } from "../components/StatusBar.js";
 import { useNavigation } from "../hooks/useNavigation.js";
 import { useConfig } from "../hooks/useConfig.js";
+import { useFadeIn } from "../hooks/useAnimations.js";
 
 type Step = "action" | "select-instance" | "select-plugins" | "done";
+
+const PluginSuccess: React.FC<{ message: string }> = ({ message }) => {
+  const visible = useFadeIn(100);
+  if (!visible) return null;
+  return <StatusBar message={message} type="success" />;
+};
 
 export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, getEnabledPlugins, setEnabledPlugins, enablePlugin, disablePlugin, listAvailablePlugins, reload } = useConfig();
@@ -29,13 +36,15 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   if (instances.length === 0) {
     return (
-      <Box flexDirection="column" padding={1}>
+      <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🔌 Manage Plugins" />
         <Text color="yellow">No instances found.</Text>
         <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
       </Box>
     );
   }
+
+  const instanceOptions = instances.map((i) => ({ label: i.name, value: i.name }));
 
   const handleAction = (value: string) => {
     if (value === "cancel") { onBack(); return; }
@@ -100,8 +109,10 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     return Object.entries(plugins).filter(filter).map(([id]) => ({ label: id, value: id }));
   };
 
+  const filteredPluginOptions = getFilteredPlugins();
+
   return (
-    <Box flexDirection="column" padding={1}>
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🔌 Manage Plugins" />
 
       {error && <StatusBar message={error} type="error" />}
@@ -116,6 +127,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               { label: "📋 Copy from default Claude", value: "copy" },
               { label: "Cancel", value: "cancel" },
             ]}
+            visibleOptionCount={4}
             onChange={handleAction}
           />
         </Box>
@@ -125,7 +137,8 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           <Text>Select an instance:</Text>
           <Select
-            options={instances.map((i) => ({ label: i.name, value: i.name }))}
+            options={instanceOptions}
+            visibleOptionCount={instanceOptions.length}
             onChange={handleInstanceSelect}
           />
         </Box>
@@ -135,14 +148,15 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           <Text>Select plugins to {action === "enable" ? "enable" : "disable"}:</Text>
           <MultiSelect
-            options={getFilteredPlugins()}
+            options={filteredPluginOptions}
+            visibleOptionCount={Math.min(filteredPluginOptions.length, 8)}
             onSubmit={handlePluginToggle}
           />
         </Box>
       )}
 
       {step === "done" && (
-        <StatusBar message={success} type="success" />
+        <PluginSuccess message={success} />
       )}
 
       <Box marginTop={1}>

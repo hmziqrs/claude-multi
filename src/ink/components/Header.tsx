@@ -1,26 +1,27 @@
 import React from "react";
-import { Box, Text } from "ink";
+import { Box, Text, useWindowSize } from "ink";
+import { useTypewriter, useDrawLine } from "../hooks/useAnimations.js";
 
 export const Header: React.FC<{ title: string; subtitle?: string }> = ({
   title,
   subtitle,
-}) => (
-  <Box flexDirection="column" marginBottom={1}>
-    <Box
-      borderStyle="round"
-      borderColor="cyan"
-      paddingX={2}
-      justifyContent="center"
-    >
-      <Text bold color="cyan">
-        {title}
-      </Text>
-      {subtitle && (
-        <Text dimColor>
-          {" "}
-          — {subtitle}
-        </Text>
+}) => {
+  const { columns = 80 } = useWindowSize();
+  const lineLen = Math.max(20, Math.min(columns - 4, 60));
+  const typedTitle = useTypewriter(title, 20);
+  const lineProgress = useDrawLine(lineLen, typedTitle.length * 20, 3);
+
+  return (
+    <Box flexDirection="column" width="100" marginBottom={1}>
+      <Box>
+        <Text bold color="cyan">{typedTitle}</Text>
+        {subtitle && typedTitle.length === title.length && (
+          <Text dimColor> — {subtitle}</Text>
+        )}
+      </Box>
+      {lineProgress > 0 && (
+        <Text color="cyan">{"─".repeat(lineProgress)}</Text>
       )}
     </Box>
-  </Box>
-);
+  );
+};
