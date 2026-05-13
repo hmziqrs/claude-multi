@@ -11,28 +11,270 @@ This guide provides a comprehensive roadmap for migrating **Claude Multi** from 
 - 🎯 Improved user experience
 - 📸 Screenshot-worthy UI for Reddit/X
 
-**Migration Complexity:** Medium-High (32 interactive elements to convert)
+**Migration Complexity:** Medium-High (28 interactive elements to convert)
 
 ---
 
 ## Table of Contents
 
-1. [Current State Analysis](#current-state-analysis)
-2. [Technology Stack Comparison](#technology-stack-comparison)
-3. [Migration Architecture](#migration-architecture)
-4. [Component Mapping](#component-mapping)
-5. [State Management Strategy](#state-management-strategy)
-6. [Step-by-Step Migration Plan](#step-by-step-migration-plan)
-7. [Code Examples](#code-examples)
-8. [Testing Strategy](#testing-strategy)
-9. [Deployment Considerations](#deployment-considerations)
-10. [Rollback Plan](#rollback-plan)
+1. [AI Agent Autonomy with z.ai Tools](#ai-agent-autonomy-with-zai-tools)
+2. [Current State Analysis](#current-state-analysis)
+3. [Technology Stack Comparison](#technology-stack-comparison)
+4. [Migration Architecture](#migration-architecture)
+5. [Component Mapping](#component-mapping)
+6. [State Management Strategy](#state-management-strategy)
+7. [Step-by-Step Migration Plan](#step-by-step-migration-plan)
+8. [Code Examples](#code-examples)
+9. [Testing Strategy](#testing-strategy)
+10. [Deployment Considerations](#deployment-considerations)
+11. [Rollback Plan](#rollback-plan)
+
+---
+
+## AI Agent Autonomy with z.ai Tools
+
+> **Important:** The AI model doesn't have vision or web search capabilities by default. To enable autonomous research, documentation updates, and migration assistance, use z.ai's internal MCP tools and web search capabilities.
+
+### Available z.ai Tools for Migration
+
+#### 1. **Image Analysis MCP** (`mcp__4_5v_mcp__analyze_image`)
+
+**Purpose:** Analyze screenshots, terminal UI mockups, and visual designs
+
+**When to Use:**
+- Reviewing UI mockups and design concepts
+- Analyzing terminal screenshots for layout reference
+- Validating visual design choices
+- Comparing before/after UI states
+
+**Example Usage:**
+```markdown
+# For AI agents working on UI design
+"Analyze this CLI screenshot to understand the current layout structure"
+"Review this Ink component design for visual hierarchy"
+"Compare these two terminal UI approaches and recommend the best one"
+```
+
+**Parameters:**
+- `imageSource`: Remote URL to the image (PNG, JPG, JPEG)
+- `prompt`: Detailed instructions for analysis
+
+#### 2. **Web Search MCP** (`mcp__web-search-prime__web_search_prime`)
+
+**Purpose:** Search for latest Ink patterns, React hooks, and CLI UI best practices
+
+**When to Use:**
+- Finding current Ink component patterns
+- Researching React hooks for CLI applications
+- Discovering new Ink UI libraries
+- Checking for updated migration strategies
+
+**Example Usage:**
+```typescript
+// Search for Ink patterns
+await mcp__web-search-prime__web_search_prime({
+  search_query: "Ink React CLI select menu patterns 2026",
+  content_size: "high"
+});
+
+// Research specific libraries
+await mcp__web-search-prime__web_search_prime({
+  search_query: "ink-ui TextInput ConfirmInput examples",
+  content_size: "high"
+});
+```
+
+#### 3. **Web Reader MCP** (`mcp__web_reader__webReader`)
+
+**Purpose:** Fetch and convert library documentation to markdown
+
+**When to Use:**
+- Reading Ink documentation pages
+- Processing React hooks reference
+- Analyzing migration guides
+- Extracting code examples from tutorials
+
+**Example Usage:**
+```typescript
+// Read Ink documentation
+await mcp__web_reader__webReader({
+  url: "https://github.com/vadimdemedes/ink",
+  return_format: "markdown",
+  retain_images: true
+});
+
+// Process component examples
+await mcp__web_reader__webReader({
+  url: "https://github.com/vadimdemedes/ink-ui",
+  return_format: "markdown",
+  with_links_summary: true
+});
+```
+
+#### 4. **Context7 MCP** (`mcp__plugin_context7_context7__query-docs`)
+
+**Purpose:** Query up-to-date documentation for any library
+
+**When to Use:**
+- Getting current Ink API documentation
+- Finding React hooks examples
+- Checking library version compatibility
+- Resolving library-specific issues
+
+**Example Usage:**
+```typescript
+// Query Ink documentation
+await mcp__plugin_context7_context7__query-docs({
+  libraryId: "/vadimdemedes/ink",
+  query: "How to implement keyboard navigation with useInput hook?"
+});
+
+// Get ink-ui examples
+await mcp__plugin_context7_context7__query-docs({
+  libraryId: "/vadimdemedes/ink-ui",
+  query: "Show examples of Select and TextInput components with validation"
+});
+```
+
+### Autonomous Migration Workflow
+
+When AI agents work on the Ink migration, they should follow this pattern:
+
+```markdown
+## Migration Task: Convert prompts Select to Ink Select
+
+1. **Research Phase:**
+   - Search for "ink-select-input examples 2026"
+   - Read ink-select-input documentation
+   - Find 3-5 real-world usage examples
+   - Analyze any component screenshots
+
+2. **Implementation Phase:**
+   - Review current prompts usage in codebase
+   - Map prompts options to ink-select-input API
+   - Implement new Ink component
+   - Add keyboard navigation
+
+3. **Validation Phase:**
+   - Use image analysis to compare UI output
+   - Verify all interactive features work
+   - Test keyboard shortcuts
+
+### Required z.ai Tools:
+- ✅ Web search for discovery
+- ✅ Web reader for documentation
+- ✅ Context7 for API reference
+- ✅ Image analysis for visual validation
+```
+
+### Example: Autonomous Component Migration
+
+```markdown
+Task: Migrate Add Instance flow from prompts to Ink
+
+AI Agent Instructions:
+
+1. **Analyze Current Implementation:**
+   - Search for "prompts multiselect text input patterns"
+   - Review current cli.ts implementation
+   - Document all user interactions
+
+2. **Research Ink Alternatives:**
+   - Query Context7 for ink-ui components
+   - Search for "Ink form validation patterns 2026"
+   - Read ink-text-input documentation
+   - Find multi-select implementation examples
+
+3. **Design New Component:**
+   - Create component structure
+   - Implement state management
+   - Add form validation
+   - Handle keyboard navigation
+
+4. **Validate Implementation:**
+   - Test all user flows
+   - Compare visual output with screenshots
+   - Verify error handling
+
+Use z.ai Tools:
+- Web search for patterns
+- Web reader for docs
+- Context7 for API reference  
+- Image analysis for UI comparison
+```
+
+### Best Practices for Tool Usage
+
+**For Research:**
+```typescript
+// Good - Current, specific searches
+"Ink React hooks useInput useFocus 2026"
+"ink-ui Select component validation examples"
+
+// Bad - Generic, potentially outdated
+"Ink tutorial"
+"React CLI examples"
+```
+
+**For Documentation:**
+```typescript
+// Good - Official, up-to-date sources
+"/vadimdemedes/ink" via Context7
+"/vadimdemedes/ink-ui" via Context7
+
+// Bad - Unofficial, potentially outdated
+Random Medium articles
+Old blog posts
+```
+
+**For Image Analysis:**
+```typescript
+// Good - Specific analysis goals
+"Analyze this terminal UI for layout structure and color usage"
+"Compare these two CLI designs and recommend improvements"
+"Review this component mockup for accessibility issues"
+
+// Bad - Vague requests
+"What do you think of this design"
+"Look at this screenshot"
+```
+
+### Integration with Migration Tasks
+
+**When AI agents need to implement migration:**
+1. **Use Context7** for current library APIs
+2. **Use Web Search** to find implementation patterns
+3. **Use Web Reader** to analyze documentation deeply
+4. **Use Image Analysis** to validate visual output
+
+**Example Agent Prompt:**
+```markdown
+Migrate the prompts-based select menu to Ink Select component:
+
+Research:
+1. Query Context7 for "/vadimdemedes/ink-select-input" examples
+2. Search for "Ink keyboard navigation patterns 2026"
+3. Read documentation for best practices
+
+Implementation:
+1. Create Select component with proper props
+2. Implement keyboard shortcuts (arrows, enter, numbers)
+3. Add focus management
+4. Handle selection state
+
+Validation:
+1. Test all keyboard interactions
+2. Verify visual output matches design
+3. Compare with screenshots if available
+
+Use z.ai tools for autonomous research and validation
+```
 
 ---
 
 ## Current State Analysis
 
-### Existing Interactive Elements (32 Total)
+### Existing Interactive Elements (28 Total)
 
 Based on comprehensive code analysis, the following interactive elements need migration:
 
@@ -111,18 +353,15 @@ chalk.gray()   → Secondary information
 ### Recommended Libraries
 
 ```bash
-# Core Ink
-bun add ink react
+# Core Ink + UI components (covers Select, TextInput, PasswordInput, ConfirmInput, Spinner)
+bun add ink react @inkjs/ui
 
-# UI Components (replaces prompts)
-bun add @inkjs/ui
-bun add ink-text-input
-bun add ink-select-input
-
-# Optional enhancements
-bun add ink-spinner ora
-bun add ink-use-focus
+# Optional: only if you need controlled <TextInput value=... /> with a `mask` prop
+#   bun add ink-text-input
 ```
+
+> `useFocus` / `useFocusManager` ship with Ink — no separate `ink-use-focus` package exists.
+> Use `Spinner` from `@inkjs/ui` inside Ink trees; avoid mixing `ora` (writes to stdout directly) with the Ink renderer.
 
 ### Library Breakdown
 
@@ -131,7 +370,7 @@ bun add ink-use-focus
 | Select menus | `prompts.select` | `Select` | `@inkjs/ui` |
 | Multi-select | `prompts.multiselect` | Custom or `ink-select-input` | Custom |
 | Text input | `prompts.text` | `TextInput` | `@inkjs/ui` |
-| Password | `prompts.password` | `TextInput` with `mask` | `ink-text-input` |
+| Password | `prompts.password` | `PasswordInput` (preferred) or `TextInput` with `mask` | `@inkjs/ui` / `ink-text-input` |
 | Confirm | `prompts.confirm` | `ConfirmInput` | `@inkjs/ui` |
 | Styling | `chalk` | `Text` with color props | `ink` |
 
@@ -217,7 +456,7 @@ const [error, setError] = useState('');
 {error && <Text color="red">{error}</Text>}
 ```
 
-### 3. Password Input → TextInput with Mask
+### 3. Password Input → PasswordInput Component
 
 **Before (prompts):**
 ```typescript
@@ -232,22 +471,33 @@ const { inputApiKey } = await prompts({
 });
 ```
 
-**After (Ink):**
+**After (Ink — `@inkjs/ui`):**
 ```typescript
-import { TextInput } from 'ink-text-input';
+import { PasswordInput } from '@inkjs/ui';
+
+<PasswordInput
+  placeholder="API key"
+  onChange={setApiKey}
+  onSubmit={(value) => {
+    if (!value.trim()) {
+      setError('API key is required');
+      return;
+    }
+    // Proceed with API key
+  }}
+/>
+```
+
+**Alternative (controlled, via `ink-text-input`):**
+```typescript
+import TextInput from 'ink-text-input';
 
 <TextInput
   placeholder="API key"
   mask="*"
   value={apiKey}
   onChange={setApiKey}
-  onSubmit={() => {
-    if (!apiKey.trim()) {
-      setError('API key is required');
-      return;
-    }
-    // Proceed with API key
-  }}
+  onSubmit={() => { /* validate & advance */ }}
 />
 ```
 
@@ -267,9 +517,11 @@ const { confirm } = await prompts({
 ```typescript
 import { ConfirmInput } from '@inkjs/ui';
 
+// For destructive prompts, default to cancel (matches `prompts` `initial: false`).
+// Without `defaultChoice="cancel"`, bare Enter triggers `onConfirm`.
 <ConfirmInput
+  defaultChoice="cancel"
   onConfirm={() => {
-    // User confirmed
     removeInstance(instanceName);
   }}
   onCancel={() => {
@@ -277,6 +529,9 @@ import { ConfirmInput } from '@inkjs/ui';
   }}
 />
 ```
+
+> `ConfirmInput` props: `defaultChoice: 'confirm' | 'cancel'` (default `'confirm'`),
+> `submitOnEnter: boolean` (default `true`), plus `onConfirm` / `onCancel`.
 
 ### 5. Multi-Select → Custom Component
 
@@ -412,132 +667,87 @@ const useConfig = () => {
 
 ## Step-by-Step Migration Plan
 
-### Phase 1: Foundation (Week 1)
+Ordered task groups. No fixed timeline — work through them sequentially.
 
-**Goal:** Set up Ink infrastructure and migrate simple components
+### Step 1 — Foundation
 
-**Tasks:**
-1. ✅ Install Ink dependencies
+1. Install Ink dependencies
    ```bash
-   bun add ink react @inkjs/ui ink-text-input ink-select-input
+   bun add ink react @inkjs/ui
    ```
 
-2. ✅ Create new entry point
+2. Create new entry point
    ```typescript
    // src/ink-cli.tsx
    import React from 'react';
    import { render } from 'ink';
    import { App } from './ink-app';
-   
+
    render(<App />);
    ```
 
-3. ✅ Create base components
+3. Create base components
    - `src/ink/components/Header.tsx`
    - `src/ink/components/Spinner.tsx`
    - `src/ink/components/ErrorBoundary.tsx`
 
-4. ✅ Migrate simple display views
+4. Migrate simple display views
    - `ListInstances` component
    - `InstanceInfo` component
 
-**Deliverables:**
-- Ink infrastructure running
-- Basic component library
-- 2 display views migrated
-
 ---
 
-### Phase 2: Interactive Components (Week 2)
+### Step 2 — Interactive Components
 
-**Goal:** Migrate all interactive prompts to Ink components
-
-**Tasks:**
-1. ✅ Create reusable form components
+1. Create reusable form components
    - `SelectMenu.tsx`
    - `MultiSelect.tsx`
    - `TextInput.tsx` wrapper
    - `ConfirmDialog.tsx`
 
-2. ✅ Migrate Add Instance flow
+2. Migrate Add Instance flow
    - Name input with validation
    - Provider template selection
    - API key input
    - Path configuration
    - Copy options selection
 
-3. ✅ Migrate Remove Instance flow
+3. Migrate Remove Instance flow
    - Instance selection
-   - Confirmation dialog
+   - Confirmation dialog (use `defaultChoice="cancel"` for destructive actions)
 
-4. ✅ Migrate Auto-sync toggle
+4. Migrate Auto-sync toggle
    - Instance selection
    - Action selection
    - Progress feedback
 
-**Deliverables:**
-- All form components created
-- 3 major flows migrated
-- Validation patterns established
-
 ---
 
-### Phase 3: Advanced Features (Week 3)
+### Step 3 — Advanced Features
 
-**Goal:** Migrate complex multi-step wizards
-
-**Tasks:**
-1. ✅ Migrate Plugin Management
+1. Migrate Plugin Management
    - Plugin listing
    - Enable/disable plugins
    - Copy plugins between instances
 
-2. ✅ Migrate MCP Management
+2. Migrate MCP Management
    - MCP server listing
    - Copy servers between instances
    - Verification display
 
-3. ✅ Migrate Fix Symlinks
+3. Migrate Fix Symlinks
    - Multi-select instances
    - Progress feedback
    - Error handling
 
-**Deliverables:**
-- All wizard flows migrated
-- Progress indicators implemented
-- Error handling refined
-
 ---
 
-### Phase 4: Polish & Launch (Week 4)
+### Step 4 — Polish
 
-**Goal:** Finalize migration and prepare for launch
-
-**Tasks:**
-1. ✅ Add animations and transitions
-   - Loading spinners
-   - Success animations
-   - Screen transitions
-
-2. ✅ Improve visual design
-   - Color scheme refinement
-   - Border styles
-   - Spacing and layout
-
-3. ✅ Testing
-   - Manual testing of all flows
-   - Edge case coverage
-   - Performance optimization
-
-4. ✅ Documentation
-   - Update README
-   - Create migration notes
-   - Video demo for social media
-
-**Deliverables:**
-- Production-ready Ink UI
-- Complete documentation
-- Launch assets
+1. Animations and transitions (spinners, screen transitions)
+2. Visual design (color scheme, border styles, spacing)
+3. Manual testing of all flows + edge cases
+4. Update README and migration notes
 
 ---
 
@@ -549,9 +759,8 @@ const useConfig = () => {
 // src/ink/screens/AddInstance.tsx
 import React, { useState } from 'react';
 import { Box, Text, useApp } from 'ink';
-import { TextInput } from 'ink-text-input';
-import { Select } from '@inkjs/ui';
-import { ConfirmInput } from '@inkjs/ui';
+import TextInput from 'ink-text-input';
+import { Select, ConfirmInput, PasswordInput } from '@inkjs/ui';
 import { useConfig } from '../hooks/useConfig';
 
 export const AddInstance = () => {
@@ -776,7 +985,7 @@ export const App = () => {
 
         {/* Footer */}
         <Box marginTop={1}>
-          <Text dimColor>q=quit • Press number to select</Text>
+          <Text dimColor>↑↓ navigate • Enter select • q quit</Text>
         </Box>
       </Box>
     );
@@ -795,7 +1004,7 @@ export const App = () => {
     case 'mcp':
       return <ManageMcp />;
     default:
-      return <App />;
+      return null;
   }
 };
 ```
@@ -835,7 +1044,7 @@ describe('Add Instance Flow', () => {
 
 ### Manual Testing Checklist
 
-- [ ] All 32 interactive elements work
+- [ ] All 28 interactive elements work
 - [ ] Keyboard navigation functions correctly
 - [ ] Error states display properly
 - [ ] Loading states show appropriately
@@ -859,14 +1068,14 @@ describe('Add Instance Flow', () => {
     "dev:old": "bun run src/cli.ts"
   },
   "dependencies": {
-    "ink": "^4.4.1",
-    "react": "^18.2.0",
-    "@inkjs/ui": "^2.0.0",
-    "ink-text-input": "^5.0.0",
-    "ink-select-input": "^5.0.0"
+    "ink": "^7.0.2",
+    "react": "^19.2.6",
+    "@inkjs/ui": "^2.0.0"
   }
 }
 ```
+
+> Ink 7 requires React ≥ 19.2 as a peer. `ink-text-input` (v6) and `ink-select-input` (v6.2) are optional add-ons — only include if you need their specific props (e.g. `mask` on a controlled `TextInput`).
 
 ### Backward Compatibility
 
@@ -879,9 +1088,8 @@ claude-multi --old    # Uses old prompts UI
 ### Feature Flags
 
 ```typescript
-// Enable gradual rollout
-const useInkUI = process.env.CLAUDE_MULTI_INK === 'true' || 
-                 process.env.CLAUDE_MULTI_INK !== 'false';
+// Default-on; opt out with CLAUDE_MULTI_INK=false
+const useInkUI = process.env.CLAUDE_MULTI_INK !== 'false';
 ```
 
 ---
@@ -904,9 +1112,9 @@ const useInkUI = process.env.CLAUDE_MULTI_INK === 'true' ||
 
 3. **Quick rollback steps**
    ```bash
-   # Revert to previous version
-   bun remove ink @inkjs/ui ink-text-input ink-select-input
-   git checkout HEAD~1
+   # Revert the migration commit(s) on a branch, do not discard local history
+   bun remove ink react @inkjs/ui ink-text-input ink-select-input
+   git revert <migration-commit-sha>
    bun run build
    ```
 
@@ -915,22 +1123,19 @@ const useInkUI = process.env.CLAUDE_MULTI_INK === 'true' ||
 ## Success Criteria
 
 ### Functional Requirements
-- ✅ All 32 interactive elements migrated
-- ✅ All existing features work identically
-- ✅ No data loss or corruption
-- ✅ Error handling maintained
+- All 28 interactive elements migrated
+- All existing features work identically
+- No data loss or corruption
+- Error handling maintained
 
 ### UX Requirements
-- ✅ Visually impressive UI
-- ✅ Smooth animations
-- ✅ Intuitive navigation
-- ✅ Clear feedback
+- Clear visual hierarchy
+- Intuitive keyboard navigation
+- Clear feedback on success / error states
 
 ### Technical Requirements
-- ✅ No performance regression
-- ✅ Bundle size < 500KB
-- ✅ TypeScript strict mode
-- ✅ Test coverage > 80%
+- No perceptible performance regression
+- TypeScript strict mode
 
 ---
 
