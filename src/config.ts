@@ -616,6 +616,32 @@ export async function initializeInstanceState(
 }
 
 /**
+ * Merge provider template env vars into existing settings.json
+ */
+export async function mergeProviderEnv(
+  configDir: string,
+  template: ProviderTemplate,
+  apiKey: string,
+): Promise<void> {
+  const settingsFile = join(configDir, "settings.json");
+
+  let existing: Record<string, unknown> = {};
+  if (existsSync(settingsFile)) {
+    const raw = await readFile(settingsFile, "utf-8");
+    existing = JSON.parse(raw);
+  }
+
+  const env = (existing.env as Record<string, string>) ?? {};
+  const templateEnv = JSON.parse(JSON.stringify(template.settings.env));
+  templateEnv.ANTHROPIC_AUTH_TOKEN = apiKey;
+
+  existing.env = { ...env, ...templateEnv };
+  existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
+
+  await writeFile(settingsFile, JSON.stringify(existing, null, 2), "utf-8");
+}
+
+/**
  * Sync plugins and skills via symlinks for an existing instance
  */
 export async function syncPluginsAndSkills(

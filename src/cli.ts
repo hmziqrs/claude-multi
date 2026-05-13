@@ -28,6 +28,7 @@ import {
   disablePlugin,
   listAvailablePlugins,
   initializeInstanceState,
+  mergeProviderEnv,
   type Instance,
 } from "./config.ts";
 import {
@@ -240,22 +241,11 @@ program
           }
         }
 
-        // Apply provider template if selected (but not if copying settings)
-        if (
-          useProviderTemplate &&
-          providerTemplate &&
-          !copySettings &&
-          !copyAllFiles
-        ) {
-          await createSettingsFromTemplate(configDir, providerTemplate, apiKey);
+        // Apply provider template if selected
+        if (useProviderTemplate && providerTemplate) {
+          await mergeProviderEnv(configDir, providerTemplate, apiKey);
           console.log(
             chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
-          );
-        } else if (useProviderTemplate && (copySettings || copyAllFiles)) {
-          console.log(
-            chalk.yellow(
-              "⚠ Provider template skipped (copied settings from default Claude)",
-            ),
           );
         }
 

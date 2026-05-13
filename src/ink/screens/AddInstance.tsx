@@ -191,9 +191,9 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       if (copyMcp && !copyAll) { try { await cfg.copyMcpServersFromDefault(cDir); } catch {} }
       if (copyAll) await cfg.copyAllFromDefault(cDir, sync);
 
-      if (useProvider && selectedProvider && !copySettings && !copyAll) {
+      if (useProvider && selectedProvider) {
         const template = cfg.getProviderTemplate(selectedProvider);
-        if (template) await cfg.createSettingsFromTemplate(cDir, template, apiKey);
+        if (template) await cfg.mergeProviderEnv(cDir, template, apiKey);
       }
 
       setResult({ configDir: cDir, binaryPath: bPath });

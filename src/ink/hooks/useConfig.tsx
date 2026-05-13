@@ -24,6 +24,7 @@ import {
   copyMcpServersBetweenInstances,
   listMcpServers,
   initializeInstanceState,
+  mergeProviderEnv,
   type Instance,
   type Config,
 } from "../../config.js";
@@ -113,5 +114,6 @@ export function useConfig() {
     updateInstanceAutoSync,
     syncPluginsAndSkills,
     initializeInstanceState,
+    mergeProviderEnv,
   };
 }
