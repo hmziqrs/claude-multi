@@ -347,6 +347,7 @@ export async function copyAllFromDefault(
   const excludeFiles = [
     "config.json",
     ".config.json",
+    ".claude.json",
     "history.jsonl",
     "debug",
     "session-env",
