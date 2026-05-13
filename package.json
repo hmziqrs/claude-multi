@@ -8,7 +8,9 @@
   },
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target bun --format esm && chmod +x dist/cli.js",
+    "build:ink": "bun build src/ink/main.tsx --outfile dist/ink-cli.js --target bun --format esm && chmod +x dist/ink-cli.js",
     "dev": "bun run src/cli.ts",
+    "dev:ink": "bun run src/ink/main.tsx",
     "test": "bun test",
     "prepublishOnly": "bun run build",
     "test:binary": "./dist/cli.js",
@@ -37,12 +39,20 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/prompts": "^2.4.9",
-    "bun-types": "latest"
+    "@types/react": "^19.2.14",
+    "bun-types": "latest",
+    "execa": "^9.6.1",
+    "ink-testing-library": "^4.0.0",
+    "playwright": "^1.60.0",
+    "react-devtools-core": "^7.0.1"
   },
   "dependencies": {
+    "@inkjs/ui": "^2.0.0",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
-    "prompts": "^2.4.2"
+    "ink": "^7.0.2",
+    "prompts": "^2.4.2",
+    "react": "^19.2.6"
   },
   "engines": {
     "node": ">=18.0.0"

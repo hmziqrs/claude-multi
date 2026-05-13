@@ -758,11 +758,29 @@ program
   .alias("i")
   .description("Launch interactive mode for managing Claude Code instances")
   .action(async () => {
-    try {
-      await runInteractiveMode();
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
-      process.exit(1);
+    const useInk = process.env.CLAUDE_MULTI_INK !== "false";
+    if (useInk) {
+      try {
+        const { render } = await import("ink");
+        const React = await import("react");
+        const { App } = await import("./ink/App.js");
+        render(React.createElement(App));
+      } catch (error) {
+        console.error(chalk.red(`Ink UI failed, falling back to prompts: ${(error as Error).message}`));
+        try {
+          await runInteractiveMode();
+        } catch (err2) {
+          console.error(chalk.red(`✗ Error: ${(err2 as Error).message}`));
+          process.exit(1);
+        }
+      }
+    } else {
+      try {
+        await runInteractiveMode();
+      } catch (error) {
+        console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+        process.exit(1);
+      }
     }
   });
 

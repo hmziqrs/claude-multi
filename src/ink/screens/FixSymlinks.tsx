@@ -1,0 +1,107 @@
+import React, { useState } from "react";
+import { Box, Text } from "ink";
+import { MultiSelect } from "@inkjs/ui";
+import { Header } from "../components/Header.js";
+import { useNavigation } from "../hooks/useNavigation.js";
+import { useConfig } from "../hooks/useConfig.js";
+
+type Step = "select" | "fixing" | "done";
+
+export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { instances, detectBrokenSymlinks, syncPluginsAndSkills } = useConfig();
+  const [step, setStep] = useState<Step>("select");
+  const [results, setResults] = useState<
+    { name: string; broken: string[]; all: string[]; fixed: boolean }[]
+  >([]);
+  const [error, setError] = useState("");
+
+  useNavigation(() => {
+    if (step === "done") onBack();
+    else onBack();
+  });
+
+  if (instances.length === 0) {
+    return (
+      <Box flexDirection="column" padding={1}>
+        <Header title="🔄 Re-sync Symlinks" />
+        <Text color="yellow">No instances found.</Text>
+        <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
+      </Box>
+    );
+  }
+
+  const handleSelect = async (selectedNames: string[]) => {
+    setStep("fixing");
+    setError("");
+
+    const fixResults: typeof results = [];
+    for (const name of selectedNames) {
+      const instance = instances.find((i) => i.name === name);
+      if (!instance) continue;
+      const diagnosis = detectBrokenSymlinks(instance.configDir);
+      const hasBroken = diagnosis.broken.length > 0;
+
+      if (hasBroken && instance.autoSync !== false) {
+        try {
+          await syncPluginsAndSkills(instance.configDir);
+          fixResults.push({ name, broken: diagnosis.broken, all: diagnosis.all, fixed: true });
+        } catch {
+          fixResults.push({ name, broken: diagnosis.broken, all: diagnosis.all, fixed: false });
+        }
+      } else {
+        fixResults.push({ name, broken: diagnosis.broken, all: diagnosis.all, fixed: !hasBroken });
+      }
+    }
+    setResults(fixResults);
+    setStep("done");
+  };
+
+  return (
+    <Box flexDirection="column" padding={1}>
+      <Header title="🔄 Re-sync Symlinks" />
+
+      {error && <Box marginBottom={1}><Text color="red">✗ {error}</Text></Box>}
+
+      {step === "select" && (
+        <Box flexDirection="column" gap={1}>
+          <Text>Select instances to fix:</Text>
+          <MultiSelect
+            options={instances.map((i) => ({
+              label: `${i.name} ${i.autoSync !== false ? "(auto-sync)" : "(manual)"}`,
+              value: i.name,
+            }))}
+            onSubmit={handleSelect}
+          />
+        </Box>
+      )}
+
+      {step === "fixing" && <Text dimColor>Fixing symlinks...</Text>}
+
+      {step === "done" && (
+        <Box flexDirection="column" gap={0}>
+          {results.map((r) => (
+            <Box key={r.name} marginLeft={2} flexDirection="column">
+              <Box gap={1}>
+                <Text bold>{r.name}</Text>
+                {r.broken.length > 0 ? (
+                  r.fixed
+                    ? <Text color="green">✅ Fixed: {r.broken.join(", ")}</Text>
+                    : <Text color="red">❌ Failed: {r.broken.join(", ")}</Text>
+                ) : r.all.length > 0 ? (
+                  <Text color="green">✅ All OK: {r.all.join(", ")}</Text>
+                ) : (
+                  <Text dimColor>no symlinks (manual)</Text>
+                )}
+              </Box>
+            </Box>
+          ))}
+          <Box marginTop={1}><Text bold>✨ Done!</Text></Box>
+        </Box>
+      )}
+
+      <Box marginTop={1}>
+        <Text dimColor>ESC back │ q quit</Text>
+      </Box>
+    </Box>
+  );
+};
