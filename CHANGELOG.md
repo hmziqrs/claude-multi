@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-14
+
+### Added
+- **Ink-based Interactive UI**: Full terminal UI built with Ink + React
+  - Home screen with instance list, menu, and health warning banner
+  - Animated components: Header, StatusBar, StepIndicator, InstanceCard, IssueCard, WarningBanner
+  - Screens: AddInstance, RemoveInstance, ShowInstanceInfo, ToggleAutoSync, FixSymlinks, HealthScreen, ManagePlugins, ManageMcp, ListInstances
+  - Keyboard navigation: arrow keys, Enter, ESC, `!` for health, `q` to quit
+  - `useConfig`, `useNavigation`, `useHealthCheck`, `useAnimations` hooks
+- **Per-Instance Plugin Management**: Granular plugin control per instance
+  - `PluginInfo` interface with id, name, category (internal/external), hasMcp, mcpServerNames, enabled, isSymlink
+  - `scanPluginsFromDir()` discovers plugins from both `plugins/` and `external_plugins/` subdirs
+  - `listDefaultPlugins()` / `listInstancePlugins()` for querying available and installed plugins
+  - `copySinglePlugin()` / `copySelectedPlugins()` for individual or batch install with rollback
+  - `removeSinglePlugin()` with rename-to-backup safety pattern
+  - `detectMcpCollisions()` to check MCP server name conflicts before install
+  - `validatePluginOperation()` pre-flight checks (configDir, symlink, plugin existence, collisions)
+  - Handles 12 internal LSP plugins without `plugin.json` (falls back to dir name)
+  - Supports both flat `{"serverName": config}` and nested `{"mcpServers": {"serverName": config}}` `.mcp.json` formats
+  - Coordinates with `installed_plugins.json` v2 format (scope, installPath, version, timestamps)
+  - Symlink detection: refuses per-plugin operations when auto-sync is active
+- **Migration System** (`src/migration.ts`): Safe v1 → v2 config upgrade
+  - `runMigration()` with 4-step procedure: backup → validate → transform → save
+  - PID-based lock file prevents concurrent migrations
+  - Automatic backup of config.json + instance settings.json (keeps last 3)
+  - Failure flag: sets `migrationStatus: "failed"` with error details, prevents auto-retry
+  - `clearMigrationFailure()` for explicit retry
+  - `CLAUDE_MULTI_HOME` env override for testability
+- **Health Check System** (`src/health.ts`): Detects and reports issues
+  - Checks: migration failure, missing configDir, missing binary, corrupted settings.json, broken symlinks
+  - Persistent health status at `~/.claude-multi/health-status.json`
+  - `dismissIssue()` / `dismissAllIssues()` for acknowledging warnings
+  - Warning banner on home screen with `!` key to review
+  - HealthScreen with list/detail views, retry, dismiss actions
+- **ManagePlugins Screen**: Full plugin management UI
+  - Install plugins from default (MultiSelect with MCP badge, [ext] tag)
+  - Remove installed plugins
+  - Enable/disable plugins
+  - List installed plugins with status indicators
+  - Symlink detection with warning
+- **ManageMcp Screen**: Enhanced MCP server management
+  - List MCP servers with source attribution ([pluginName] or [custom])
+  - Add custom MCP server (name + JSON config input)
+  - Remove custom MCP server (select from custom servers)
+  - Verify MCP configuration
+  - Copy between instances
+- **CLI Plugin Commands**: 5 new `plugins` sub-commands
+  - `plugins install <instance> <ids...>` — install plugins with collision detection
+  - `plugins remove <instance> <ids...>` — remove plugins with symlink guard
+  - `plugins list-defaults` — list all 50 default plugins with category/MCP badges
+  - `plugins list-installed [instance]` — list installed plugins per instance
+  - `plugins check-collisions <instance> <ids...>` — detect MCP name conflicts
+- **Provider Templates**: DeepSeek provider template added
+- **Instance State**: `initializeInstanceState()` creates `.claude.json` with `hasCompletedOnboarding: true`
+- **Provider Env**: `mergeProviderEnv()` integrates provider template env vars into instance settings
+- **Screenshot Capture**: `scripts/capture-screens.tsx` for automated UI screenshots
+
+### Changed
+- `copyAllFromDefault()` restored `autoSync` parameter for symlink-based plugin sync
+- `syncPluginsAndSkills()` creates actual symlinks instead of copying files
+- Broken symlink detection uses `lstatSync` (works when `existsSync` returns false)
+- `~/.claude` is strictly read-only — never modified by any operation
+- Atomic file writes for both config.json and settings.json (temp-file-rename pattern)
+- Lazy path resolution in migration.ts and health.ts for testability
+
+### Fixed
+- `syncPluginsAndSkills` was doing recursive copy instead of creating symlinks
+- `copyAllFromDefault` `autoSync` parameter was removed, breaking symlink-based sync
+- Broken symlinks not cleaned before creating new ones (used `lstatSync` instead of `existsSync`)
+- `isClaudeCodeRunning()` blocked tests — skips in `NODE_ENV=test`
+- `writeFileSync` not imported in config.ts
+- `McpSourceDetails` prop name mismatch in ManageMcp
+- `renameSync` dynamic import in `saveConfigAtomic` replaced with top-level import
+- TypeScript: `updateInstanceAutoSync` object possibly undefined after bounds check
+
+### Tests
+- **155 tests, 0 failures** across 16 test files
+- `test/plugin-management.test.ts` (18 tests): scanning, copy, remove, MCP helpers, atomic writes
+- `test/e2e/plugin-flow.test.ts` (6 tests): CLI plugin operations end-to-end
+- `test/migration.test.ts` (15 tests): migration, backup, lock, failure recovery
+- `test/health.test.ts` (15 tests): health checks, persistence, dismiss
+- `test/ink/` (31 tests): component rendering, screen navigation, animation hooks
+- `test/config.test.ts` (53 tests): sync/unsync, copyAllFromDefault, symlink cycles
+
 ## [0.4.3] - 2026-01-26
 
 ### Added
@@ -139,6 +223,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.5.0]: https://github.com/hmziqrs/claude-multi/compare/v0.4.4...v0.5.0
+[0.4.4]: https://github.com/hmziqrs/claude-multi/compare/v0.4.3...v0.4.4
 [0.3.0]: https://github.com/hmziqrs/claude-multi/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/hmziqrs/claude-multi/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/hmziqrs/claude-multi/releases/tag/v0.1.0
