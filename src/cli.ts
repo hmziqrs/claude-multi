@@ -235,7 +235,7 @@ program
         }
 
         if (copyAllFiles) {
-          await copyAllFromDefault(configDir, autoSync);
+          await copyAllFromDefault(configDir);
           if (autoSync) {
             console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
           } else {

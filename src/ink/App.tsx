@@ -3,7 +3,9 @@ import { Box, Text, useApp, useInput } from "ink";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "./components/Header.js";
 import { Footer } from "./components/Footer.js";
+import { WarningBanner } from "./components/WarningBanner.js";
 import { useConfig } from "./hooks/useConfig.js";
+import { useHealthCheck } from "./hooks/useHealthCheck.js";
 import { useFadeIn, useTypewriter } from "./hooks/useAnimations.js";
 import { AddInstance } from "./screens/AddInstance.js";
 import { ListInstances } from "./screens/ListInstances.js";
@@ -13,6 +15,7 @@ import { ToggleAutoSync } from "./screens/ToggleAutoSync.js";
 import { ManagePlugins } from "./screens/ManagePlugins.js";
 import { FixSymlinks } from "./screens/FixSymlinks.js";
 import { ManageMcp } from "./screens/ManageMcp.js";
+import { HealthScreen } from "./screens/HealthScreen.js";
 
 type Screen =
   | "menu"
@@ -24,6 +27,7 @@ type Screen =
   | "resync"
   | "plugins"
   | "mcp"
+  | "health"
   | "goodbye";
 
 const GoodbyeScreen: React.FC = () => {
@@ -50,7 +54,8 @@ const InstanceLine: React.FC<{ instances: { name: string }[] }> = ({ instances }
 
 export const App: React.FC = () => {
   const { exit } = useApp();
-  const { instances, loading } = useConfig();
+  const { instances, loading, migrationStatus } = useConfig();
+  const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus);
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
 
@@ -59,6 +64,8 @@ export const App: React.FC = () => {
     if (input === "q" || key.escape) {
       setScreen("goodbye");
       setTimeout(() => exit(), 300);
+    } else if (input === "!" && issues.length > 0) {
+      setScreen("health");
     }
   });
 
@@ -79,6 +86,18 @@ export const App: React.FC = () => {
     return <GoodbyeScreen />;
   }
 
+  if (screen === "health") {
+    return (
+      <HealthScreen
+        issues={issues}
+        onDismiss={dismiss}
+        onDismissAll={dismissAll}
+        onRetry={retry}
+        onBack={goToMenu}
+      />
+    );
+  }
+
   if (screen !== "menu") {
     const ScreenComponent = SCREEN_MAP[screen];
     if (ScreenComponent) {
@@ -87,6 +106,9 @@ export const App: React.FC = () => {
     goToMenu();
     return null;
   }
+
+  const errorCount = issues.filter(i => i.severity === "error").length;
+  const warningCount = issues.filter(i => i.severity === "warning").length;
 
   const menuOptions = [
     { label: "➕ Add new instance", value: "add" },
@@ -108,6 +130,12 @@ export const App: React.FC = () => {
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🤖 Claude Multi" subtitle="Interactive Mode" />
 
+      <WarningBanner
+        issueCount={issues.length}
+        errorCount={errorCount}
+        warningCount={warningCount}
+      />
+
       <InstanceLine instances={instances} />
 
       <Select
@@ -124,7 +152,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      <Footer />
+      <Footer showHealthHint={issues.length > 0} />
     </Box>
   );
 };

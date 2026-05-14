@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync, type Stats } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync, readFileSync, renameSync, writeFileSync, type Stats } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
@@ -37,12 +37,52 @@ export interface Instance {
 export interface Config {
   instances: Instance[];
   version: string;
+  migrationMeta?: MigrationMeta;
+}
+
+export interface MigrationMeta {
+  lastMigrationAt?: string;
+  migratedFromVersion?: string;
+  migrationStatus: "completed" | "failed" | "pending";
+  failureInfo?: {
+    failedAt: string;
+    error: string;
+    step: string;
+    instanceName?: string;
+    canRetry: boolean;
+  };
+}
+
+export interface PluginInfo {
+  id: string;
+  name: string;
+  description: string;
+  category: "internal" | "external";
+  hasMcp: boolean;
+  mcpServerNames?: string[];
+  enabled: boolean;
 }
 
 const CONFIG_DIR = join(homedir(), ".claude-multi");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
 const SYNC_DIRS = ["plugins", "skills"] as const;
+
+async function copyDirRecursive(source: string, target: string): Promise<void> {
+  if (!existsSync(target)) {
+    await mkdir(target, { recursive: true });
+  }
+  for (const entry of readdirSync(source)) {
+    const src = join(source, entry);
+    const tgt = join(target, entry);
+    const s = statSync(src);
+    if (s.isDirectory()) {
+      await copyDirRecursive(src, tgt);
+    } else {
+      await copyFile(src, tgt);
+    }
+  }
+}
 
 function lstatSafe(path: string): Stats | null {
   try {
@@ -115,19 +155,47 @@ export async function loadConfig(): Promise<Config> {
   if (!existsSync(CONFIG_FILE)) {
     const defaultConfig: Config = {
       instances: [],
-      version: "1.0.0",
+      version: "2.0.0",
     };
     await saveConfig(defaultConfig);
     return defaultConfig;
   }
 
   const content = await readFile(CONFIG_FILE, "utf-8");
-  return JSON.parse(content) as Config;
+  let config: Config;
+  try {
+    config = JSON.parse(content) as Config;
+  } catch (err) {
+    throw new Error(`Config file is corrupted: ${(err as Error).message}`);
+  }
+
+  // Run migration if needed
+  const { needsMigration, runMigration } = await import("./migration.js");
+  if (needsMigration(config)) {
+    config = await runMigration(config);
+    await saveConfigAtomic(config);
+  }
+
+  return config;
 }
 
 export async function saveConfig(config: Config): Promise<void> {
   ensureConfigDir();
   await writeFile(CONFIG_FILE, JSON.stringify(config, null, 2), "utf-8");
+}
+
+export async function saveConfigAtomic(config: Config): Promise<void> {
+  ensureConfigDir();
+  const tmpPath = CONFIG_FILE + ".tmp." + randomBytes(4).toString("hex");
+  try {
+    await writeFile(tmpPath, JSON.stringify(config, null, 2), "utf-8");
+    const content = await readFile(tmpPath, "utf-8");
+    JSON.parse(content);
+    renameSync(tmpPath, CONFIG_FILE);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch {}
+    throw err;
+  }
 }
 
 export async function addInstance(instance: Instance): Promise<void> {
@@ -327,12 +395,10 @@ export async function copySettingsFromDefault(
 
 /**
  * Copy all files from default Claude to new instance
- * When autoSync is true, uses symlinks for plugins and skills directories
  * Excludes: config.json, history.jsonl, debug/, session-env/, todos/
  */
 export async function copyAllFromDefault(
   targetConfigDir: string,
-  autoSync = true,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
@@ -375,19 +441,10 @@ export async function copyAllFromDefault(
       }
 
       if (stat.isDirectory()) {
-        // Use symlink for plugins and skills when autoSync is enabled
-        if (autoSync && (SYNC_DIRS as readonly string[]).includes(entry)) {
-          await ensureDirSymlink({
-            configDir: target,
-            sourceBaseDir: defaultDir,
-            dir: entry as (typeof SYNC_DIRS)[number],
-          });
-        } else {
-          if (!existsSync(targetPath)) {
-            await mkdir(targetPath, { recursive: true });
-          }
-          await copyRecursive(sourcePath, targetPath);
+        if (!existsSync(targetPath)) {
+          await mkdir(targetPath, { recursive: true });
         }
+        await copyRecursive(sourcePath, targetPath);
       } else {
         await copyFile(sourcePath, targetPath);
       }
@@ -465,15 +522,11 @@ export async function copyMcpServersFromDefault(
     await mkdir(targetConfigDir, { recursive: true });
   }
 
-  // Symlink plugins directory — MCP servers come from plugins
+  // Copy plugins directory — MCP servers come from plugins
   const pluginsDir = join(targetConfigDir, "plugins");
   const defaultPluginsDir = join(defaultDir, "plugins");
   if (existsSync(defaultPluginsDir) && !existsSync(pluginsDir)) {
-    await ensureDirSymlink({
-      configDir: targetConfigDir,
-      sourceBaseDir: defaultDir,
-      dir: "plugins",
-    });
+    await copyDirRecursive(defaultPluginsDir, pluginsDir);
   }
 
   // Also copy any explicit mcpServers from settings.json
@@ -647,7 +700,7 @@ export async function mergeProviderEnv(
 }
 
 /**
- * Sync plugins and skills via symlinks for an existing instance
+ * Copy plugins and skills from default Claude to an existing instance
  */
 export async function syncPluginsAndSkills(
   configDir: string,
@@ -659,12 +712,16 @@ export async function syncPluginsAndSkills(
   }
 
   for (const dir of SYNC_DIRS) {
-    await ensureDirSymlink({
-      configDir,
-      sourceBaseDir: defaultDir,
-      dir,
-      logLabel: defaultDir,
-    });
+    const sourcePath = join(defaultDir, dir);
+    const targetPath = join(configDir, dir);
+
+    if (!existsSync(sourcePath)) continue;
+
+    if (existsSync(targetPath)) {
+      rmSync(targetPath, { force: true, recursive: true });
+    }
+
+    await copyDirRecursive(sourcePath, targetPath);
   }
 }
 
@@ -754,7 +811,7 @@ export async function readClaudeSettings(
 }
 
 /**
- * Write Claude settings.json file
+ * Write Claude settings.json file (atomic)
  */
 export async function writeClaudeSettings(
   configDir: string,
@@ -766,7 +823,16 @@ export async function writeClaudeSettings(
     await mkdir(configDir, { recursive: true });
   }
 
-  await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
+  const tmpPath = settingsFile + ".tmp." + randomBytes(4).toString("hex");
+  try {
+    await writeFile(tmpPath, JSON.stringify(settings, null, 2), "utf-8");
+    const content = await readFile(tmpPath, "utf-8");
+    JSON.parse(content);
+    renameSync(tmpPath, settingsFile);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch {}
+    throw err;
+  }
 }
 
 /**
@@ -827,4 +893,450 @@ export async function disablePlugin(
 export async function listAvailablePlugins(): Promise<Record<string, boolean> | null> {
   const defaultSettings = await readClaudeSettings(getDefaultClaudeDir());
   return defaultSettings?.enabledPlugins || null;
+}
+
+// ── Plugin Discovery ──────────────────────────────────────────────
+
+const MARKETPLACE_REL = "plugins/marketplaces/claude-plugins-official";
+
+function readMcpJsonFile(mcpPath: string): Record<string, McpServer> {
+  try {
+    const raw = JSON.parse(readFileSync(mcpPath, "utf-8"));
+    // Nested format: { "mcpServers": { ... } }
+    if (raw.mcpServers && typeof raw.mcpServers === "object") {
+      return raw.mcpServers as Record<string, McpServer>;
+    }
+    // Flat format: { "serverName": { ... } }
+    const servers: Record<string, McpServer> = {};
+    for (const [key, val] of Object.entries(raw)) {
+      if (val && typeof val === "object") {
+        servers[key] = val as McpServer;
+      }
+    }
+    return servers;
+  } catch {
+    return {};
+  }
+}
+
+function scanPluginDir(
+  baseDir: string,
+  category: "internal" | "external",
+  enabledPlugins: Record<string, boolean>,
+): PluginInfo[] {
+  const subDir = category === "internal" ? "plugins" : "external_plugins";
+  const dir = join(baseDir, MARKETPLACE_REL, subDir);
+  if (!existsSync(dir)) return [];
+
+  const results: PluginInfo[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const pluginPath = join(dir, entry.name);
+
+    // Read metadata
+    let name = entry.name;
+    let description = "";
+    const metaFile = join(pluginPath, ".claude-plugin", "plugin.json");
+    if (existsSync(metaFile)) {
+      try {
+        const meta = JSON.parse(readFileSync(metaFile, "utf-8"));
+        if (meta.name) name = meta.name;
+        if (meta.description) description = meta.description;
+      } catch {}
+    }
+
+    // Check MCP
+    const mcpFile = join(pluginPath, ".mcp.json");
+    const hasMcp = existsSync(mcpFile);
+    let mcpServerNames: string[] | undefined;
+    if (hasMcp) {
+      const servers = readMcpJsonFile(mcpFile);
+      mcpServerNames = Object.keys(servers);
+    }
+
+    // Check enabled (key format: "name@claude-plugins-official")
+    const enabledKey = `${entry.name}@claude-plugins-official`;
+    const enabled = enabledPlugins[enabledKey] === true;
+
+    results.push({
+      id: entry.name,
+      name,
+      description,
+      category,
+      hasMcp,
+      mcpServerNames,
+      enabled,
+    });
+  }
+
+  return results;
+}
+
+export function scanPluginsFromDir(baseDir: string): PluginInfo[] {
+  let enabledPlugins: Record<string, boolean> = {};
+  const settingsFile = join(baseDir, "settings.json");
+  if (existsSync(settingsFile)) {
+    try {
+      const s = JSON.parse(readFileSync(settingsFile, "utf-8"));
+      if (s.enabledPlugins) enabledPlugins = s.enabledPlugins;
+    } catch {}
+  }
+
+  const internal = scanPluginDir(baseDir, "internal", enabledPlugins);
+  const external = scanPluginDir(baseDir, "external", enabledPlugins);
+  return [...internal, ...external].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function listDefaultPlugins(): PluginInfo[] {
+  return scanPluginsFromDir(getDefaultClaudeDir());
+}
+
+export function listInstancePlugins(configDir: string): PluginInfo[] {
+  return scanPluginsFromDir(configDir);
+}
+
+// ── Symlink Detection ─────────────────────────────────────────────
+
+export function isPluginsSymlinked(configDir: string): boolean {
+  const pluginsPath = join(configDir, "plugins");
+  const st = lstatSafe(pluginsPath);
+  return st?.isSymbolicLink() ?? false;
+}
+
+// ── Process Detection ─────────────────────────────────────────────
+
+export function isClaudeCodeRunning(configDir: string): boolean {
+  if (process.env.NODE_ENV === "test") return false;
+  try {
+    const { execSync } = require("node:child_process");
+    const result = execSync(
+      `ps aux | grep -c "CLAUDE_CONFIG_DIR=${configDir}" || true`,
+      { encoding: "utf-8", timeout: 2000 },
+    ).trim();
+    return parseInt(result, 10) > 1;
+  } catch {
+    return false;
+  }
+}
+
+// ── installed_plugins.json Management ─────────────────────────────
+
+interface InstalledPluginEntry {
+  scope: string;
+  installPath: string;
+  version: string;
+  installedAt: string;
+  lastUpdated: string;
+  projectPath?: string;
+  gitCommitSha?: string;
+}
+
+interface InstalledPluginsFile {
+  version: number;
+  plugins: Record<string, InstalledPluginEntry[]>;
+}
+
+function readInstalledPlugins(pluginsDir: string): InstalledPluginsFile {
+  const filePath = join(pluginsDir, "installed_plugins.json");
+  if (!existsSync(filePath)) {
+    return { version: 2, plugins: {} };
+  }
+  try {
+    return JSON.parse(readFileSync(filePath, "utf-8"));
+  } catch {
+    return { version: 2, plugins: {} };
+  }
+}
+
+function writeInstalledPlugins(pluginsDir: string, data: InstalledPluginsFile): void {
+  const filePath = join(pluginsDir, "installed_plugins.json");
+  const tmpPath = filePath + ".tmp";
+  writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
+  try {
+    JSON.parse(readFileSync(tmpPath, "utf-8"));
+    renameSync(tmpPath, filePath);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch {}
+    throw err;
+  }
+}
+
+function addPluginToInstalledPlugins(
+  configDir: string,
+  pluginId: string,
+): void {
+  const pluginsDir = join(configDir, "plugins");
+  const data = readInstalledPlugins(pluginsDir);
+  const key = `${pluginId}@claude-plugins-official`;
+
+  if (!data.plugins[key]) {
+    data.plugins[key] = [];
+  }
+
+  // Avoid duplicate entries for the same version
+  const cachePath = join(configDir, MARKETPLACE_REL);
+  const entry: InstalledPluginEntry = {
+    scope: "user",
+    installPath: cachePath,
+    version: "1.0.0",
+    installedAt: new Date().toISOString(),
+    lastUpdated: new Date().toISOString(),
+  };
+
+  data.plugins[key].push(entry);
+  writeInstalledPlugins(pluginsDir, data);
+}
+
+function removePluginFromInstalledPlugins(
+  configDir: string,
+  pluginId: string,
+): void {
+  const pluginsDir = join(configDir, "plugins");
+  const data = readInstalledPlugins(pluginsDir);
+  const key = `${pluginId}@claude-plugins-official`;
+  delete data.plugins[key];
+  writeInstalledPlugins(pluginsDir, data);
+}
+
+// ── Disk Space Check ──────────────────────────────────────────────
+
+function estimatePluginSize(pluginPath: string): number {
+  let total = 0;
+  try {
+    for (const entry of readdirSync(pluginPath, { withFileTypes: true })) {
+      const fullPath = join(pluginPath, entry.name);
+      if (entry.isDirectory()) {
+        total += estimatePluginSize(fullPath);
+      } else {
+        try { total += statSync(fullPath).size; } catch {}
+      }
+    }
+  } catch {}
+  return total;
+}
+
+// ── MCP Collision Detection ───────────────────────────────────────
+
+export function detectMcpCollisions(
+  configDir: string,
+  newPluginIds: string[],
+): Array<{ serverName: string; existingSource: string; newSource: string }> {
+  const existingServers = getMcpServersFromPlugins(configDir);
+  const collisions: Array<{ serverName: string; existingSource: string; newSource: string }> = [];
+  const defaultDir = getDefaultClaudeDir();
+
+  for (const pluginId of newPluginIds) {
+    for (const subDir of ["plugins", "external_plugins"]) {
+      const mcpFile = join(defaultDir, MARKETPLACE_REL, subDir, pluginId, ".mcp.json");
+      if (!existsSync(mcpFile)) continue;
+      const newServers = readMcpJsonFile(mcpFile);
+      for (const name of Object.keys(newServers)) {
+        if (existingServers[name]) {
+          collisions.push({
+            serverName: name,
+            existingSource: "installed plugin",
+            newSource: pluginId,
+          });
+        }
+      }
+    }
+  }
+
+  return collisions;
+}
+
+// ── Individual Plugin Copy / Remove ───────────────────────────────
+
+export async function copySinglePlugin(
+  targetConfigDir: string,
+  pluginId: string,
+  category: "internal" | "external",
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+  const subDir = category === "internal" ? "plugins" : "external_plugins";
+  const sourcePlugin = join(defaultDir, MARKETPLACE_REL, subDir, pluginId);
+  const targetPlugin = join(targetConfigDir, MARKETPLACE_REL, subDir, pluginId);
+
+  if (!existsSync(sourcePlugin)) {
+    throw new Error(`Plugin '${pluginId}' not found in default Claude`);
+  }
+
+  // Ensure scaffolding exists
+  const scaffoldDir = join(targetConfigDir, MARKETPLACE_REL, subDir);
+  if (!existsSync(scaffoldDir)) {
+    await mkdir(scaffoldDir, { recursive: true });
+  }
+
+  const marketplaceDir = join(targetConfigDir, MARKETPLACE_REL);
+  if (!existsSync(marketplaceDir)) {
+    await mkdir(marketplaceDir, { recursive: true });
+  }
+  for (const metaFile of ["known_marketplaces.json", "blocklist.json"]) {
+    const src = join(defaultDir, MARKETPLACE_REL, metaFile);
+    const tgt = join(marketplaceDir, metaFile);
+    if (existsSync(src) && !existsSync(tgt)) {
+      await copyFile(src, tgt);
+    }
+  }
+
+  // Remove existing target if present
+  if (existsSync(targetPlugin)) {
+    rmSync(targetPlugin, { force: true, recursive: true });
+  }
+
+  await copyDirRecursive(sourcePlugin, targetPlugin);
+
+  // Update installed_plugins.json
+  addPluginToInstalledPlugins(targetConfigDir, pluginId);
+}
+
+export async function copySelectedPlugins(
+  targetConfigDir: string,
+  selections: Array<{ id: string; category: "internal" | "external" }>,
+): Promise<void> {
+  if (selections.length === 0) {
+    throw new Error("No plugins selected. Select at least one plugin.");
+  }
+
+  if (isPluginsSymlinked(targetConfigDir)) {
+    throw new Error("Cannot copy individual plugins to a symlinked instance. Disable auto-sync first.");
+  }
+
+  if (isClaudeCodeRunning(targetConfigDir)) {
+    throw new Error("Claude Code is running on this instance. Close it first before modifying plugins.");
+  }
+
+  // Pre-flight: check all sources exist
+  const defaultDir = getDefaultClaudeDir();
+  for (const sel of selections) {
+    const subDir = sel.category === "internal" ? "plugins" : "external_plugins";
+    const source = join(defaultDir, MARKETPLACE_REL, subDir, sel.id);
+    if (!existsSync(source)) {
+      throw new Error(`Plugin '${sel.id}' not found in default Claude`);
+    }
+  }
+
+  // Pre-flight: check disk space (estimate)
+  let totalSize = 0;
+  for (const sel of selections) {
+    const subDir = sel.category === "internal" ? "plugins" : "external_plugins";
+    totalSize += estimatePluginSize(join(defaultDir, MARKETPLACE_REL, subDir, sel.id));
+  }
+  // Warn if >100MB but don't block (exact free space check is platform-dependent)
+  if (totalSize > 100 * 1024 * 1024) {
+    throw new Error(`Selected plugins total ${(totalSize / 1024 / 1024).toFixed(1)}MB. Ensure sufficient disk space.`);
+  }
+
+  // Rollback journal
+  const completed: Array<{ id: string; category: "internal" | "external" }> = [];
+
+  try {
+    for (const sel of selections) {
+      await copySinglePlugin(targetConfigDir, sel.id, sel.category);
+      completed.push(sel);
+    }
+  } catch (err) {
+    // Rollback completed copies
+    for (const done of completed) {
+      try {
+        const subDir = done.category === "internal" ? "plugins" : "external_plugins";
+        const targetPath = join(targetConfigDir, MARKETPLACE_REL, subDir, done.id);
+        if (existsSync(targetPath)) {
+          rmSync(targetPath, { force: true, recursive: true });
+        }
+        removePluginFromInstalledPlugins(targetConfigDir, done.id);
+      } catch {}
+    }
+    throw new Error(`Plugin install failed, rolled back ${completed.length} plugin(s). ${(err as Error).message}`);
+  }
+}
+
+export async function removeSinglePlugin(
+  configDir: string,
+  pluginId: string,
+  category: "internal" | "external",
+): Promise<void> {
+  if (isPluginsSymlinked(configDir)) {
+    throw new Error("Cannot remove plugins from a symlinked instance. Disable auto-sync first.");
+  }
+
+  const subDir = category === "internal" ? "plugins" : "external_plugins";
+  const pluginPath = join(configDir, MARKETPLACE_REL, subDir, pluginId);
+
+  if (!existsSync(pluginPath)) {
+    throw new Error(`Plugin '${pluginId}' not found in this instance`);
+  }
+
+  // Backup before removal (in case we need to restore)
+  const backupPath = pluginPath + ".removing";
+  try {
+    renameSync(pluginPath, backupPath);
+  } catch (err) {
+    throw new Error(`Failed to stage plugin for removal: ${(err as Error).message}`);
+  }
+
+  try {
+    rmSync(backupPath, { force: true, recursive: true });
+    removePluginFromInstalledPlugins(configDir, pluginId);
+  } catch (err) {
+    // Try to restore from backup
+    try { renameSync(backupPath, pluginPath); } catch {}
+    throw new Error(`Failed to remove plugin: ${(err as Error).message}`);
+  }
+}
+
+// ── MCP Server Helpers ────────────────────────────────────────────
+
+export function getMcpServersFromPlugins(configDir: string): Record<string, McpServer> {
+  const result: Record<string, McpServer> = {};
+  const basePlugins = join(configDir, MARKETPLACE_REL);
+
+  for (const subDir of ["plugins", "external_plugins"]) {
+    const dir = join(basePlugins, subDir);
+    if (!existsSync(dir)) continue;
+
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const mcpFile = join(dir, entry.name, ".mcp.json");
+      if (!existsSync(mcpFile)) continue;
+
+      const servers = readMcpJsonFile(mcpFile);
+      Object.assign(result, servers);
+    }
+  }
+
+  return result;
+}
+
+export async function getInstanceMcpServers(configDir: string): Promise<{
+  fromPlugins: Record<string, McpServer>;
+  fromSettings: Record<string, McpServer>;
+  all: Record<string, McpServer>;
+}> {
+  const fromPlugins = getMcpServersFromPlugins(configDir);
+  const settings = await readClaudeSettings(configDir);
+  const fromSettings = (settings?.mcpServers as Record<string, McpServer>) ?? {};
+  const all: Record<string, McpServer> = { ...fromSettings, ...fromPlugins };
+  return { fromPlugins, fromSettings, all };
+}
+
+export async function setCustomMcpServer(
+  configDir: string,
+  name: string,
+  config: McpServer,
+): Promise<void> {
+  const settings = (await readClaudeSettings(configDir)) || {};
+  if (!settings.mcpServers) settings.mcpServers = {};
+  settings.mcpServers[name] = config;
+  await writeClaudeSettings(configDir, settings);
+}
+
+export async function removeCustomMcpServer(
+  configDir: string,
+  name: string,
+): Promise<void> {
+  const settings = await readClaudeSettings(configDir);
+  if (!settings?.mcpServers || !(name in settings.mcpServers)) return;
+  delete settings.mcpServers[name];
+  await writeClaudeSettings(configDir, settings);
 }

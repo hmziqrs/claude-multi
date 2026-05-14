@@ -25,13 +25,27 @@ import {
   listMcpServers,
   initializeInstanceState,
   mergeProviderEnv,
+  listDefaultPlugins,
+  listInstancePlugins,
+  copySelectedPlugins,
+  copySinglePlugin,
+  removeSinglePlugin,
+  isPluginsSymlinked,
+  getMcpServersFromPlugins,
+  getInstanceMcpServers,
+  setCustomMcpServer,
+  removeCustomMcpServer,
+  isClaudeCodeRunning,
+  detectMcpCollisions,
   type Instance,
   type Config,
+  type PluginInfo,
 } from "../../config.js";
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "../../wrapper.js";
 import { getAvailableProviders, getProviderTemplate } from "../../templates.js";
+import { getMigrationStatus, clearMigrationFailure } from "../../migration.js";
 
-export { type Instance };
+export { type Instance, type PluginInfo };
 
 export function useConfig() {
   const [config, setConfig] = useState<Config | null>(null);
@@ -81,6 +95,8 @@ export function useConfig() {
     await reload();
   }, [reload]);
 
+  const migrationStatus = config ? getMigrationStatus(config) : null;
+
   return {
     config,
     instances: config?.instances ?? [],
@@ -90,6 +106,7 @@ export function useConfig() {
     addInstance,
     removeInstance,
     toggleAutoSync,
+    migrationStatus,
     getInstance: getInstanceFromConfig,
     listInstances: listInstancesFromConfig,
     hasDefaultConfig: hasDefaultClaudeConfig,
@@ -115,5 +132,18 @@ export function useConfig() {
     syncPluginsAndSkills,
     initializeInstanceState,
     mergeProviderEnv,
+    listDefaultPlugins,
+    listInstancePlugins,
+    copySelectedPlugins,
+    copySinglePlugin,
+    removeSinglePlugin,
+    isPluginsSymlinked,
+    getMcpServersFromPlugins,
+    getInstanceMcpServers,
+    setCustomMcpServer,
+    removeCustomMcpServer,
+    isClaudeCodeRunning,
+    detectMcpCollisions,
+    clearMigrationFailure,
   };
 }

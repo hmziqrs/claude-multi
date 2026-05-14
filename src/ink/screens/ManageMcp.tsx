@@ -10,33 +10,42 @@ import type { McpServer } from "../../config.js";
 
 type Step = "action" | "select" | "details" | "select-source" | "select-target" | "copying" | "done";
 
-const McpDetails: React.FC<{
-  mcpServers: Record<string, McpServer> | null;
+interface McpSource {
+  name: string;
+  config: McpServer;
+  source: "plugin" | "custom";
+  pluginName?: string;
+}
+
+const McpSourceDetails: React.FC<{
+  sources: McpSource[];
   action: string | null;
-}> = ({ mcpServers, action }) => {
-  const serverCount = mcpServers ? Object.keys(mcpServers).length : 0;
-  const visibleCount = useStaggeredReveal(serverCount, 80);
+}> = ({ sources, action }) => {
+  const visibleCount = useStaggeredReveal(sources.length, 80);
   const showStatus = useFadeIn(50);
 
-  if (!mcpServers || serverCount === 0) {
+  if (sources.length === 0) {
     return <Text color="yellow">⚠ No MCP configuration found</Text>;
   }
-
-  const entries = Object.entries(mcpServers);
 
   return (
     <Box flexDirection="column" gap={0}>
       {action === "verify" && showStatus && (
-        <StatusBar message={`${serverCount} MCP server(s) found`} type="success" />
+        <StatusBar message={`${sources.length} MCP server(s) found`} type="success" />
       )}
-      {entries.slice(0, visibleCount).map(([name, config]) => (
-        <Box key={name} marginLeft={2} flexDirection="column">
+      {sources.slice(0, visibleCount).map((src) => (
+        <Box key={src.name} marginLeft={2} flexDirection="column">
           <Box gap={1}>
-            <Text bold color="cyan">{name}</Text>
+            <Text bold color="cyan">{src.name}</Text>
+            {src.source === "plugin" ? (
+              <Text dimColor>[{src.pluginName}]</Text>
+            ) : (
+              <Text dimColor>[custom]</Text>
+            )}
             {action === "verify" && (
-              config.type === "stdio" && !config.command ? (
+              src.config.type === "stdio" && !src.config.command ? (
                 <Text color="yellow">⚠</Text>
-              ) : (config.type === "http" || config.type === "sse") && !config.url ? (
+              ) : (src.config.type === "http" || src.config.type === "sse") && !src.config.url ? (
                 <Text color="yellow">⚠</Text>
               ) : (
                 <Text color="green">✓</Text>
@@ -47,20 +56,20 @@ const McpDetails: React.FC<{
             <Box gap={1}>
               <Text dimColor>├─</Text>
               <Text dimColor bold>Type:</Text>
-              <Text>{config.type}</Text>
+              <Text>{src.config.type}</Text>
             </Box>
-            {config.command && (
+            {src.config.command && (
               <Box gap={1}>
                 <Text dimColor>├─</Text>
                 <Text dimColor bold>Command:</Text>
-                <Text>{config.command}{config.args?.length ? ` ${config.args.join(" ")}` : ""}</Text>
+                <Text>{src.config.command}{src.config.args?.length ? ` ${src.config.args.join(" ")}` : ""}</Text>
               </Box>
             )}
-            {config.url && (
+            {src.config.url && (
               <Box gap={1}>
                 <Text dimColor>└─</Text>
                 <Text dimColor bold>URL:</Text>
-                <Text>{config.url}</Text>
+                <Text>{src.config.url}</Text>
               </Box>
             )}
           </Box>
@@ -71,12 +80,12 @@ const McpDetails: React.FC<{
 };
 
 export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, listMcpServers, copyMcpServersBetweenInstances } = useConfig();
+  const { instances, listMcpServers, copyMcpServersBetweenInstances, getInstanceMcpServers, getMcpServersFromPlugins, listInstancePlugins } = useConfig();
   const [step, setStep] = useState<Step>("action");
   const [action, setAction] = useState<string | null>(null);
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
   const [sourceInstance, setSourceInstance] = useState<string | null>(null);
-  const [mcpServers, setMcpServers] = useState<Record<string, McpServer> | null>(null);
+  const [mcpSources, setMcpSources] = useState<McpSource[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -118,11 +127,59 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   };
 
+  const buildMcpSources = async (instanceName: string): Promise<McpSource[]> => {
+    const inst = instances.find(i => i.name === instanceName);
+    if (!inst) return [];
+
+    const { fromPlugins, fromSettings } = await getInstanceMcpServers(inst.configDir);
+
+    // Get plugin names for MCP servers
+    const pluginMcpNames = Object.keys(fromPlugins);
+    const pluginDir = inst.configDir;
+    // Build a reverse map: mcpServerName -> pluginName
+    const mcpToPlugin: Record<string, string> = {};
+    try {
+      const plugins = listInstancePlugins(pluginDir);
+      for (const p of plugins) {
+        if (p.mcpServerNames) {
+          for (const serverName of p.mcpServerNames) {
+            mcpToPlugin[serverName] = p.name;
+          }
+        }
+      }
+    } catch {}
+
+    const sources: McpSource[] = [];
+
+    // Plugin-derived servers
+    for (const [name, config] of Object.entries(fromPlugins)) {
+      sources.push({
+        name,
+        config,
+        source: "plugin",
+        pluginName: mcpToPlugin[name] ?? "unknown",
+      });
+    }
+
+    // Custom servers (in settings but not from plugins)
+    for (const [name, config] of Object.entries(fromSettings)) {
+      if (!fromPlugins[name]) {
+        sources.push({
+          name,
+          config,
+          source: "custom",
+        });
+      }
+    }
+
+    return sources.sort((a, b) => a.name.localeCompare(b.name));
+  };
+
   const handleInstanceSelect = async (value: string) => {
     setSelectedInstance(value);
     try {
-      const servers = await listMcpServers(value);
-      setMcpServers(servers);
+      const sources = await buildMcpSources(value);
+      setMcpSources(sources);
       setStep("details");
     } catch (err) {
       setError((err as Error).message);
@@ -159,7 +216,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text>What would you like to do?</Text>
           <Select
             options={[
-              { label: "📋 List MCP servers", value: "list" },
+              { label: "📋 List MCP servers with sources", value: "list" },
               { label: "🔍 Verify MCP configuration", value: "verify" },
               { label: "📋 Copy between instances", value: "copy" },
               { label: "Cancel", value: "cancel" },
@@ -182,7 +239,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       )}
 
       {step === "details" && (
-        <McpDetails mcpServers={mcpServers} action={action} />
+        <McpSourceDetails sources={mcpSources} action={action} />
       )}
 
       {step === "select-source" && (

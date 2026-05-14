@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Box, Text, useApp, useInput } from "ink";
-import { TextInput, Select, ConfirmInput, PasswordInput } from "@inkjs/ui";
+import { TextInput, Select, ConfirmInput, PasswordInput, MultiSelect } from "@inkjs/ui";
 import { Header } from "../components/Header.js";
 import { StepIndicator } from "../components/StepIndicator.js";
 import { StatusBar } from "../components/StatusBar.js";
@@ -8,6 +8,7 @@ import { useNavigation } from "../hooks/useNavigation.js";
 import {
   useConfig,
   type Instance,
+  type PluginInfo,
 } from "../hooks/useConfig.js";
 import { useFadeIn } from "../hooks/useAnimations.js";
 import { join } from "node:path";
@@ -45,6 +46,7 @@ type Step =
   | "provider-apikey"
   | "paths-confirm"
   | "copy-options"
+  | "select-plugins"
   | "autosync"
   | "creating"
   | "done";
@@ -55,6 +57,7 @@ const STEP_TITLES: Record<Step, string> = {
   "provider-apikey": "API Key",
   "paths-confirm": "Paths",
   "copy-options": "Copy Options",
+  "select-plugins": "Select Plugins",
   autosync: "Auto-Sync",
   creating: "Creating...",
   done: "Complete",
@@ -62,7 +65,7 @@ const STEP_TITLES: Record<Step, string> = {
 
 const STEP_ORDER: Step[] = [
   "name", "provider-select", "provider-apikey",
-  "paths-confirm", "copy-options", "autosync", "creating", "done",
+  "paths-confirm", "copy-options", "select-plugins", "autosync", "creating", "done",
 ];
 
 function stepNumber(step: Step): number {
@@ -79,9 +82,12 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [useProvider, setUseProvider] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [autoSync, setAutoSync] = useState(true);
+  const [autoSync, setAutoSync] = useState(false);
   const [copyOption, setCopyOption] = useState<string>("none");
+  const [selectedPluginIds, setSelectedPluginIds] = useState<string[]>([]);
   const [result, setResult] = useState<{ configDir: string; binaryPath: string } | null>(null);
+
+  const defaultPlugins = useMemo(() => cfg.listDefaultPlugins(), [cfg]);
 
   useNavigation(() => {
     if (step === "done") onBack();
@@ -98,6 +104,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       "provider-apikey": "provider-select",
       "paths-confirm": "provider-select",
       "copy-options": "paths-confirm",
+      "select-plugins": "copy-options",
       autosync: "copy-options",
     };
     const prev = prevMap[step];
@@ -143,17 +150,29 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const handleCopyOption = useCallback((value: string) => {
     setCopyOption(value);
-    if (value === "all") {
+    if (value === "select-plugins") {
+      setStep("select-plugins");
+    } else if (value === "all") {
       setStep("autosync");
     } else {
-      doCreate(value, true);
+      doCreate(value, false);
     }
   }, [name, useProvider, selectedProvider, apiKey]);
+
+  const handlePluginSelection = useCallback((ids: string[]) => {
+    if (ids.length === 0) {
+      setError("Select at least one plugin, or go back and choose a different option.");
+      return;
+    }
+    setSelectedPluginIds(ids);
+    setError("");
+    setStep("autosync");
+  }, []);
 
   const handleAutoSyncConfirm = useCallback((confirmed: boolean) => {
     setAutoSync(confirmed);
     doCreate(copyOption, confirmed);
-  }, [copyOption]);
+  }, [copyOption, selectedPluginIds]);
 
   const doCreate = async (copyOpt: string, sync: boolean) => {
     setStep("creating");
@@ -175,13 +194,22 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       await cfg.createWrapper(instance);
       await cfg.initializeInstanceState(cDir);
 
-      const copySettings = ["settings", "settings+mcp", "all"].includes(copyOpt);
-      const copyMcp = ["mcp", "settings+mcp", "all"].includes(copyOpt);
-      const copyAll = copyOpt === "all";
-
-      if (copySettings && !copyAll) await cfg.copySettingsFromDefault(cDir);
-      if (copyMcp && !copyAll) { try { await cfg.copyMcpServersFromDefault(cDir); } catch {} }
-      if (copyAll) await cfg.copyAllFromDefault(cDir, sync);
+      if (copyOpt === "select-plugins") {
+        // Copy settings first
+        await cfg.copySettingsFromDefault(cDir);
+        // Copy selected plugins
+        const selections = selectedPluginIds.map(id => {
+          const plugin = defaultPlugins.find(p => p.id === id);
+          return { id, category: plugin?.category ?? "external" as const };
+        });
+        if (selections.length > 0) {
+          await cfg.copySelectedPlugins(cDir, selections);
+        }
+      } else if (copyOpt === "all") {
+        await cfg.copyAllFromDefault(cDir);
+      } else if (copyOpt === "settings") {
+        await cfg.copySettingsFromDefault(cDir);
+      }
 
       if (useProvider && selectedProvider) {
         const template = cfg.getProviderTemplate(selectedProvider);
@@ -209,9 +237,14 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const copyOptions = [
     { label: "Nothing — start fresh", value: "none" },
     { label: "Only settings.json", value: "settings" },
-    { label: "Settings + MCP servers", value: "settings+mcp" },
+    { label: "Select plugins to install", value: "select-plugins" },
     { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
   ];
+
+  const pluginSelectOptions = defaultPlugins.map(p => ({
+    label: `${p.name}${p.hasMcp ? " (MCP)" : ""}${p.category === "external" ? " [ext]" : ""}`,
+    value: p.id,
+  }));
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
@@ -276,6 +309,18 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             options={copyOptions}
             visibleOptionCount={copyOptions.length}
             onChange={handleCopyOption}
+          />
+        </Box>
+      )}
+
+      {step === "select-plugins" && (
+        <Box flexDirection="column" gap={1}>
+          <Text>Select plugins to install:</Text>
+          <Text dimColor>{defaultPlugins.length} available · space to toggle · enter to confirm</Text>
+          <MultiSelect
+            options={pluginSelectOptions}
+            visibleOptionCount={Math.min(pluginSelectOptions.length, 10)}
+            onSubmit={handlePluginSelection}
           />
         </Box>
       )}

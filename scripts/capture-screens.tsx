@@ -2,6 +2,7 @@ import React from "react";
 import { renderToString, Box, Text } from "ink";
 import { Header } from "../src/ink/components/Header.js";
 import { Footer } from "../src/ink/components/Footer.js";
+import { WarningBanner } from "../src/ink/components/WarningBanner.js";
 import { InstanceCard } from "../src/ink/components/InstanceCard.js";
 import { StatusBar } from "../src/ink/components/StatusBar.js";
 import { StepIndicator } from "../src/ink/components/StepIndicator.js";
@@ -45,6 +46,24 @@ const screens: Record<string, React.ReactElement> = {
     </Box>
   ),
 
+  "01b-main-menu-warnings": (
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
+      <Header title="🤖 Claude Multi" subtitle="Interactive Mode" />
+      <WarningBanner issueCount={2} errorCount={1} warningCount={1} />
+      <Box marginBottom={1}>
+        <Text dimColor>3 instance(s): glm, mm, g2</Text>
+      </Box>
+      <Text>What would you like to do?</Text>
+      <Box marginTop={1}>
+        <Text color="green">❯ </Text>
+        <Text>➕ Add new instance</Text>
+      </Box>
+      <Box><Text>   </Text><Text>📋 List all instances</Text></Box>
+      <Box><Text>   </Text><Text>🚪 Exit</Text></Box>
+      <Footer showHealthHint={true} />
+    </Box>
+  ),
+
   "02-list-instances": (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="📋 All Instances" />
@@ -72,7 +91,9 @@ const screens: Record<string, React.ReactElement> = {
           <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Binary:</Text><Text>/Users/hmziq/.local/bin/claude-glm</Text></Box>
           <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Config:</Text><Text>/Users/hmziq/.claude-glm</Text></Box>
           <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Created:</Text><Text>1/1/2025, 12:00:00 AM</Text></Box>
-          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Auto-sync:</Text><Text color="green">✓ Enabled</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Auto-sync:</Text><Text color="green">✓ Enabled</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Plugins:</Text><Text>12 installed, 8 enabled</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>MCP Servers:</Text><Text>6 total (5 from plugins, 1 custom)</Text></Box>
         </Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
@@ -104,6 +125,63 @@ const screens: Record<string, React.ReactElement> = {
         <Box><Text>   </Text><Text>MiniMax — MiniMax-M2.7 via minimax.io</Text></Box>
         <Box><Text>   </Text><Text>DeepSeek — DeepSeek-V4 via deepseek.com</Text></Box>
         <Box><Text>   </Text><Text dimColor>None / Custom</Text></Box>
+      </Box>
+      <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
+    </Box>
+  ),
+
+  "04c-add-copy-options": (
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
+      <Header title="➕ Add New Instance" />
+      <StepIndicator current={3} total={3} label="Copy Options" />
+      <Box flexDirection="column" gap={1}>
+        <Text>Found existing Claude config at ~/.claude</Text>
+        <Text>What to copy?</Text>
+        <Box>
+          <Text color="green">❯ </Text><Text>Select plugins to install</Text>
+        </Box>
+        <Box><Text>   </Text><Text>Nothing — start fresh</Text></Box>
+        <Box><Text>   </Text><Text>Only settings.json</Text></Box>
+        <Box><Text>   </Text><Text>All files (settings, CLAUDE.md, plugins, etc.)</Text></Box>
+      </Box>
+      <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
+    </Box>
+  ),
+
+  "04d-add-select-plugins": (
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
+      <Header title="➕ Add New Instance" />
+      <StepIndicator current={3} total={3} label="Select Plugins" />
+      <Box flexDirection="column" gap={1}>
+        <Text>Select plugins to install:</Text>
+        <Text dimColor>50 available · space to toggle · enter to confirm</Text>
+        <Box flexDirection="column">
+          <Box gap={1}>
+            <Text color="green">❯</Text>
+            <Text color="green">✓</Text>
+            <Text>context7 (MCP) [ext]</Text>
+          </Box>
+          <Box gap={1}>
+            <Text> </Text>
+            <Text dimColor>◯</Text>
+            <Text>playwright (MCP) [ext]</Text>
+          </Box>
+          <Box gap={1}>
+            <Text> </Text>
+            <Text color="green">✓</Text>
+            <Text>github (MCP) [ext]</Text>
+          </Box>
+          <Box gap={1}>
+            <Text> </Text>
+            <Text dimColor>◯</Text>
+            <Text>discord (MCP) [ext]</Text>
+          </Box>
+          <Box gap={1}>
+            <Text> </Text>
+            <Text dimColor>◯</Text>
+            <Text>feature-dev</Text>
+          </Box>
+        </Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
     </Box>
@@ -157,20 +235,76 @@ const screens: Record<string, React.ReactElement> = {
         <Box gap={1}>
           <Text bold color="cyan">context7</Text>
           <Text color="green">✓</Text>
+          <Text dimColor>[context7]</Text>
         </Box>
         <Box marginLeft={2} flexDirection="column">
-          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Type:</Text><Text>http</Text></Box>
-          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>URL:</Text><Text>https://api.context7.com</Text></Box>
+          <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Type:</Text><Text>stdio</Text></Box>
+          <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Command:</Text><Text>npx -y @upstash/context7-mcp</Text></Box>
         </Box>
       </Box>
       <Box marginLeft={2} flexDirection="column" marginTop={1}>
         <Box gap={1}>
           <Text bold color="cyan">playwright</Text>
           <Text color="green">✓</Text>
+          <Text dimColor>[playwright]</Text>
         </Box>
         <Box marginLeft={2} flexDirection="column">
           <Box gap={1}><Text dimColor>├─</Text><Text dimColor bold>Type:</Text><Text>stdio</Text></Box>
           <Box gap={1}><Text dimColor>└─</Text><Text dimColor bold>Command:</Text><Text>npx @playwright/mcp</Text></Box>
+        </Box>
+      </Box>
+      <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
+    </Box>
+  ),
+
+  "07b-manage-plugins": (
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
+      <Header title="🔌 Manage Plugins" />
+      <Box flexDirection="column" gap={1}>
+        <Text>What would you like to do?</Text>
+        <Box>
+          <Text color="green">❯ </Text><Text>📥 Install plugins from default</Text>
+        </Box>
+        <Box><Text>   </Text><Text>🗑️  Remove installed plugins</Text></Box>
+        <Box><Text>   </Text><Text>✅ Enable plugins</Text></Box>
+        <Box><Text>   </Text><Text>❌ Disable plugins</Text></Box>
+        <Box><Text>   </Text><Text>📋 List installed plugins</Text></Box>
+        <Box><Text>   </Text><Text>Cancel</Text></Box>
+      </Box>
+      <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>
+    </Box>
+  ),
+
+  "07c-plugin-list": (
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
+      <Header title="🔌 Manage Plugins" />
+      <Box flexDirection="column" gap={1}>
+        <Text bold>12 plugin(s) installed in 'glm':</Text>
+        <Box gap={1} marginLeft={2}>
+          <Text color="green">✓</Text>
+          <Text bold>context7</Text>
+          <Text color="cyan" dimColor>(MCP)</Text>
+          <Text dimColor>[ext]</Text>
+        </Box>
+        <Box gap={1} marginLeft={2}>
+          <Text color="green">✓</Text>
+          <Text bold>playwright</Text>
+          <Text color="cyan" dimColor>(MCP)</Text>
+          <Text dimColor>[ext]</Text>
+        </Box>
+        <Box gap={1} marginLeft={2}>
+          <Text color="green">✓</Text>
+          <Text bold>feature-dev</Text>
+        </Box>
+        <Box gap={1} marginLeft={2}>
+          <Text color="red">✗</Text>
+          <Text>github</Text>
+          <Text color="cyan" dimColor>(MCP)</Text>
+          <Text dimColor>[ext]</Text>
+        </Box>
+        <Box gap={1} marginLeft={2}>
+          <Text color="red">✗</Text>
+          <Text>code-review</Text>
         </Box>
       </Box>
       <Box marginTop={1}><Text dimColor>ESC back │ q quit</Text></Box>

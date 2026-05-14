@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Text } from "ink";
 import { useDrawLine, useFadeIn } from "../hooks/useAnimations.js";
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC<{ showHealthHint?: boolean }> = ({ showHealthHint }) => {
   const lineLen = 60;
   const lineProgress = useDrawLine(lineLen, 0, 4);
   const showHints = useFadeIn(100);
@@ -15,6 +15,7 @@ export const Footer: React.FC = () => {
           <Box><Text color="gray">↑↓</Text><Text dimColor> navigate</Text></Box>
           <Box><Text color="gray">↵</Text><Text dimColor> select</Text></Box>
           <Box><Text color="gray">esc</Text><Text dimColor> back</Text></Box>
+          {showHealthHint && <Box><Text color="gray">!</Text><Text dimColor> health</Text></Box>}
           <Box><Text color="gray">q</Text><Text dimColor> quit</Text></Box>
         </Box>
       )}

@@ -1,0 +1,67 @@
+import { useState, useEffect, useCallback } from "react";
+import type { Instance } from "../../config.js";
+import type { MigrationMeta } from "../../config.js";
+import {
+  runHealthChecks,
+  loadHealthStatus,
+  saveHealthStatus,
+  dismissIssue as dismissIssueAction,
+  dismissAllIssues as dismissAllIssuesAction,
+  type HealthIssue,
+} from "../../health.js";
+
+export function useHealthCheck(
+  instances: Instance[],
+  migrationStatus: MigrationMeta | null,
+) {
+  const [issues, setIssues] = useState<HealthIssue[]>([]);
+  const [checking, setChecking] = useState(false);
+
+  const runChecks = useCallback(async () => {
+    setChecking(true);
+    try {
+      const found = runHealthChecks(instances, migrationStatus);
+      const previous = loadHealthStatus();
+
+      // Merge: carry forward dismissed state
+      const dismissedMap = new Map(
+        previous.issues.filter(i => i.dismissed).map(i => [i.id, true]),
+      );
+      const merged = found.map(issue => ({
+        ...issue,
+        dismissed: dismissedMap.has(issue.id) ? true : issue.dismissed,
+      }));
+
+      saveHealthStatus({
+        lastChecked: new Date().toISOString(),
+        issues: merged,
+      });
+
+      setIssues(merged.filter(i => !i.resolved && !i.dismissed));
+    } catch {
+      // Health check failure is non-fatal
+    } finally {
+      setChecking(false);
+    }
+  }, [instances, migrationStatus]);
+
+  useEffect(() => {
+    runChecks();
+  }, [runChecks]);
+
+  const dismiss = useCallback(async (id: string) => {
+    dismissIssueAction(id);
+    setIssues(prev => prev.filter(i => i.id !== id));
+  }, []);
+
+  const dismissAll = useCallback(async () => {
+    dismissAllIssuesAction();
+    setIssues([]);
+  }, []);
+
+  const retry = useCallback(async () => {
+    await runChecks();
+  }, [runChecks]);
+
+  return { issues, checking, runChecks, dismiss, dismissAll, retry };
+}

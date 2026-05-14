@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text } from "ink";
 import { Select } from "@inkjs/ui";
 import { Header } from "../components/Header.js";
 import { useNavigation } from "../hooks/useNavigation.js";
 import { useConfig } from "../hooks/useConfig.js";
-import { useFadeIn, useStaggeredReveal } from "../hooks/useAnimations.js";
+import { useFadeIn } from "../hooks/useAnimations.js";
 
 type Step = "select" | "info";
 
@@ -23,9 +23,14 @@ const DetailRow: React.FC<{ label: string; value: string; color?: string; last?:
 };
 
 export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances } = useConfig();
+  const { instances, listInstancePlugins, getInstanceMcpServers } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);
+  const [pluginCount, setPluginCount] = useState<number | null>(null);
+  const [enabledCount, setEnabledCount] = useState<number | null>(null);
+  const [mcpCount, setMcpCount] = useState<number | null>(null);
+  const [mcpPluginCount, setMcpPluginCount] = useState<number | null>(null);
+  const [mcpCustomCount, setMcpCustomCount] = useState<number | null>(null);
 
   useNavigation(() => {
     if (step === "info") {
@@ -50,6 +55,28 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
 
   const instanceOptions = instances.map((i) => ({ label: i.name, value: i.name }));
 
+  const handleInstanceSelect = async (value: string) => {
+    const inst = instances.find((i) => i.name === value);
+    if (!inst) return;
+    setSelected(inst);
+    setStep("info");
+
+    // Load plugin/MCP data async
+    try {
+      const plugins = listInstancePlugins(inst.configDir);
+      setPluginCount(plugins.length);
+      setEnabledCount(plugins.filter(p => p.enabled).length);
+
+      const mcpData = await getInstanceMcpServers(inst.configDir);
+      setMcpPluginCount(Object.keys(mcpData.fromPlugins).length);
+      setMcpCustomCount(Object.keys(mcpData.fromSettings).length);
+      setMcpCount(Object.keys(mcpData.all).length);
+    } catch {
+      setPluginCount(null);
+      setMcpCount(null);
+    }
+  };
+
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="ℹ️ Instance Details" />
@@ -60,13 +87,7 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
           <Select
             options={instanceOptions}
             visibleOptionCount={instanceOptions.length}
-            onChange={(value) => {
-              const inst = instances.find((i) => i.name === value);
-              if (inst) {
-                setSelected(inst);
-                setStep("info");
-              }
-            }}
+            onChange={handleInstanceSelect}
           />
         </Box>
       )}
@@ -85,9 +106,23 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
               label="Auto-sync"
               value={selected.autoSync !== false ? "✓ Enabled" : "✗ Disabled"}
               color={selected.autoSync !== false ? "green" : "red"}
-              last
               delay={200}
             />
+            {pluginCount !== null && (
+              <DetailRow
+                label="Plugins"
+                value={`${pluginCount} installed, ${enabledCount} enabled`}
+                delay={250}
+              />
+            )}
+            {mcpCount !== null && (
+              <DetailRow
+                label="MCP Servers"
+                value={`${mcpCount} total (${mcpPluginCount} from plugins, ${mcpCustomCount} custom)`}
+                last
+                delay={300}
+              />
+            )}
           </Box>
         </Box>
       )}
