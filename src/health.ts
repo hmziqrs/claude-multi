@@ -26,7 +26,8 @@ export interface HealthStatus {
   issues: HealthIssue[];
 }
 
-const HEALTH_FILE = join(homedir(), ".claude-multi", "health-status.json");
+function getBaseDir() { return process.env.CLAUDE_MULTI_HOME || homedir(); }
+function getHealthFile() { return join(getBaseDir(), ".claude-multi", "health-status.json"); }
 
 export function runHealthChecks(
   instances: Instance[],
@@ -134,20 +135,21 @@ export function runHealthChecks(
 }
 
 export function loadHealthStatus(): HealthStatus {
-  if (!existsSync(HEALTH_FILE)) {
+  const healthFile = getHealthFile();
+  if (!existsSync(healthFile)) {
     return { lastChecked: "", issues: [] };
   }
   try {
-    return JSON.parse(readFileSync(HEALTH_FILE, "utf-8"));
+    return JSON.parse(readFileSync(healthFile, "utf-8"));
   } catch {
     return { lastChecked: "", issues: [] };
   }
 }
 
 export function saveHealthStatus(status: HealthStatus): void {
-  const dir = join(homedir(), ".claude-multi");
+  const dir = join(getBaseDir(), ".claude-multi");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(HEALTH_FILE, JSON.stringify(status, null, 2), "utf-8");
+  writeFileSync(getHealthFile(), JSON.stringify(status, null, 2), "utf-8");
 }
 
 export function dismissIssue(id: string): void {

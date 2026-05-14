@@ -29,7 +29,15 @@ import {
   listAvailablePlugins,
   initializeInstanceState,
   mergeProviderEnv,
+  listDefaultPlugins,
+  listInstancePlugins,
+  copySinglePlugin,
+  copySelectedPlugins,
+  removeSinglePlugin,
+  isPluginsSymlinked,
+  detectMcpCollisions,
   type Instance,
+  type PluginInfo,
 } from "./config.ts";
 import {
   createWrapper,
@@ -507,10 +515,10 @@ program
 // Plugins command
 program
   .command("plugins")
-  .description("Manage enabled plugins for instances")
-  .argument("[action]", "Action to perform (list, enable, disable, copy)", "list")
-  .argument("[instance]", "Instance name (for list/enable/disable)", "")
-  .argument("[plugins...]", "Plugin IDs to enable/disable", [])
+  .description("Manage plugins for instances")
+  .argument("[action]", "Action to perform (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)", "list")
+  .argument("[instance]", "Instance name (for list/enable/disable/install/remove)", "")
+  .argument("[plugins...]", "Plugin IDs", [])
   .action(async (action = "list", instanceName = "", plugins: string[] = []) => {
     try {
       switch (action) {
@@ -526,9 +534,24 @@ program
         case "copy":
           await handlePluginsCopy(instanceName);
           break;
+        case "install":
+          await handlePluginsInstall(instanceName, plugins);
+          break;
+        case "remove":
+          await handlePluginsRemove(instanceName, plugins);
+          break;
+        case "list-defaults":
+          handlePluginsListDefaults();
+          break;
+        case "list-installed":
+          await handlePluginsListInstalled(instanceName);
+          break;
+        case "check-collisions":
+          await handlePluginsCheckCollisions(instanceName, plugins);
+          break;
         default:
           console.error(chalk.red(`✗ Unknown action: ${action}`));
-          console.log(chalk.gray("Available actions: list, enable, disable, copy"));
+          console.log(chalk.gray("Available actions: list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions"));
           process.exit(1);
       }
     } catch (error) {
@@ -685,6 +708,190 @@ async function handlePluginsCopy(instanceName: string): Promise<void> {
 
   const enabledCount = Object.values(defaultPlugins).filter((v) => v === true).length;
   console.log(chalk.green(`✓ Copied ${enabledCount} enabled plugins to '${instanceName}'`));
+}
+
+async function handlePluginsInstall(instanceName: string, pluginIds: string[]): Promise<void> {
+  if (!instanceName) {
+    console.error(chalk.red("✗ Instance name required"));
+    console.log(chalk.gray("Usage: claude-multi plugins install <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  if (isPluginsSymlinked(instance.configDir)) {
+    console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
+    process.exit(1);
+  }
+
+  if (pluginIds.length === 0) {
+    console.error(chalk.red("✗ No plugins specified"));
+    console.log(chalk.gray("Usage: claude-multi plugins install <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const defaults = listDefaultPlugins();
+  const selections = pluginIds.map(id => {
+    const p = defaults.find(dp => dp.id === id);
+    if (!p) {
+      console.error(chalk.red(`✗ Plugin '${id}' not found in default installation`));
+      process.exit(1);
+    }
+    return { id, category: p.category === "internal" ? "internal" as const : "external" as const };
+  });
+
+  const collisions = detectMcpCollisions(instance.configDir, pluginIds);
+  if (collisions.length > 0) {
+    console.log(chalk.yellow("\n⚠ MCP server name collisions detected:\n"));
+    for (const c of collisions) {
+      console.log(chalk.yellow(`  • ${c.serverName}: conflicts with existing server`));
+    }
+    console.log();
+  }
+
+  await copySelectedPlugins(instance.configDir, selections);
+  console.log(chalk.green(`✓ Installed ${selections.length} plugin(s) to '${instanceName}'`));
+}
+
+async function handlePluginsRemove(instanceName: string, pluginIds: string[]): Promise<void> {
+  if (!instanceName) {
+    console.error(chalk.red("✗ Instance name required"));
+    console.log(chalk.gray("Usage: claude-multi plugins remove <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  if (isPluginsSymlinked(instance.configDir)) {
+    console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
+    process.exit(1);
+  }
+
+  if (pluginIds.length === 0) {
+    console.error(chalk.red("✗ No plugins specified"));
+    console.log(chalk.gray("Usage: claude-multi plugins remove <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const installed = listInstancePlugins(instance.configDir);
+  for (const id of pluginIds) {
+    const p = installed.find(ip => ip.id === id);
+    if (!p) {
+      console.error(chalk.red(`✗ Plugin '${id}' not installed in '${instanceName}'`));
+      continue;
+    }
+    await removeSinglePlugin(instance.configDir, id, p.category === "internal" ? "internal" : "external");
+    console.log(chalk.green(`✓ Removed plugin '${id}' from '${instanceName}'`));
+  }
+}
+
+function handlePluginsListDefaults(): void {
+  const plugins = listDefaultPlugins();
+
+  if (plugins.length === 0) {
+    console.log(chalk.yellow("No plugins found in default Claude installation."));
+    return;
+  }
+
+  console.log(chalk.bold(`\n📋 Default Plugins (${plugins.length})\n`));
+
+  const internals = plugins.filter(p => p.category === "internal");
+  const externals = plugins.filter(p => p.category === "external");
+
+  if (internals.length > 0) {
+    console.log(chalk.cyan("Internal:"));
+    for (const p of internals) {
+      const badge = p.hasMcp ? chalk.cyan(" (MCP)") : "";
+      const status = p.enabled ? chalk.green("✓") : chalk.gray("✗");
+      console.log(`  ${status} ${p.name}${badge}`);
+    }
+    console.log();
+  }
+
+  if (externals.length > 0) {
+    console.log(chalk.cyan("External:"));
+    for (const p of externals) {
+      const badge = p.hasMcp ? chalk.cyan(" (MCP)") : "";
+      const status = p.enabled ? chalk.green("✓") : chalk.gray("✗");
+      console.log(`  ${status} ${p.name}${badge}`);
+    }
+  }
+}
+
+async function handlePluginsListInstalled(instanceName: string): Promise<void> {
+  if (!instanceName) {
+    const instances = await listInstances();
+    for (const inst of instances) {
+      const plugins = listInstancePlugins(inst.configDir);
+      console.log(chalk.cyan(`${inst.name}:`) + chalk.gray(` ${plugins.length} plugin(s)`));
+      for (const p of plugins) {
+        const status = p.enabled ? chalk.green("✓") : chalk.gray("✗");
+        const badge = p.hasMcp ? chalk.cyan(" (MCP)") : "";
+        const cat = p.category === "external" ? chalk.gray(" [ext]") : "";
+        console.log(`  ${status} ${p.name}${badge}${cat}`);
+      }
+      console.log();
+    }
+    return;
+  }
+
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  const plugins = listInstancePlugins(instance.configDir);
+  if (plugins.length === 0) {
+    console.log(chalk.yellow(`No plugins installed in '${instanceName}'`));
+    return;
+  }
+
+  console.log(chalk.bold(`\n📋 Installed Plugins for '${instanceName}' (${plugins.length})\n`));
+  for (const p of plugins) {
+    const status = p.enabled ? chalk.green("✓") : chalk.gray("✗");
+    const badge = p.hasMcp ? chalk.cyan(" (MCP)") : "";
+    const cat = p.category === "external" ? chalk.gray(" [ext]") : "";
+    console.log(`  ${status} ${p.name}${badge}${cat}`);
+  }
+}
+
+async function handlePluginsCheckCollisions(instanceName: string, pluginIds: string[]): Promise<void> {
+  if (!instanceName) {
+    console.error(chalk.red("✗ Instance name required"));
+    console.log(chalk.gray("Usage: claude-multi plugins check-collisions <instance> <plugin-id>..."));
+    process.exit(1);
+  }
+
+  const instance = await getInstance(instanceName);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
+    process.exit(1);
+  }
+
+  if (pluginIds.length === 0) {
+    console.error(chalk.red("✗ No plugins specified"));
+    process.exit(1);
+  }
+
+  const collisions = detectMcpCollisions(instance.configDir, pluginIds);
+  if (collisions.length === 0) {
+    console.log(chalk.green("✓ No MCP server name collisions detected"));
+  } else {
+    console.log(chalk.yellow(`\n⚠ ${collisions.length} collision(s) detected:\n`));
+    for (const c of collisions) {
+      console.log(chalk.yellow(`  • ${c.serverName}`));
+    }
+    process.exit(1);
+  }
 }
 
 async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void> {

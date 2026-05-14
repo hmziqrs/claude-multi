@@ -61,6 +61,7 @@ export interface PluginInfo {
   hasMcp: boolean;
   mcpServerNames?: string[];
   enabled: boolean;
+  isSymlink: boolean;
 }
 
 const CONFIG_DIR = join(homedir(), ".claude-multi");
@@ -246,9 +247,10 @@ export async function updateInstanceAutoSync(
     return null;
   }
 
-  config.instances[index].autoSync = autoSync;
+  const inst = config.instances[index]!;
+  inst.autoSync = autoSync;
   await saveConfig(config);
-  return config.instances[index];
+  return inst;
 }
 
 // Test-only: Override default Claude directory
@@ -399,6 +401,7 @@ export async function copySettingsFromDefault(
  */
 export async function copyAllFromDefault(
   targetConfigDir: string,
+  autoSync = false,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
@@ -441,10 +444,33 @@ export async function copyAllFromDefault(
       }
 
       if (stat.isDirectory()) {
-        if (!existsSync(targetPath)) {
-          await mkdir(targetPath, { recursive: true });
+        // Use symlink for plugins and skills when autoSync is enabled
+        if (autoSync && SYNC_DIRS.includes(entry as (typeof SYNC_DIRS)[number])) {
+          // Use lstatSync to detect broken symlinks (existsSync returns false for those)
+          try {
+            const targetStat = lstatSync(targetPath);
+            if (targetStat.isSymbolicLink()) {
+              const currentTarget = readlinkSync(targetPath);
+              if (currentTarget === sourcePath) {
+                console.log(`  ✓ Already symlinked: ${entry}`);
+                continue;
+              }
+              console.log(chalk.yellow(`  ⚠ Replacing incorrect symlink: ${entry}`));
+            } else {
+              console.log(chalk.yellow(`  ⚠ Removing existing directory: ${entry}`));
+            }
+            rmSync(targetPath, { force: true, recursive: true });
+          } catch {
+            // Path doesn't exist — nothing to clean up
+          }
+          await symlink(sourcePath, targetPath, "dir");
+          console.log(`  Symlinked: ${entry} -> ${sourcePath}`);
+        } else {
+          if (!existsSync(targetPath)) {
+            await mkdir(targetPath, { recursive: true });
+          }
+          await copyRecursive(sourcePath, targetPath);
         }
-        await copyRecursive(sourcePath, targetPath);
       } else {
         await copyFile(sourcePath, targetPath);
       }
@@ -712,16 +738,30 @@ export async function syncPluginsAndSkills(
   }
 
   for (const dir of SYNC_DIRS) {
-    const sourcePath = join(defaultDir, dir);
     const targetPath = join(configDir, dir);
+    const sourcePath = join(defaultDir, dir);
 
-    if (!existsSync(sourcePath)) continue;
-
-    if (existsSync(targetPath)) {
-      rmSync(targetPath, { force: true, recursive: true });
+    if (!existsSync(sourcePath)) {
+      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
+      continue;
     }
 
-    await copyDirRecursive(sourcePath, targetPath);
+    if (existsSync(targetPath)) {
+      try {
+        const linkTarget = readlinkSync(targetPath);
+        if (linkTarget === sourcePath || linkTarget === join("..", "..", ".claude", dir)) {
+          console.log(chalk.gray(`  ✓ ${dir} already synced`));
+          continue;
+        }
+        rmSync(targetPath, { force: true });
+      } catch {
+        rmSync(targetPath, { force: true, recursive: true });
+      }
+    }
+
+    const relativePath = relative(dirname(targetPath), sourcePath);
+    await symlink(relativePath, targetPath, "dir");
+    console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ${sourcePath}`));
   }
 }
 
@@ -966,6 +1006,7 @@ function scanPluginDir(
       hasMcp,
       mcpServerNames,
       enabled,
+      isSymlink: false,
     });
   }
 
@@ -1146,6 +1187,52 @@ export function detectMcpCollisions(
 }
 
 // ── Individual Plugin Copy / Remove ───────────────────────────────
+
+export interface ValidationResult {
+  canProceed: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+export function validatePluginOperation(
+  configDir: string,
+  operation: "install" | "remove" | "enable" | "disable",
+  pluginId?: string,
+): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (!existsSync(configDir)) {
+    errors.push("Instance config directory does not exist");
+  }
+
+  if (existsSync(configDir) && isPluginsSymlinked(configDir)) {
+    errors.push("Plugins directory is symlinked (auto-sync). Disable auto-sync first.");
+  }
+
+  if (operation === "install" && pluginId) {
+    const defaults = listDefaultPlugins();
+    if (!defaults.find(p => p.id === pluginId)) {
+      errors.push(`Plugin '${pluginId}' not found in default installation`);
+    }
+  }
+
+  if (operation === "remove" && pluginId) {
+    const installed = listInstancePlugins(configDir);
+    if (!installed.find(p => p.id === pluginId)) {
+      errors.push(`Plugin '${pluginId}' not installed in this instance`);
+    }
+  }
+
+  if (operation === "install" && pluginId && existsSync(configDir)) {
+    const collisions = detectMcpCollisions(configDir, [pluginId]);
+    for (const c of collisions) {
+      warnings.push(`MCP server name collision: '${c.serverName}'`);
+    }
+  }
+
+  return { canProceed: errors.length === 0, errors, warnings };
+}
 
 export async function copySinglePlugin(
   targetConfigDir: string,

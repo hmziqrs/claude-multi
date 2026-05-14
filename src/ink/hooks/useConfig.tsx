@@ -37,6 +37,7 @@ import {
   removeCustomMcpServer,
   isClaudeCodeRunning,
   detectMcpCollisions,
+  validatePluginOperation,
   type Instance,
   type Config,
   type PluginInfo,
@@ -144,6 +145,7 @@ export function useConfig() {
     removeCustomMcpServer,
     isClaudeCodeRunning,
     detectMcpCollisions,
+    validatePluginOperation,
     clearMigrationFailure,
   };
 }

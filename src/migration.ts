@@ -1,13 +1,13 @@
 import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 import type { Config, MigrationMeta } from "./config.js";
 
 export const CONFIG_VERSION = "2.0.0";
 
-const BACKUP_DIR = join(homedir(), ".claude-multi", "backups");
-const LOCK_FILE = join(homedir(), ".claude-multi", ".migration.lock");
+function getBaseDir() { return process.env.CLAUDE_MULTI_HOME || homedir(); }
+function getBackupDir() { return join(getBaseDir(), ".claude-multi", "backups"); }
+function getLockFile() { return join(getBaseDir(), ".claude-multi", ".migration.lock"); }
 
 export interface MigrationResult {
   success: boolean;
@@ -18,22 +18,25 @@ export interface MigrationResult {
 }
 
 function createLock(): boolean {
-  if (existsSync(LOCK_FILE)) {
+  const lockFile = getLockFile();
+  const lockDir = dirname(lockFile);
+  if (!existsSync(lockDir)) mkdirSync(lockDir, { recursive: true });
+  if (existsSync(lockFile)) {
     try {
-      const lock = JSON.parse(readFileSync(LOCK_FILE, "utf-8"));
+      const lock = JSON.parse(readFileSync(lockFile, "utf-8"));
       // Check if process is still alive
       try {
         process.kill(lock.pid, 0);
         return false; // Lock is active
       } catch {
         // Stale lock — remove it
-        rmSync(LOCK_FILE, { force: true });
+        rmSync(lockFile, { force: true });
       }
     } catch {
-      rmSync(LOCK_FILE, { force: true });
+      rmSync(lockFile, { force: true });
     }
   }
-  writeFileSync(LOCK_FILE, JSON.stringify({
+  writeFileSync(lockFile, JSON.stringify({
     pid: process.pid,
     startedAt: new Date().toISOString(),
   }), "utf-8");
@@ -41,7 +44,7 @@ function createLock(): boolean {
 }
 
 function releaseLock(): void {
-  try { rmSync(LOCK_FILE, { force: true }); } catch {}
+  try { rmSync(getLockFile(), { force: true }); } catch {}
 }
 
 export function needsMigration(config: Config): boolean {
@@ -58,17 +61,19 @@ export function clearMigrationFailure(config: Config): Config {
 }
 
 export async function createBackup(config: Config): Promise<string> {
-  if (!existsSync(BACKUP_DIR)) {
-    mkdirSync(BACKUP_DIR, { recursive: true });
+  const backupDir = getBackupDir();
+  if (!existsSync(backupDir)) {
+    mkdirSync(backupDir, { recursive: true });
   }
 
   const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const rand = Math.random().toString(36).slice(2, 6);
   const fromV = config.version || "1.0.0";
-  const backupPath = join(BACKUP_DIR, `${ts}-v${fromV}-to-v${CONFIG_VERSION}`);
+  const backupPath = join(backupDir, `${ts}-${rand}-v${fromV}-to-v${CONFIG_VERSION}`);
   mkdirSync(backupPath, { recursive: true });
 
   // Copy config.json
-  const configSrc = join(homedir(), ".claude-multi", "config.json");
+  const configSrc = join(getBaseDir(), ".claude-multi", "config.json");
   if (existsSync(configSrc)) {
     copyFileSync(configSrc, join(backupPath, "config.json"));
   }
@@ -85,9 +90,9 @@ export async function createBackup(config: Config): Promise<string> {
   }
 
   // Clean old backups (keep last 3)
-  const backups = readdirSync(BACKUP_DIR).sort();
+  const backups = readdirSync(backupDir).sort();
   for (let i = 0; i < backups.length - 3; i++) {
-    rmSync(join(BACKUP_DIR, backups[i]!), { force: true, recursive: true });
+    rmSync(join(backupDir, backups[i]!), { force: true, recursive: true });
   }
 
   return backupPath;
@@ -149,6 +154,7 @@ export function getMigrationStatus(config: Config): MigrationMeta | null {
 }
 
 export function listBackups(): string[] {
-  if (!existsSync(BACKUP_DIR)) return [];
-  return readdirSync(BACKUP_DIR).sort().reverse();
+  const backupDir = getBackupDir();
+  if (!existsSync(backupDir)) return [];
+  return readdirSync(backupDir).sort().reverse();
 }

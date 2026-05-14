@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Text } from "ink";
-import { Select } from "@inkjs/ui";
+import { Select, TextInput } from "@inkjs/ui";
 import { Header } from "../components/Header.js";
 import { StatusBar } from "../components/StatusBar.js";
 import { useNavigation } from "../hooks/useNavigation.js";
@@ -8,7 +8,7 @@ import { useConfig } from "../hooks/useConfig.js";
 import { useFadeIn, useStaggeredReveal } from "../hooks/useAnimations.js";
 import type { McpServer } from "../../config.js";
 
-type Step = "action" | "select" | "details" | "select-source" | "select-target" | "copying" | "done";
+type Step = "action" | "select" | "details" | "select-source" | "select-target" | "copying" | "add-name" | "add-config" | "remove-select" | "done";
 
 interface McpSource {
   name: string;
@@ -80,7 +80,7 @@ const McpSourceDetails: React.FC<{
 };
 
 export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, listMcpServers, copyMcpServersBetweenInstances, getInstanceMcpServers, getMcpServersFromPlugins, listInstancePlugins } = useConfig();
+  const { instances, listMcpServers, copyMcpServersBetweenInstances, getInstanceMcpServers, getMcpServersFromPlugins, listInstancePlugins, setCustomMcpServer, removeCustomMcpServer } = useConfig();
   const [step, setStep] = useState<Step>("action");
   const [action, setAction] = useState<string | null>(null);
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
@@ -88,9 +88,11 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [mcpSources, setMcpSources] = useState<McpSource[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [customName, setCustomName] = useState("");
+  const [customConfig, setCustomConfig] = useState("");
 
   useNavigation(() => {
-    if (step === "details" || step === "select") {
+    if (step === "details" || step === "select" || step === "remove-select" || step === "add-name" || step === "add-config") {
       setStep("action");
     } else if (step === "select-target") {
       setStep("select-source");
@@ -124,6 +126,44 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       setStep("select-source");
     } else {
       setStep("select");
+    }
+  };
+
+  const handleAddNameSubmit = (value: string) => {
+    if (!value.trim()) {
+      setError("Server name cannot be empty");
+      return;
+    }
+    setCustomName(value.trim());
+    setStep("add-config");
+  };
+
+  const handleAddConfigSubmit = async (value: string) => {
+    if (!selectedInstance) return;
+    try {
+      const config = JSON.parse(value);
+      const inst = instances.find(i => i.name === selectedInstance);
+      if (!inst) return;
+      await setCustomMcpServer(inst.configDir, customName, config);
+      setSuccess(`Added custom MCP server '${customName}' to '${selectedInstance}'`);
+      setStep("done");
+    } catch (err) {
+      setError((err as Error).message);
+      setStep("add-config");
+    }
+  };
+
+  const handleRemoveSelect = async (serverName: string) => {
+    if (!selectedInstance) return;
+    try {
+      const inst = instances.find(i => i.name === selectedInstance);
+      if (!inst) return;
+      await removeCustomMcpServer(inst.configDir, serverName);
+      setSuccess(`Removed custom MCP server '${serverName}' from '${selectedInstance}'`);
+      setStep("done");
+    } catch (err) {
+      setError((err as Error).message);
+      setStep("action");
     }
   };
 
@@ -178,6 +218,22 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleInstanceSelect = async (value: string) => {
     setSelectedInstance(value);
     try {
+      if (action === "add") {
+        setStep("add-name");
+        return;
+      }
+      if (action === "remove-custom") {
+        const sources = await buildMcpSources(value);
+        const customs = sources.filter(s => s.source === "custom");
+        if (customs.length === 0) {
+          setError("No custom MCP servers found in this instance");
+          setStep("action");
+          return;
+        }
+        setMcpSources(customs);
+        setStep("remove-select");
+        return;
+      }
       const sources = await buildMcpSources(value);
       setMcpSources(sources);
       setStep("details");
@@ -219,9 +275,11 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               { label: "📋 List MCP servers with sources", value: "list" },
               { label: "🔍 Verify MCP configuration", value: "verify" },
               { label: "📋 Copy between instances", value: "copy" },
+              { label: "➕ Add custom MCP server", value: "add" },
+              { label: "➖ Remove custom MCP server", value: "remove-custom" },
               { label: "Cancel", value: "cancel" },
             ]}
-            visibleOptionCount={4}
+            visibleOptionCount={6}
             onChange={handleAction}
           />
         </Box>
@@ -262,6 +320,35 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               .map((i) => ({ label: i.name, value: i.name }))}
             visibleOptionCount={instances.length - 1}
             onChange={handleTargetSelect}
+          />
+        </Box>
+      )}
+
+      {step === "add-name" && (
+        <Box flexDirection="column" gap={1}>
+          <Text>Enter MCP server name for '{selectedInstance}':</Text>
+          <TextInput placeholder="my-server" onSubmit={handleAddNameSubmit} />
+        </Box>
+      )}
+
+      {step === "add-config" && (
+        <Box flexDirection="column" gap={1}>
+          <Text>Enter JSON config for '{customName}':</Text>
+          <Text dimColor>Example: {"{ \"type\": \"stdio\", \"command\": \"npx\", \"args\": [\"-y\", \"my-server\"] }"}</Text>
+          <TextInput
+            placeholder='{"type":"stdio","command":"npx","args":["-y","pkg"]}'
+            onSubmit={handleAddConfigSubmit}
+          />
+        </Box>
+      )}
+
+      {step === "remove-select" && (
+        <Box flexDirection="column" gap={1}>
+          <Text>Select a custom MCP server to remove:</Text>
+          <Select
+            options={mcpSources.map(s => ({ label: s.name, value: s.name }))}
+            visibleOptionCount={Math.min(mcpSources.length, 10)}
+            onChange={handleRemoveSelect}
           />
         </Box>
       )}
