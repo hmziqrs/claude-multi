@@ -10,6 +10,12 @@ import { useFadeIn } from "@/ink/hooks/useAnimations";
 
 type Step = "select" | "action" | "syncing" | "done";
 
+const ToggleAction = {
+  Toggle: "toggle",
+  ForceSync: "force-sync",
+  Cancel: "cancel",
+} as const;
+
 const ToggleAction: React.FC<{
   selected: { name: string; autoSync?: boolean };
   actionOptions: { label: string; value: string }[];
@@ -80,14 +86,14 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   };
 
   const handleAction = async (value: string) => {
-    if (value === "cancel" || !selected) {
+    if (value === ToggleAction.Cancel || !selected) {
       setStep("select");
       setSelected(null);
       return;
     }
 
     const currentStatus = selected.autoSync !== false;
-    const nextStatus = value === "force-sync" ? true : !currentStatus;
+    const nextStatus = value === ToggleAction.ForceSync ? true : !currentStatus;
 
     setStep("syncing");
     try {
@@ -103,12 +109,12 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   const actionOptions = [
     {
       label: selected?.autoSync !== false ? "Turn off (copy files locally)" : "Turn on (use symlinks)",
-      value: "toggle",
+      value: ToggleAction.Toggle,
     },
     ...(selected?.autoSync !== false
-      ? [{ label: "Force re-sync (rebuild symlinks)", value: "force-sync" }]
+      ? [{ label: "Force re-sync (rebuild symlinks)", value: ToggleAction.ForceSync }]
       : []),
-    { label: "Cancel", value: "cancel" },
+    { label: "Cancel", value: ToggleAction.Cancel },
   ];
 
   return (

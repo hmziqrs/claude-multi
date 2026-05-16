@@ -489,7 +489,8 @@ program
     try {
       const instance = await requireInstance(name);
 
-      const newStatus = status.toLowerCase() === "on" || status.toLowerCase() === "true" || status === "1";
+      const normalized = status.toLowerCase();
+      const newStatus = normalized === "on" || normalized === "true" || status === "1";
       const currentStatus = instance.autoSync !== false;
 
       if (currentStatus === newStatus) {
