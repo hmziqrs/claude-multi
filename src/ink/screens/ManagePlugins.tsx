@@ -47,6 +47,15 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [instancePlugins, setInstancePlugins] = useState<PluginInfo[]>([]);
   const { error, setError, success, setSuccess } = useMessage();
 
+  const filteredOptions = useMemo(() => {
+    const showCat = action === "install" || action === "remove";
+    const plugins =
+      action === "enable" ? instancePlugins.filter(p => !p.enabled) :
+      action === "disable" ? instancePlugins.filter(p => p.enabled) :
+      instancePlugins;
+    return plugins.map(p => ({ label: formatPluginLabel(p, { showCategory: showCat }), value: p.id }));
+  }, [action, instancePlugins]);
+
   useNavigation(() => {
     if (step === "select-instance" || step === "select-plugins" || step === "plugin-list" || step === "symlink-warning") {
       setStep("action");
@@ -162,15 +171,6 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       setStep("action");
     }
   };
-
-  const filteredOptions = useMemo(() => {
-    const showCat = action === "install" || action === "remove";
-    const plugins =
-      action === "enable" ? instancePlugins.filter(p => !p.enabled) :
-      action === "disable" ? instancePlugins.filter(p => p.enabled) :
-      instancePlugins;
-    return plugins.map(p => ({ label: formatPluginLabel(p, { showCategory: showCat }), value: p.id }));
-  }, [action, instancePlugins]);
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
