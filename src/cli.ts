@@ -925,7 +925,7 @@ program
         try {
           await runInteractiveMode();
         } catch (err2: unknown) {
-          console.error(chalk.red(`✗ Error: ${(err2 as Error).message}`));
+          console.error(chalk.red(`✗ Error: ${err2 instanceof Error ? err2.message : String(err2)}`));
           exitWithCode(1);
         }
       }
