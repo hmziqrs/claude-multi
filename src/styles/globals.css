@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lime: #a3e635;
+  --color-lime-hover: #84cc16;
+  --color-lime-glow: rgba(163, 230, 53, 0.15);
+  --color-surface: rgba(17, 17, 24, 0.6);
+  --color-surface-hover: rgba(17, 17, 24, 0.85);
+  --color-bg: #0a0a0f;
+  --color-border: rgba(163, 230, 53, 0.1);
+  --color-border-hover: rgba(163, 230, 53, 0.3);
+  --color-text: #f1f1f6;
+  --color-text-muted: #8b8b9e;
+}

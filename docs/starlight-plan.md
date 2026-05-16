@@ -4,42 +4,62 @@
 
 Starlight lives at the project root, coexisting with the existing CLI source. Astro uses `src/content/` for its content collections; Bun builds from `src/` explicitly (`bun build src/cli.ts`). No overlap.
 
+Docs pages are nested under `src/content/docs/docs/` to naturally route at `/docs/` without needing Astro's `base` option. The marketing page at `src/pages/index.astro` serves the domain root `/`.
+
 ```
 claude-multi/
 ├── src/                                   # existing CLI source (unchanged)
 │   ├── cli.ts
 │   ├── config.ts
-│   ├── ...
 │   └── ink/
 │
-├── src/content/                           # NEW — Starlight content collections
+├── src/content/                           # Starlight content collections
 │   ├── content.config.ts
 │   └── docs/
-│       ├── index.md                       # landing page (splash template)
-│       ├── getting-started.md             # install + quick start
-│       ├── usage.md                       # full CLI command reference
-│       ├── providers.md                   # provider template cards
-│       ├── how-it-works.md                # architecture overview
-│       ├── plugins-mcp.md                 # plugin/MCP subcommands
-│       ├── configuration.md               # config.json schema reference
-│       ├── changelog.md                   # from root CHANGELOG.md
-│       └── development/
-│           └── subagent-model-plan.md     # from docs/
+│       └── docs/                          # all docs live here → /docs/
+│           ├── index.md                   # docs landing (splash template)
+│           ├── getting-started.md
+│           ├── usage.md
+│           ├── providers.md
+│           ├── how-it-works.md
+│           ├── plugins-mcp.md
+│           ├── configuration.md
+│           ├── changelog.md
+│           └── development/
+│               └── subagent-model-plan.md
 │
-├── src/assets/                            # NEW — processed assets (logos, images)
-│   └── logo.svg                           # (optional)
+├── src/pages/                             # standalone Astro pages
+│   └── index.astro                        # marketing page at /
 │
-├── src/styles/                            # NEW — custom CSS
-│   └── custom.css                         # Starlight CSS variable overrides
+├── src/layouts/                           # Astro layouts
+│   └── MarketingLayout.astro
 │
-├── public/                                # NEW — unprocessed static files
+├── src/styles/                            # custom CSS overrides
+│   └── custom.css
+│
+├── public/                                # unprocessed static files
 │   └── favicon.svg
 │
-├── astro.config.mjs                       # NEW
-├── src/env.d.ts                           # NEW — Astro type reference
-├── package.json                           # existing — add scripts + deps
+├── astro.config.mjs
+├── src/env.d.ts
+├── package.json
 └── ...
 ```
+
+**Route map:**
+
+| URL | Source | Layout |
+|-----|--------|--------|
+| `/` | `src/pages/index.astro` | MarketingLayout |
+| `/docs/` | `src/content/docs/docs/index.md` | Starlight splash |
+| `/docs/getting-started/` | `src/content/docs/docs/getting-started.md` | Starlight default |
+| `/docs/usage/` | `src/content/docs/docs/usage.md` | Starlight default |
+| `/docs/providers/` | `src/content/docs/docs/providers.md` | Starlight default |
+| `/docs/how-it-works/` | `src/content/docs/docs/how-it-works.md` | Starlight default |
+| `/docs/plugins-mcp/` | `src/content/docs/docs/plugins-mcp.md` | Starlight default |
+| `/docs/configuration/` | `src/content/docs/docs/configuration.md` | Starlight default |
+| `/docs/changelog/` | `src/content/docs/docs/changelog.md` | Starlight default |
+| `/docs/development/subagent-model-plan/` | `src/content/docs/docs/development/subagent-model-plan.md` | Starlight default |
 
 ---
 
@@ -51,10 +71,10 @@ bun add astro @astrojs/starlight
 
 | Package | Purpose |
 |---------|---------|
-| `astro` | Framework |
-| `@astrojs/starlight` | Documentation theme |
+| `astro` | Framework (v6.x) |
+| `@astrojs/starlight` | Documentation theme (v0.39.x) |
 
-No other packages needed. Search (Pagefind), code highlighting (Expressive Code), sitemap (built into Astro), and all docs components ship inside Starlight.
+No other packages needed for docs. Search (Pagefind), code highlighting (Expressive Code), and sitemap ship inside Starlight.
 
 ---
 
@@ -68,7 +88,6 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://claudemutli.hmziq.xyz',
-  base: '/docs',
   integrations: [
     starlight({
       title: 'claude-multi',
@@ -87,29 +106,29 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Getting Started',
-          items: [{ slug: 'getting-started' }],
+          items: [{ slug: 'docs/getting-started' }],
         },
         {
           label: 'Guides',
           items: [
-            { slug: 'usage' },
-            { slug: 'providers' },
-            { slug: 'how-it-works' },
-            { slug: 'plugins-mcp' },
+            { slug: 'docs/usage' },
+            { slug: 'docs/providers' },
+            { slug: 'docs/how-it-works' },
+            { slug: 'docs/plugins-mcp' },
           ],
         },
         {
           label: 'Reference',
           items: [
-            { slug: 'configuration' },
-            { slug: 'changelog' },
+            { slug: 'docs/configuration' },
+            { slug: 'docs/changelog' },
           ],
         },
         {
           label: 'Development',
           collapsed: true,
           items: [
-            { slug: 'development/subagent-model-plan' },
+            { slug: 'docs/development/subagent-model-plan' },
           ],
         },
       ],
@@ -120,7 +139,7 @@ export default defineConfig({
 });
 ```
 
-Deploying to `claudemutli.hmziq.xyz/docs`. Astro uses `site` for sitemap/canonical URLs and `base` prefixes all asset and page paths. The `favicon` stays `/favicon.svg` — Astro prefixes it with `base` at build time.
+> **No `base` field.** Docs route at `/docs/` because pages are nested inside `src/content/docs/docs/`. The marketing page at `src/pages/index.astro` handles `/`. No need for Astro's `base` prefix — clean, simple routing.
 
 ### 3.2 `src/content.config.ts`
 
@@ -143,9 +162,9 @@ export const collections = {
 /// <reference types="astro/client" />
 ```
 
-No changes to `tsconfig.json`. The existing config already has `moduleResolution: "bundler"` (Astro 5 requirement) and `module: "Preserve"` (Astro-compatible).
+No changes to `tsconfig.json`. The existing config already has `moduleResolution: "bundler"` (Astro requirement) and `module: "Preserve"` (Astro-compatible).
 
-### 3.4 `package.json` — scripts to add
+### 3.4 `package.json` — scripts added
 
 ```json
 {
@@ -153,7 +172,8 @@ No changes to `tsconfig.json`. The existing config already has `moduleResolution
     "docs:dev": "astro dev",
     "docs:build": "astro build",
     "docs:preview": "astro preview"
-  }
+  },
+  "homepage": "https://claudemutli.hmziq.xyz"
 }
 ```
 
@@ -161,19 +181,19 @@ No changes to `tsconfig.json`. The existing config already has `moduleResolution
 
 ## 4. Content Pages — Migration Map
 
-| Source | Starlight page | Details |
-|--------|---------------|---------|
-| README hero + tagline | `index.md` | `template: splash` + `hero` frontmatter |
-| README: Install + Quick Start | `getting-started.md` | `:::` asides for prerequisites |
-| README: Usage block | `usage.md` | `<Tabs>` for interactive / CI mode examples |
-| README: Provider Templates | `providers.md` | `<CardGrid>` + `<Card>` for GLM/MiniMax/DeepSeek |
-| README: How It Works | `how-it-works.md` | Code blocks with filenames via Expressive Code |
-| README: Plugins/MCP commands | `plugins-mcp.md` | Plugin/MCP subcommand reference |
-| README: Configuration JSON | `configuration.md` | Config schema with JSON code blocks |
-| root `CHANGELOG.md` | `changelog.md` | Move into docs tree |
-| `docs/subagent-model-plan.md` | `development/subagent-model-plan.md` | Move into docs tree |
+| Source | Starlight page | File path |
+|--------|---------------|-----------|
+| README hero + tagline | Docs landing | `src/content/docs/docs/index.md` |
+| README: Install + Quick Start | Getting Started | `src/content/docs/docs/getting-started.md` |
+| README: Usage block | Usage | `src/content/docs/docs/usage.md` |
+| README: Provider Templates | Providers | `src/content/docs/docs/providers.md` |
+| README: How It Works | How It Works | `src/content/docs/docs/how-it-works.md` |
+| README: Plugins/MCP commands | Plugins & MCP | `src/content/docs/docs/plugins-mcp.md` |
+| README: Configuration JSON | Configuration | `src/content/docs/docs/configuration.md` |
+| root `CHANGELOG.md` | Changelog | `src/content/docs/docs/changelog.md` |
+| `docs/subagent-model-plan.md` | Subagent Model Plan | `src/content/docs/docs/development/subagent-model-plan.md` |
 
-**9 pages total.** Root `README.md` stays as the npm readme — add a link to the docs site at the top. Root `CHANGELOG.md` is removed after migration.
+**9 docs pages + 1 marketing page = 10 content pages total.** Root `README.md` stays as the npm readme. Root `CHANGELOG.md` can be removed after migration.
 
 ---
 
@@ -181,129 +201,59 @@ No changes to `tsconfig.json`. The existing config already has `moduleResolution
 
 | Feature | Use on |
 |---------|--------|
-| `template: splash` + hero | `index.md` landing page |
-| `<CardGrid>` + `<Card>` | `providers.md` — GLM / MiniMax / DeepSeek |
-| `<Tabs>` | `usage.md` — interactive vs non-interactive examples |
-| `:::` asides (`:::caution`, `:::note`) | `getting-started.md` — prerequisites, tips |
-| `<Badge>` | Sidebar for "New" indicators; `providers.md` labels |
-| Expressive Code (filenames, highlights) | `how-it-works.md`, `usage.md`, `configuration.md` |
-| Pagefind search | entire site — on by default |
-| Edit link + `lastUpdated` | every page footer — on by default |
+| `template: splash` + hero | `docs/index.md` docs landing |
+| `<CardGrid>` + `<Card>` | `docs/providers.md` — GLM / MiniMax / DeepSeek |
+| `<Tabs>` | `docs/usage.md` — interactive vs non-interactive examples |
+| `:::` asides | `docs/getting-started.md` — prerequisites |
+| `<Badge>` | Sidebar indicators, provider labels |
+| Expressive Code | All code blocks with filenames/highlights |
+| Pagefind search | Entire docs site |
+| Edit link + `lastUpdated` | Every docs page footer |
 
 ---
 
-## 6. Example Frontmatter
+## 6. Marketing Page
 
-`src/content/docs/index.md`:
-
-```md
----
-title: claude-multi
-description: Manage multiple Claude Code instances with different AI providers
-template: splash
-hero:
-  title: claude-multi
-  tagline: One CLI to manage multiple Claude Code instances — each with its own provider, config, and history.
-  actions:
-    - text: Get Started
-      link: /docs/getting-started/
-      icon: right-arrow
-    - text: GitHub
-      link: https://github.com/hmziqrs/claude-multi
-      icon: github
-      variant: secondary
----
-
-```
-
-`src/content/docs/getting-started.md`:
-
-```md
----
-title: Getting Started
-description: Install and configure claude-multi
----
-
-:::caution[Prerequisites]
-Requires **Node.js >= 18** and **@anthropic-ai/claude-code >= 2.0.0** installed globally.
-:::
-
-## Installation
-
-```bash
-npm install -g claude-multi
-```
-
-## Quick Start
-
-...
-```
+A standalone Astro page at `src/pages/index.astro` using `src/layouts/MarketingLayout.astro`. Fully separate from Starlight's chrome — custom dark-themed design with hero, features grid, provider cards, code example, and CTA section. Styled with standalone CSS (no Starlight `--sl-*` variable dependency since the marketing page is outside Starlight's pipeline).
 
 ---
 
 ## 7. Deployment
 
-**Target:** `https://claudemutli.hmziq.xyz/docs`
+**Target:** `https://claudemutli.hmziq.xyz` (root domain).
 
-The built output goes to `dist/`. Astro produces fully static HTML/CSS/JS — deploy via any static host that supports custom domains and subpath routing.
+The built output goes to `dist/`:
+```
+dist/
+├── index.html                          ← marketing page (/)
+├── favicon.svg
+├── sitemap-index.xml
+├── docs/
+│   ├── index.html                      ← docs landing (/docs/)
+│   ├── getting-started/index.html
+│   ├── usage/index.html
+│   ├── providers/index.html
+│   ├── how-it-works/index.html
+│   ├── plugins-mcp/index.html
+│   ├── configuration/index.html
+│   ├── changelog/index.html
+│   └── development/
+│       └── subagent-model-plan/index.html
+├── 404.html
+└── pagefind/                           ← search index (docs only)
+```
 
-### Cloudflare Pages (recommended)
+### Cloudflare Pages
 
 1. Dashboard → Workers & Pages → Create → Pages → Connect to Git
 2. Build command: `bun run docs:build`
 3. Output directory: `dist`
 4. Environment variable: `BUN_VERSION` = `latest`
 5. Custom domain: `claudemutli.hmziq.xyz`
-6. Set a **redirect rule** so `/docs/*` serves from the Pages deployment root:
-   - If deploying the entire site at the domain root, set `base: ''` and no redirect needed
-   - If using a single Pages project for `/docs`, add a redirect: `/docs/* → /*` or use Cloudflare Workers to strip the `/docs` prefix
 
-> Alternative: Build _without_ `base` in `astro.config.mjs` and serve the entire site at a dedicated subdomain (e.g. `docs.claudemutli.hmziq.xyz`). This avoids subpath routing entirely.
+### Generic static host
 
-### Generic static host (nginx, Caddy, Vercel, Netlify)
-
-1. Run `bun run docs:build` → `dist/`
-2. Upload `dist/` contents, served at `/docs`
-3. Configure your server to serve `dist/` under the `/docs` path prefix
-4. Config must have `base: '/docs'` and `site: 'https://claudemutli.hmziq.xyz'`
-5. Set `homepage` in `package.json` to `https://claudemutli.hmziq.xyz/docs`
-
----
-
-## 8. Implementation Checklist
-
-### Phase 1 — Scaffold
-- [ ] `bun add astro @astrojs/starlight`
-- [ ] Create `astro.config.mjs`
-- [ ] Create `src/content.config.ts`
-- [ ] Create `src/env.d.ts`
-- [ ] Create `src/content/docs/` directory
-- [ ] Create `public/` directory with `favicon.svg`
-- [ ] Add `docs:dev`, `docs:build`, `docs:preview` to `package.json` scripts
-- [ ] Run `bun run docs:dev` — verify site loads at `http://localhost:4321`
-
-### Phase 2 — Content
-- [ ] `index.md` — splash landing page with hero
-- [ ] `getting-started.md` — install + quick start
-- [ ] `usage.md` — CLI command reference with tabs
-- [ ] `providers.md` — provider cards
-- [ ] `how-it-works.md` — architecture overview
-- [ ] `plugins-mcp.md` — plugin/MCP command reference
-- [ ] `configuration.md` — config schema reference
-- [ ] `changelog.md` — move from `CHANGELOG.md`; remove root copy
-- [ ] `development/subagent-model-plan.md` — move from `docs/`
-
-### Phase 3 — Verify
-- [ ] `bun run docs:build` succeeds with no errors
-- [ ] `bun run docs:preview` — verify search, dark mode, code highlighting
-- [ ] Verify edit links resolve to correct GitHub file paths
-- [ ] Verify mobile layout in browser dev tools
-
-### Phase 4 — Deploy
-- [ ] Verify `site` and `base` in `astro.config.mjs` match `https://claudemutli.hmziq.xyz/docs`
-- [ ] Build: `bun run docs:build`
-- [ ] Deploy `dist/` to `claudemutli.hmziq.xyz/docs`
-- [ ] Update `package.json` `homepage` to docs site URL
+Deploy `dist/` to the web root. No subpath rewrites needed — all routes are at their natural paths.
 
 ---
 
@@ -314,17 +264,7 @@ The built output goes to `dist/`. Astro produces fully static HTML/CSS/JS — de
 | CLI source (`src/cli.ts`, `src/config.ts`, ...) | Untouched |
 | CLI build (`bun run build`, `bun run build:ink`) | Untouched |
 | Tests (`bun test`) | Untouched |
-| `README.md` | Kept as npm readme (add docs site link) |
-| `CHANGELOG.md` | Moved into `src/content/docs/`; root file removed |
+| `README.md` | Kept as npm readme |
+| `CHANGELOG.md` | Can be removed after moving content to docs |
 
 ---
-
-## 10. Estimated Effort
-
-| Phase | Time |
-|-------|------|
-| Scaffold | 5 min |
-| Content | 30–45 min |
-| Verify | 10 min |
-| Deploy | 10 min |
-| **Total** | **~1 hour** |

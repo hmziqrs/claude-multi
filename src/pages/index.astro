@@ -1,0 +1,119 @@
+---
+import Layout from '../layouts/MarketingLayout.astro';
+---
+
+<Layout>
+  <section class="relative z-10 text-center pt-32 pb-28 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tight leading-none mb-6">
+        Manage <span class="gradient-text">Claude Code</span><br/>across providers
+      </h1>
+      <p class="text-lg text-[#8b8b9e] max-w-xl mx-auto mb-10">
+        Create isolated Claude Code instances for Anthropic, GLM, MiniMax, and
+        DeepSeek — each with its own config, plugins, and history.
+      </p>
+      <div class="flex gap-3 justify-center flex-wrap">
+        <a href="/docs/getting-started/" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-base font-semibold no-underline bg-[#a3e635] text-[#0a0a0f] shadow-[0_0_40px_rgba(163,230,53,0.15)] hover:bg-[#84cc16] hover:shadow-[0_0_60px_rgba(163,230,53,0.2)] transition-all active:scale-95">
+          Get Started
+        </a>
+        <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-base font-semibold no-underline border border-[rgba(163,230,53,0.15)] text-[#f1f1f6] hover:border-[#a3e635] transition-all active:scale-95" style="background: rgba(17,17,24,0.5); backdrop-filter: blur(12px);">
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-4xl font-bold text-center mb-3 tracking-tight">
+        Why <span class="text-[#a3e635]">claude-multi</span>?
+      </h2>
+      <p class="text-center text-[#8b8b9e] mb-14 text-lg">
+        Stop editing config files every time you switch providers.
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="glass rounded-xl p-8 transition-all duration-300">
+          <div class="glow-icon text-3xl mb-4">&#9889;</div>
+          <h3 class="text-lg font-semibold mb-2">Multi-Provider</h3>
+          <p class="text-[#8b8b9e] text-sm leading-relaxed">
+            Spin up instances for Anthropic, GLM, MiniMax, and DeepSeek with
+            pre-configured templates. One command per provider.
+          </p>
+        </div>
+        <div class="glass rounded-xl p-8 transition-all duration-300">
+          <div class="glow-icon text-3xl mb-4">&#128450;</div>
+          <h3 class="text-lg font-semibold mb-2">Isolated Configs</h3>
+          <p class="text-[#8b8b9e] text-sm leading-relaxed">
+            Each instance gets its own <code class="bg-[rgba(163,230,53,0.1)] text-[#a3e635] px-1.5 py-0.5 rounded text-xs">settings.json</code>, plugins,
+            skills, and history. No cross-contamination.
+          </p>
+        </div>
+        <div class="glass rounded-xl p-8 transition-all duration-300">
+          <div class="glow-icon text-3xl mb-4">&#128279;</div>
+          <h3 class="text-lg font-semibold mb-2">Plugin Sync</h3>
+          <p class="text-[#8b8b9e] text-sm leading-relaxed">
+            Auto-sync plugins and skills from your default Claude install.
+            Symlinks keep everything in lockstep.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-4xl font-bold text-center mb-3 tracking-tight">
+        Supported <span class="text-[#a3e635]">Providers</span>
+      </h2>
+      <p class="text-center text-[#8b8b9e] mb-14 text-lg">
+        Pre-configured templates with the right models and endpoints.
+      </p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="glass rounded-xl p-7 transition-all duration-300">
+          <h3 class="text-lg font-semibold mb-2">GLM <span class="text-sm text-[#8b8b9e]">(智谱AI)</span></h3>
+          <p class="text-[#8b8b9e] text-sm mb-2">GLM-5.1, GLM-5-Turbo</p>
+          <p class="text-xs text-[#a3e635] font-mono">api.z.ai</p>
+        </div>
+        <div class="glass rounded-xl p-7 transition-all duration-300">
+          <h3 class="text-lg font-semibold mb-2">MiniMax</h3>
+          <p class="text-[#8b8b9e] text-sm mb-2">MiniMax-M2.7</p>
+          <p class="text-xs text-[#a3e635] font-mono">api.minimax.io</p>
+        </div>
+        <div class="glass rounded-xl p-7 transition-all duration-300">
+          <h3 class="text-lg font-semibold mb-2">DeepSeek</h3>
+          <p class="text-[#8b8b9e] text-sm mb-2">DeepSeek-V4-Pro, DeepSeek-V4-Flash</p>
+          <p class="text-xs text-[#a3e635] font-mono">api.deepseek.com</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 py-24 px-6">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-4xl font-bold mb-3 tracking-tight">
+        30 Seconds to <span class="text-[#a3e635]">Start</span>
+      </h2>
+      <p class="text-[#8b8b9e] mb-10 text-lg">
+        Install globally, create an instance, start coding.
+      </p>
+      <div class="glass rounded-xl p-7 overflow-x-auto text-left" style="background: rgba(6,6,11,0.7);">
+        <pre class="text-sm !leading-loose text-[#f1f1f6] font-mono"><span class="text-[#a3e635]">$</span> <span class="text-[#7dd3fc]">npm install -g</span> claude-multi
+
+<span class="text-[#a3e635]">$</span> <span class="text-[#7dd3fc]">claude-multi add</span> glm --provider glm --api-key "your-key"
+
+<span class="text-[#a3e635]">$</span> <span class="text-[#7dd3fc]">claude-glm</span> --help
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative z-10 text-center py-24 px-6 border-y border-[rgba(163,230,53,0.06)]" style="background: linear-gradient(180deg, transparent, rgba(163,230,53,0.06), transparent);">
+    <div class="max-w-xl mx-auto">
+      <h2 class="text-4xl font-bold mb-3 tracking-tight">Ready to manage multiple instances?</h2>
+      <p class="text-[#8b8b9e] mb-8 text-lg">One CLI, unlimited providers, zero config conflicts.</p>
+      <a href="/docs/getting-started/" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg text-base font-semibold no-underline bg-[#a3e635] text-[#0a0a0f] shadow-[0_0_40px_rgba(163,230,53,0.15)] hover:bg-[#84cc16] hover:shadow-[0_0_60px_rgba(163,230,53,0.2)] transition-all active:scale-95">
+        Read the docs
+      </a>
+    </div>
+  </section>
+</Layout>
