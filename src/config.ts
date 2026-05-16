@@ -66,8 +66,15 @@ export interface PluginInfo {
   isSymlink: boolean;
 }
 
-const CONFIG_DIR = join(homedir(), ".claude-multi");
-const CONFIG_FILE = join(CONFIG_DIR, "config.json");
+let _testConfigDir: string | undefined;
+
+/** Test-only: isolate config storage from ~/.claude-multi */
+export function setTestConfigDir(dir: string): void { _testConfigDir = dir; }
+/** Test-only: restore real config storage */
+export function clearTestConfigDir(): void { _testConfigDir = undefined; }
+
+function getConfigDir(): string { return _testConfigDir ?? join(homedir(), ".claude-multi"); }
+function getConfigFile(): string { return join(getConfigDir(), "config.json"); }
 
 const SYNC_DIRS = ["plugins", "skills"] as const;
 
@@ -147,8 +154,8 @@ async function ensureDirSymlink(params: {
 }
 
 export function ensureConfigDir(): void {
-  if (!existsSync(CONFIG_DIR)) {
-    mkdirSync(CONFIG_DIR, { recursive: true });
+  if (!existsSync(getConfigDir())) {
+    mkdirSync(getConfigDir(), { recursive: true });
   }
 }
 
@@ -163,7 +170,7 @@ function isConfig(raw: unknown): raw is Config {
 export async function loadConfig(): Promise<Config> {
   ensureConfigDir();
 
-  if (!existsSync(CONFIG_FILE)) {
+  if (!existsSync(getConfigFile())) {
     const defaultConfig: Config = {
       instances: [],
       version: "2.0.0",
@@ -172,7 +179,7 @@ export async function loadConfig(): Promise<Config> {
     return defaultConfig;
   }
 
-  const content = await readFile(CONFIG_FILE, "utf-8");
+  const content = await readFile(getConfigFile(), "utf-8");
   let config: Config;
   try {
     const raw = JSON.parse(content);
@@ -197,12 +204,12 @@ export async function loadConfig(): Promise<Config> {
 
 export async function saveConfig(config: Config): Promise<void> {
   ensureConfigDir();
-  await writeFile(CONFIG_FILE, JSON.stringify(config, null, 2), "utf-8");
+  await writeFile(getConfigFile(), JSON.stringify(config, null, 2), "utf-8");
 }
 
 export async function saveConfigAtomic(config: Config): Promise<void> {
   ensureConfigDir();
-  await writeJsonFileAtomic(CONFIG_FILE, config);
+  await writeJsonFileAtomic(getConfigFile(), config);
 }
 
 export async function addInstance(instance: Instance): Promise<void> {
@@ -1184,7 +1191,7 @@ export interface ValidationResult {
 
 export function validatePluginOperation(
   configDir: string,
-  operation: "install" | "remove" | "enable" | "disable",
+  operation: PluginAction,
   pluginId?: string,
 ): ValidationResult {
   const errors: string[] = [];

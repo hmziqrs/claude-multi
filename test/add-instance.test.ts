@@ -1,13 +1,20 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { existsSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { execSync } from "node:child_process";
 import { AutoSyncTestHelper } from "./test-utils";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import {
+  addInstance,
+  removeInstance,
+  loadConfig,
   copySettingsFromDefault,
   copyAllFromDefault,
   readClaudeSettings,
+  setTestConfigDir,
+  clearTestConfigDir,
+  type Instance,
 } from "@/config";
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
 
@@ -89,6 +96,57 @@ describe("handleAddInstance (component-level tests)", () => {
     it("should reject empty or whitespace names", () => {
       expect(NAME_PATTERN.test("")).toBe(false);
       expect(NAME_PATTERN.test("   ")).toBe(false);
+    });
+  });
+
+  describe("addInstance — config isolation", () => {
+    let testConfigDir: string;
+
+    const makeInstance = (name: string, base: string): Instance => ({
+      name,
+      configDir: join(base, `.claude-${name}`),
+      binaryPath: join(base, "bin", `claude-${name}`),
+      createdAt: new Date().toISOString(),
+    });
+
+    beforeEach(() => {
+      testConfigDir = mkdtempSync(join(tmpdir(), "claude-multi-cfg-test-"));
+      setTestConfigDir(testConfigDir);
+    });
+
+    afterEach(() => {
+      clearTestConfigDir();
+      rmSync(testConfigDir, { recursive: true, force: true });
+    });
+
+    it("rejects duplicate name and leaves exactly one entry in config", async () => {
+      const inst = makeInstance("dup", testConfigDir);
+      await addInstance(inst);
+
+      let caught: unknown;
+      try {
+        await addInstance(inst);
+      } catch (e) {
+        caught = e;
+      }
+
+      expect(caught).toBeInstanceOf(ClaudeMultiError);
+      expect((caught as ClaudeMultiError).code).toBe(ErrorCode.INSTANCE_ALREADY_EXISTS);
+
+      const config = await loadConfig();
+      expect(config.instances.filter(i => i.name === "dup")).toHaveLength(1);
+    });
+
+    it("rollback removes config entry — Phase 4 regression guard", async () => {
+      const inst = makeInstance("zombie", testConfigDir);
+
+      // Replicate the cli.ts rollback: addInstance succeeds, then createWrapper "fails"
+      await addInstance(inst);
+      // Rollback path from cli.ts and AddInstance.tsx on catch
+      await removeInstance("zombie").catch(() => {});
+
+      const config = await loadConfig();
+      expect(config.instances.find(i => i.name === "zombie")).toBeUndefined();
     });
   });
 });
