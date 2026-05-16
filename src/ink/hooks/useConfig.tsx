@@ -45,6 +45,7 @@ import {
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
 import { getAvailableProviders, getProviderTemplate } from "@/templates";
 import { getMigrationStatus, clearMigrationFailure } from "@/migration";
+import { ClaudeMultiError, ErrorCode } from "@/errors";
 
 export { type Instance, type PluginInfo };
 
@@ -77,7 +78,7 @@ export function useConfig() {
 
   const removeInstance = useCallback(async (name: string) => {
     const instance = await getInstanceFromConfig(name);
-    if (!instance) throw new Error(`Instance '${name}' not found`);
+    if (!instance) throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Instance '${name}' not found`);
     await removeInstanceFromConfig(name);
     removeWrapper(instance.binaryPath);
     await reload();
@@ -86,7 +87,7 @@ export function useConfig() {
 
   const toggleAutoSync = useCallback(async (name: string, enable: boolean) => {
     const instance = await getInstanceFromConfig(name);
-    if (!instance) throw new Error(`Instance '${name}' not found`);
+    if (!instance) throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Instance '${name}' not found`);
     await updateInstanceAutoSync(name, enable);
     if (enable) {
       await syncPluginsAndSkills(instance.configDir);

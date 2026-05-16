@@ -116,8 +116,8 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       if (instance) removeWrapper(instance.binaryPath);
       await reload();
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("select");
     }
   };

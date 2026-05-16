@@ -130,14 +130,14 @@ export async function runMigration(config: Config): Promise<Config> {
     };
 
     return config;
-  } catch (err) {
+  } catch (err: unknown) {
     config.migrationMeta = {
       migrationStatus: "failed",
       lastMigrationAt: new Date().toISOString(),
       migratedFromVersion: fromVersion,
       failureInfo: {
         failedAt: new Date().toISOString(),
-        error: (err as Error).message,
+        error: err instanceof Error ? err.message : String(err),
         step: "migration",
         canRetry: true,
       },

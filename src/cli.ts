@@ -52,6 +52,7 @@ import {
   upgradeClaudeMulti,
 } from "@/version";
 import { getAvailableProviders, getProviderTemplate } from "@/templates";
+import { toMessage } from "@/errors";
 
 async function requireInstance(name: string): Promise<Instance> {
   const instance = await getInstance(name);
@@ -252,9 +253,9 @@ program
           try {
             await copyMcpServersFromDefault(configDir);
             console.log(chalk.green("✓ Copied MCP server configurations"));
-          } catch (error) {
+          } catch (error: unknown) {
             console.log(
-              chalk.yellow(`⚠ Warning: ${(error as Error).message}`),
+              chalk.yellow(`⚠ Warning: ${toMessage(error)}`),
             );
           }
         }
@@ -304,8 +305,8 @@ program
         } else {
           console.log(chalk.cyan(`Run: claude-${name} --help`));
         }
-      } catch (error) {
-        console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+      } catch (error: unknown) {
+        console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
         process.exit(1);
       }
     },
@@ -347,8 +348,8 @@ program
       console.log(
         chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`),
       );
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -384,8 +385,8 @@ program
         console.log(chalk.gray(`  Auto-sync: ${autoSyncStatus}`));
         console.log();
       }
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -406,8 +407,8 @@ program
       );
       const autoSyncStatus = instance.autoSync !== false ? chalk.green("✓ Enabled") : chalk.yellow("✗ Disabled");
       console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -441,8 +442,8 @@ program
       } else if (versionInfo.current) {
         console.log(chalk.green("✓ You're up to date!"));
       }
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -463,8 +464,8 @@ program
       }
 
       await updateClaudeCode();
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -500,8 +501,8 @@ program
       }
 
       console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${name}'`));
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -557,8 +558,8 @@ program
           console.log(chalk.gray("Available actions: list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions"));
           process.exit(1);
       }
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });
@@ -908,11 +909,11 @@ program
         const React = await import("react");
         const { App } = await import("./ink/App.js");
         render(React.createElement(App));
-      } catch (error) {
-        console.error(chalk.red(`Ink UI failed, falling back to prompts: ${(error as Error).message}`));
+      } catch (error: unknown) {
+        console.error(chalk.red(`Ink UI failed, falling back to prompts: ${toMessage(error)}`));
         try {
           await runInteractiveMode();
-        } catch (err2) {
+        } catch (err2: unknown) {
           console.error(chalk.red(`✗ Error: ${(err2 as Error).message}`));
           process.exit(1);
         }
@@ -920,8 +921,8 @@ program
     } else {
       try {
         await runInteractiveMode();
-      } catch (error) {
-        console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+      } catch (error: unknown) {
+        console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
         process.exit(1);
       }
     }
@@ -1009,7 +1010,7 @@ async function runInteractiveMode(): Promise<void> {
         }
         console.log();
       }
-    } catch (error) {
+    } catch (error: unknown) {
       // Handle Ctrl+C gracefully
       if (error instanceof Error && error.message === "cancelled") {
         console.log(chalk.gray("\n👋 Goodbye!"));
@@ -1217,8 +1218,8 @@ async function handleAddInstance(): Promise<void> {
     try {
       await copyMcpServersFromDefault(configDir);
       console.log(chalk.green("✓ Copied MCP server configurations"));
-    } catch (error) {
-      console.log(chalk.yellow(`⚠ Warning: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.log(chalk.yellow(`⚠ Warning: ${toMessage(error)}`));
     }
   }
 
@@ -1436,8 +1437,8 @@ async function handleToggleAutoSync(instances: Instance[]): Promise<void> {
     }
 
     console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${instanceName}'`));
-  } catch (error) {
-    console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+  } catch (error: unknown) {
+    console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
   }
 }
 
@@ -1586,8 +1587,8 @@ program
           console.log(chalk.gray("Available actions: list, copy, verify"));
           process.exit(1);
       }
-    } catch (error) {
-      console.error(chalk.red(`✗ Error: ${(error as Error).message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       process.exit(1);
     }
   });

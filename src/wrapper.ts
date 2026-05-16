@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, chmodSync, unlinkSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { execSync } from "node:child_process";
+import { ClaudeMultiError, ErrorCode } from "@/errors";
 
 export interface WrapperOptions {
   name: string;
@@ -21,13 +22,12 @@ export function getClaudePath(): string {
     // On Windows, 'where' might return multiple paths, take the first one
     const firstPath = claudePath.split("\n")[0];
     if (!firstPath) {
-      throw new Error("Could not determine Claude path");
+      throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Could not determine Claude path");
     }
     return firstPath.trim();
-  } catch {
-    throw new Error(
-      "Claude Code is not installed. Please install @anthropic-ai/claude-code first.",
-    );
+  } catch (err) {
+    if (err instanceof ClaudeMultiError) throw err;
+    throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Claude Code is not installed. Please install @anthropic-ai/claude-code first.", { cause: err });
   }
 }
 

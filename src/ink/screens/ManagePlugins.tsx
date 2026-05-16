@@ -119,8 +119,8 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         setInstancePlugins(plugins);
         setStep("plugin-list");
       }
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("action");
     }
   };
@@ -166,8 +166,8 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       }
       await reload();
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("action");
     }
   };

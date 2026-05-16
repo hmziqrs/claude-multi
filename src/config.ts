@@ -6,6 +6,7 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import type { ProviderTemplate } from "@/templates";
 import { applyProviderTemplate } from "@/templates";
 import { writeJsonFileAtomic, readJsonFileSafe } from "@/util/json-file";
+import { ClaudeMultiError, ErrorCode } from "@/errors";
 import chalk from "chalk";
 
 export interface McpServer {
@@ -167,8 +168,8 @@ export async function loadConfig(): Promise<Config> {
   let config: Config;
   try {
     config = JSON.parse(content) as Config;
-  } catch (err) {
-    throw new Error(`Config file is corrupted: ${(err as Error).message}`);
+  } catch (err: unknown) {
+    throw new ClaudeMultiError(ErrorCode.CONFIG_CORRUPTED, `Config file is corrupted: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 
   // Run migration if needed
@@ -197,7 +198,7 @@ export async function addInstance(instance: Instance): Promise<void> {
   // Check if instance already exists
   const existing = config.instances.find((i) => i.name === instance.name);
   if (existing) {
-    throw new Error(`Instance '${instance.name}' already exists`);
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_ALREADY_EXISTS, `Instance '${instance.name}' already exists`);
   }
 
   config.instances.push(instance);
@@ -351,7 +352,7 @@ export async function copySettingsFromDefault(
   const sourceSettings = join(defaultDir, "settings.json");
 
   if (!existsSync(sourceSettings)) {
-    throw new Error("Default Claude settings.json not found");
+    throw new ClaudeMultiError(ErrorCode.DEFAULT_SETTINGS_NOT_FOUND, "Default Claude settings.json not found");
   }
 
   // Read the source settings
@@ -398,7 +399,7 @@ export async function copyAllFromDefault(
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(defaultDir)) {
-    throw new Error("Default Claude directory not found");
+    throw new ClaudeMultiError(ErrorCode.DEFAULT_DIR_NOT_FOUND, "Default Claude directory not found");
   }
 
   if (!existsSync(targetConfigDir)) {
@@ -492,7 +493,7 @@ export async function detectMcpConfigurations(
       if (settings.mcpServers && typeof settings.mcpServers === "object") {
         return { mcpServers: settings.mcpServers };
       }
-    } catch (error) {
+    } catch (error: unknown) {
       // Ignore parsing errors, continue to other files
     }
   }
@@ -510,7 +511,7 @@ export async function detectMcpConfigurations(
         if (mcpConfig.mcpServers && typeof mcpConfig.mcpServers === "object") {
           return mcpConfig as McpConfiguration;
         }
-      } catch (error) {
+      } catch (error: unknown) {
         // Ignore parsing errors, continue to next file
       }
     }
@@ -582,7 +583,7 @@ async function writeMcpConfiguration(
       settings.mcpServers = mcpConfig.mcpServers;
       await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
       return;
-    } catch (error) {
+    } catch (error: unknown) {
       // If we can't parse/update settings.json, fall back to separate file
     }
   }
@@ -603,11 +604,11 @@ export async function copyMcpServersBetweenInstances(
   const targetInstance = await getInstance(targetInstanceName);
 
   if (!sourceInstance) {
-    throw new Error(`Source instance '${sourceInstanceName}' not found`);
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Source instance '${sourceInstanceName}' not found`);
   }
 
   if (!targetInstance) {
-    throw new Error(`Target instance '${targetInstanceName}' not found`);
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Target instance '${targetInstanceName}' not found`);
   }
 
   const sourceMcpConfig = await detectMcpConfigurations(
@@ -615,9 +616,7 @@ export async function copyMcpServersBetweenInstances(
   );
 
   if (!sourceMcpConfig) {
-    throw new Error(
-      `No MCP configurations found in instance '${sourceInstanceName}'`,
-    );
+    throw new ClaudeMultiError(ErrorCode.MCP_NOT_FOUND, `No MCP configurations found in instance '${sourceInstanceName}'`);
   }
 
   await writeMcpConfiguration(targetInstance.configDir, sourceMcpConfig);
@@ -632,7 +631,7 @@ export async function listMcpServers(
   const instance = await getInstance(instanceName);
 
   if (!instance) {
-    throw new Error(`Instance '${instanceName}' not found`);
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Instance '${instanceName}' not found`);
   }
 
   const mcpConfig = await detectMcpConfigurations(instance.configDir);
@@ -726,7 +725,7 @@ export async function syncPluginsAndSkills(
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(configDir)) {
-    throw new Error("Instance config directory does not exist");
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
   }
 
   for (const dir of SYNC_DIRS) {
@@ -766,7 +765,7 @@ export async function unsyncPluginsAndSkills(
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(configDir)) {
-    throw new Error("Instance config directory does not exist");
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
   }
 
   for (const dir of SYNC_DIRS) {
@@ -836,7 +835,7 @@ export async function readClaudeSettings(
   try {
     const content = await readFile(settingsFile, "utf-8");
     return JSON.parse(content) as ClaudeSettings;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(chalk.yellow(`Warning: Failed to parse settings.json: ${error}`));
     return null;
   }
@@ -1215,7 +1214,7 @@ export async function copySinglePlugin(
   const targetPlugin = join(targetConfigDir, MARKETPLACE_REL, subDir, pluginId);
 
   if (!existsSync(sourcePlugin)) {
-    throw new Error(`Plugin '${pluginId}' not found in default Claude`);
+    throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${pluginId}' not found in default Claude`);
   }
 
   // Ensure scaffolding exists
@@ -1252,15 +1251,15 @@ export async function copySelectedPlugins(
   selections: Array<{ id: string; category: "internal" | "external" }>,
 ): Promise<void> {
   if (selections.length === 0) {
-    throw new Error("No plugins selected. Select at least one plugin.");
+    throw new ClaudeMultiError(ErrorCode.NO_PLUGINS_SELECTED, "No plugins selected. Select at least one plugin.");
   }
 
   if (isPluginsSymlinked(targetConfigDir)) {
-    throw new Error("Cannot copy individual plugins to a symlinked instance. Disable auto-sync first.");
+    throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, "Cannot copy individual plugins to a symlinked instance. Disable auto-sync first.");
   }
 
   if (isClaudeCodeRunning(targetConfigDir)) {
-    throw new Error("Claude Code is running on this instance. Close it first before modifying plugins.");
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_RUNNING, "Claude Code is running on this instance. Close it first before modifying plugins.");
   }
 
   // Pre-flight: check all sources exist
@@ -1269,7 +1268,7 @@ export async function copySelectedPlugins(
     const subDir = sel.category === "internal" ? "plugins" : "external_plugins";
     const source = join(defaultDir, MARKETPLACE_REL, subDir, sel.id);
     if (!existsSync(source)) {
-      throw new Error(`Plugin '${sel.id}' not found in default Claude`);
+      throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${sel.id}' not found in default Claude`);
     }
   }
 
@@ -1281,7 +1280,7 @@ export async function copySelectedPlugins(
   }
   // Warn if >100MB but don't block (exact free space check is platform-dependent)
   if (totalSize > 100 * 1024 * 1024) {
-    throw new Error(`Selected plugins total ${(totalSize / 1024 / 1024).toFixed(1)}MB. Ensure sufficient disk space.`);
+    throw new ClaudeMultiError(ErrorCode.PLUGIN_TOO_LARGE, `Selected plugins total ${(totalSize / 1024 / 1024).toFixed(1)}MB. Ensure sufficient disk space.`);
   }
 
   // Rollback journal
@@ -1292,7 +1291,7 @@ export async function copySelectedPlugins(
       await copySinglePlugin(targetConfigDir, sel.id, sel.category);
       completed.push(sel);
     }
-  } catch (err) {
+  } catch (err: unknown) {
     // Rollback completed copies
     for (const done of completed) {
       try {
@@ -1304,7 +1303,7 @@ export async function copySelectedPlugins(
         await removePluginFromInstalledPlugins(targetConfigDir, done.id);
       } catch {}
     }
-    throw new Error(`Plugin install failed, rolled back ${completed.length} plugin(s). ${(err as Error).message}`);
+    throw new ClaudeMultiError(ErrorCode.PLUGIN_INSTALL_FAILED, `Plugin install failed, rolled back ${completed.length} plugin(s). ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 }
 
@@ -1314,31 +1313,31 @@ export async function removeSinglePlugin(
   category: "internal" | "external",
 ): Promise<void> {
   if (isPluginsSymlinked(configDir)) {
-    throw new Error("Cannot remove plugins from a symlinked instance. Disable auto-sync first.");
+    throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, "Cannot remove plugins from a symlinked instance. Disable auto-sync first.");
   }
 
   const subDir = category === "internal" ? "plugins" : "external_plugins";
   const pluginPath = join(configDir, MARKETPLACE_REL, subDir, pluginId);
 
   if (!existsSync(pluginPath)) {
-    throw new Error(`Plugin '${pluginId}' not found in this instance`);
+    throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${pluginId}' not found in this instance`);
   }
 
   // Backup before removal (in case we need to restore)
   const backupPath = pluginPath + ".removing";
   try {
     renameSync(pluginPath, backupPath);
-  } catch (err) {
-    throw new Error(`Failed to stage plugin for removal: ${(err as Error).message}`);
+  } catch (err: unknown) {
+    throw new ClaudeMultiError(ErrorCode.PLUGIN_REMOVE_FAILED, `Failed to stage plugin for removal: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 
   try {
     rmSync(backupPath, { force: true, recursive: true });
     await removePluginFromInstalledPlugins(configDir, pluginId);
-  } catch (err) {
+  } catch (err: unknown) {
     // Try to restore from backup
     try { renameSync(backupPath, pluginPath); } catch {}
-    throw new Error(`Failed to remove plugin: ${(err as Error).message}`);
+    throw new ClaudeMultiError(ErrorCode.PLUGIN_REMOVE_FAILED, `Failed to remove plugin: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 }
 

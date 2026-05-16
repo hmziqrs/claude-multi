@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ClaudeMultiError, ErrorCode } from "@/errors";
 
 export interface VersionInfo {
   current: string | null;
@@ -89,10 +90,8 @@ export async function getLatestVersion(): Promise<string> {
       }
     );
     return output.trim();
-  } catch (error) {
-    throw new Error(
-      `Failed to fetch latest version from npm registry: ${error}`
-    );
+  } catch (err: unknown) {
+    throw new ClaudeMultiError(ErrorCode.VERSION_CHECK_FAILED, `Failed to fetch latest version from npm registry: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 }
 
@@ -139,7 +138,7 @@ export async function updateClaudeCode(): Promise<void> {
       stdio: "inherit",
     });
     console.log("Update completed successfully!");
-  } catch (error) {
-    throw new Error(`Failed to update @anthropic-ai/claude-code: ${error}`);
+  } catch (err: unknown) {
+    throw new ClaudeMultiError(ErrorCode.UPDATE_FAILED, `Failed to update @anthropic-ai/claude-code: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 }

@@ -12,6 +12,66 @@ The codebase is functionally solid but has accumulated several correctness and r
 - `ClaudeSettings` uses `[key: string]: any` which defeats the type system for that interface
 - Exit code behavior is inconsistent — user cancel and real errors both exit 1 in most paths
 
+## Status
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 0 | Standardized error system (`src/errors.ts`) | ✅ Done |
+| 1 | Shared string constants (`src/constants.ts`) | ⬜ Pending |
+| 2 | Tighten `ClaudeSettings` and unvalidated JSON casts | ⬜ Pending |
+| 3 | Typed catch blocks and remove silent swallows | 🔶 Partial (catch typing done; silent swallows remain) |
+| 4 | Rollback on failed `add` | ⬜ Pending |
+| 5 | Exit code consistency | ⬜ Pending |
+| 6 | `handleAddInstance` test coverage | ⬜ Pending |
+
+---
+
+## Phase 0 — Standardized error system (`src/errors.ts`) ✅ DONE
+
+**Goal:** Single source of truth for all thrown errors. Every throw site is machine-readable and carries a cause chain.
+
+### What was built
+
+`src/errors.ts`:
+
+```ts
+export const ErrorCode = {
+  // Config / filesystem
+  CONFIG_CORRUPTED, CONFIG_NOT_FOUND, DEFAULT_DIR_NOT_FOUND,
+  DEFAULT_SETTINGS_NOT_FOUND, INSTANCE_DIR_NOT_FOUND,
+  // Instance lifecycle
+  INSTANCE_NOT_FOUND, INSTANCE_ALREADY_EXISTS, INSTANCE_RUNNING,
+  // Plugin operations
+  PLUGIN_NOT_FOUND, PLUGIN_INSTALL_FAILED, PLUGIN_REMOVE_FAILED,
+  PLUGIN_TOO_LARGE, NO_PLUGINS_SELECTED,
+  // Symlink / auto-sync
+  SYMLINK_CONFLICT, MCP_NOT_FOUND,
+  // System
+  CLAUDE_NOT_FOUND,
+  // Update
+  UPDATE_FAILED, VERSION_CHECK_FAILED,
+} as const;
+
+export class ClaudeMultiError extends Error {
+  readonly code: ErrorCode;
+  constructor(code: ErrorCode, message: string, options?: ErrorOptions) { ... }
+}
+
+export function toMessage(err: unknown): string { ... }
+```
+
+### Changes made
+
+- All 27 `throw new Error(...)` sites in `config.ts`, `wrapper.ts`, `version.ts`, `useConfig.tsx` replaced with `throw new ClaudeMultiError(ErrorCode.X, message, { cause })`
+- All catch params typed as `unknown` across `cli.ts`, `config.ts`, `migration.ts`, `health.ts`, `version.ts`, and all 6 Ink screens
+- All `(err as Error).message` casts replaced with `err instanceof Error ? err.message : String(err)` (or `toMessage(err)` in `cli.ts`)
+
+### What this enables
+
+- Tests can assert `expect(err.code).toBe(ErrorCode.INSTANCE_NOT_FOUND)` instead of matching message strings
+- CLI can branch on `err.code` to set exit codes correctly (Phase 5 depends on this)
+- `err.cause` preserves the original low-level error for debugging
+
 ---
 
 ## Phase 1 — Shared string constants (`src/constants.ts`)
@@ -180,23 +240,9 @@ if (typeof raw !== "object" || raw === null || !("type" in raw)) {
 
 **Goal:** Every `catch` block either handles or surfaces the error. No bare `catch {}`.
 
-### 3a. Catch parameter typing
+### 3a. Catch parameter typing ✅ DONE
 
-TypeScript 4+ allows `catch (err: unknown)`. Change all catch sites:
-
-```ts
-// Before:
-} catch (err) {
-  setError((err as Error).message);
-}
-
-// After:
-} catch (err: unknown) {
-  setError(err instanceof Error ? err.message : String(err));
-}
-```
-
-Apply to all catch blocks in `config.ts`, `migration.ts`, `health.ts`, `cli.ts`, and all Ink screens.
+All catch params typed as `unknown`, all `(err as Error).message` casts removed. Applied to `config.ts`, `migration.ts`, `health.ts`, `cli.ts`, `version.ts`, and all 6 Ink screens as part of Phase 0.
 
 ### 3b. Silent `catch {}` in `config.ts`
 

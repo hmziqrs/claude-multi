@@ -146,8 +146,8 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       await setCustomMcpServer(inst.configDir, customName, config);
       setSuccess(`Added custom MCP server '${customName}' to '${selectedInstance}'`);
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("add-config");
     }
   };
@@ -160,8 +160,8 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       await removeCustomMcpServer(inst.configDir, serverName);
       setSuccess(`Removed custom MCP server '${serverName}' from '${selectedInstance}'`);
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("action");
     }
   };
@@ -236,8 +236,8 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       const sources = await buildMcpSources(value);
       setMcpSources(sources);
       setStep("details");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("action");
     }
   };
@@ -254,8 +254,8 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       await copyMcpServersBetweenInstances(sourceInstance, value);
       setSuccess(`Copied MCP servers from '${sourceInstance}' to '${value}'`);
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("action");
     }
   };

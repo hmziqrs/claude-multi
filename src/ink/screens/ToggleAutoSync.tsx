@@ -94,8 +94,8 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       await toggleAutoSync(selected.name, nextStatus);
       setNewStatus(nextStatus);
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("select");
     }
   };

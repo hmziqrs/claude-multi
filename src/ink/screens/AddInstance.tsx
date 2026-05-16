@@ -219,8 +219,8 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       setResult({ configDir: cDir, binaryPath: bPath });
       setStep("done");
-    } catch (err) {
-      setError((err as Error).message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       setStep("name");
     }
   };
