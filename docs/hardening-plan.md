@@ -17,12 +17,12 @@ The codebase is functionally solid but has accumulated several correctness and r
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 0 | Standardized error system (`src/errors.ts`) | ✅ Done |
-| 1 | Shared string constants (`src/constants.ts`) | ⬜ Pending |
-| 2 | Tighten `ClaudeSettings` and unvalidated JSON casts | ⬜ Pending |
-| 3 | Typed catch blocks and remove silent swallows | 🔶 Partial (catch typing done; silent swallows remain) |
-| 4 | Rollback on failed `add` | ⬜ Pending |
-| 5 | Exit code consistency | ⬜ Pending |
-| 6 | `handleAddInstance` test coverage | ⬜ Pending |
+| 1 | Shared string constants (`src/constants.ts`) | ✅ Done |
+| 2 | Tighten `ClaudeSettings` and unvalidated JSON casts | ✅ Done |
+| 3 | Typed catch blocks and remove silent swallows | ✅ Done |
+| 4 | Rollback on failed `add` | ✅ Done |
+| 5 | Exit code consistency | ✅ Done |
+| 6 | `handleAddInstance` test coverage | ✅ Done |
 
 ---
 

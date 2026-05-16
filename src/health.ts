@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { detectBrokenSymlinks } from "@/config";
 import type { Instance } from "@/config";
 import { getBaseDir } from "@/paths";
+import { MigrationStatus } from "@/constants";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings";
@@ -36,7 +37,7 @@ export function runHealthChecks(
   const issues: HealthIssue[] = [];
 
   // Check migration status
-  if (migrationStatus?.migrationStatus === "failed") {
+  if (migrationStatus?.migrationStatus === MigrationStatus.Failed) {
     issues.push({
       id: "migration-failed",
       severity: "error",

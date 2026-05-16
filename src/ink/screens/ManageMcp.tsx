@@ -9,6 +9,7 @@ import { useConfig } from "@/ink/hooks/useConfig";
 import { useMessage } from "@/ink/hooks/useMessage";
 import { useFadeIn, useStaggeredReveal } from "@/ink/hooks/useAnimations";
 import type { McpServer } from "@/config";
+import { McpAction, McpServerType } from "@/constants";
 
 type Step = "action" | "select" | "details" | "select-source" | "select-target" | "copying" | "add-name" | "add-config" | "remove-select" | "done";
 
@@ -32,7 +33,7 @@ const McpSourceDetails: React.FC<{
 
   return (
     <Box flexDirection="column" gap={0}>
-      {action === "verify" && showStatus && (
+      {action === McpAction.Verify && showStatus && (
         <StatusBar message={`${sources.length} MCP server(s) found`} type="success" />
       )}
       {sources.slice(0, visibleCount).map((src) => (
@@ -44,10 +45,10 @@ const McpSourceDetails: React.FC<{
             ) : (
               <Text dimColor>[custom]</Text>
             )}
-            {action === "verify" && (
-              src.config.type === "stdio" && !src.config.command ? (
+            {action === McpAction.Verify && (
+              src.config.type === McpServerType.Stdio && !src.config.command ? (
                 <Text color="yellow">⚠</Text>
-              ) : (src.config.type === "http" || src.config.type === "sse") && !src.config.url ? (
+              ) : (src.config.type === McpServerType.Http || src.config.type === McpServerType.Sse) && !src.config.url ? (
                 <Text color="yellow">⚠</Text>
               ) : (
                 <Text color="green">✓</Text>
@@ -117,7 +118,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleAction = (value: string) => {
     if (value === "cancel") { onBack(); return; }
     setAction(value);
-    if (value === "copy") {
+    if (value === McpAction.Copy) {
       if (instances.length < 2) {
         setError("Need at least 2 instances to copy");
         return;
@@ -140,7 +141,11 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleAddConfigSubmit = async (value: string) => {
     if (!selectedInstance) return;
     try {
-      const config = JSON.parse(value);
+      const raw = JSON.parse(value) as unknown;
+      if (typeof raw !== "object" || raw === null || !("type" in raw)) {
+        throw new Error("Config must be a JSON object with a 'type' field");
+      }
+      const config = raw as McpServer;
       const inst = instances.find(i => i.name === selectedInstance);
       if (!inst) return;
       await setCustomMcpServer(inst.configDir, customName, config);
@@ -186,7 +191,9 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           }
         }
       }
-    } catch {}
+    } catch {
+      // Plugin-name resolution failed — sources will show as "unknown", acceptable
+    }
 
     const sources: McpSource[] = [];
 
@@ -271,9 +278,9 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text>What would you like to do?</Text>
           <Select
             options={[
-              { label: "📋 List MCP servers with sources", value: "list" },
-              { label: "🔍 Verify MCP configuration", value: "verify" },
-              { label: "📋 Copy between instances", value: "copy" },
+              { label: "📋 List MCP servers with sources", value: McpAction.List },
+              { label: "🔍 Verify MCP configuration", value: McpAction.Verify },
+              { label: "📋 Copy between instances", value: McpAction.Copy },
               { label: "➕ Add custom MCP server", value: "add" },
               { label: "➖ Remove custom MCP server", value: "remove-custom" },
               { label: "Cancel", value: "cancel" },

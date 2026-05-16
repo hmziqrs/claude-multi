@@ -10,10 +10,13 @@ import {
   type Instance,
   type PluginInfo,
 } from "@/ink/hooks/useConfig";
+import { removeInstance as removeInstanceFromConfig } from "@/config";
+import { removeWrapper } from "@/wrapper";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
 import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
 import { homedir } from "node:os";
+import { CopyOption, PluginCategory } from "@/constants";
 
 const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string }> = ({
   name, binaryPath, configDir,
@@ -84,7 +87,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [autoSync, setAutoSync] = useState(false);
-  const [copyOption, setCopyOption] = useState<string>("none");
+  const [copyOption, setCopyOption] = useState<string>(CopyOption.None);
   const [selectedPluginIds, setSelectedPluginIds] = useState<string[]>([]);
   const [result, setResult] = useState<{ configDir: string; binaryPath: string } | null>(null);
 
@@ -129,7 +132,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   }, []);
 
   const handleProviderSelect = useCallback((value: string) => {
-    if (value === "none") {
+    if (value === CopyOption.None) {
       setUseProvider(false);
       setStep("paths-confirm");
       return;
@@ -151,9 +154,9 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const handleCopyOption = useCallback((value: string) => {
     setCopyOption(value);
-    if (value === "select-plugins") {
+    if (value === CopyOption.SelectPlugins) {
       setStep("select-plugins");
-    } else if (value === "all") {
+    } else if (value === CopyOption.All) {
       setStep("autosync");
     } else {
       doCreate(value, false);
@@ -195,20 +198,20 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       await cfg.createWrapper(instance);
       await cfg.initializeInstanceState(cDir);
 
-      if (copyOpt === "select-plugins") {
+      if (copyOpt === CopyOption.SelectPlugins) {
         // Copy settings first
         await cfg.copySettingsFromDefault(cDir);
         // Copy selected plugins
         const selections = selectedPluginIds.map(id => {
           const plugin = defaultPlugins.find(p => p.id === id);
-          return { id, category: plugin?.category ?? "external" as const };
+          return { id, category: plugin?.category ?? PluginCategory.External };
         });
         if (selections.length > 0) {
           await cfg.copySelectedPlugins(cDir, selections);
         }
-      } else if (copyOpt === "all") {
+      } else if (copyOpt === CopyOption.All) {
         await cfg.copyAllFromDefault(cDir);
-      } else if (copyOpt === "settings") {
+      } else if (copyOpt === CopyOption.Settings) {
         await cfg.copySettingsFromDefault(cDir);
       }
 
@@ -220,6 +223,8 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       setResult({ configDir: cDir, binaryPath: bPath });
       setStep("done");
     } catch (err: unknown) {
+      await removeInstanceFromConfig(name).catch(() => {});
+      removeWrapper(cfg.getDefaultBinaryPath(name));
       setError(err instanceof Error ? err.message : String(err));
       setStep("name");
     }
@@ -232,14 +237,14 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       label: `${p.displayName} — ${p.description}`,
       value: p.name,
     })),
-    { label: "None / Custom", value: "none" },
+    { label: "None / Custom", value: CopyOption.None },
   ];
 
   const copyOptions = [
-    { label: "Nothing — start fresh", value: "none" },
-    { label: "Only settings.json", value: "settings" },
-    { label: "Select plugins to install", value: "select-plugins" },
-    { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: "all" },
+    { label: "Nothing — start fresh", value: CopyOption.None },
+    { label: "Only settings.json", value: CopyOption.Settings },
+    { label: "Select plugins to install", value: CopyOption.SelectPlugins },
+    { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: CopyOption.All },
   ];
 
   const pluginSelectOptions = defaultPlugins.map(p => ({
@@ -296,7 +301,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           <Text dimColor>No default Claude config found. Starting fresh.</Text>
           <ConfirmInput
-            onConfirm={() => doCreate("none", autoSync)}
+            onConfirm={() => doCreate(CopyOption.None, autoSync)}
             onCancel={onBack}
           />
         </Box>

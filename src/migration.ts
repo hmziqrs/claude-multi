@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync,
 import { join, dirname } from "node:path";
 import type { Config, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
+import { MigrationStatus } from "@/constants";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -22,13 +23,16 @@ function createLock(): boolean {
   if (!existsSync(lockDir)) mkdirSync(lockDir, { recursive: true });
   if (existsSync(lockFile)) {
     try {
-      const lock = JSON.parse(readFileSync(lockFile, "utf-8"));
-      // Check if process is still alive
-      try {
-        process.kill(lock.pid, 0);
-        return false; // Lock is active
-      } catch {
-        // Stale lock — remove it
+      const raw = JSON.parse(readFileSync(lockFile, "utf-8")) as unknown;
+      if (typeof raw === "object" && raw !== null && "pid" in raw && typeof (raw as { pid: unknown }).pid === "number") {
+        const lock = raw as { pid: number; startedAt: string };
+        try {
+          process.kill(lock.pid, 0);
+          return false;
+        } catch {
+          rmSync(lockFile, { force: true });
+        }
+      } else {
         rmSync(lockFile, { force: true });
       }
     } catch {
@@ -43,17 +47,18 @@ function createLock(): boolean {
 }
 
 function releaseLock(): void {
+  // Safe to silence — lock file may already be removed by another process
   try { rmSync(getLockFile(), { force: true }); } catch {}
 }
 
 export function needsMigration(config: Config): boolean {
-  if (config.migrationMeta?.migrationStatus === "failed") return false;
+  if (config.migrationMeta?.migrationStatus === MigrationStatus.Failed) return false;
   return (config.version || "1.0.0") !== CONFIG_VERSION;
 }
 
 export function clearMigrationFailure(config: Config): Config {
   if (config.migrationMeta) {
-    config.migrationMeta.migrationStatus = "pending";
+    config.migrationMeta.migrationStatus = MigrationStatus.Pending;
     delete config.migrationMeta.failureInfo;
   }
   return config;
@@ -126,13 +131,13 @@ export async function runMigration(config: Config): Promise<Config> {
     config.migrationMeta = {
       lastMigrationAt: new Date().toISOString(),
       migratedFromVersion: fromVersion,
-      migrationStatus: "completed",
+      migrationStatus: MigrationStatus.Completed,
     };
 
     return config;
   } catch (err: unknown) {
     config.migrationMeta = {
-      migrationStatus: "failed",
+      migrationStatus: MigrationStatus.Failed,
       lastMigrationAt: new Date().toISOString(),
       migratedFromVersion: fromVersion,
       failureInfo: {

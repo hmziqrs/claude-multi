@@ -9,6 +9,7 @@ import { useConfig, type PluginInfo } from "@/ink/hooks/useConfig";
 import { useMessage } from "@/ink/hooks/useMessage";
 import { formatPluginLabel } from "@/ink/util/format";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
+import { PluginAction, PluginCategory } from "@/constants";
 
 type Step = "action" | "select-instance" | "select-plugins" | "symlink-warning" | "plugin-list" | "done";
 
@@ -28,7 +29,7 @@ const PluginRow: React.FC<{ plugin: PluginInfo; index: number }> = ({ plugin, in
       </Text>
       <Text bold={plugin.enabled}>{plugin.name}</Text>
       {plugin.hasMcp && <Text color="cyan" dimColor>(MCP)</Text>}
-      {plugin.category === "external" && <Text dimColor>[ext]</Text>}
+      {plugin.category === PluginCategory.External && <Text dimColor>[ext]</Text>}
     </Box>
   );
 };
@@ -48,10 +49,10 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { error, setError, success, setSuccess } = useMessage();
 
   const filteredOptions = useMemo(() => {
-    const showCat = action === "install" || action === "remove";
+    const showCat = action === PluginAction.Install || action === PluginAction.Remove;
     const plugins =
-      action === "enable" ? instancePlugins.filter(p => !p.enabled) :
-      action === "disable" ? instancePlugins.filter(p => p.enabled) :
+      action === PluginAction.Enable ? instancePlugins.filter(p => !p.enabled) :
+      action === PluginAction.Disable ? instancePlugins.filter(p => p.enabled) :
       instancePlugins;
     return plugins.map(p => ({ label: formatPluginLabel(p, { showCategory: showCat }), value: p.id }));
   }, [action, instancePlugins]);
@@ -90,7 +91,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     if (!inst) return;
 
     // Check symlink state for operations that modify plugins
-    if (["install", "remove", "enable", "disable"].includes(action ?? "")) {
+    if ([PluginAction.Install, PluginAction.Remove, PluginAction.Enable, PluginAction.Disable].includes(action ?? "" as PluginAction)) {
       if (isPluginsSymlinked(inst.configDir)) {
         setStep("symlink-warning");
         return;
@@ -102,7 +103,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const loadInstancePluginData = async (instName: string, configDir: string) => {
     try {
-      if (action === "install") {
+      if (action === PluginAction.Install) {
         // Show default plugins for selection
         const defaults = listDefaultPlugins();
         const installed = listInstancePlugins(configDir);
@@ -110,11 +111,11 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         const available = defaults.filter(p => !installedIds.has(p.id));
         setInstancePlugins(available);
         setStep("select-plugins");
-      } else if (action === "remove" || action === "enable" || action === "disable") {
+      } else if (action === PluginAction.Remove || action === PluginAction.Enable || action === PluginAction.Disable) {
         const plugins = listInstancePlugins(configDir);
         setInstancePlugins(plugins);
         setStep("select-plugins");
-      } else if (action === "list") {
+      } else if (action === PluginAction.List) {
         const plugins = listInstancePlugins(configDir);
         setInstancePlugins(plugins);
         setStep("plugin-list");
@@ -137,28 +138,28 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
 
     try {
-      if (action === "install") {
+      if (action === PluginAction.Install) {
         const defaults = listDefaultPlugins();
         const selections = selectedIds.map(id => {
           const p = defaults.find(dp => dp.id === id);
-          return { id, category: p?.category ?? "external" as const };
+          return { id, category: p?.category ?? PluginCategory.External };
         });
         if (selections.length > 0) {
           await copySelectedPlugins(inst.configDir, selections);
         }
         setSuccess(`Installed ${selections.length} plugin(s) to '${selectedInstance}'`);
-      } else if (action === "remove") {
+      } else if (action === PluginAction.Remove) {
         for (const id of selectedIds) {
           const p = instancePlugins.find(ip => ip.id === id);
-          await removeSinglePlugin(inst.configDir, id, p?.category ?? "external");
+          await removeSinglePlugin(inst.configDir, id, p?.category ?? PluginCategory.External);
         }
         setSuccess(`Removed ${selectedIds.length} plugin(s) from '${selectedInstance}'`);
-      } else if (action === "enable") {
+      } else if (action === PluginAction.Enable) {
         for (const id of selectedIds) {
           await enablePlugin(inst.configDir, `${id}@claude-plugins-official`);
         }
         setSuccess(`Enabled ${selectedIds.length} plugin(s) for '${selectedInstance}'`);
-      } else if (action === "disable") {
+      } else if (action === PluginAction.Disable) {
         for (const id of selectedIds) {
           await disablePlugin(inst.configDir, `${id}@claude-plugins-official`);
         }
@@ -183,11 +184,11 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text>What would you like to do?</Text>
           <Select
             options={[
-              { label: "📥 Install plugins from default", value: "install" },
-              { label: "🗑️  Remove installed plugins", value: "remove" },
-              { label: "✅ Enable plugins", value: "enable" },
-              { label: "❌ Disable plugins", value: "disable" },
-              { label: "📋 List installed plugins", value: "list" },
+              { label: "📥 Install plugins from default", value: PluginAction.Install },
+              { label: "🗑️  Remove installed plugins", value: PluginAction.Remove },
+              { label: "✅ Enable plugins", value: PluginAction.Enable },
+              { label: "❌ Disable plugins", value: PluginAction.Disable },
+              { label: "📋 List installed plugins", value: PluginAction.List },
               { label: "Cancel", value: "cancel" },
             ]}
             visibleOptionCount={6}
@@ -221,18 +222,18 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           {filteredOptions.length === 0 ? (
             <Text dimColor>
-              {action === "install" ? "All default plugins already installed." :
-               action === "enable" ? "All installed plugins are already enabled." :
-               action === "disable" ? "All installed plugins are already disabled." :
-               action === "remove" ? "No plugins installed to remove." :
+              {action === PluginAction.Install ? "All default plugins already installed." :
+               action === PluginAction.Enable ? "All installed plugins are already enabled." :
+               action === PluginAction.Disable ? "All installed plugins are already disabled." :
+               action === PluginAction.Remove ? "No plugins installed to remove." :
                "No plugins found."}
             </Text>
           ) : (
             <>
               <Text>
-                {action === "install" ? "Select plugins to install:" :
-                 action === "remove" ? "Select plugins to remove:" :
-                 action === "enable" ? "Select plugins to enable:" :
+                {action === PluginAction.Install ? "Select plugins to install:" :
+                 action === PluginAction.Remove ? "Select plugins to remove:" :
+                 action === PluginAction.Enable ? "Select plugins to enable:" :
                  "Select plugins to disable:"}
               </Text>
               <Text dimColor>space to toggle · enter to confirm</Text>

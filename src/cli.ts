@@ -53,12 +53,18 @@ import {
 } from "@/version";
 import { getAvailableProviders, getProviderTemplate } from "@/templates";
 import { toMessage } from "@/errors";
+import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType } from "@/constants";
+import type { ProviderTemplate } from "@/templates";
+
+function exitWithCode(code: 0 | 1): never {
+  process.exit(code);
+}
 
 async function requireInstance(name: string): Promise<Instance> {
   const instance = await getInstance(name);
   if (!instance) {
     console.error(chalk.red(`✗ Instance '${name}' not found`));
-    process.exit(1);
+    exitWithCode(1);
   }
   return instance;
 }
@@ -67,7 +73,7 @@ function requireNonEmptyArgs(items: string[], errorMsg: string, usage: string): 
   if (items.length === 0) {
     console.error(chalk.red(errorMsg));
     console.log(chalk.gray(usage));
-    process.exit(1);
+    exitWithCode(1);
   }
 }
 
@@ -125,9 +131,8 @@ program
         let copyAllFiles = false;
         let copyMcpServers = false;
         let useProviderTemplate = false;
-        let providerTemplate: any = null;
+        let providerTemplate: ProviderTemplate | null = null;
         let apiKey = "";
-        // Default to auto-sync enabled
         let autoSync = !options.manual;
 
         // Handle provider template in CLI mode
@@ -139,14 +144,14 @@ program
                 `✗ Unknown provider '${options.provider}'. Available: glm, minimax, deepseek`,
               ),
             );
-            process.exit(1);
+            exitWithCode(1);
           }
 
           if (!options.apiKey) {
             console.error(
               chalk.red("✗ --api-key is required when using --provider"),
             );
-            process.exit(1);
+            exitWithCode(1);
           }
 
           apiKey = options.apiKey;
@@ -180,27 +185,27 @@ program
             ),
           );
 
-          const choices = [{ title: "Nothing - start fresh", value: "none" }];
+          const choices = [{ title: "Nothing - start fresh", value: CopyOption.None }];
 
           if (hasDefaultConfig) {
-            choices.push({ title: "Only settings.json", value: "settings" });
+            choices.push({ title: "Only settings.json", value: CopyOption.Settings });
           }
 
           if (hasDefaultMcp) {
-            choices.push({ title: "Only MCP servers", value: "mcp" });
+            choices.push({ title: "Only MCP servers", value: CopyOption.Mcp });
           }
 
           if (hasDefaultConfig && hasDefaultMcp) {
             choices.push({
               title: "Settings + MCP servers",
-              value: "settings+mcp",
+              value: CopyOption.SettingsAndMcp,
             });
           }
 
           if (hasDefaultConfig) {
             choices.push({
               title: "All files (settings, CLAUDE.md, plugins, etc.)",
-              value: "all",
+              value: CopyOption.All,
             });
           }
 
@@ -217,18 +222,18 @@ program
           // Handle Ctrl+C
           if (response.copyOption === undefined) {
             console.log(chalk.yellow("\n✗ Cancelled"));
-            process.exit(0);
+            exitWithCode(0);
           }
 
           copySettings =
-            response.copyOption === "settings" ||
-            response.copyOption === "settings+mcp" ||
-            response.copyOption === "all";
+            response.copyOption === CopyOption.Settings ||
+            response.copyOption === CopyOption.SettingsAndMcp ||
+            response.copyOption === CopyOption.All;
           copyMcpServers =
-            response.copyOption === "mcp" ||
-            response.copyOption === "settings+mcp" ||
-            response.copyOption === "all";
-          copyAllFiles = response.copyOption === "all";
+            response.copyOption === CopyOption.Mcp ||
+            response.copyOption === CopyOption.SettingsAndMcp ||
+            response.copyOption === CopyOption.All;
+          copyAllFiles = response.copyOption === CopyOption.All;
         }
 
         const instance: Instance = {
@@ -240,41 +245,47 @@ program
         };
 
         await addInstance(instance);
-        await createWrapper(instance);
-        await initializeInstanceState(configDir);
+        try {
+          await createWrapper(instance);
+          await initializeInstanceState(configDir);
 
-        // Copy files if requested
-        if (copySettings && !copyAllFiles) {
-          await copySettingsFromDefault(configDir);
-          console.log(chalk.green("✓ Copied settings.json"));
-        }
+          // Copy files if requested
+          if (copySettings && !copyAllFiles) {
+            await copySettingsFromDefault(configDir);
+            console.log(chalk.green("✓ Copied settings.json"));
+          }
 
-        if (copyMcpServers && !copyAllFiles) {
-          try {
-            await copyMcpServersFromDefault(configDir);
-            console.log(chalk.green("✓ Copied MCP server configurations"));
-          } catch (error: unknown) {
+          if (copyMcpServers && !copyAllFiles) {
+            try {
+              await copyMcpServersFromDefault(configDir);
+              console.log(chalk.green("✓ Copied MCP server configurations"));
+            } catch (error: unknown) {
+              console.log(
+                chalk.yellow(`⚠ Warning: ${toMessage(error)}`),
+              );
+            }
+          }
+
+          if (copyAllFiles) {
+            await copyAllFromDefault(configDir);
+            if (autoSync) {
+              console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
+            } else {
+              console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
+            }
+          }
+
+          // Apply provider template if selected
+          if (useProviderTemplate && providerTemplate) {
+            await mergeProviderEnv(configDir, providerTemplate, apiKey);
             console.log(
-              chalk.yellow(`⚠ Warning: ${toMessage(error)}`),
+              chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
             );
           }
-        }
-
-        if (copyAllFiles) {
-          await copyAllFromDefault(configDir);
-          if (autoSync) {
-            console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
-          } else {
-            console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
-          }
-        }
-
-        // Apply provider template if selected
-        if (useProviderTemplate && providerTemplate) {
-          await mergeProviderEnv(configDir, providerTemplate, apiKey);
-          console.log(
-            chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
-          );
+        } catch (err: unknown) {
+          await removeInstance(name).catch(() => {});
+          removeWrapper(binaryPath);
+          throw err;
         }
 
         console.log(
@@ -307,7 +318,7 @@ program
         }
       } catch (error: unknown) {
         console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-        process.exit(1);
+        exitWithCode(1);
       }
     },
   );
@@ -350,7 +361,7 @@ program
       );
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -387,7 +398,7 @@ program
       }
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -409,7 +420,7 @@ program
       console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -444,7 +455,7 @@ program
       }
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -466,7 +477,7 @@ program
       await updateClaudeCode();
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -503,7 +514,7 @@ program
       console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${name}'`));
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -526,41 +537,41 @@ program
   .action(async (action = "list", instanceName = "", plugins: string[] = []) => {
     try {
       switch (action) {
-        case "list":
+        case PluginAction.List:
           await handlePluginsList(instanceName);
           break;
-        case "enable":
+        case PluginAction.Enable:
           await handlePluginsEnable(instanceName, plugins);
           break;
-        case "disable":
+        case PluginAction.Disable:
           await handlePluginsDisable(instanceName, plugins);
           break;
-        case "copy":
+        case PluginAction.Copy:
           await handlePluginsCopy(instanceName);
           break;
-        case "install":
+        case PluginAction.Install:
           await handlePluginsInstall(instanceName, plugins);
           break;
-        case "remove":
+        case PluginAction.Remove:
           await handlePluginsRemove(instanceName, plugins);
           break;
-        case "list-defaults":
+        case PluginAction.ListDefaults:
           handlePluginsListDefaults();
           break;
-        case "list-installed":
+        case PluginAction.ListInstalled:
           await handlePluginsListInstalled(instanceName);
           break;
-        case "check-collisions":
+        case PluginAction.CheckCollisions:
           await handlePluginsCheckCollisions(instanceName, plugins);
           break;
         default:
           console.error(chalk.red(`✗ Unknown action: ${action}`));
           console.log(chalk.gray("Available actions: list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions"));
-          process.exit(1);
+          exitWithCode(1);
       }
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -682,20 +693,20 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
   if (!instanceName) {
     console.error(chalk.red("✗ Instance name required"));
     console.log(chalk.gray("Usage: claude-multi plugins install <instance> <plugin-id>..."));
-    process.exit(1);
+    exitWithCode(1);
   }
 
   const instance = await requireInstance(instanceName);
 
   if (isPluginsSymlinked(instance.configDir)) {
     console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
-    process.exit(1);
+    exitWithCode(1);
   }
 
   if (pluginIds.length === 0) {
     console.error(chalk.red("✗ No plugins specified"));
     console.log(chalk.gray("Usage: claude-multi plugins install <instance> <plugin-id>..."));
-    process.exit(1);
+    exitWithCode(1);
   }
 
   const defaults = listDefaultPlugins();
@@ -703,9 +714,9 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
     const p = defaults.find(dp => dp.id === id);
     if (!p) {
       console.error(chalk.red(`✗ Plugin '${id}' not found in default installation`));
-      process.exit(1);
+      exitWithCode(1);
     }
-    return { id, category: p.category === "internal" ? "internal" as const : "external" as const };
+    return { id, category: p.category === PluginCategory.Internal ? PluginCategory.Internal : PluginCategory.External };
   });
 
   const collisions = detectMcpCollisions(instance.configDir, pluginIds);
@@ -727,7 +738,7 @@ async function handlePluginsRemove(instanceName: string, pluginIds: string[]): P
 
   if (isPluginsSymlinked(instance.configDir)) {
     console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
-    process.exit(1);
+    exitWithCode(1);
   }
 
   requireNonEmptyArgs(pluginIds, "✗ No plugins specified", "Usage: claude-multi plugins remove <instance> <plugin-id>...");
@@ -739,7 +750,7 @@ async function handlePluginsRemove(instanceName: string, pluginIds: string[]): P
       console.error(chalk.red(`✗ Plugin '${id}' not installed in '${instanceName}'`));
       continue;
     }
-    await removeSinglePlugin(instance.configDir, id, p.category === "internal" ? "internal" : "external");
+    await removeSinglePlugin(instance.configDir, id, p.category === PluginCategory.Internal ? PluginCategory.Internal : PluginCategory.External);
     console.log(chalk.green(`✓ Removed plugin '${id}' from '${instanceName}'`));
   }
 }
@@ -754,8 +765,8 @@ function handlePluginsListDefaults(): void {
 
   console.log(chalk.bold(`\n📋 Default Plugins (${plugins.length})\n`));
 
-  const internals = plugins.filter(p => p.category === "internal");
-  const externals = plugins.filter(p => p.category === "external");
+  const internals = plugins.filter(p => p.category === PluginCategory.Internal);
+  const externals = plugins.filter(p => p.category === PluginCategory.External);
 
   if (internals.length > 0) {
     console.log(chalk.cyan("Internal:"));
@@ -815,14 +826,14 @@ async function handlePluginsCheckCollisions(instanceName: string, pluginIds: str
   if (!instanceName) {
     console.error(chalk.red("✗ Instance name required"));
     console.log(chalk.gray("Usage: claude-multi plugins check-collisions <instance> <plugin-id>..."));
-    process.exit(1);
+    exitWithCode(1);
   }
 
   const instance = await requireInstance(instanceName);
 
   if (pluginIds.length === 0) {
     console.error(chalk.red("✗ No plugins specified"));
-    process.exit(1);
+    exitWithCode(1);
   }
 
   const collisions = detectMcpCollisions(instance.configDir, pluginIds);
@@ -833,7 +844,7 @@ async function handlePluginsCheckCollisions(instanceName: string, pluginIds: str
     for (const c of collisions) {
       console.log(chalk.yellow(`  • ${c.serverName}`));
     }
-    process.exit(1);
+    exitWithCode(1);
   }
 }
 
@@ -915,7 +926,7 @@ program
           await runInteractiveMode();
         } catch (err2: unknown) {
           console.error(chalk.red(`✗ Error: ${(err2 as Error).message}`));
-          process.exit(1);
+          exitWithCode(1);
         }
       }
     } else {
@@ -923,7 +934,7 @@ program
         await runInteractiveMode();
       } catch (error: unknown) {
         console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-        process.exit(1);
+        exitWithCode(1);
       }
     }
   });
@@ -1054,7 +1065,7 @@ async function handleAddInstance(): Promise<void> {
     initial: false,
   });
 
-  let providerTemplate: any = null;
+  let providerTemplate: ProviderTemplate | null = null;
   let apiKey = "";
 
   if (useProvider) {
@@ -1141,24 +1152,24 @@ async function handleAddInstance(): Promise<void> {
   const hasDefaultMcp = await hasDefaultMcpConfig();
 
   if (hasDefaultConfig || hasDefaultMcp) {
-    const choices = [{ title: "Nothing - start fresh", value: "none" }];
+    const choices = [{ title: "Nothing - start fresh", value: CopyOption.None }];
 
     if (hasDefaultConfig) {
-      choices.push({ title: "Only settings.json", value: "settings" });
+      choices.push({ title: "Only settings.json", value: CopyOption.Settings });
     }
 
     if (hasDefaultMcp) {
-      choices.push({ title: "Only MCP servers", value: "mcp" });
+      choices.push({ title: "Only MCP servers", value: CopyOption.Mcp });
     }
 
     if (hasDefaultConfig && hasDefaultMcp) {
-      choices.push({ title: "Settings + MCP servers", value: "settings+mcp" });
+      choices.push({ title: "Settings + MCP servers", value: CopyOption.SettingsAndMcp });
     }
 
     if (hasDefaultConfig) {
       choices.push({
         title: "All files (settings, CLAUDE.md, plugins, etc.)",
-        value: "all",
+        value: CopyOption.All,
       });
     }
 
@@ -1173,14 +1184,14 @@ async function handleAddInstance(): Promise<void> {
     if (!copyOption) return;
 
     copySettings =
-      copyOption === "settings" ||
-      copyOption === "settings+mcp" ||
-      copyOption === "all";
+      copyOption === CopyOption.Settings ||
+      copyOption === CopyOption.SettingsAndMcp ||
+      copyOption === CopyOption.All;
     copyMcpServers =
-      copyOption === "mcp" ||
-      copyOption === "settings+mcp" ||
-      copyOption === "all";
-    copyAllFiles = copyOption === "all";
+      copyOption === CopyOption.Mcp ||
+      copyOption === CopyOption.SettingsAndMcp ||
+      copyOption === CopyOption.All;
+    copyAllFiles = copyOption === CopyOption.All;
   }
 
   // Ask about auto-sync for plugins/skills
@@ -1207,43 +1218,49 @@ async function handleAddInstance(): Promise<void> {
   };
 
   await addInstance(instance);
-  await createWrapper(instance);
+  try {
+    await createWrapper(instance);
 
-  if (copySettings && !copyAllFiles) {
-    await copySettingsFromDefault(configDir);
-    console.log(chalk.green("✓ Copied settings.json"));
-  }
-
-  if (copyMcpServers && !copyAllFiles) {
-    try {
-      await copyMcpServersFromDefault(configDir);
-      console.log(chalk.green("✓ Copied MCP server configurations"));
-    } catch (error: unknown) {
-      console.log(chalk.yellow(`⚠ Warning: ${toMessage(error)}`));
+    if (copySettings && !copyAllFiles) {
+      await copySettingsFromDefault(configDir);
+      console.log(chalk.green("✓ Copied settings.json"));
     }
-  }
 
-  if (copyAllFiles) {
-    await copyAllFromDefault(configDir, autoSync);
-    if (autoSync) {
-      console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
-    } else {
-      console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
+    if (copyMcpServers && !copyAllFiles) {
+      try {
+        await copyMcpServersFromDefault(configDir);
+        console.log(chalk.green("✓ Copied MCP server configurations"));
+      } catch (error: unknown) {
+        console.log(chalk.yellow(`⚠ Warning: ${toMessage(error)}`));
+      }
     }
-  }
 
-  // Apply provider template if selected (but not if copying settings)
-  if (providerTemplate && !copySettings && !copyAllFiles) {
-    await createSettingsFromTemplate(configDir, providerTemplate, apiKey);
-    console.log(
-      chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
-    );
-  } else if (providerTemplate && (copySettings || copyAllFiles)) {
-    console.log(
-      chalk.yellow(
-        "⚠ Provider template skipped (copied settings from default Claude)",
-      ),
-    );
+    if (copyAllFiles) {
+      await copyAllFromDefault(configDir, autoSync);
+      if (autoSync) {
+        console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
+      } else {
+        console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
+      }
+    }
+
+    // Apply provider template if selected (but not if copying settings)
+    if (providerTemplate && !copySettings && !copyAllFiles) {
+      await createSettingsFromTemplate(configDir, providerTemplate, apiKey);
+      console.log(
+        chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
+      );
+    } else if (providerTemplate && (copySettings || copyAllFiles)) {
+      console.log(
+        chalk.yellow(
+          "⚠ Provider template skipped (copied settings from default Claude)",
+        ),
+      );
+    }
+  } catch (err: unknown) {
+    await removeInstance(name).catch(() => {});
+    removeWrapper(binaryPath);
+    throw err;
   }
 
   console.log(chalk.green(`\n✓ Instance '${name}' created successfully!`));
@@ -1573,23 +1590,23 @@ program
   .action(async (action = "list", instance = "", source = "", target = "") => {
     try {
       switch (action) {
-        case "list":
+        case McpAction.List:
           await handleMcpList(instance);
           break;
-        case "copy":
+        case McpAction.Copy:
           await handleMcpCopy(source, target);
           break;
-        case "verify":
+        case McpAction.Verify:
           await handleMcpVerify(instance);
           break;
         default:
           console.error(chalk.red(`✗ Unknown action: ${action}`));
           console.log(chalk.gray("Available actions: list, copy, verify"));
-          process.exit(1);
+          exitWithCode(1);
       }
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      process.exit(1);
+      exitWithCode(1);
     }
   });
 
@@ -1771,10 +1788,10 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
     console.log(chalk.gray(`  • ${serverName}: ${serverConfig.type}`));
 
     // Basic validation
-    if (serverConfig.type === "stdio" && !serverConfig.command) {
+    if (serverConfig.type === McpServerType.Stdio && !serverConfig.command) {
       console.log(chalk.yellow(`    ⚠ Missing command for stdio server`));
     } else if (
-      (serverConfig.type === "http" || serverConfig.type === "sse") &&
+      (serverConfig.type === McpServerType.Http || serverConfig.type === McpServerType.Sse) &&
       !serverConfig.url
     ) {
       console.log(
@@ -1811,7 +1828,7 @@ async function runUpdateCheck() {
         console.log(chalk.cyan("\nUpdating claude-multi...\n"));
         upgradeClaudeMulti();
         console.log(chalk.green("\nUpdate complete! Please run your command again.\n"));
-        process.exit(0);
+        exitWithCode(0);
       }
     }
   } catch {

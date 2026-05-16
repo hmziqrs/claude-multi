@@ -21,8 +21,11 @@ export interface ClaudeMultiUpdateInfo {
  */
 export function getClaudeMultiVersion(): string {
   const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
-  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-  return pkg.version;
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as unknown;
+  if (typeof pkg !== "object" || pkg === null || typeof (pkg as { version?: unknown }).version !== "string") {
+    throw new ClaudeMultiError(ErrorCode.CONFIG_CORRUPTED, "Could not read package version");
+  }
+  return (pkg as { version: string }).version;
 }
 
 /**
