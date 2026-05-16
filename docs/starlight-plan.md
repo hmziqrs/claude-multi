@@ -67,8 +67,8 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  site: 'https://hmziqrs.github.io',
-  base: '/claude-multi',
+  site: 'https://claudemutli.hmziq.xyz',
+  base: '/docs',
   integrations: [
     starlight({
       title: 'claude-multi',
@@ -120,7 +120,7 @@ export default defineConfig({
 });
 ```
 
-For **Cloudflare Pages** or custom domain: remove `base` entirely and change `site` to the final domain URL (e.g. `site: 'https://claude-multi.pages.dev'`). The `favicon` stays `/favicon.svg` in both cases — Astro automatically prefixes it with `base` at build time.
+Deploying to `claudemutli.hmziq.xyz/docs`. Astro uses `site` for sitemap/canonical URLs and `base` prefixes all asset and page paths. The `favicon` stays `/favicon.svg` — Astro prefixes it with `base` at build time.
 
 ### 3.2 `src/content.config.ts`
 
@@ -206,7 +206,7 @@ hero:
   tagline: One CLI to manage multiple Claude Code instances — each with its own provider, config, and history.
   actions:
     - text: Get Started
-      link: /claude-multi/getting-started/
+      link: /docs/getting-started/
       icon: right-arrow
     - text: GitHub
       link: https://github.com/hmziqrs/claude-multi
@@ -243,62 +243,30 @@ npm install -g claude-multi
 
 ## 7. Deployment
 
-### Option A: GitHub Pages
+**Target:** `https://claudemutli.hmziq.xyz/docs`
 
-Create `.github/workflows/deploy-docs.yml`:
+The built output goes to `dist/`. Astro produces fully static HTML/CSS/JS — deploy via any static host that supports custom domains and subpath routing.
 
-```yaml
-name: Deploy Docs
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/content/docs/**'
-      - 'src/content.config.ts'
-      - 'astro.config.mjs'
-      - 'src/styles/**'
-      - 'src/assets/**'
-      - 'public/**'
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-      - run: bun install
-      - run: bun run docs:build
-      - uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-```
-
-Repo Settings → Pages → Source: **GitHub Actions**.
-
-`astro.config.mjs` must have `base: '/claude-multi'` and `site: 'https://hmziqrs.github.io'`.
-
-### Option B: Cloudflare Pages
+### Cloudflare Pages (recommended)
 
 1. Dashboard → Workers & Pages → Create → Pages → Connect to Git
 2. Build command: `bun run docs:build`
 3. Output directory: `dist`
 4. Environment variable: `BUN_VERSION` = `latest`
+5. Custom domain: `claudemutli.hmziq.xyz`
+6. Set a **redirect rule** so `/docs/*` serves from the Pages deployment root:
+   - If deploying the entire site at the domain root, set `base: ''` and no redirect needed
+   - If using a single Pages project for `/docs`, add a redirect: `/docs/* → /*` or use Cloudflare Workers to strip the `/docs` prefix
 
-Remove `base` from `astro.config.mjs`. Set `site` to your `*.pages.dev` URL or custom domain.
+> Alternative: Build _without_ `base` in `astro.config.mjs` and serve the entire site at a dedicated subdomain (e.g. `docs.claudemutli.hmziq.xyz`). This avoids subpath routing entirely.
+
+### Generic static host (nginx, Caddy, Vercel, Netlify)
+
+1. Run `bun run docs:build` → `dist/`
+2. Upload `dist/` contents, served at `/docs`
+3. Configure your server to serve `dist/` under the `/docs` path prefix
+4. Config must have `base: '/docs'` and `site: 'https://claudemutli.hmziq.xyz'`
+5. Set `homepage` in `package.json` to `https://claudemutli.hmziq.xyz/docs`
 
 ---
 
@@ -332,9 +300,10 @@ Remove `base` from `astro.config.mjs`. Set `site` to your `*.pages.dev` URL or c
 - [ ] Verify mobile layout in browser dev tools
 
 ### Phase 4 — Deploy
-- [ ] Create `.github/workflows/deploy-docs.yml`
-- [ ] Confirm `base` and `site` in `astro.config.mjs` match deployment target
-- [ ] Push and verify deployment
+- [ ] Verify `site` and `base` in `astro.config.mjs` match `https://claudemutli.hmziq.xyz/docs`
+- [ ] Build: `bun run docs:build`
+- [ ] Deploy `dist/` to `claudemutli.hmziq.xyz/docs`
+- [ ] Update `package.json` `homepage` to docs site URL
 
 ---
 
