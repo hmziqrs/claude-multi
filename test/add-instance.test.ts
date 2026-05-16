@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { execSync } from "node:child_process";
 import { AutoSyncTestHelper } from "./test-utils";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import {
@@ -9,6 +10,16 @@ import {
   readClaudeSettings,
 } from "@/config";
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
+
+function isClaudeInstalled(): boolean {
+  try {
+    const command = process.platform === "win32" ? "where claude" : "which claude";
+    const result = execSync(command, { encoding: "utf-8", stdio: "pipe" }).trim();
+    return result.length > 0;
+  } catch {
+    return false;
+  }
+}
 
 describe("handleAddInstance (component-level tests)", () => {
   let helper: AutoSyncTestHelper;
@@ -27,6 +38,10 @@ describe("handleAddInstance (component-level tests)", () => {
 
   describe("createWrapper", () => {
     it("should create binary wrapper at specified path", async () => {
+      if (!isClaudeInstalled()) {
+        console.log("Skipped: claude not installed");
+        return;
+      }
       const binaryPath = join(helper.getInstanceConfigDir()!, "..", "..", "bin", "claude-test");
       await createWrapper({
         name: "test",

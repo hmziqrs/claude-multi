@@ -797,7 +797,7 @@ async function handlePluginsListInstalled(instanceName: string): Promise<void> {
       for (const p of plugins) {
         const status = p.enabled ? chalk.green("✓") : chalk.gray("✗");
         const badge = p.hasMcp ? chalk.cyan(" (MCP)") : "";
-        const cat = p.category === "external" ? chalk.gray(" [ext]") : "";
+        const cat = p.category === PluginCategory.External ? chalk.gray(" [ext]") : "";
         console.log(`  ${status} ${p.name}${badge}${cat}`);
       }
       console.log();
@@ -817,7 +817,7 @@ async function handlePluginsListInstalled(instanceName: string): Promise<void> {
   for (const p of plugins) {
     const status = p.enabled ? chalk.green("✓") : chalk.gray("✗");
     const badge = p.hasMcp ? chalk.cyan(" (MCP)") : "";
-    const cat = p.category === "external" ? chalk.gray(" [ext]") : "";
+    const cat = p.category === PluginCategory.External ? chalk.gray(" [ext]") : "";
     console.log(`  ${status} ${p.name}${badge}${cat}`);
   }
 }
@@ -1075,7 +1075,7 @@ async function handleAddInstance(): Promise<void> {
         title: `${p.displayName} - ${p.description}`,
         value: p.name,
       })),
-      { title: "None / Custom", value: "none" },
+      { title: "None / Custom", value: CopyOption.None },
     ];
 
     const { selectedProvider } = await prompts({
@@ -1086,7 +1086,7 @@ async function handleAddInstance(): Promise<void> {
       initial: 0,
     });
 
-    if (!selectedProvider || selectedProvider === "none") {
+    if (!selectedProvider || selectedProvider === CopyOption.None) {
       // Continue without template
     } else {
       providerTemplate = getProviderTemplate(selectedProvider);
@@ -1472,11 +1472,11 @@ async function handleManagePlugins(instances: Instance[]): Promise<void> {
     name: "action",
     message: "What would you like to do?",
     choices: [
-      { title: "📋 List all plugins", value: "list" },
+      { title: "📋 List all plugins", value: PluginAction.List },
       { title: "📋 Plugins for instance", value: "instance" },
-      { title: "✅ Enable plugins", value: "enable" },
-      { title: "❌ Disable plugins", value: "disable" },
-      { title: "📋 Copy from default", value: "copy" },
+      { title: "✅ Enable plugins", value: PluginAction.Enable },
+      { title: "❌ Disable plugins", value: PluginAction.Disable },
+      { title: "📋 Copy from default", value: PluginAction.Copy },
       { title: "Cancel", value: "cancel" },
     ],
     initial: 0,
@@ -1488,7 +1488,7 @@ async function handleManagePlugins(instances: Instance[]): Promise<void> {
   }
 
   switch (action) {
-    case "list":
+    case PluginAction.List:
       await handlePluginsList("");
       break;
     case "instance":
@@ -1502,7 +1502,7 @@ async function handleManagePlugins(instances: Instance[]): Promise<void> {
         await handlePluginsList(listInstance);
       }
       break;
-    case "enable": {
+    case PluginAction.Enable: {
       const { enableInstance } = await prompts({
         type: "select",
         name: "enableInstance",
@@ -1533,7 +1533,7 @@ async function handleManagePlugins(instances: Instance[]): Promise<void> {
       }
       break;
     }
-    case "disable": {
+    case PluginAction.Disable: {
       const { disableInstance } = await prompts({
         type: "select",
         name: "disableInstance",
@@ -1564,7 +1564,7 @@ async function handleManagePlugins(instances: Instance[]): Promise<void> {
       }
       break;
     }
-    case "copy": {
+    case PluginAction.Copy: {
       const { copyInstance } = await prompts({
         type: "select",
         name: "copyInstance",
