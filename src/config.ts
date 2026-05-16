@@ -1135,9 +1135,11 @@ function estimatePluginSize(pluginPath: string): number {
       if (entry.isDirectory()) {
         total += estimatePluginSize(fullPath);
       } else {
+        // Skip files that can't be stat'd; return partial total
         try { total += statSync(fullPath).size; } catch {}
       }
     }
+  // Return 0 if directory can't be read; caller uses this as an estimate
   } catch {}
   return total;
 }
