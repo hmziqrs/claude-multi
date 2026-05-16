@@ -41,3 +41,4 @@ test-bin
 .playwright-mcp
 
 screenshots
+.astro/
