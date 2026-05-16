@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { useDrawLine, useFadeIn } from "../hooks/useAnimations.js";
+import { useDrawLine, useFadeIn } from "@/ink/hooks/useAnimations";
 
 export const Footer: React.FC<{ showHealthHint?: boolean }> = ({ showHealthHint }) => {
   const lineLen = 60;

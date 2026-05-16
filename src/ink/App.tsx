@@ -1,21 +1,21 @@
 import React, { useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { Select, Spinner } from "@inkjs/ui";
-import { Header } from "./components/Header.js";
-import { Footer } from "./components/Footer.js";
-import { WarningBanner } from "./components/WarningBanner.js";
-import { useConfig } from "./hooks/useConfig.js";
-import { useHealthCheck } from "./hooks/useHealthCheck.js";
-import { useFadeIn, useTypewriter } from "./hooks/useAnimations.js";
-import { AddInstance } from "./screens/AddInstance.js";
-import { ListInstances } from "./screens/ListInstances.js";
-import { ShowInstanceInfo } from "./screens/ShowInstanceInfo.js";
-import { RemoveInstance } from "./screens/RemoveInstance.js";
-import { ToggleAutoSync } from "./screens/ToggleAutoSync.js";
-import { ManagePlugins } from "./screens/ManagePlugins.js";
-import { FixSymlinks } from "./screens/FixSymlinks.js";
-import { ManageMcp } from "./screens/ManageMcp.js";
-import { HealthScreen } from "./screens/HealthScreen.js";
+import { Header } from "@/ink/components/Header";
+import { Footer } from "@/ink/components/Footer";
+import { WarningBanner } from "@/ink/components/WarningBanner";
+import { useConfig } from "@/ink/hooks/useConfig";
+import { useHealthCheck } from "@/ink/hooks/useHealthCheck";
+import { useFadeIn, useTypewriter } from "@/ink/hooks/useAnimations";
+import { AddInstance } from "@/ink/screens/AddInstance";
+import { ListInstances } from "@/ink/screens/ListInstances";
+import { ShowInstanceInfo } from "@/ink/screens/ShowInstanceInfo";
+import { RemoveInstance } from "@/ink/screens/RemoveInstance";
+import { ToggleAutoSync } from "@/ink/screens/ToggleAutoSync";
+import { ManagePlugins } from "@/ink/screens/ManagePlugins";
+import { FixSymlinks } from "@/ink/screens/FixSymlinks";
+import { ManageMcp } from "@/ink/screens/ManageMcp";
+import { HealthScreen } from "@/ink/screens/HealthScreen";
 
 type Screen =
   | "menu"

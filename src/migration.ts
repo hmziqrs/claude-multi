@@ -1,11 +1,10 @@
 import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { homedir } from "node:os";
-import type { Config, MigrationMeta } from "./config.js";
+import type { Config, MigrationMeta } from "@/config";
+import { getBaseDir } from "@/paths";
 
 export const CONFIG_VERSION = "2.0.0";
 
-function getBaseDir() { return process.env.CLAUDE_MULTI_HOME || homedir(); }
 function getBackupDir() { return join(getBaseDir(), ".claude-multi", "backups"); }
 function getLockFile() { return join(getBaseDir(), ".claude-multi", ".migration.lock"); }
 

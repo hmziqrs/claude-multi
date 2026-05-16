@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { useFadeIn } from "../hooks/useAnimations.js";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
 
 export const StatusBar: React.FC<{
   message: string;

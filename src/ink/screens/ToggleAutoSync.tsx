@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Box, Text } from "ink";
 import { Select } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { StatusBar } from "../components/StatusBar.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useConfig } from "../hooks/useConfig.js";
-import { useFadeIn } from "../hooks/useAnimations.js";
+import { Header } from "@/ink/components/Header";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig } from "@/ink/hooks/useConfig";
+import { useMessage } from "@/ink/hooks/useMessage";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
 
 type Step = "select" | "action" | "syncing" | "done";
 
@@ -41,7 +42,7 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   const { instances, toggleAutoSync } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);
-  const [error, setError] = useState("");
+  const { error, setError } = useMessage();
   const [newStatus, setNewStatus] = useState(false);
 
   useNavigation(() => {

@@ -1,16 +1,17 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { TextInput, Select, ConfirmInput, PasswordInput, MultiSelect } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { StepIndicator } from "../components/StepIndicator.js";
-import { StatusBar } from "../components/StatusBar.js";
-import { useNavigation } from "../hooks/useNavigation.js";
+import { Header } from "@/ink/components/Header";
+import { StepIndicator } from "@/ink/components/StepIndicator";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { useNavigation } from "@/ink/hooks/useNavigation";
 import {
   useConfig,
   type Instance,
   type PluginInfo,
-} from "../hooks/useConfig.js";
-import { useFadeIn } from "../hooks/useAnimations.js";
+} from "@/ink/hooks/useConfig";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
+import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
 import { homedir } from "node:os";
 
@@ -242,7 +243,7 @@ export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   ];
 
   const pluginSelectOptions = defaultPlugins.map(p => ({
-    label: `${p.name}${p.hasMcp ? " (MCP)" : ""}${p.category === "external" ? " [ext]" : ""}`,
+    label: formatPluginLabel(p, { showCategory: true }),
     value: p.id,
   }));
 

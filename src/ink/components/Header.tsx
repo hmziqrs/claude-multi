@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text, useWindowSize } from "ink";
-import { useTypewriter, useDrawLine } from "../hooks/useAnimations.js";
+import { useTypewriter, useDrawLine } from "@/ink/hooks/useAnimations";
 
 export const Header: React.FC<{ title: string; subtitle?: string }> = ({
   title,

@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import type { Config } from "../src/config.js";
+import type { Config } from "@/config";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -28,19 +28,19 @@ describe("Migration", () => {
 
   describe("needsMigration", () => {
     test("returns true for v1 config", async () => {
-      const { needsMigration } = await import("../src/migration.js");
+      const { needsMigration } = await import("@/migration");
       const config = makeConfig();
       expect(needsMigration(config)).toBe(true);
     });
 
     test("returns false for v2 config", async () => {
-      const { needsMigration, CONFIG_VERSION } = await import("../src/migration.js");
+      const { needsMigration, CONFIG_VERSION } = await import("@/migration");
       const config = makeConfig({ version: CONFIG_VERSION });
       expect(needsMigration(config)).toBe(false);
     });
 
     test("returns false when migration previously failed", async () => {
-      const { needsMigration } = await import("../src/migration.js");
+      const { needsMigration } = await import("@/migration");
       const config = makeConfig({
         migrationMeta: {
           migrationStatus: "failed",
@@ -55,7 +55,7 @@ describe("Migration", () => {
 
   describe("clearMigrationFailure", () => {
     test("resets failed status to pending", async () => {
-      const { clearMigrationFailure } = await import("../src/migration.js");
+      const { clearMigrationFailure } = await import("@/migration");
       const config = makeConfig({
         migrationMeta: {
           migrationStatus: "failed",
@@ -70,7 +70,7 @@ describe("Migration", () => {
     });
 
     test("no-ops when no migrationMeta", async () => {
-      const { clearMigrationFailure } = await import("../src/migration.js");
+      const { clearMigrationFailure } = await import("@/migration");
       const config = makeConfig();
       const cleared = clearMigrationFailure(config);
       expect(cleared.migrationMeta).toBeUndefined();
@@ -79,7 +79,7 @@ describe("Migration", () => {
 
   describe("runMigration", () => {
     test("upgrades v1 config to v2", async () => {
-      const { runMigration, CONFIG_VERSION } = await import("../src/migration.js");
+      const { runMigration, CONFIG_VERSION } = await import("@/migration");
       const config = makeConfig();
       const result = await runMigration(config);
       expect(result.version).toBe(CONFIG_VERSION);
@@ -88,14 +88,14 @@ describe("Migration", () => {
     });
 
     test("skips when already at latest version", async () => {
-      const { runMigration, CONFIG_VERSION } = await import("../src/migration.js");
+      const { runMigration, CONFIG_VERSION } = await import("@/migration");
       const config = makeConfig({ version: CONFIG_VERSION });
       const result = await runMigration(config);
       expect(result.version).toBe(CONFIG_VERSION);
     });
 
     test("creates backup before migration", async () => {
-      const { runMigration } = await import("../src/migration.js");
+      const { runMigration } = await import("@/migration");
 
       // Create a config.json to back up
       const cmDir = join(testDir, ".claude-multi");
@@ -113,7 +113,7 @@ describe("Migration", () => {
     });
 
     test("backs up instance settings.json", async () => {
-      const { runMigration } = await import("../src/migration.js");
+      const { runMigration } = await import("@/migration");
 
       // Create instance with settings
       const instDir = join(testDir, ".claude-testinst");
@@ -144,7 +144,7 @@ describe("Migration", () => {
     });
 
     test("warns about missing configDir", async () => {
-      const { runMigration } = await import("../src/migration.js");
+      const { runMigration } = await import("@/migration");
 
       const config = makeConfig({
         instances: [{
@@ -165,7 +165,7 @@ describe("Migration", () => {
     });
 
     test("sets failure status on error", async () => {
-      const { runMigration } = await import("../src/migration.js");
+      const { runMigration } = await import("@/migration");
 
       // Make backup dir unwritable to cause failure
       const cmDir = join(testDir, ".claude-multi");
@@ -188,13 +188,13 @@ describe("Migration", () => {
 
   describe("getMigrationStatus", () => {
     test("returns null when no metadata", async () => {
-      const { getMigrationStatus } = await import("../src/migration.js");
+      const { getMigrationStatus } = await import("@/migration");
       const config = makeConfig();
       expect(getMigrationStatus(config)).toBeNull();
     });
 
     test("returns metadata when present", async () => {
-      const { getMigrationStatus } = await import("../src/migration.js");
+      const { getMigrationStatus } = await import("@/migration");
       const meta = {
         lastMigrationAt: new Date().toISOString(),
         migratedFromVersion: "1.0.0",
@@ -207,12 +207,12 @@ describe("Migration", () => {
 
   describe("listBackups", () => {
     test("returns empty array when no backups", async () => {
-      const { listBackups } = await import("../src/migration.js");
+      const { listBackups } = await import("@/migration");
       expect(listBackups()).toEqual([]);
     });
 
     test("lists existing backups", async () => {
-      const { listBackups, createBackup } = await import("../src/migration.js");
+      const { listBackups, createBackup } = await import("@/migration");
 
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
@@ -225,7 +225,7 @@ describe("Migration", () => {
     });
 
     test("keeps only last 3 backups", async () => {
-      const { listBackups, createBackup } = await import("../src/migration.js");
+      const { listBackups, createBackup } = await import("@/migration");
 
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
@@ -241,7 +241,7 @@ describe("Migration", () => {
 
   describe("Lock mechanism", () => {
     test("prevents concurrent migration", async () => {
-      const { runMigration } = await import("../src/migration.js");
+      const { runMigration } = await import("@/migration");
 
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });

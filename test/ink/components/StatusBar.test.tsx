@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
-import { StatusBar } from "../../../src/ink/components/StatusBar.js";
+import { StatusBar } from "@/ink/components/StatusBar";
 
 describe("StatusBar", () => {
   afterEach(() => cleanup());

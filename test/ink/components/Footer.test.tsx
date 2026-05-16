@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
-import { Footer } from "../../../src/ink/components/Footer.js";
+import { Footer } from "@/ink/components/Footer";
 
 describe("Footer", () => {
   afterEach(() => cleanup());

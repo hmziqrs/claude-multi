@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { homedir } from "node:os";
-import { detectBrokenSymlinks } from "./config.js";
-import type { Instance } from "./config.js";
+import { detectBrokenSymlinks } from "@/config";
+import type { Instance } from "@/config";
+import { getBaseDir } from "@/paths";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings";
@@ -26,7 +26,6 @@ export interface HealthStatus {
   issues: HealthIssue[];
 }
 
-function getBaseDir() { return process.env.CLAUDE_MULTI_HOME || homedir(); }
 function getHealthFile() { return join(getBaseDir(), ".claude-multi", "health-status.json"); }
 
 export function runHealthChecks(

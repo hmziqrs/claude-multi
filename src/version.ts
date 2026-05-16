@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export interface VersionInfo {
   current: string | null;
@@ -18,7 +19,7 @@ export interface ClaudeMultiUpdateInfo {
  * Gets the current version of claude-multi from package.json
  */
 export function getClaudeMultiVersion(): string {
-  const pkgPath = join(process.cwd(), "package.json");
+  const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
   const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
   return pkg.version;
 }

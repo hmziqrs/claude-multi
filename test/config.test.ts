@@ -6,7 +6,7 @@ import {
   copyAllFromDefault,
   readClaudeSettings,
   detectBrokenSymlinks,
-} from "../src/config";
+} from "@/config";
 import { AutoSyncTestHelper } from "./test-utils";
 import { dirname, join, relative } from "node:path";
 

@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, readlinkSync, existsSync, readdirSync, statSync, m
 import { writeFile, mkdir, copyFile as cpFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { setTestDefaultClaudeDir, clearTestDefaultClaudeDir } from "../src/config";
+import { setTestDefaultClaudeDir, clearTestDefaultClaudeDir } from "@/config";
 
 /**
  * Test helper for auto-sync functionality tests

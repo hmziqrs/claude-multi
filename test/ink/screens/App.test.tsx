@@ -2,8 +2,8 @@ import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
 import { Box, Text } from "ink";
-import { Header } from "../../../src/ink/components/Header.js";
-import { InstanceCard } from "../../../src/ink/components/InstanceCard.js";
+import { Header } from "@/ink/components/Header";
+import { InstanceCard } from "@/ink/components/InstanceCard";
 
 describe("Ink Visual Snapshot Tests", () => {
   afterEach(() => cleanup());

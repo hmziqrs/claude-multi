@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Instance } from "../../config.js";
-import type { MigrationMeta } from "../../config.js";
+import type { Instance } from "@/config";
+import type { MigrationMeta } from "@/config";
 import {
   runHealthChecks,
   loadHealthStatus,
@@ -8,7 +8,7 @@ import {
   dismissIssue as dismissIssueAction,
   dismissAllIssues as dismissAllIssuesAction,
   type HealthIssue,
-} from "../../health.js";
+} from "@/health";
 
 export function useHealthCheck(
   instances: Instance[],

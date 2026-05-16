@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { useFadeIn } from "../hooks/useAnimations.js";
-import type { HealthIssue } from "../../health.js";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
+import type { HealthIssue } from "@/health";
 
 const SEVERITY_ICONS: Record<string, string> = {
   error: "❌",

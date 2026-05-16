@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Box, Text, useInput } from "ink";
-import { Header } from "../components/Header.js";
-import { StatusBar } from "../components/StatusBar.js";
-import { IssueCard } from "../components/IssueCard.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useFadeIn } from "../hooks/useAnimations.js";
-import type { HealthIssue } from "../../health.js";
+import { Header } from "@/ink/components/Header";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { IssueCard } from "@/ink/components/IssueCard";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
+import type { HealthIssue } from "@/health";
 
 interface HealthScreenProps {
   issues: HealthIssue[];

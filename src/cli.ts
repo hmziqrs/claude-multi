@@ -38,20 +38,37 @@ import {
   detectMcpCollisions,
   type Instance,
   type PluginInfo,
-} from "./config.ts";
+} from "@/config";
 import {
   createWrapper,
   removeWrapper,
   getDefaultBinaryPath,
-} from "./wrapper.ts";
+} from "@/wrapper";
 import {
   checkForUpdates,
   updateClaudeCode,
   getCurrentVersion,
   checkForClaudeMultiUpdates,
   upgradeClaudeMulti,
-} from "./version.ts";
-import { getAvailableProviders, getProviderTemplate } from "./templates.ts";
+} from "@/version";
+import { getAvailableProviders, getProviderTemplate } from "@/templates";
+
+async function requireInstance(name: string): Promise<Instance> {
+  const instance = await getInstance(name);
+  if (!instance) {
+    console.error(chalk.red(`✗ Instance '${name}' not found`));
+    process.exit(1);
+  }
+  return instance;
+}
+
+function requireNonEmptyArgs(items: string[], errorMsg: string, usage: string): void {
+  if (items.length === 0) {
+    console.error(chalk.red(errorMsg));
+    console.log(chalk.gray(usage));
+    process.exit(1);
+  }
+}
 
 const program = new Command();
 
@@ -302,11 +319,7 @@ program
   .option("-f, --force", "Skip confirmation prompt")
   .action(async (name: string, options: { force?: boolean }) => {
     try {
-      const instance = await getInstance(name);
-      if (!instance) {
-        console.error(chalk.red(`✗ Instance '${name}' not found`));
-        process.exit(1);
-      }
+      const instance = await requireInstance(name);
 
       if (!options.force) {
         console.log(chalk.yellow(`About to remove instance '${name}':`));
@@ -383,12 +396,7 @@ program
   .description("Show details about a specific instance")
   .action(async (name: string) => {
     try {
-      const instance = await getInstance(name);
-
-      if (!instance) {
-        console.error(chalk.red(`✗ Instance '${name}' not found`));
-        process.exit(1);
-      }
+      const instance = await requireInstance(name);
 
       console.log(chalk.bold(`Instance: ${chalk.cyan(instance.name)}\n`));
       console.log(`${chalk.gray("Binary:")}  ${instance.binaryPath}`);
@@ -467,12 +475,7 @@ program
   .description("Toggle auto-sync for plugins/skills (on/off)")
   .action(async (name: string, status: string) => {
     try {
-      const instance = await getInstance(name);
-
-      if (!instance) {
-        console.error(chalk.red(`✗ Instance '${name}' not found`));
-        process.exit(1);
-      }
+      const instance = await requireInstance(name);
 
       const newStatus = status.toLowerCase() === "on" || status.toLowerCase() === "true" || status === "1";
       const currentStatus = instance.autoSync !== false;
@@ -603,11 +606,7 @@ async function handlePluginsList(instanceName: string): Promise<void> {
     }
   } else {
     // Show plugins for specific instance
-    const instance = await getInstance(instanceName);
-    if (!instance) {
-      console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-      process.exit(1);
-    }
+    const instance = await requireInstance(instanceName);
 
     const plugins = await getEnabledPlugins(instance.configDir);
 
@@ -625,29 +624,25 @@ async function handlePluginsList(instanceName: string): Promise<void> {
   }
 }
 
-async function handlePluginsEnable(instanceName: string, plugins: string[]): Promise<void> {
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
-
-  if (plugins.length === 0) {
-    console.error(chalk.red("✗ No plugins specified"));
-    console.log(chalk.gray("Usage: claude-multi plugins enable <instance> <plugin-id>..."));
-    process.exit(1);
-  }
+async function handlePluginsSetEnabled(instanceName: string, plugins: string[], enable: boolean): Promise<void> {
+  const instance = await requireInstance(instanceName);
+  const verb = enable ? "enable" : "disable";
+  requireNonEmptyArgs(plugins, "✗ No plugins specified", `Usage: claude-multi plugins ${verb} <instance> <plugin-id>...`);
 
   const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
   let updated = false;
 
   for (const pluginId of plugins) {
-    if (currentPlugins[pluginId] === true) {
-      console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already enabled`));
+    if (currentPlugins[pluginId] === enable) {
+      console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already ${enable ? "enabled" : "disabled"}`));
     } else {
-      currentPlugins[pluginId] = true;
-      await enablePlugin(instance.configDir, pluginId);
-      console.log(chalk.green(`✓ Enabled plugin '${pluginId}'`));
+      currentPlugins[pluginId] = enable;
+      if (enable) {
+        await enablePlugin(instance.configDir, pluginId);
+      } else {
+        await disablePlugin(instance.configDir, pluginId);
+      }
+      console.log(chalk.green(`✓ ${enable ? "Enabled" : "Disabled"} plugin '${pluginId}'`));
       updated = true;
     }
   }
@@ -657,44 +652,16 @@ async function handlePluginsEnable(instanceName: string, plugins: string[]): Pro
   }
 }
 
-async function handlePluginsDisable(instanceName: string, plugins: string[]): Promise<void> {
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
+function handlePluginsEnable(instanceName: string, plugins: string[]): Promise<void> {
+  return handlePluginsSetEnabled(instanceName, plugins, true);
+}
 
-  if (plugins.length === 0) {
-    console.error(chalk.red("✗ No plugins specified"));
-    console.log(chalk.gray("Usage: claude-multi plugins disable <instance> <plugin-id>..."));
-    process.exit(1);
-  }
-
-  const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
-  let updated = false;
-
-  for (const pluginId of plugins) {
-    if (currentPlugins[pluginId] === false) {
-      console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already disabled`));
-    } else {
-      currentPlugins[pluginId] = false;
-      await disablePlugin(instance.configDir, pluginId);
-      console.log(chalk.green(`✓ Disabled plugin '${pluginId}'`));
-      updated = true;
-    }
-  }
-
-  if (updated) {
-    console.log(chalk.green(`\n✓ Updated plugins for '${instanceName}'`));
-  }
+function handlePluginsDisable(instanceName: string, plugins: string[]): Promise<void> {
+  return handlePluginsSetEnabled(instanceName, plugins, false);
 }
 
 async function handlePluginsCopy(instanceName: string): Promise<void> {
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
+  const instance = await requireInstance(instanceName);
 
   const defaultPlugins = await listAvailablePlugins();
   if (!defaultPlugins) {
@@ -717,11 +684,7 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
     process.exit(1);
   }
 
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
+  const instance = await requireInstance(instanceName);
 
   if (isPluginsSymlinked(instance.configDir)) {
     console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
@@ -758,28 +721,15 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
 }
 
 async function handlePluginsRemove(instanceName: string, pluginIds: string[]): Promise<void> {
-  if (!instanceName) {
-    console.error(chalk.red("✗ Instance name required"));
-    console.log(chalk.gray("Usage: claude-multi plugins remove <instance> <plugin-id>..."));
-    process.exit(1);
-  }
-
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
+  requireNonEmptyArgs([instanceName], "✗ Instance name required", "Usage: claude-multi plugins remove <instance> <plugin-id>...");
+  const instance = await requireInstance(instanceName);
 
   if (isPluginsSymlinked(instance.configDir)) {
     console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
     process.exit(1);
   }
 
-  if (pluginIds.length === 0) {
-    console.error(chalk.red("✗ No plugins specified"));
-    console.log(chalk.gray("Usage: claude-multi plugins remove <instance> <plugin-id>..."));
-    process.exit(1);
-  }
+  requireNonEmptyArgs(pluginIds, "✗ No plugins specified", "Usage: claude-multi plugins remove <instance> <plugin-id>...");
 
   const installed = listInstancePlugins(instance.configDir);
   for (const id of pluginIds) {
@@ -843,11 +793,7 @@ async function handlePluginsListInstalled(instanceName: string): Promise<void> {
     return;
   }
 
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
+  const instance = await requireInstance(instanceName);
 
   const plugins = listInstancePlugins(instance.configDir);
   if (plugins.length === 0) {
@@ -871,11 +817,7 @@ async function handlePluginsCheckCollisions(instanceName: string, pluginIds: str
     process.exit(1);
   }
 
-  const instance = await getInstance(instanceName);
-  if (!instance) {
-    console.error(chalk.red(`✗ Instance '${instanceName}' not found`));
-    process.exit(1);
-  }
+  const instance = await requireInstance(instanceName);
 
   if (pluginIds.length === 0) {
     console.error(chalk.red("✗ No plugins specified"));

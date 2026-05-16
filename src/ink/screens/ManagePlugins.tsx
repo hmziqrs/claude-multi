@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { Box, Text } from "ink";
 import { Select, MultiSelect, ConfirmInput } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { StatusBar } from "../components/StatusBar.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useConfig, type PluginInfo } from "../hooks/useConfig.js";
-import { useFadeIn, useStaggeredReveal } from "../hooks/useAnimations.js";
+import { Header } from "@/ink/components/Header";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { InstanceSelectMenu } from "@/ink/components/InstanceSelectMenu";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig, type PluginInfo } from "@/ink/hooks/useConfig";
+import { useMessage } from "@/ink/hooks/useMessage";
+import { formatPluginLabel } from "@/ink/util/format";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
 
 type Step = "action" | "select-instance" | "select-plugins" | "symlink-warning" | "plugin-list" | "done";
 
@@ -42,8 +45,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [action, setAction] = useState<string | null>(null);
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
   const [instancePlugins, setInstancePlugins] = useState<PluginInfo[]>([]);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { error, setError, success, setSuccess } = useMessage();
 
   useNavigation(() => {
     if (step === "select-instance" || step === "select-plugins" || step === "plugin-list" || step === "symlink-warning") {
@@ -64,8 +66,6 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </Box>
     );
   }
-
-  const instanceOptions = instances.map((i) => ({ label: i.name, value: i.name }));
 
   const getInstance = (name: string) => instances.find(i => i.name === name);
 
@@ -163,32 +163,14 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   };
 
-  const getFilteredPluginOptions = () => {
-    if (action === "install") {
-      return instancePlugins.map(p => ({
-        label: `${p.name}${p.hasMcp ? " (MCP)" : ""}${p.category === "external" ? " [ext]" : ""}`,
-        value: p.id,
-      }));
-    } else if (action === "remove") {
-      return instancePlugins.map(p => ({
-        label: `${p.name}${p.hasMcp ? " (MCP)" : ""}${p.category === "external" ? " [ext]" : ""}`,
-        value: p.id,
-      }));
-    } else if (action === "enable") {
-      return instancePlugins.filter(p => !p.enabled).map(p => ({
-        label: `${p.name}${p.hasMcp ? " (MCP)" : ""}`,
-        value: p.id,
-      }));
-    } else if (action === "disable") {
-      return instancePlugins.filter(p => p.enabled).map(p => ({
-        label: `${p.name}${p.hasMcp ? " (MCP)" : ""}`,
-        value: p.id,
-      }));
-    }
-    return [];
-  };
-
-  const filteredOptions = getFilteredPluginOptions();
+  const filteredOptions = useMemo(() => {
+    const showCat = action === "install" || action === "remove";
+    const plugins =
+      action === "enable" ? instancePlugins.filter(p => !p.enabled) :
+      action === "disable" ? instancePlugins.filter(p => p.enabled) :
+      instancePlugins;
+    return plugins.map(p => ({ label: formatPluginLabel(p, { showCategory: showCat }), value: p.id }));
+  }, [action, instancePlugins]);
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
@@ -215,14 +197,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       )}
 
       {step === "select-instance" && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Select an instance:</Text>
-          <Select
-            options={instanceOptions}
-            visibleOptionCount={instanceOptions.length}
-            onChange={handleInstanceSelect}
-          />
-        </Box>
+        <InstanceSelectMenu instances={instances} onSelect={handleInstanceSelect} />
       )}
 
       {step === "symlink-warning" && (
@@ -280,7 +255,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </Box>
       )}
 
-      {step === "done" && (
+      {step === "done" && success && (
         <PluginSuccess message={success} />
       )}
 

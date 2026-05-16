@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Box, Text } from "ink";
 import { Select, TextInput } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { StatusBar } from "../components/StatusBar.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useConfig } from "../hooks/useConfig.js";
-import { useFadeIn, useStaggeredReveal } from "../hooks/useAnimations.js";
-import type { McpServer } from "../../config.js";
+import { Header } from "@/ink/components/Header";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { InstanceSelectMenu } from "@/ink/components/InstanceSelectMenu";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig } from "@/ink/hooks/useConfig";
+import { useMessage } from "@/ink/hooks/useMessage";
+import { useFadeIn, useStaggeredReveal } from "@/ink/hooks/useAnimations";
+import type { McpServer } from "@/config";
 
 type Step = "action" | "select" | "details" | "select-source" | "select-target" | "copying" | "add-name" | "add-config" | "remove-select" | "done";
 
@@ -86,8 +88,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
   const [sourceInstance, setSourceInstance] = useState<string | null>(null);
   const [mcpSources, setMcpSources] = useState<McpSource[]>([]);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { error, setError, success, setSuccess } = useMessage();
   const [customName, setCustomName] = useState("");
   const [customConfig, setCustomConfig] = useState("");
 
@@ -112,8 +113,6 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </Box>
     );
   }
-
-  const instanceOptions = instances.map((i) => ({ label: i.name, value: i.name }));
 
   const handleAction = (value: string) => {
     if (value === "cancel") { onBack(); return; }
@@ -286,14 +285,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       )}
 
       {step === "select" && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Select an instance:</Text>
-          <Select
-            options={instanceOptions}
-            visibleOptionCount={instanceOptions.length}
-            onChange={handleInstanceSelect}
-          />
-        </Box>
+        <InstanceSelectMenu instances={instances} onSelect={handleInstanceSelect} />
       )}
 
       {step === "details" && (
@@ -301,14 +293,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       )}
 
       {step === "select-source" && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Source instance:</Text>
-          <Select
-            options={instanceOptions}
-            visibleOptionCount={instanceOptions.length}
-            onChange={handleSourceSelect}
-          />
-        </Box>
+        <InstanceSelectMenu instances={instances} label="Source instance:" onSelect={handleSourceSelect} />
       )}
 
       {step === "select-target" && sourceInstance && (
@@ -355,7 +340,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {step === "copying" && <Text dimColor>Copying...</Text>}
 
-      {step === "done" && <StatusBar message={success} type="success" />}
+      {step === "done" && success && <StatusBar message={success} type="success" />}
 
       <Box marginTop={1}>
         <Text dimColor>ESC back │ q quit</Text>

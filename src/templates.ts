@@ -100,7 +100,7 @@ export function applyProviderTemplate(
   template: ProviderTemplate,
   apiKey: string,
 ): Record<string, unknown> {
-  const settings = JSON.parse(JSON.stringify(template.settings));
+  const settings = structuredClone(template.settings);
   settings.env.ANTHROPIC_AUTH_TOKEN = apiKey;
   return settings;
 }

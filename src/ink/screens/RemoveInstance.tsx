@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Box, Text, useApp } from "ink";
 import { Select, ConfirmInput } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { StatusBar } from "../components/StatusBar.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useConfig } from "../hooks/useConfig.js";
-import { useFadeIn } from "../hooks/useAnimations.js";
+import { Header } from "@/ink/components/Header";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig } from "@/ink/hooks/useConfig";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
 
 type Step = "select" | "confirm" | "removing" | "done";
 
@@ -110,8 +110,8 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
     try {
       setRemovedConfig(selected.configDir);
-      const { removeInstance } = await import("../../config.js");
-      const { removeWrapper } = await import("../../wrapper.js");
+      const { removeInstance } = await import("@/config");
+      const { removeWrapper } = await import("@/wrapper");
       const instance = await removeInstance(selected.name);
       if (instance) removeWrapper(instance.binaryPath);
       await reload();

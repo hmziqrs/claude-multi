@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
-import { StepIndicator } from "../../../src/ink/components/StepIndicator.js";
+import { StepIndicator } from "@/ink/components/StepIndicator";
 
 describe("StepIndicator", () => {
   afterEach(() => cleanup());

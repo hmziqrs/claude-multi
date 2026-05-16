@@ -17,7 +17,7 @@ import {
   detectMcpCollisions,
   scanPluginsFromDir,
   type PluginInfo,
-} from "../src/config.js";
+} from "@/config";
 
 const MKT = "plugins/marketplaces/claude-plugins-official";
 
@@ -331,7 +331,7 @@ describe("Plugin Management", () => {
 
   describe("Atomic writes", () => {
     test("writeClaudeSettings produces valid JSON", async () => {
-      const { writeClaudeSettings, readClaudeSettings } = await import("../src/config.js");
+      const { writeClaudeSettings, readClaudeSettings } = await import("@/config");
       const testDir = join(baseDir, "atomic-test");
       mkdirSync(testDir, { recursive: true });
 

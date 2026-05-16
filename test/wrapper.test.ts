@@ -3,7 +3,7 @@ import {
   generateWrapperScript,
   generateWindowsWrapperScript,
   getDefaultBinaryPath,
-} from "../src/wrapper";
+} from "@/wrapper";
 
 describe("Wrapper Script Generation", () => {
   describe("Unix wrapper", () => {

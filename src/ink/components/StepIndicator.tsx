@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { useTypewriter, useFadeIn } from "../hooks/useAnimations.js";
+import { useTypewriter, useFadeIn } from "@/ink/hooks/useAnimations";
 
 export const StepIndicator: React.FC<{
   current: number;

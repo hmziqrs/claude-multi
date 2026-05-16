@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
-import { InstanceCard } from "../../../src/ink/components/InstanceCard.js";
+import { InstanceCard } from "@/ink/components/InstanceCard";
 
 describe("InstanceCard", () => {
   afterEach(() => cleanup());

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Text } from "ink";
-import { Select } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useConfig } from "../hooks/useConfig.js";
-import { useFadeIn } from "../hooks/useAnimations.js";
+import { Header } from "@/ink/components/Header";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig } from "@/ink/hooks/useConfig";
+import { InstanceSelectMenu } from "@/ink/components/InstanceSelectMenu";
+import { useFadeIn } from "@/ink/hooks/useAnimations";
 
 type Step = "select" | "info";
 
@@ -53,8 +53,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     );
   }
 
-  const instanceOptions = instances.map((i) => ({ label: i.name, value: i.name }));
-
   const handleInstanceSelect = async (value: string) => {
     const inst = instances.find((i) => i.name === value);
     if (!inst) return;
@@ -82,14 +80,7 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
       <Header title="ℹ️ Instance Details" />
 
       {step === "select" && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Select an instance:</Text>
-          <Select
-            options={instanceOptions}
-            visibleOptionCount={instanceOptions.length}
-            onChange={handleInstanceSelect}
-          />
-        </Box>
+        <InstanceSelectMenu instances={instances} onSelect={handleInstanceSelect} />
       )}
 
       {step === "info" && selected && (

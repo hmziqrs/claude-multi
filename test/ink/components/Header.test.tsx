@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
-import { Header } from "../../../src/ink/components/Header.js";
+import { Header } from "@/ink/components/Header";
 
 describe("Header", () => {
   afterEach(() => cleanup());

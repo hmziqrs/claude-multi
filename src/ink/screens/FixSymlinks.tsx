@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Box, Text } from "ink";
 import { MultiSelect } from "@inkjs/ui";
-import { Header } from "../components/Header.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useConfig } from "../hooks/useConfig.js";
-import { useStaggeredReveal, useFadeIn } from "../hooks/useAnimations.js";
+import { Header } from "@/ink/components/Header";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig } from "@/ink/hooks/useConfig";
+import { useMessage } from "@/ink/hooks/useMessage";
+import { useStaggeredReveal, useFadeIn } from "@/ink/hooks/useAnimations";
 
 type Step = "select" | "fixing" | "done";
 
@@ -43,7 +45,7 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [results, setResults] = useState<
     { name: string; broken: string[]; all: string[]; fixed: boolean }[]
   >([]);
-  const [error, setError] = useState("");
+  const { error, setError } = useMessage();
 
   useNavigation(() => {
     if (step === "done") onBack();
@@ -95,7 +97,7 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🔄 Re-sync Symlinks" />
 
-      {error && <Box marginBottom={1}><Text color="red">✗ {error}</Text></Box>}
+      {error && <StatusBar message={error} type="error" />}
 
       {step === "select" && (
         <Box flexDirection="column" gap={1}>

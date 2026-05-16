@@ -2,11 +2,11 @@ import { describe, it, expect, afterEach } from "bun:test";
 import { render, cleanup } from "ink-testing-library";
 import React from "react";
 import { Box, Text } from "ink";
-import { Header } from "../../../src/ink/components/Header.js";
-import { Footer } from "../../../src/ink/components/Footer.js";
-import { InstanceCard } from "../../../src/ink/components/InstanceCard.js";
-import { StatusBar } from "../../../src/ink/components/StatusBar.js";
-import { StepIndicator } from "../../../src/ink/components/StepIndicator.js";
+import { Header } from "@/ink/components/Header";
+import { Footer } from "@/ink/components/Footer";
+import { InstanceCard } from "@/ink/components/InstanceCard";
+import { StatusBar } from "@/ink/components/StatusBar";
+import { StepIndicator } from "@/ink/components/StepIndicator";
 
 describe("Ink Rendered Frame Tests", () => {
   afterEach(() => cleanup());

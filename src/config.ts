@@ -3,8 +3,9 @@ import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises"
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import type { ProviderTemplate } from "./templates.js";
-import { applyProviderTemplate } from "./templates.js";
+import type { ProviderTemplate } from "@/templates";
+import { applyProviderTemplate } from "@/templates";
+import { writeJsonFileAtomic, readJsonFileSafe } from "@/util/json-file";
 import chalk from "chalk";
 
 export interface McpServer {
@@ -187,16 +188,7 @@ export async function saveConfig(config: Config): Promise<void> {
 
 export async function saveConfigAtomic(config: Config): Promise<void> {
   ensureConfigDir();
-  const tmpPath = CONFIG_FILE + ".tmp." + randomBytes(4).toString("hex");
-  try {
-    await writeFile(tmpPath, JSON.stringify(config, null, 2), "utf-8");
-    const content = await readFile(tmpPath, "utf-8");
-    JSON.parse(content);
-    renameSync(tmpPath, CONFIG_FILE);
-  } catch (err) {
-    try { unlinkSync(tmpPath); } catch {}
-    throw err;
-  }
+  await writeJsonFileAtomic(CONFIG_FILE, config);
 }
 
 export async function addInstance(instance: Instance): Promise<void> {
@@ -716,7 +708,7 @@ export async function mergeProviderEnv(
   }
 
   const env = (existing.env as Record<string, string>) ?? {};
-  const templateEnv = JSON.parse(JSON.stringify(template.settings.env));
+  const templateEnv = structuredClone(template.settings.env);
   templateEnv.ANTHROPIC_AUTH_TOKEN = apiKey;
 
   existing.env = { ...env, ...templateEnv };
@@ -857,22 +849,10 @@ export async function writeClaudeSettings(
   configDir: string,
   settings: ClaudeSettings,
 ): Promise<void> {
-  const settingsFile = join(configDir, "settings.json");
-
   if (!existsSync(configDir)) {
     await mkdir(configDir, { recursive: true });
   }
-
-  const tmpPath = settingsFile + ".tmp." + randomBytes(4).toString("hex");
-  try {
-    await writeFile(tmpPath, JSON.stringify(settings, null, 2), "utf-8");
-    const content = await readFile(tmpPath, "utf-8");
-    JSON.parse(content);
-    renameSync(tmpPath, settingsFile);
-  } catch (err) {
-    try { unlinkSync(tmpPath); } catch {}
-    throw err;
-  }
+  await writeJsonFileAtomic(join(configDir, "settings.json"), settings);
 }
 
 /**
@@ -1089,23 +1069,14 @@ function readInstalledPlugins(pluginsDir: string): InstalledPluginsFile {
   }
 }
 
-function writeInstalledPlugins(pluginsDir: string, data: InstalledPluginsFile): void {
-  const filePath = join(pluginsDir, "installed_plugins.json");
-  const tmpPath = filePath + ".tmp";
-  writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
-  try {
-    JSON.parse(readFileSync(tmpPath, "utf-8"));
-    renameSync(tmpPath, filePath);
-  } catch (err) {
-    try { unlinkSync(tmpPath); } catch {}
-    throw err;
-  }
+async function writeInstalledPlugins(pluginsDir: string, data: InstalledPluginsFile): Promise<void> {
+  await writeJsonFileAtomic(join(pluginsDir, "installed_plugins.json"), data);
 }
 
-function addPluginToInstalledPlugins(
+async function addPluginToInstalledPlugins(
   configDir: string,
   pluginId: string,
-): void {
+): Promise<void> {
   const pluginsDir = join(configDir, "plugins");
   const data = readInstalledPlugins(pluginsDir);
   const key = `${pluginId}@claude-plugins-official`;
@@ -1114,7 +1085,6 @@ function addPluginToInstalledPlugins(
     data.plugins[key] = [];
   }
 
-  // Avoid duplicate entries for the same version
   const cachePath = join(configDir, MARKETPLACE_REL);
   const entry: InstalledPluginEntry = {
     scope: "user",
@@ -1125,18 +1095,18 @@ function addPluginToInstalledPlugins(
   };
 
   data.plugins[key].push(entry);
-  writeInstalledPlugins(pluginsDir, data);
+  await writeInstalledPlugins(pluginsDir, data);
 }
 
-function removePluginFromInstalledPlugins(
+async function removePluginFromInstalledPlugins(
   configDir: string,
   pluginId: string,
-): void {
+): Promise<void> {
   const pluginsDir = join(configDir, "plugins");
   const data = readInstalledPlugins(pluginsDir);
   const key = `${pluginId}@claude-plugins-official`;
   delete data.plugins[key];
-  writeInstalledPlugins(pluginsDir, data);
+  await writeInstalledPlugins(pluginsDir, data);
 }
 
 // ── Disk Space Check ──────────────────────────────────────────────
@@ -1274,7 +1244,7 @@ export async function copySinglePlugin(
   await copyDirRecursive(sourcePlugin, targetPlugin);
 
   // Update installed_plugins.json
-  addPluginToInstalledPlugins(targetConfigDir, pluginId);
+  await addPluginToInstalledPlugins(targetConfigDir, pluginId);
 }
 
 export async function copySelectedPlugins(
@@ -1331,7 +1301,7 @@ export async function copySelectedPlugins(
         if (existsSync(targetPath)) {
           rmSync(targetPath, { force: true, recursive: true });
         }
-        removePluginFromInstalledPlugins(targetConfigDir, done.id);
+        await removePluginFromInstalledPlugins(targetConfigDir, done.id);
       } catch {}
     }
     throw new Error(`Plugin install failed, rolled back ${completed.length} plugin(s). ${(err as Error).message}`);
@@ -1364,7 +1334,7 @@ export async function removeSinglePlugin(
 
   try {
     rmSync(backupPath, { force: true, recursive: true });
-    removePluginFromInstalledPlugins(configDir, pluginId);
+    await removePluginFromInstalledPlugins(configDir, pluginId);
   } catch (err) {
     // Try to restore from backup
     try { renameSync(backupPath, pluginPath); } catch {}

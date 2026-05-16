@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import type { Instance } from "../src/config.js";
+import type { Instance } from "@/config";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -31,7 +31,7 @@ describe("Health Check", () => {
 
   describe("runHealthChecks", () => {
     test("returns empty for healthy instances", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
       mkdirSync(join(testDir, "bin"), { recursive: true });
@@ -43,7 +43,7 @@ describe("Health Check", () => {
     });
 
     test("detects missing configDir", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance({ configDir: join(testDir, "nonexistent") });
 
       const issues = runHealthChecks([inst]);
@@ -54,7 +54,7 @@ describe("Health Check", () => {
     });
 
     test("detects missing binary", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
 
@@ -66,7 +66,7 @@ describe("Health Check", () => {
     });
 
     test("detects corrupted settings.json", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
       writeFileSync(join(inst.configDir, "settings.json"), "{invalid json");
@@ -79,7 +79,7 @@ describe("Health Check", () => {
     });
 
     test("detects migration failure", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
 
@@ -94,7 +94,7 @@ describe("Health Check", () => {
     });
 
     test("skips binary/settings check when configDir missing", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance({ configDir: join(testDir, "nonexistent") });
 
       const issues = runHealthChecks([inst]);
@@ -104,13 +104,13 @@ describe("Health Check", () => {
     });
 
     test("handles empty instance list", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const issues = runHealthChecks([]);
       expect(issues).toEqual([]);
     });
 
     test("issues have required fields", async () => {
-      const { runHealthChecks } = await import("../src/health.js");
+      const { runHealthChecks } = await import("@/health");
       const inst = makeInstance({ configDir: join(testDir, "nonexistent") });
 
       const issues = runHealthChecks([inst]);
@@ -130,14 +130,14 @@ describe("Health Check", () => {
 
   describe("loadHealthStatus / saveHealthStatus", () => {
     test("returns empty status when no file", async () => {
-      const { loadHealthStatus } = await import("../src/health.js");
+      const { loadHealthStatus } = await import("@/health");
       const status = loadHealthStatus();
       expect(status.issues).toEqual([]);
       expect(status.lastChecked).toBe("");
     });
 
     test("round-trips status through save/load", async () => {
-      const { loadHealthStatus, saveHealthStatus } = await import("../src/health.js");
+      const { loadHealthStatus, saveHealthStatus } = await import("@/health");
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
 
@@ -165,7 +165,7 @@ describe("Health Check", () => {
     });
 
     test("handles corrupted health file", async () => {
-      const { loadHealthStatus } = await import("../src/health.js");
+      const { loadHealthStatus } = await import("@/health");
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
       writeFileSync(join(cmDir, "health-status.json"), "not json");
@@ -177,7 +177,7 @@ describe("Health Check", () => {
 
   describe("dismissIssue / dismissAllIssues", () => {
     test("dismissIssue marks a single issue", async () => {
-      const { saveHealthStatus, dismissIssue, loadHealthStatus } = await import("../src/health.js");
+      const { saveHealthStatus, dismissIssue, loadHealthStatus } = await import("@/health");
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
 
@@ -197,7 +197,7 @@ describe("Health Check", () => {
     });
 
     test("dismissAllIssues marks all issues", async () => {
-      const { saveHealthStatus, dismissAllIssues, loadHealthStatus } = await import("../src/health.js");
+      const { saveHealthStatus, dismissAllIssues, loadHealthStatus } = await import("@/health");
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
 

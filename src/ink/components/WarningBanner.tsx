@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { useFadeIn, usePulse } from "../hooks/useAnimations.js";
+import { useFadeIn, usePulse } from "@/ink/hooks/useAnimations";
 
 interface WarningBannerProps {
   issueCount: number;

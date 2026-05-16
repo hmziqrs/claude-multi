@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text } from "ink";
-import { Header } from "../components/Header.js";
-import { InstanceCard } from "../components/InstanceCard.js";
-import { useNavigation } from "../hooks/useNavigation.js";
-import { useStaggeredReveal, useCounter, useFadeIn } from "../hooks/useAnimations.js";
-import type { Instance } from "../../config.js";
-import { listInstances } from "../../config.js";
+import { Header } from "@/ink/components/Header";
+import { InstanceCard } from "@/ink/components/InstanceCard";
+import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useStaggeredReveal, useCounter, useFadeIn } from "@/ink/hooks/useAnimations";
+import type { Instance } from "@/config";
+import { listInstances } from "@/config";
 
 export const ListInstances: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [instances, setInstances] = useState<Instance[]>([]);

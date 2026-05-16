@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Text } from "ink";
-import { useFadeIn, usePulse } from "../hooks/useAnimations.js";
-import type { Instance } from "../../config.js";
+import { useFadeIn, usePulse } from "@/ink/hooks/useAnimations";
+import type { Instance } from "@/config";
 
 export const InstanceCard: React.FC<{ instance: Instance; index?: number }> = ({
   instance,

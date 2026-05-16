@@ -1,5 +1,5 @@
 import React from "react";
 import { render } from "ink";
-import { App } from "./App.js";
+import { App } from "@/ink/App";
 
 render(<App />);

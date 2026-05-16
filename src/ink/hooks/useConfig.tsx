@@ -41,10 +41,10 @@ import {
   type Instance,
   type Config,
   type PluginInfo,
-} from "../../config.js";
-import { createWrapper, removeWrapper, getDefaultBinaryPath } from "../../wrapper.js";
-import { getAvailableProviders, getProviderTemplate } from "../../templates.js";
-import { getMigrationStatus, clearMigrationFailure } from "../../migration.js";
+} from "@/config";
+import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
+import { getAvailableProviders, getProviderTemplate } from "@/templates";
+import { getMigrationStatus, clearMigrationFailure } from "@/migration";
 
 export { type Instance, type PluginInfo };
 
