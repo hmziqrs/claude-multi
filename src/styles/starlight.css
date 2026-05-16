@@ -1,0 +1,54 @@
+/* Starlight lime + dark theme */
+
+:root,
+[data-theme="dark"] {
+  /* Accent — lime */
+  --sl-color-accent: #a3e635;
+  --sl-color-accent-high: #bef264;
+  --sl-color-bg-accent: #a3e635;
+  --sl-color-bg-accent-hover: #84cc16;
+  --sl-color-text-accent: #a3e635;
+  --sl-color-text-action: #a3e635;
+
+  /* Backgrounds */
+  --sl-color-bg: #0a0a0f;
+  --sl-color-bg-nav: rgba(13, 13, 20, 0.92);
+  --sl-color-bg-sidebar: #0d0d14;
+  --sl-color-bg-code: #111118;
+  --sl-color-bg-inline-code: rgba(163, 230, 53, 0.08);
+
+  /* Text */
+  --sl-color-text: #f1f1f6;
+  --sl-color-text-invert: #0a0a0f;
+
+  /* Borders */
+  --sl-color-hairline: rgba(163, 230, 53, 0.08);
+  --sl-color-hairline-light: rgba(163, 230, 53, 0.15);
+  --sl-color-hairline-shade: rgba(163, 230, 53, 0.04);
+
+  /* Gray scale (1=light, 6=dark) */
+  --sl-color-gray-1: #c0c0cc;
+  --sl-color-gray-2: #9e9eae;
+  --sl-color-gray-3: #7c7c90;
+  --sl-color-gray-4: #505060;
+  --sl-color-gray-5: #24242e;
+  --sl-color-gray-6: #14141a;
+
+  /* Selection */
+  --sl-color-text-selection-bg: rgba(163, 230, 53, 0.25);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(163, 230, 53, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(163, 230, 53, 0.35);
+}

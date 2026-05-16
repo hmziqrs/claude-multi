@@ -60,6 +60,7 @@ export default defineConfig({
           ],
         },
       ],
+      customCss: ['/src/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',
     }),
