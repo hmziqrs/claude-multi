@@ -1,16 +1,35 @@
 ---
 import { latestVersion } from '../util/changelog';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+}
+
+const SITE = 'https://claudemutli.hmziq.xyz';
+const DEFAULT_TITLE = 'claude-multi — Manage Claude Code across providers';
+const DEFAULT_DESC = 'Manage multiple Claude Code instances with different AI providers and configurations';
+
+const {
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESC,
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, SITE).toString();
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>claude-multi — Manage Claude Code across providers</title>
-    <meta
-      name="description"
-      content="Manage multiple Claude Code instances with different AI providers and configurations"
-    />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
     <link rel="icon" href="/favicon.svg" />
     <meta name="yandex-verification" content="15140c3de9502141" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,13 +38,14 @@ import { latestVersion } from '../util/changelog';
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <meta property="og:title" content="claude-multi" />
-    <meta
-      property="og:description"
-      content="Manage multiple Claude Code instances with different AI providers and configurations"
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://claudemutli.hmziq.xyz" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="claude-multi" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <style is:global>
       @import "../styles/globals.css";
     </style>
@@ -65,6 +85,7 @@ import { latestVersion } from '../util/changelog';
           <a href="/docs/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Docs</a>
           <a href="/docs/providers/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Providers</a>
           <a href="/changelog/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Changelog</a>
+          <a href="/about/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">About</a>
           <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="ml-2 px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors inline-flex items-center gap-1.5">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2A11.5 11.5 0 0 1 12 5.8c1 0 2 .1 3 .4 2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.7-5.5 6 .5.4.9 1.1.9 2.3v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
             GitHub
