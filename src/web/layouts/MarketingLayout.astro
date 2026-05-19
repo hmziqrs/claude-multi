@@ -12,6 +12,7 @@ import { latestVersion } from '../util/changelog';
       content="Manage multiple Claude Code instances with different AI providers and configurations"
     />
     <link rel="icon" href="/favicon.svg" />
+    <meta name="yandex-verification" content="15140c3de9502141" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,6 +29,24 @@ import { latestVersion } from '../util/changelog';
     <style is:global>
       @import "../styles/globals.css";
     </style>
+
+    <script is:inline type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDAdEgdNAke2wl0q4mBixEDMgQ21J7J71w",
+        authDomain: "claude-multi.firebaseapp.com",
+        projectId: "claude-multi",
+        storageBucket: "claude-multi.firebasestorage.app",
+        messagingSenderId: "961698441477",
+        appId: "1:961698441477:web:2b9cfbd3d9a88149ee6f6c",
+        measurementId: "G-0VRZJQKZT8"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
   </head>
   <body class="bg-bg text-text">
     <div class="scroll-progress" id="scroll-progress"></div>

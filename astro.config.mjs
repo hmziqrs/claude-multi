@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://claudemutli.hmziq.xyz',
+  srcDir: './src/web',
   vite: {
     plugins: [tailwindcss()],
     build: {
@@ -60,7 +61,7 @@ export default defineConfig({
           ],
         },
       ],
-      customCss: ['/src/styles/starlight.css'],
+      customCss: ['/src/web/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',
     }),

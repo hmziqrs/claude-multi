@@ -1,4 +1,4 @@
-import raw from '../../CHANGELOG.md?raw';
+import raw from '../../../CHANGELOG.md?raw';
 
 export type Item = { text: string; subItems: string[] };
 export type Section = { label: string; items: Item[] };
