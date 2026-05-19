@@ -100,7 +100,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
 
     <footer class="relative z-10 mt-32 pt-16 pb-10 px-6 border-t border-edge bg-gradient-to-b from-transparent to-lime/[0.025]">
       <div class="max-w-6xl mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-10 md:gap-12">
+        <div class="grid grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 md:gap-12">
           <div class="col-span-2 md:col-span-1">
             <div class="flex items-center gap-2 mb-3">
               <span class="inline-block w-2 h-2 rounded-full bg-lime shadow-[0_0_10px_var(--color-lime)]"></span>
@@ -116,6 +116,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
               <li><a href="/docs/getting-started/" class="text-text-mute no-underline hover:text-lime">Get started</a></li>
               <li><a href="/docs/usage/" class="text-text-mute no-underline hover:text-lime">Usage</a></li>
               <li><a href="/docs/configuration/" class="text-text-mute no-underline hover:text-lime">Configuration</a></li>
+              <li><a href="/changelog/" class="text-text-mute no-underline hover:text-lime">Changelog</a></li>
             </ul>
           </div>
           <div>
@@ -129,10 +130,18 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           <div>
             <h4 class="text-xs font-semibold uppercase tracking-wider text-text mb-3">Community</h4>
             <ul class="space-y-2 text-sm list-none p-0 m-0">
+              <li><a href="/about/" class="text-text-mute no-underline hover:text-lime">About</a></li>
               <li><a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="text-text-mute no-underline hover:text-lime">GitHub</a></li>
               <li><a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener" class="text-text-mute no-underline hover:text-lime">Issues</a></li>
-              <li><a href="/changelog/" class="text-text-mute no-underline hover:text-lime">Changelog</a></li>
               <li><a href="https://hmziq.rs" target="_blank" rel="noopener" class="text-text-mute no-underline hover:text-lime">hmziq.rs</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-text mb-3">Legal</h4>
+            <ul class="space-y-2 text-sm list-none p-0 m-0">
+              <li><a href="/privacy/" class="text-text-mute no-underline hover:text-lime">Privacy policy</a></li>
+              <li><a href="/terms/" class="text-text-mute no-underline hover:text-lime">Terms of use</a></li>
+              <li><a href="https://github.com/hmziqrs/claude-multi/blob/master/LICENSE" target="_blank" rel="noopener" class="text-text-mute no-underline hover:text-lime">MIT license</a></li>
             </ul>
           </div>
         </div>
