@@ -1,0 +1,280 @@
+---
+import Layout from '../layouts/MarketingLayout.astro';
+import { releases, type Release } from '../util/changelog';
+
+function md(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-text font-semibold">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-lime no-underline hover:underline">$1</a>');
+}
+
+type Style = { dot: string; text: string; chip: string; ring: string };
+const styles: Record<string, Style> = {
+  Added:    { dot: 'bg-lime',         text: 'text-lime',         chip: 'bg-lime/10 border-lime/30',                 ring: 'ring-lime/40' },
+  Features: { dot: 'bg-lime',         text: 'text-lime',         chip: 'bg-lime/10 border-lime/30',                 ring: 'ring-lime/40' },
+  Changed:  { dot: 'bg-amber-400',    text: 'text-amber-300',    chip: 'bg-amber-400/10 border-amber-400/30',       ring: 'ring-amber-400/40' },
+  Fixed:    { dot: 'bg-cyan-400',     text: 'text-cyan-300',     chip: 'bg-cyan-400/10 border-cyan-400/30',         ring: 'ring-cyan-400/40' },
+  Tests:    { dot: 'bg-violet-400',   text: 'text-violet-300',   chip: 'bg-violet-400/10 border-violet-400/30',     ring: 'ring-violet-400/40' },
+};
+const fallback: Style = { dot: 'bg-white/40', text: 'text-text-mute', chip: 'bg-white/5 border-white/10', ring: 'ring-white/10' };
+
+const latest = releases[0];
+const past = releases.slice(1);
+const total = releases.length;
+const totalAdds = releases.reduce((n, r) => n + (r.sections.find((s) => s.label === 'Added')?.items.length || 0) + (r.sections.find((s) => s.label === 'Features')?.items.length || 0), 0);
+const totalFixes = releases.reduce((n, r) => n + (r.sections.find((s) => s.label === 'Fixed')?.items.length || 0), 0);
+
+function summarize(r: Release) {
+  return r.sections.map((s) => ({ label: s.label, count: s.items.length, style: styles[s.label] ?? fallback }));
+}
+---
+
+<Layout>
+  <!-- ====== HERO ====== -->
+  <section class="relative z-10 pt-32 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <div class="reveal flex justify-center mb-6">
+        <a href="/" class="badge no-underline">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-lime rotate-180" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          <span class="text-text-dim">Back to home</span>
+        </a>
+      </div>
+
+      <div class="reveal text-center">
+        <span class="eyebrow">// Changelog</span>
+        <h1 class="mt-5 text-5xl sm:text-7xl font-extrabold tracking-[-0.03em] leading-[1.02] headline-glow">
+          What's <span class="gradient-text">new.</span>
+        </h1>
+        <p class="mt-5 text-base sm:text-lg text-text-dim max-w-xl mx-auto">
+          Every release, every change. From v0.1 to today.
+        </p>
+      </div>
+
+      <!-- Stat strip -->
+      <div class="reveal mt-12 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
+        <div class="glass rounded-2xl px-4 py-5 text-center">
+          <div class="stat-num text-3xl">{total}</div>
+          <div class="text-[10px] uppercase tracking-wider text-text-mute mt-1">Releases</div>
+        </div>
+        <div class="glass rounded-2xl px-4 py-5 text-center">
+          <div class="stat-num text-3xl">{totalAdds}</div>
+          <div class="text-[10px] uppercase tracking-wider text-text-mute mt-1">Features added</div>
+        </div>
+        <div class="glass rounded-2xl px-4 py-5 text-center">
+          <div class="stat-num text-3xl">{totalFixes}</div>
+          <div class="text-[10px] uppercase tracking-wider text-text-mute mt-1">Bugs fixed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== LATEST RELEASE ====== -->
+  <section class="relative z-10 px-6">
+    <div class="max-w-4xl mx-auto">
+      <article class="reveal">
+        <div class="glass rounded-3xl p-7 sm:p-10 relative overflow-hidden">
+          <!-- glow accent -->
+          <div class="absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(163,230,53,0.18),transparent_70%)]"></div>
+          <div class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-lime/0 via-lime/60 to-lime/0 pointer-events-none"></div>
+
+          <div class="relative">
+            <!-- header -->
+            <div class="flex flex-wrap items-end justify-between gap-y-3 gap-x-6 mb-7">
+              <div>
+                <div class="inline-flex items-center gap-2 mb-3">
+                  <span class="relative flex w-2 h-2">
+                    <span class="absolute inset-0 rounded-full bg-lime animate-[ping-slow_1.8s_cubic-bezier(0,0,0.2,1)_infinite] opacity-60"></span>
+                    <span class="relative inline-flex w-2 h-2 rounded-full bg-lime shadow-[0_0_10px_var(--color-lime)]"></span>
+                  </span>
+                  <span class="text-[10px] font-mono uppercase tracking-[0.2em] text-lime">Latest release</span>
+                </div>
+                <h2 class="text-5xl sm:text-7xl font-extrabold tracking-[-0.03em] leading-none">
+                  <span class="text-text-mute font-mono text-3xl sm:text-4xl mr-1 align-top">v</span>
+                  <span class="gradient-text">{latest.version}</span>
+                </h2>
+                <p class="mt-2 font-mono text-sm text-text-mute">
+                  <time>{latest.date}</time>
+                </p>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                {summarize(latest).map(({ label, count, style }) => (
+                  <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${style.chip}`}>
+                    <span class={`w-1.5 h-1.5 rounded-full ${style.dot}`}></span>
+                    <span class={`text-[11px] font-mono uppercase tracking-wider ${style.text}`}>{label}</span>
+                    <span class="text-[11px] font-mono text-text-mute">{count}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div class="divider-glow mb-7"></div>
+
+            <!-- sections -->
+            <div class="space-y-9">
+              {latest.sections.map((section) => {
+                const s = styles[section.label] ?? fallback;
+                return (
+                  <div>
+                    <div class="flex items-center gap-3 mb-4">
+                      <span class={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border ${s.chip}`}>
+                        <span class={`w-1.5 h-1.5 rounded-full ${s.dot}`}></span>
+                        <span class={`text-[11px] font-mono uppercase tracking-wider ${s.text}`}>{section.label}</span>
+                      </span>
+                      <span class="text-[11px] font-mono text-text-mute">{section.items.length} {section.items.length === 1 ? 'entry' : 'entries'}</span>
+                      <div class="flex-1 h-px bg-edge"></div>
+                    </div>
+                    <ul class="space-y-2 list-none p-0 m-0">
+                      {section.items.map((item) => (
+                        <li class="group flex gap-3.5 text-[0.93rem] text-text-dim leading-relaxed py-1.5">
+                          <span class={`flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full ${s.dot} opacity-70 group-hover:opacity-100 transition-opacity`}></span>
+                          <div class="flex-1 min-w-0">
+                            <span set:html={md(item.text)} />
+                            {item.subItems.length > 0 && (
+                              <ul class="mt-1.5 ml-1 space-y-1 list-none p-0 border-l border-edge pl-4">
+                                {item.subItems.map((sub) => (
+                                  <li class="text-[0.82rem] text-text-mute leading-relaxed py-0.5" set:html={md(sub)} />
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ====== PAST RELEASES (collapsible) ====== -->
+  <section class="relative z-10 px-6 mt-20 pb-32">
+    <div class="max-w-4xl mx-auto">
+      <div class="reveal flex items-baseline justify-between mb-6">
+        <h3 class="text-xl font-bold flex items-center gap-3">
+          <span class="eyebrow">// Past releases</span>
+          <span class="text-text-mute font-mono text-sm font-normal">{past.length}</span>
+        </h3>
+        <button id="expand-all" type="button" class="text-[11px] font-mono uppercase tracking-wider text-text-mute hover:text-lime transition-colors px-2.5 py-1 rounded-md border border-edge hover:border-edge-hover">
+          Expand all
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        {past.map((release) => {
+          const totalEntries = release.sections.reduce((n, s) => n + s.items.length, 0);
+          return (
+            <details class="release-card group rounded-2xl border border-edge bg-[rgba(20,20,28,0.45)] backdrop-blur-xl overflow-hidden transition-colors hover:border-edge-hover">
+              <summary class="cursor-pointer list-none px-5 sm:px-7 py-5 flex items-center gap-4 sm:gap-6 select-none">
+                <!-- chevron -->
+                <svg class="chev flex-shrink-0 text-text-mute group-hover:text-lime transition-all duration-300" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+
+                <!-- version + date -->
+                <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 flex-shrink-0">
+                  <span class="text-xl sm:text-2xl font-bold tracking-tight">
+                    <span class="text-text-mute font-mono text-sm">v</span><span class="text-text">{release.version}</span>
+                  </span>
+                  <time class="font-mono text-xs text-text-mute">{release.date}</time>
+                </div>
+
+                <!-- summary chips -->
+                <div class="hidden sm:flex flex-1 flex-wrap gap-1.5 justify-end">
+                  {summarize(release).map(({ label, count, style }) => (
+                    <span class={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border ${style.chip}`}>
+                      <span class={`w-1 h-1 rounded-full ${style.dot}`}></span>
+                      <span class={`text-[10px] font-mono uppercase tracking-wider ${style.text}`}>{label}</span>
+                      <span class="text-[10px] font-mono text-text-mute">{count}</span>
+                    </span>
+                  ))}
+                </div>
+
+                <span class="sm:hidden ml-auto text-[11px] font-mono text-text-mute">{totalEntries} {totalEntries === 1 ? 'entry' : 'entries'}</span>
+              </summary>
+
+              <div class="release-body px-5 sm:px-7 pb-7 pt-1">
+                <div class="border-t border-edge pt-6 space-y-7">
+                  {release.sections.map((section) => {
+                    const s = styles[section.label] ?? fallback;
+                    return (
+                      <div>
+                        <div class="flex items-center gap-3 mb-3">
+                          <span class={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border ${s.chip}`}>
+                            <span class={`w-1 h-1 rounded-full ${s.dot}`}></span>
+                            <span class={`text-[10px] font-mono uppercase tracking-wider ${s.text}`}>{section.label}</span>
+                          </span>
+                          <div class="flex-1 h-px bg-edge"></div>
+                        </div>
+                        <ul class="space-y-1.5 list-none p-0 m-0">
+                          {section.items.map((item) => (
+                            <li class="flex gap-3 text-[0.88rem] text-text-dim leading-relaxed py-1">
+                              <span class={`flex-shrink-0 mt-2 w-1 h-1 rounded-full ${s.dot} opacity-70`}></span>
+                              <div class="flex-1 min-w-0">
+                                <span set:html={md(item.text)} />
+                                {item.subItems.length > 0 && (
+                                  <ul class="mt-1 ml-1 space-y-0.5 list-none p-0 border-l border-edge pl-3">
+                                    {item.subItems.map((sub) => (
+                                      <li class="text-[0.78rem] text-text-mute leading-relaxed py-0.5" set:html={md(sub)} />
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </details>
+          );
+        })}
+      </div>
+
+      <!-- CTA -->
+      <div class="reveal mt-16 text-center">
+        <p class="text-text-mute text-sm mb-5">Want to follow along between releases?</p>
+        <div class="flex gap-3 justify-center flex-wrap">
+          <a href="https://github.com/hmziqrs/claude-multi/releases" target="_blank" rel="noopener" class="btn-primary">
+            View on GitHub
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          </a>
+          <a href="/docs/getting-started/" class="btn-secondary">Get started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+  .release-card summary::-webkit-details-marker { display: none; }
+  .release-card[open] .chev { transform: rotate(90deg); color: var(--color-lime); }
+  .release-card[open] { border-color: var(--color-edge-hover); background: rgba(20, 20, 28, 0.65); }
+  .release-card .release-body {
+    animation: release-open 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes release-open {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('expand-all');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const cards = document.querySelectorAll('.release-card') as NodeListOf<HTMLDetailsElement>;
+      const anyClosed = Array.from(cards).some((d) => !d.open);
+      cards.forEach((d) => { d.open = anyClosed; });
+      btn.textContent = anyClosed ? 'Collapse all' : 'Expand all';
+    });
+  }
+</script>
