@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/MarketingLayout.astro';
+import { latestVersion, latestHighlight } from '../util/changelog';
+const highlight = latestHighlight();
 ---
 
 <Layout>
@@ -10,7 +12,7 @@ import Layout from '../layouts/MarketingLayout.astro';
         <div>
           <a href="/docs/changelog/" class="badge no-underline reveal">
             <span class="badge-dot"></span>
-            <span class="text-text-dim">v0.4.4 — now with plugin sync</span>
+            <span class="text-text-dim">v{latestVersion} — now with {highlight}</span>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-lime" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
           </a>
 
@@ -53,12 +55,14 @@ import Layout from '../layouts/MarketingLayout.astro';
 
         <!-- Hero right: 3D glyph + terminal stacked -->
         <div class="reveal relative">
-          <div class="relative h-72 sm:h-80 mb-6">
+          <div class="relative h-72 sm:h-80 mb-6 rounded-3xl overflow-hidden border border-edge bg-[rgba(10,10,16,0.55)] backdrop-blur-2xl shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6),inset_0_0_0_1px_rgba(255,255,255,0.02)]">
             <div data-three="hero-glyph" class="absolute inset-0"></div>
-            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_30%,var(--color-bg)_85%)]"></div>
+            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_40%,rgba(6,6,10,0.85)_95%)]"></div>
+            <div class="absolute top-3 left-4 font-mono text-[10px] uppercase tracking-[0.2em] text-text-mute">// instances</div>
+            <div class="absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.2em] text-lime">live</div>
           </div>
 
-          <div class="terminal -mt-12 relative z-10">
+          <div class="terminal relative z-10">
             <div class="terminal-header">
               <span class="terminal-dot bg-[#ff5f57]"></span>
               <span class="terminal-dot bg-[#febc2e]"></span>
@@ -119,10 +123,11 @@ import Layout from '../layouts/MarketingLayout.astro';
       <div class="grid lg:grid-cols-3 gap-5">
         <!-- Big card with embedded 3D -->
         <div class="reveal glass rounded-2xl p-8 lg:col-span-2 lg:row-span-2 relative overflow-hidden min-h-[26rem]">
-          <div data-three="bento-orb" class="absolute -right-10 -top-10 w-[26rem] h-[26rem] opacity-90 pointer-events-none"></div>
+          <div data-three="bento-orb" class="hidden md:block absolute inset-0 opacity-90 pointer-events-none"></div>
+          <div class="hidden md:block absolute inset-0 pointer-events-none bg-[linear-gradient(90deg,rgba(6,6,10,0.92)_0%,rgba(6,6,10,0.78)_45%,rgba(6,6,10,0.25)_75%,transparent_100%)]"></div>
           <div class="absolute -bottom-12 -right-12 w-64 h-64 rounded-full opacity-30 pointer-events-none bg-[radial-gradient(circle,rgba(163,230,53,0.4),transparent_70%)]"></div>
 
-          <div class="relative">
+          <div class="relative max-w-md">
             <div class="icon-box mb-5">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-3 7h4l-3 7"/><path d="M19 14V8a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"/><path d="M5 14h14"/><path d="M5 14v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
             </div>

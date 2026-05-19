@@ -1,3 +1,6 @@
+---
+import { latestVersion } from '../util/changelog';
+---
 <!doctype html>
 <html lang="en">
   <head>
@@ -42,7 +45,7 @@
         <nav class="flex items-center gap-1">
           <a href="/docs/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Docs</a>
           <a href="/docs/providers/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Providers</a>
-          <a href="/docs/changelog/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Changelog</a>
+          <a href="/changelog/" class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors">Changelog</a>
           <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="ml-2 px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors inline-flex items-center gap-1.5">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2A11.5 11.5 0 0 1 12 5.8c1 0 2 .1 3 .4 2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.7-5.5 6 .5.4.9 1.1.9 2.3v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
             GitHub
@@ -88,14 +91,14 @@
             <ul class="space-y-2 text-sm list-none p-0 m-0">
               <li><a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="text-text-mute no-underline hover:text-lime">GitHub</a></li>
               <li><a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener" class="text-text-mute no-underline hover:text-lime">Issues</a></li>
-              <li><a href="/docs/changelog/" class="text-text-mute no-underline hover:text-lime">Changelog</a></li>
+              <li><a href="/changelog/" class="text-text-mute no-underline hover:text-lime">Changelog</a></li>
             </ul>
           </div>
         </div>
         <div class="divider-glow mt-12 mb-6"></div>
         <div class="flex flex-wrap justify-between items-center gap-3 text-xs text-text-mute">
           <span>MIT licensed &copy; 2026 hmziqrs</span>
-          <span class="font-mono">v0.4.4</span>
+          <span class="font-mono">v{latestVersion}</span>
         </div>
       </div>
     </footer>
@@ -118,7 +121,7 @@
             io.unobserve(e.target);
           }
         }
-      }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+      }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
       document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
       // ---------- Three.js scenes ----------
@@ -284,12 +287,12 @@
           scene.add(pts);
 
           return (t) => {
-            inner.rotation.x = t * 0.4; inner.rotation.y = t * 0.55;
-            outer.rotation.x = -t * 0.15; outer.rotation.y = t * 0.2;
+            inner.rotation.x = t * 0.12; inner.rotation.y = t * 0.16;
+            outer.rotation.x = -t * 0.05; outer.rotation.y = t * 0.07;
             const arr = ptsGeo.attributes.position.array;
             for (let i = 0; i < N; i++) {
               const s = seed[i];
-              const theta = s.theta + t * s.sp * 0.4;
+              const theta = s.theta + t * s.sp * 0.12;
               arr[i * 3]     = s.r * Math.sin(s.phi) * Math.cos(theta);
               arr[i * 3 + 1] = s.r * Math.sin(s.phi) * Math.sin(theta);
               arr[i * 3 + 2] = s.r * Math.cos(s.phi);
@@ -312,9 +315,10 @@
           );
           scene.add(knot, halo);
           return (t) => {
-            knot.rotation.x = t * 0.3;
-            knot.rotation.y = t * 0.45;
-            halo.rotation.y = -t * 0.1;
+            knot.rotation.x = t * 0.08;
+            knot.rotation.y = t * 0.12;
+            halo.rotation.y = -t * 0.04;
+            halo.rotation.x = t * 0.03;
           };
         });
 
