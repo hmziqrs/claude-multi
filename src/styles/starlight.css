@@ -1,54 +1,659 @@
-/* Starlight lime + dark theme */
+/* ===========================================================
+   claude-multi · Starlight theme (lime · dark · glass)
+   Overrides Starlight via --sl-* tokens + class targeting.
+   Safe to edit — single source for all docs styling.
+   =========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 :root,
 [data-theme="dark"] {
-  /* Accent — lime */
-  --sl-color-accent: #a3e635;
+  /* ---------- Brand ---------- */
+  --sl-color-accent-low:  rgba(163, 230, 53, 0.12);
+  --sl-color-accent:      #a3e635;
   --sl-color-accent-high: #bef264;
-  --sl-color-bg-accent: #a3e635;
-  --sl-color-bg-accent-hover: #84cc16;
-  --sl-color-text-accent: #a3e635;
-  --sl-color-text-action: #a3e635;
 
-  /* Backgrounds */
-  --sl-color-bg: #0a0a0f;
-  --sl-color-bg-nav: rgba(13, 13, 20, 0.92);
-  --sl-color-bg-sidebar: #0d0d14;
-  --sl-color-bg-code: #111118;
-  --sl-color-bg-inline-code: rgba(163, 230, 53, 0.08);
+  --sl-color-bg-accent:        #a3e635;
+  --sl-color-bg-accent-hover:  #84cc16;
+  --sl-color-text-accent:      #a3e635;
+  --sl-color-text-action:      #a3e635;
 
-  /* Text */
-  --sl-color-text: #f1f1f6;
-  --sl-color-text-invert: #0a0a0f;
+  /* ---------- Surface ---------- */
+  --sl-color-bg:          #06060a;
+  --sl-color-bg-nav:      rgba(6, 6, 10, 0.72);
+  --sl-color-bg-sidebar:  rgba(8, 8, 13, 0.65);
+  --sl-color-bg-code:     rgba(10, 10, 16, 0.85);
+  --sl-color-bg-inline-code: rgba(163, 230, 53, 0.1);
 
-  /* Borders */
-  --sl-color-hairline: rgba(163, 230, 53, 0.08);
-  --sl-color-hairline-light: rgba(163, 230, 53, 0.15);
-  --sl-color-hairline-shade: rgba(163, 230, 53, 0.04);
+  /* ---------- Text ---------- */
+  --sl-color-white:       #ffffff;
+  --sl-color-text:        #e7e7ed;
+  --sl-color-text-invert: #06060a;
 
-  /* Gray scale (1=light, 6=dark) */
-  --sl-color-gray-1: #c0c0cc;
-  --sl-color-gray-2: #9e9eae;
-  --sl-color-gray-3: #7c7c90;
-  --sl-color-gray-4: #505060;
-  --sl-color-gray-5: #24242e;
-  --sl-color-gray-6: #14141a;
+  /* ---------- Borders ---------- */
+  --sl-color-hairline:        rgba(163, 230, 53, 0.08);
+  --sl-color-hairline-light:  rgba(163, 230, 53, 0.18);
+  --sl-color-hairline-shade:  rgba(255, 255, 255, 0.04);
 
-  /* Selection */
-  --sl-color-text-selection-bg: rgba(163, 230, 53, 0.25);
+  /* ---------- Gray ramp ---------- */
+  --sl-color-gray-1: #d4d4dc;
+  --sl-color-gray-2: #a8a8b8;
+  --sl-color-gray-3: #818194;
+  --sl-color-gray-4: #4b4b5a;
+  --sl-color-gray-5: #1e1e28;
+  --sl-color-gray-6: #0d0d14;
+  --sl-color-gray-7: #08080d;
+
+  /* ---------- Selection ---------- */
+  --sl-color-text-selection-bg: rgba(163, 230, 53, 0.3);
+
+  /* ---------- Fonts ---------- */
+  --sl-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sl-font-system: var(--sl-font);
+  --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sl-font-system-mono: var(--sl-font-mono);
+
+  /* ---------- Custom (used in selectors below) ---------- */
+  --doc-glow: 0 0 32px -8px rgba(163, 230, 53, 0.35);
 }
 
-/* Scrollbar */
+/* ===========================================================
+   GLOBAL CANVAS — subtle ambient layers
+   =========================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  position: relative;
+  background: var(--sl-color-bg);
+}
+
+/* Aurora orbs (low opacity so docs stay readable) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(60vw 60vw at -10vw 10vh, rgba(163, 230, 53, 0.10), transparent 70%),
+    radial-gradient(50vw 50vw at 110vw 80vh, rgba(101, 163, 13, 0.08), transparent 70%);
+}
+
+/* Dotted grid overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(163, 230, 53, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(163, 230, 53, 0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+          mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+/* Make sure real content sits above background layers */
+.page,
+header.header,
+nav.sidebar,
+.content-panel,
+.right-sidebar,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===========================================================
+   TOP HEADER — frosted, lime accents
+   =========================================================== */
+
+header.header {
+  background: rgba(6, 6, 10, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--sl-color-hairline) !important;
+}
+
+.site-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.site-title:hover {
+  color: var(--sl-color-accent);
+}
+
+/* GitHub social icon */
+.social-icons a {
+  color: var(--sl-color-gray-2);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.social-icons a:hover {
+  color: var(--sl-color-accent) !important;
+  transform: translateY(-1px);
+}
+
+/* Search button */
+site-search button,
+.sl-search button {
+  background: rgba(20, 20, 28, 0.55) !important;
+  border: 1px solid var(--sl-color-hairline) !important;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+site-search button:hover,
+.sl-search button:hover {
+  border-color: var(--sl-color-hairline-light) !important;
+  background: rgba(28, 28, 38, 0.7) !important;
+}
+
+/* ===========================================================
+   SIDEBAR — glass + glowing active state
+   =========================================================== */
+
+nav.sidebar {
+  background: transparent !important;
+  border-right: 1px solid var(--sl-color-hairline) !important;
+}
+
+.sidebar-pane {
+  background: rgba(8, 8, 13, 0.5) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+/* Section group titles */
+.sidebar summary,
+.sidebar .group-label > span {
+  font-family: var(--sl-font-mono);
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sl-color-gray-2) !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+/* Sidebar items */
+.sidebar-content a {
+  position: relative;
+  border-radius: 0.5rem !important;
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.9rem;
+  color: var(--sl-color-gray-1) !important;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+.sidebar-content a:hover {
+  background: rgba(163, 230, 53, 0.06) !important;
+  color: var(--sl-color-accent) !important;
+  transform: translateX(2px);
+}
+
+/* Active link (current page) — Starlight uses aria-current="page" */
+.sidebar-content a[aria-current="page"] {
+  background: linear-gradient(90deg, rgba(163, 230, 53, 0.14), rgba(163, 230, 53, 0.04)) !important;
+  color: var(--sl-color-white) !important;
+  border: 1px solid var(--sl-color-hairline-light);
+  box-shadow: var(--doc-glow);
+}
+
+.sidebar-content a[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
+  border-radius: 3px;
+  box-shadow: 0 0 12px var(--sl-color-accent);
+}
+
+/* ===========================================================
+   CONTENT — typography + flow
+   =========================================================== */
+
+.content-panel {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.sl-markdown-content {
+  color: var(--sl-color-text);
+}
+
+/* Page title (h1) */
+.sl-markdown-content h1,
+h1#_top,
+h1.heading,
+header h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem) !important;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #d9f99d 0%, #a3e635 45%, #65a30d 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* h2 with lime side-bar */
+.sl-markdown-content h2 {
+  position: relative;
+  font-size: 1.65rem !important;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--sl-color-white) !important;
+  padding-left: 1rem;
+  margin-top: 3rem !important;
+  margin-bottom: 1rem !important;
+}
+.sl-markdown-content h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.4em;
+  bottom: 0.4em;
+  width: 3px;
+  background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(163, 230, 53, 0.45);
+}
+
+.sl-markdown-content h3 {
+  font-size: 1.2rem !important;
+  font-weight: 600;
+  color: var(--sl-color-gray-1) !important;
+  margin-top: 2rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.sl-markdown-content h4 {
+  font-size: 1.02rem !important;
+  font-weight: 600;
+  color: var(--sl-color-gray-1) !important;
+  margin-top: 1.5rem !important;
+}
+
+/* Anchor-link icons next to headings */
+.sl-markdown-content .heading-wrapper a {
+  color: var(--sl-color-gray-3);
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.sl-markdown-content .heading-wrapper:hover a {
+  opacity: 1;
+}
+.sl-markdown-content .heading-wrapper a:hover {
+  color: var(--sl-color-accent);
+}
+
+/* Paragraphs */
+.sl-markdown-content p {
+  color: var(--sl-color-gray-1);
+  line-height: 1.75;
+}
+
+/* Strong */
+.sl-markdown-content strong {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+/* Links */
+.sl-markdown-content a:not(.btn) {
+  color: var(--sl-color-accent);
+  text-decoration: none;
+  background-image: linear-gradient(90deg, var(--sl-color-accent), var(--sl-color-accent));
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  transition: background-size 0.3s ease, color 0.2s ease;
+}
+.sl-markdown-content a:not(.btn):hover {
+  background-size: 100% 1px;
+  color: var(--sl-color-accent-high);
+}
+
+/* Inline code */
+.sl-markdown-content :not(pre) > code {
+  font-family: var(--sl-font-mono);
+  font-size: 0.86em;
+  background: rgba(163, 230, 53, 0.1) !important;
+  color: var(--sl-color-accent) !important;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(163, 230, 53, 0.18);
+  white-space: nowrap;
+}
+
+/* Code blocks (Expressive Code) */
+.expressive-code {
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+.expressive-code .frame {
+  border: 1px solid var(--sl-color-hairline) !important;
+  box-shadow:
+    0 24px 60px -20px rgba(0, 0, 0, 0.55),
+    0 0 80px -40px rgba(163, 230, 53, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset !important;
+  background: rgba(8, 8, 13, 0.9) !important;
+  backdrop-filter: blur(12px);
+}
+.expressive-code .frame.has-title .title {
+  color: var(--sl-color-gray-2) !important;
+  font-family: var(--sl-font-mono);
+  font-size: 0.78rem;
+}
+.expressive-code .copy button {
+  border-color: var(--sl-color-hairline) !important;
+}
+.expressive-code .copy button:hover {
+  border-color: var(--sl-color-accent) !important;
+  color: var(--sl-color-accent) !important;
+}
+
+/* Block-quotes */
+.sl-markdown-content blockquote {
+  position: relative;
+  border-left: none !important;
+  padding: 1rem 1.25rem 1rem 1.5rem;
+  border-radius: 0 12px 12px 0;
+  background: rgba(163, 230, 53, 0.04);
+  color: var(--sl-color-gray-1);
+  font-style: normal;
+}
+.sl-markdown-content blockquote::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 3px;
+  background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(163, 230, 53, 0.45);
+}
+
+/* Horizontal rule */
+.sl-markdown-content hr {
+  height: 1px !important;
+  border: none !important;
+  background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.35), transparent) !important;
+  margin: 2.5rem 0 !important;
+}
+
+/* Tables */
+.sl-markdown-content table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(20, 20, 28, 0.4);
+  backdrop-filter: blur(6px);
+}
+.sl-markdown-content thead {
+  background: rgba(163, 230, 53, 0.06);
+}
+.sl-markdown-content th {
+  text-align: left;
+  font-family: var(--sl-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sl-color-accent);
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+.sl-markdown-content td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--sl-color-hairline-shade);
+  color: var(--sl-color-gray-1);
+}
+.sl-markdown-content tr:last-child td {
+  border-bottom: none;
+}
+.sl-markdown-content tbody tr:hover {
+  background: rgba(163, 230, 53, 0.025);
+}
+
+/* Lists */
+.sl-markdown-content ul,
+.sl-markdown-content ol {
+  padding-left: 1.4rem;
+}
+.sl-markdown-content li {
+  margin: 0.35rem 0;
+  color: var(--sl-color-gray-1);
+}
+.sl-markdown-content ul li::marker {
+  color: var(--sl-color-accent);
+}
+.sl-markdown-content ol li::marker {
+  color: var(--sl-color-accent);
+  font-family: var(--sl-font-mono);
+  font-weight: 600;
+}
+
+/* Images */
+.sl-markdown-content img {
+  border-radius: 12px;
+  border: 1px solid var(--sl-color-hairline);
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.55);
+}
+
+/* ===========================================================
+   ASIDES (note / tip / caution / danger)
+   =========================================================== */
+
+.starlight-aside {
+  border-radius: 12px !important;
+  border: 1px solid var(--sl-color-hairline) !important;
+  padding: 1rem 1.25rem !important;
+  background: rgba(20, 20, 28, 0.55) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.starlight-aside::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.starlight-aside--note          { border-color: rgba(125, 211, 252, 0.25) !important; }
+.starlight-aside--note::before  { background: linear-gradient(180deg, #7dd3fc, #38bdf8); box-shadow: 0 0 10px rgba(125, 211, 252, 0.5); }
+
+.starlight-aside--tip           { border-color: rgba(163, 230, 53, 0.3) !important; }
+.starlight-aside--tip::before   { background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent)); box-shadow: 0 0 10px rgba(163, 230, 53, 0.5); }
+
+.starlight-aside--caution       { border-color: rgba(251, 191, 36, 0.3) !important; }
+.starlight-aside--caution::before { background: linear-gradient(180deg, #fcd34d, #fbbf24); box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+
+.starlight-aside--danger        { border-color: rgba(248, 113, 113, 0.3) !important; }
+.starlight-aside--danger::before { background: linear-gradient(180deg, #fca5a5, #f87171); box-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
+
+.starlight-aside__title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.35rem !important;
+}
+.starlight-aside--note .starlight-aside__title    { color: #7dd3fc !important; }
+.starlight-aside--tip .starlight-aside__title     { color: var(--sl-color-accent) !important; }
+.starlight-aside--caution .starlight-aside__title { color: #fcd34d !important; }
+.starlight-aside--danger .starlight-aside__title  { color: #fca5a5 !important; }
+
+/* ===========================================================
+   TABLE OF CONTENTS (right sidebar)
+   =========================================================== */
+
+starlight-toc nav a {
+  color: var(--sl-color-gray-3) !important;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.5rem !important;
+  border-radius: 0.4rem;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+starlight-toc nav a:hover {
+  color: var(--sl-color-accent) !important;
+  background: rgba(163, 230, 53, 0.05);
+}
+starlight-toc nav a[aria-current="true"] {
+  color: var(--sl-color-accent) !important;
+  background: rgba(163, 230, 53, 0.08);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--sl-color-accent);
+}
+
+.right-sidebar h2 {
+  font-family: var(--sl-font-mono) !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sl-color-gray-2) !important;
+}
+
+/* ===========================================================
+   PAGINATION (prev / next links)
+   =========================================================== */
+
+.pagination-links {
+  gap: 1rem;
+}
+.pagination-links a {
+  background: rgba(20, 20, 28, 0.55) !important;
+  border: 1px solid var(--sl-color-hairline) !important;
+  border-radius: 12px !important;
+  padding: 1rem 1.25rem !important;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.3s ease, background 0.25s ease;
+}
+.pagination-links a:hover {
+  border-color: var(--sl-color-hairline-light) !important;
+  background: rgba(28, 28, 38, 0.75) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -20px rgba(163, 230, 53, 0.25);
+}
+.pagination-links a svg {
+  color: var(--sl-color-accent) !important;
+}
+.pagination-links a > span:first-child {
+  font-family: var(--sl-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sl-color-gray-2) !important;
+}
+.pagination-links a > span:last-child {
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+/* ===========================================================
+   FOOTER (last-updated + edit-link)
+   =========================================================== */
+
+footer .meta {
+  color: var(--sl-color-gray-3);
+  border-top: 1px solid var(--sl-color-hairline);
+  padding-top: 1rem;
+}
+footer .meta a {
+  color: var(--sl-color-gray-2);
+  transition: color 0.2s ease;
+}
+footer .meta a:hover {
+  color: var(--sl-color-accent);
+}
+
+/* ===========================================================
+   KBD
+   =========================================================== */
+
+.sl-markdown-content kbd {
+  font-family: var(--sl-font-mono);
+  font-size: 0.78em;
+  padding: 0.15rem 0.45rem;
+  background: rgba(20, 20, 28, 0.8);
+  border: 1px solid var(--sl-color-hairline-light);
+  border-bottom-width: 2px;
+  border-radius: 0.4rem;
+  color: var(--sl-color-white);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ===========================================================
+   DETAILS / SUMMARY (collapsible blocks in markdown)
+   =========================================================== */
+
+.sl-markdown-content details {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  background: rgba(20, 20, 28, 0.45);
+  backdrop-filter: blur(8px);
+  margin: 1.25rem 0;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.sl-markdown-content details[open] {
+  border-color: var(--sl-color-hairline-light);
+  background: rgba(28, 28, 38, 0.6);
+}
+.sl-markdown-content summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--sl-color-white);
+  transition: color 0.2s ease;
+}
+.sl-markdown-content summary:hover {
+  color: var(--sl-color-accent);
+}
+
+/* ===========================================================
+   SCROLLBAR
+   =========================================================== */
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0f;
+  background: var(--sl-color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(163, 230, 53, 0.2);
-  border-radius: 3px;
+  background: rgba(163, 230, 53, 0.15);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(163, 230, 53, 0.35);
+  background: rgba(163, 230, 53, 0.3);
+}
+
+/* ===========================================================
+   PRINT — strip ambient layers
+   =========================================================== */
+
+@media print {
+  body::before,
+  body::after { display: none; }
 }
