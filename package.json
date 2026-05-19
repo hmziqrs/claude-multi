@@ -17,7 +17,8 @@
     "install:global": "bun link",
     "docs:dev": "astro dev",
     "docs:build": "astro build",
-    "docs:preview": "astro preview"
+    "docs:preview": "astro preview",
+    "ci:docs:deploy": "gh workflow run deploy-docs.yml"
   },
   "keywords": [
     "claude",

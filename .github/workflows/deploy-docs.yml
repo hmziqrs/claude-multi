@@ -8,6 +8,7 @@ on:
       - 'astro.config.mjs'
       - 'package.json'
       - 'CHANGELOG.md'
+  workflow_dispatch:
 
 jobs:
   deploy:
