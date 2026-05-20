@@ -10,13 +10,66 @@ const highlight = latestHighlight();
     <div class="max-w-6xl mx-auto">
       <div class="grid lg:grid-cols-[1.05fr_1fr] gap-14 items-center">
         <div>
+          <div class="reveal mb-3">
+            <div class="logo3d-stage" aria-label="claude-multi: four stacked instance cards unified by one CLI prompt">
+              <div class="logo3d">
+                <div class="logo-card lc-1">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="tag">anthropic</div>
+                  <div class="body">
+                    <span class="prompt">$ claude-anthropic</span>
+                    <div class="l mid"></div>
+                    <div class="l short"></div>
+                    <div class="l accent"></div>
+                  </div>
+                </div>
+                <div class="logo-card lc-2">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="tag">glm</div>
+                  <div class="body">
+                    <span class="prompt">$ claude-glm</span>
+                    <div class="l mid"></div>
+                    <div class="l short"></div>
+                    <div class="l accent"></div>
+                  </div>
+                </div>
+                <div class="logo-card lc-3">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="tag">minimax</div>
+                  <div class="body">
+                    <span class="prompt">$ claude-mini</span>
+                    <div class="l mid"></div>
+                    <div class="l short"></div>
+                    <div class="l accent"></div>
+                  </div>
+                </div>
+                <div class="logo-card lc-4">
+                  <div class="dots"><i></i><i></i><i></i></div>
+                  <div class="tag">deepseek</div>
+                  <div class="body">
+                    <span class="prompt">$ claude-deepseek</span>
+                    <div class="l mid"></div>
+                    <div class="l short"></div>
+                    <div class="l accent"></div>
+                  </div>
+                </div>
+                <div class="logo-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none">
+                    <path d="M9 11 L15 16 L9 21" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="17" y1="21" x2="24" y2="21" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <a href="/docs/changelog/" class="badge no-underline reveal">
             <span class="badge-dot"></span>
             <span class="text-text-dim">v{latestVersion} — now with {highlight}</span>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-lime" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
           </a>
 
-          <h1 class="reveal mt-7 text-[2.75rem] sm:text-6xl lg:text-[4.25rem] font-extrabold tracking-[-0.03em] leading-[1.02] headline-glow">
+          <h1 class="reveal mt-5 text-[2.75rem] sm:text-6xl lg:text-[4.25rem] font-extrabold tracking-[-0.03em] leading-[1.02] headline-glow">
             One CLI for<br/>
             <span class="gradient-text">every Claude</span><br/>
             you run.
