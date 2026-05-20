@@ -7,8 +7,18 @@ Switching providers (Anthropic, GLM, MiniMax, DeepSeek) normally means editing `
 ## Install
 
 ```bash
-bun add -g claude-multi      # or: npm i -g claude-multi
+bun add -g claude-multi
+```
+
+```bash
+npm install -g claude-multi
+```
+
+```bash
 pnpm add -g claude-multi
+```
+
+```bash
 deno install -g -A -n claude-multi npm:claude-multi
 ```
 
