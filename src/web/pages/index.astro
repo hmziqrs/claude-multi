@@ -83,6 +83,107 @@ const highlight = latestHighlight();
     </div>
   </section>
 
+  <!-- ========== INSTALL ========== -->
+  <section id="install" class="relative z-10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal text-center mb-12">
+        <span class="eyebrow">// Install</span>
+        <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
+          One command. <span class="gradient-text">Any runtime.</span>
+        </h2>
+        <p class="mt-5 text-text-dim max-w-xl mx-auto">
+          Distributed on npm — install globally with whichever package manager you already use. No curl-pipe-sh, no platform binaries to babysit.
+        </p>
+      </div>
+
+      <div class="reveal max-w-3xl mx-auto" data-install-terminal>
+        <div class="terminal">
+          <div class="terminal-header">
+            <span class="terminal-dot bg-[#ff5f57]"></span>
+            <span class="terminal-dot bg-[#febc2e]"></span>
+            <span class="terminal-dot bg-[#28c840]"></span>
+            <span class="terminal-title">install.sh</span>
+          </div>
+          <div class="flex items-center gap-1 px-3 pt-2.5 border-b border-edge" role="tablist" aria-label="Package manager">
+            <button type="button" role="tab" aria-selected="true" data-pm-tab="bun" class="pm-tab font-mono text-xs px-3 py-1.5 rounded-t-md border border-edge border-b-transparent bg-[rgba(163,230,53,0.08)] text-lime">bun</button>
+            <button type="button" role="tab" aria-selected="false" data-pm-tab="npm" class="pm-tab font-mono text-xs px-3 py-1.5 rounded-t-md border border-transparent text-text-mute hover:text-text">npm</button>
+            <button type="button" role="tab" aria-selected="false" data-pm-tab="pnpm" class="pm-tab font-mono text-xs px-3 py-1.5 rounded-t-md border border-transparent text-text-mute hover:text-text">pnpm</button>
+            <button type="button" role="tab" aria-selected="false" data-pm-tab="deno" class="pm-tab font-mono text-xs px-3 py-1.5 rounded-t-md border border-transparent text-text-mute hover:text-text">deno</button>
+          </div>
+          <div class="terminal-body flex items-center justify-between gap-4">
+            <div class="font-mono">
+              <span data-pm-cmd="bun"><span class="term-prompt">$</span> <span class="term-cmd">bun add -g</span> claude-multi</span>
+              <span data-pm-cmd="npm" hidden><span class="term-prompt">$</span> <span class="term-cmd">npm install -g</span> claude-multi</span>
+              <span data-pm-cmd="pnpm" hidden><span class="term-prompt">$</span> <span class="term-cmd">pnpm add -g</span> claude-multi</span>
+              <span data-pm-cmd="deno" hidden><span class="term-prompt">$</span> <span class="term-cmd">deno install -g -A -n</span> claude-multi <span class="term-arg">npm:claude-multi</span></span>
+            </div>
+            <button type="button" data-copy class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-edge bg-[rgba(255,255,255,0.02)] text-text-mute hover:text-lime hover:border-edge-hover transition-colors text-xs font-mono" aria-label="Copy install command">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span data-copy-label>copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 grid sm:grid-cols-3 gap-3 text-xs">
+          <div class="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-edge bg-[rgba(255,255,255,0.015)]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-lime)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="text-text-mute">Node 18+ or Bun 1+</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-edge bg-[rgba(255,255,255,0.015)]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-lime)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="text-text-mute">macOS, Linux, Windows</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-edge bg-[rgba(255,255,255,0.015)]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-lime)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="text-text-mute">No sudo required</span>
+          </div>
+        </div>
+      </div>
+
+      <script is:inline>
+        (() => {
+          const root = document.querySelector('[data-install-terminal]');
+          if (!root) return;
+          const tabs = root.querySelectorAll('[data-pm-tab]');
+          const cmds = root.querySelectorAll('[data-pm-cmd]');
+          const copyBtn = root.querySelector('[data-copy]');
+          const copyLabel = root.querySelector('[data-copy-label]');
+
+          const setActive = (pm) => {
+            tabs.forEach((t) => {
+              const active = t.getAttribute('data-pm-tab') === pm;
+              t.setAttribute('aria-selected', active ? 'true' : 'false');
+              t.classList.toggle('text-lime', active);
+              t.classList.toggle('bg-[rgba(163,230,53,0.08)]', active);
+              t.classList.toggle('border-edge', active);
+              t.classList.toggle('border-b-transparent', active);
+              t.classList.toggle('text-text-mute', !active);
+              t.classList.toggle('border-transparent', !active);
+            });
+            cmds.forEach((c) => {
+              c.hidden = c.getAttribute('data-pm-cmd') !== pm;
+            });
+          };
+
+          tabs.forEach((tab) => {
+            tab.addEventListener('click', () => setActive(tab.getAttribute('data-pm-tab')));
+          });
+
+          copyBtn?.addEventListener('click', async () => {
+            const visible = Array.from(cmds).find((c) => !c.hidden);
+            if (!visible) return;
+            const text = visible.textContent.replace(/^\s*\$\s*/, '').trim();
+            try {
+              await navigator.clipboard.writeText(text);
+              if (copyLabel) copyLabel.textContent = 'copied';
+              setTimeout(() => { if (copyLabel) copyLabel.textContent = 'copy'; }, 1500);
+            } catch {}
+          });
+        })();
+      </script>
+    </div>
+  </section>
+
   <!-- ========== STATS ========== -->
   <section class="relative z-10 py-12 px-6">
     <div class="max-w-5xl mx-auto reveal">
@@ -337,7 +438,7 @@ const highlight = latestHighlight();
       <div class="reveal text-center mb-14">
         <span class="eyebrow">// Quick start</span>
         <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Three commands. <span class="gradient-text">That's it.</span>
+          Two commands. <span class="gradient-text">That's it.</span>
         </h2>
       </div>
 
@@ -346,19 +447,12 @@ const highlight = latestHighlight();
           <li class="reveal flex gap-4 items-start">
             <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold bg-lime/10 border border-edge-hover text-lime">1</div>
             <div>
-              <h4 class="font-semibold mb-1">Install globally</h4>
-              <p class="text-sm text-text-mute">One npm install, available everywhere.</p>
-            </div>
-          </li>
-          <li class="reveal flex gap-4 items-start">
-            <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold bg-lime/10 border border-edge-hover text-lime">2</div>
-            <div>
               <h4 class="font-semibold mb-1">Add a provider</h4>
               <p class="text-sm text-text-mute">Pre-configured templates do the wiring.</p>
             </div>
           </li>
           <li class="reveal flex gap-4 items-start">
-            <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold bg-lime/10 border border-edge-hover text-lime">3</div>
+            <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold bg-lime/10 border border-edge-hover text-lime">2</div>
             <div>
               <h4 class="font-semibold mb-1">Use the new alias</h4>
               <p class="text-sm text-text-mute">Every flag from <code class="font-mono text-lime text-xs">claude</code> works as-is.</p>
@@ -374,15 +468,12 @@ const highlight = latestHighlight();
             <span class="terminal-title">setup.sh</span>
           </div>
           <div class="terminal-body">
-            <span class="term-out"># 1. Install</span><br/>
-            <span class="term-prompt">$</span> <span class="term-cmd">npm install -g</span> claude-multi<br/>
-            <br/>
-            <span class="term-out"># 2. Add a provider</span><br/>
+            <span class="term-out"># 1. Add a provider</span><br/>
             <span class="term-prompt">$</span> <span class="term-cmd">claude-multi add</span> <span class="term-arg">glm</span> \<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;--provider glm \<br/>
             &nbsp;&nbsp;&nbsp;&nbsp;--api-key <span class="term-str">"sk-..."</span><br/>
             <br/>
-            <span class="term-out"># 3. Use it</span><br/>
+            <span class="term-out"># 2. Use it</span><br/>
             <span class="term-prompt">$</span> <span class="term-cmd">claude-glm</span> --help<span class="cursor-blink"></span>
           </div>
         </div>
