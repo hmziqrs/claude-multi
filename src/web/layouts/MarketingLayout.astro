@@ -148,7 +148,10 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
         <div class="divider-glow mt-12 mb-6"></div>
         <div class="flex flex-wrap justify-between items-center gap-3 text-xs text-text-mute">
           <span>MIT licensed &copy; 2026 hmziqrs</span>
-          <span class="font-mono">v{latestVersion}</span>
+          <div class="flex items-center gap-4">
+            <a href="/sitemap-index.xml" class="hover:text-lime transition-colors no-underline text-text-mute">Sitemap</a>
+            <span class="font-mono">v{latestVersion}</span>
+          </div>
         </div>
       </div>
     </footer>
