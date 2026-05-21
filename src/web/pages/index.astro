@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/MarketingLayout.astro';
+import InteractiveDemo from '../components/InteractiveDemo.astro';
 import { latestVersion, latestHighlight } from '../util/changelog';
 const highlight = latestHighlight();
 ---
@@ -438,17 +439,17 @@ const highlight = latestHighlight();
       <div class="reveal text-center mb-14">
         <span class="eyebrow">// Quick start</span>
         <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Two commands. <span class="gradient-text">That's it.</span>
+          Interactive by default. <span class="gradient-text">Fast when you need it.</span>
         </h2>
       </div>
 
-      <div class="grid lg:grid-cols-[auto_1fr] gap-10 items-start">
+      <div class="grid lg:grid-cols-2 gap-10 items-start">
         <ol class="space-y-6 list-none p-0 m-0">
           <li class="reveal flex gap-4 items-start">
             <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold bg-lime/10 border border-edge-hover text-lime">1</div>
             <div>
               <h4 class="font-semibold mb-1">Add a provider</h4>
-              <p class="text-sm text-text-mute">Pre-configured templates do the wiring.</p>
+              <p class="text-sm text-text-mute">Run <code class="font-mono text-lime text-xs">claude-multi add &lt;name&gt;</code> — the guided wizard picks your provider, sets the API key, and wires up plugins. Or use <code class="font-mono text-lime text-xs">claude-multi interactive</code> to manage everything from a full TUI.</p>
             </div>
           </li>
           <li class="reveal flex gap-4 items-start">
@@ -468,15 +469,35 @@ const highlight = latestHighlight();
             <span class="terminal-title">setup.sh</span>
           </div>
           <div class="terminal-body">
-            <span class="term-out"># 1. Add a provider</span><br/>
-            <span class="term-prompt">$</span> <span class="term-cmd">claude-multi add</span> <span class="term-arg">glm</span> \<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;--provider glm \<br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;--api-key <span class="term-str">"sk-..."</span><br/>
+            <span class="term-out"># guided wizard — no flags needed</span><br/>
+            <span class="term-prompt">$</span> <span class="term-cmd">claude-multi add</span> <span class="term-arg">glm</span><br/>
+            <span class="term-out">  ? Provider › </span><span class="term-ok">GLM</span><span class="term-out">  MiniMax  DeepSeek  None</span><br/>
+            <span class="term-out">  ? API key  </span><span class="term-str">••••••••••••••••</span><br/>
+            <span class="term-out">  ? Copy from ~/.claude › </span><span class="term-ok">Nothing</span><br/>
+            <span class="term-ok">  ✓ Ready.</span> Run <span class="term-cmd">claude-glm</span> to start.<br/>
             <br/>
-            <span class="term-out"># 2. Use it</span><br/>
-            <span class="term-prompt">$</span> <span class="term-cmd">claude-glm</span> --help<span class="cursor-blink"></span>
+            <span class="term-prompt">$</span> <span class="term-cmd">claude-glm</span><span class="cursor-blink"></span>
           </div>
+          <p class="mt-3 text-xs text-text-mute text-right">Prefer a menu? <code class="font-mono text-lime">claude-multi interactive</code> opens the full TUI. Pass <code class="font-mono text-lime">--provider</code> / <code class="font-mono text-lime">--api-key</code> to skip the wizard entirely.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== INTERACTIVE DEMO ========== -->
+  <section class="relative z-10 py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal text-center mb-12">
+        <span class="eyebrow">// Interactive mode</span>
+        <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
+          A full <span class="gradient-text">TUI</span> when you want one.
+        </h2>
+        <p class="mt-5 text-text-dim max-w-xl mx-auto">
+          Run <code class="font-mono text-lime text-sm">claude-multi interactive</code> to add, list, and manage every instance without remembering a single flag.
+        </p>
+      </div>
+      <div class="max-w-2xl mx-auto">
+        <InteractiveDemo />
       </div>
     </div>
   </section>

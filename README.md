@@ -24,14 +24,30 @@ deno install -g -A -n claude-multi npm:claude-multi
 
 Requires Node 18+ (or Bun 1+) and `@anthropic-ai/claude-code` installed globally.
 
+## Interactive mode
+
+The recommended way to use claude-multi. Two entry points:
+
+**Full TUI** — manage all instances from a menu:
+
+```bash
+claude-multi interactive   # or: claude-multi i
+```
+
+**Guided wizard** — add one instance step by step (provider, API key, copy options):
+
+```bash
+claude-multi add glm
+```
+
+Running `add` with no flags launches the Ink wizard: it asks for provider, API key, and what to copy from your existing `~/.claude` config. Pass `--skip-prompts` or any flag to skip the wizard and run non-interactively.
+
 ## Quick start
 
 ```bash
 claude-multi add glm --provider glm --api-key "sk-..."
 claude-glm
 ```
-
-Or run `claude-multi add glm` for an interactive prompt.
 
 ## Commands
 

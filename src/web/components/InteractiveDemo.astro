@@ -1,0 +1,259 @@
+---
+// Animated mockup of the `claude-multi interactive` TUI.
+// Pure CSS — cycles through main menu → add-instance flow → done.
+// Six 4s frames = 24s total loop.
+---
+
+<div class="reveal terminal demo-terminal">
+  <div class="terminal-header">
+    <span class="terminal-dot bg-[#ff5f57]"></span>
+    <span class="terminal-dot bg-[#febc2e]"></span>
+    <span class="terminal-dot bg-[#28c840]"></span>
+    <span class="terminal-title">claude-multi interactive</span>
+  </div>
+
+  <div class="demo-body">
+    <div class="demo-header">
+      <span class="demo-title">🤖 Claude Multi</span>
+      <span class="demo-sub">Interactive Mode</span>
+    </div>
+
+    <div class="demo-stage">
+      <!-- Frame 1 — main menu -->
+      <div class="demo-frame demo-frame-1">
+        <div class="demo-line demo-dim">2 instance(s): glm, dsv3</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line demo-selected">▸ ➕ Add new instance</div>
+        <div class="demo-line">&nbsp;&nbsp;📋 List all instances</div>
+        <div class="demo-line">&nbsp;&nbsp;ℹ️&nbsp; Instance details</div>
+        <div class="demo-line">&nbsp;&nbsp;🔌 Manage plugins</div>
+        <div class="demo-line">&nbsp;&nbsp;🔄 Toggle auto-sync</div>
+        <div class="demo-line">&nbsp;&nbsp;🚪 Exit</div>
+      </div>
+
+      <!-- Frame 2 — name -->
+      <div class="demo-frame demo-frame-2">
+        <div class="demo-line demo-step">Step 1 / 6 · Instance Name</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line demo-dim">Pick a short alias. Used as the command name.</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line">
+          <span class="demo-prompt">›</span>
+          <span class="demo-typed demo-typed-name"></span><span class="demo-caret"></span>
+        </div>
+      </div>
+
+      <!-- Frame 3 — provider -->
+      <div class="demo-frame demo-frame-3">
+        <div class="demo-line demo-step">Step 2 / 6 · Provider Template</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line demo-selected">▸ GLM</div>
+        <div class="demo-line">&nbsp;&nbsp;MiniMax</div>
+        <div class="demo-line">&nbsp;&nbsp;DeepSeek</div>
+        <div class="demo-line">&nbsp;&nbsp;Kimi</div>
+        <div class="demo-line">&nbsp;&nbsp;None (manual)</div>
+      </div>
+
+      <!-- Frame 4 — api key -->
+      <div class="demo-frame demo-frame-4">
+        <div class="demo-line demo-step">Step 3 / 6 · API Key</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line demo-dim">Stored in ~/.claude-glm/auth.json</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line">
+          <span class="demo-prompt">›</span>
+          <span class="demo-typed demo-typed-key"></span><span class="demo-caret"></span>
+        </div>
+      </div>
+
+      <!-- Frame 5 — autosync -->
+      <div class="demo-frame demo-frame-5">
+        <div class="demo-line demo-step">Step 6 / 6 · Auto-Sync</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line demo-dim">Mirror plugins &amp; MCP servers from ~/.claude on every launch?</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line">
+          <span class="demo-prompt">?</span>
+          Enable auto-sync
+          <span class="demo-dim">(Y/n) ›</span>
+          <span class="demo-ok">Y</span>
+        </div>
+      </div>
+
+      <!-- Frame 6 — done -->
+      <div class="demo-frame demo-frame-6">
+        <div class="demo-line demo-ok">✓ Instance 'glm' created successfully!</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line demo-dim">├─ Binary: /usr/local/bin/claude-glm</div>
+        <div class="demo-line demo-dim">└─ Config: ~/.claude-glm</div>
+        <div class="demo-line demo-spacer"></div>
+        <div class="demo-line">
+          <span class="demo-prompt">$</span>
+          <span class="demo-cmd">claude-glm</span><span class="demo-caret"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-footer">
+      <span>↑↓ navigate</span>
+      <span class="demo-sep">·</span>
+      <span>⏎ select</span>
+      <span class="demo-sep">·</span>
+      <span>esc back</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .demo-terminal {
+    --frame-duration: 24s;
+  }
+
+  .demo-body {
+    padding: 1rem 1.25rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #e5e7eb;
+  }
+
+  .demo-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    margin-bottom: 0.6rem;
+  }
+  .demo-title {
+    color: var(--color-lime);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .demo-sub {
+    color: var(--color-text-mute);
+    font-size: 0.7rem;
+  }
+
+  .demo-stage {
+    position: relative;
+    height: 11.5rem;
+  }
+
+  .demo-frame {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(6px);
+    animation: demo-frame-cycle var(--frame-duration) ease-in-out infinite;
+  }
+  .demo-frame-1 { animation-delay: 0s; }
+  .demo-frame-2 { animation-delay: 4s; }
+  .demo-frame-3 { animation-delay: 8s; }
+  .demo-frame-4 { animation-delay: 12s; }
+  .demo-frame-5 { animation-delay: 16s; }
+  .demo-frame-6 { animation-delay: 20s; }
+
+  @keyframes demo-frame-cycle {
+    0%, 1%   { opacity: 0; transform: translateY(6px); }
+    3%, 16%  { opacity: 1; transform: translateY(0); }
+    18%, 100% { opacity: 0; transform: translateY(-4px); }
+  }
+
+  .demo-line {
+    white-space: pre;
+  }
+  .demo-spacer { height: 0.4rem; }
+  .demo-dim { color: var(--color-text-mute); }
+  .demo-ok { color: var(--color-lime); }
+  .demo-step {
+    color: #7dd3fc;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .demo-prompt { color: var(--color-lime); margin-right: 0.4rem; }
+  .demo-cmd { color: #7dd3fc; }
+
+  .demo-selected {
+    color: var(--color-lime);
+    text-shadow: 0 0 8px rgba(163, 230, 53, 0.4);
+  }
+
+  .demo-caret {
+    display: inline-block;
+    width: 6px;
+    height: 0.95em;
+    background: var(--color-lime);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    box-shadow: 0 0 6px var(--color-lime);
+    animation: demo-blink 0.9s steps(2, end) infinite;
+  }
+
+  @keyframes demo-blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  /* Typewriter — tight steps inside each frame's visible window */
+  .demo-typed {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+  .demo-typed-name {
+    width: 0;
+    color: #fbbf24;
+    animation: demo-typed-name var(--frame-duration) linear infinite;
+  }
+  .demo-typed-name::before { content: "glm"; }
+
+  .demo-typed-key {
+    width: 0;
+    color: #f9a8d4;
+    animation: demo-typed-key var(--frame-duration) linear infinite;
+  }
+  .demo-typed-key::before { content: "••••••••••••"; }
+
+  /* Frame 2 visible window ≈ 17% → 33%. Type during 17% → 20% (~0.72s). */
+  @keyframes demo-typed-name {
+    0%, 17%   { width: 0; animation-timing-function: steps(3, end); }
+    20%       { width: 2.4ch; animation-timing-function: step-end; }
+    33%       { width: 2.4ch; }
+    33.01%, 100% { width: 0; }
+  }
+
+  /* Frame 4 visible window ≈ 50% → 66%. Type during 50% → 55% (~1.2s). */
+  @keyframes demo-typed-key {
+    0%, 50%   { width: 0; animation-timing-function: steps(12, end); }
+    55%       { width: 12ch; animation-timing-function: step-end; }
+    66%       { width: 12ch; }
+    66.01%, 100% { width: 0; }
+  }
+
+  .demo-footer {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    color: var(--color-text-mute);
+    font-size: 0.68rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .demo-sep { opacity: 0.4; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .demo-frame,
+    .demo-typed,
+    .demo-caret {
+      animation: none;
+    }
+    .demo-frame-1 { opacity: 1; transform: none; }
+    .demo-frame-2, .demo-frame-3, .demo-frame-4, .demo-frame-5, .demo-frame-6 {
+      display: none;
+    }
+  }
+</style>

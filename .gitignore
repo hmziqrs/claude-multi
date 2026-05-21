@@ -42,3 +42,7 @@ test-bin
 
 screenshots
 .astro/
+
+# Video production (HyperFrames / Kokoro TTS)
+recordings/
+.claude/worktrees/

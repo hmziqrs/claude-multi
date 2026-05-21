@@ -48,6 +48,8 @@
     "execa": "^9.6.1",
     "ink-testing-library": "^4.0.0",
     "playwright": "^1.60.0",
+    "puppeteer": "^25.0.4",
+    "puppeteer-screen-recorder": "^3.0.6",
     "react-devtools-core": "^7.0.1"
   },
   "dependencies": {

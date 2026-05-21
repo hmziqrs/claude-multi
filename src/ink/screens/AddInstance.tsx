@@ -76,12 +76,12 @@ function stepNumber(step: Step): number {
   return STEP_ORDER.indexOf(step) + 1;
 }
 
-export const AddInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }> = ({ onBack, initialName }) => {
   const { exit } = useApp();
   const cfg = useConfig();
 
-  const [step, setStep] = useState<Step>("name");
-  const [name, setName] = useState("");
+  const [step, setStep] = useState<Step>(initialName ? "provider-select" : "name");
+  const [name, setName] = useState(initialName ?? "");
   const [error, setError] = useState("");
   const [useProvider, setUseProvider] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);

@@ -177,63 +177,51 @@ program
             copyMcpServers = true;
           }
           // skipPrompts means start fresh (both false)
-        } else if (hasDefaultConfig || hasDefaultMcp) {
-          // Interactive mode
-          console.log(
-            chalk.gray(
-              "\nFound existing Claude Code configuration at ~/.claude",
-            ),
-          );
-
-          const choices = [{ title: "Nothing - start fresh", value: CopyOption.None }];
-
-          if (hasDefaultConfig) {
-            choices.push({ title: "Only settings.json", value: CopyOption.Settings });
+        } else {
+          // No flags — launch the Ink interactive wizard
+          const useInk = process.env.CLAUDE_MULTI_INK !== "false";
+          if (useInk) {
+            try {
+              const { render } = await import("ink");
+              const React = await import("react");
+              const { AddInstance } = await import("./ink/screens/AddInstance.js");
+              const { waitUntilExit } = render(
+                React.createElement(AddInstance, { onBack: () => process.exit(0), initialName: name }),
+              );
+              await waitUntilExit();
+              return;
+            } catch (inkError: unknown) {
+              console.error(chalk.yellow(`Ink UI unavailable, falling back to prompts: ${toMessage(inkError)}`));
+            }
           }
 
-          if (hasDefaultMcp) {
-            choices.push({ title: "Only MCP servers", value: CopyOption.Mcp });
-          }
+          // Prompts fallback
+          if (hasDefaultConfig || hasDefaultMcp) {
+            console.log(chalk.gray("\nFound existing Claude Code configuration at ~/.claude"));
 
-          if (hasDefaultConfig && hasDefaultMcp) {
-            choices.push({
-              title: "Settings + MCP servers",
-              value: CopyOption.SettingsAndMcp,
-            });
-          }
+            const choices = [{ title: "Nothing - start fresh", value: CopyOption.None }];
+            if (hasDefaultConfig) choices.push({ title: "Only settings.json", value: CopyOption.Settings });
+            if (hasDefaultMcp) choices.push({ title: "Only MCP servers", value: CopyOption.Mcp });
+            if (hasDefaultConfig && hasDefaultMcp) choices.push({ title: "Settings + MCP servers", value: CopyOption.SettingsAndMcp });
+            if (hasDefaultConfig) choices.push({ title: "All files (settings, CLAUDE.md, plugins, etc.)", value: CopyOption.All });
 
-          if (hasDefaultConfig) {
-            choices.push({
-              title: "All files (settings, CLAUDE.md, plugins, etc.)",
-              value: CopyOption.All,
-            });
-          }
-
-          const response = await prompts([
-            {
+            const response = await prompts([{
               type: "select",
               name: "copyOption",
               message: "What would you like to copy from default Claude?",
               choices,
               initial: 1,
-            },
-          ]);
+            }]);
 
-          // Handle Ctrl+C
-          if (response.copyOption === undefined) {
-            console.log(chalk.yellow("\n✗ Cancelled"));
-            exitWithCode(0);
+            if (response.copyOption === undefined) {
+              console.log(chalk.yellow("\n✗ Cancelled"));
+              exitWithCode(0);
+            }
+
+            copySettings = response.copyOption === CopyOption.Settings || response.copyOption === CopyOption.SettingsAndMcp || response.copyOption === CopyOption.All;
+            copyMcpServers = response.copyOption === CopyOption.Mcp || response.copyOption === CopyOption.SettingsAndMcp || response.copyOption === CopyOption.All;
+            copyAllFiles = response.copyOption === CopyOption.All;
           }
-
-          copySettings =
-            response.copyOption === CopyOption.Settings ||
-            response.copyOption === CopyOption.SettingsAndMcp ||
-            response.copyOption === CopyOption.All;
-          copyMcpServers =
-            response.copyOption === CopyOption.Mcp ||
-            response.copyOption === CopyOption.SettingsAndMcp ||
-            response.copyOption === CopyOption.All;
-          copyAllFiles = response.copyOption === CopyOption.All;
         }
 
         const instance: Instance = {
