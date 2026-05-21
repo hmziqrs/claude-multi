@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 8 56 48" fill="none">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9f99d"/>
+      <stop offset="1" stop-color="#65a30d"/>
+    </linearGradient>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="shadow" x="-20%" y="-10%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#65a30d" flood-opacity=".35"/>
+    </filter>
+
+    <clipPath id="card-clip">
+      <rect x="20" y="16" width="28" height="22" rx="5"/>
+    </clipPath>
+
+    <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".48" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".45"/>
+      <stop offset=".52" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="-1.5 -1.5;1.5 1.5;-1.5 -1.5" dur="3s" repeatCount="indefinite"/>
+    </linearGradient>
+
+    <radialGradient id="ambientGlow" cx=".5" cy=".5" r=".6">
+      <stop offset="0" stop-color="#65a30d" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#65a30d" stop-opacity="0"/>
+    </radialGradient>
+
+    <style>
+      @keyframes stack-back {
+        0%   { transform: translate(8px, 10px) rotate(6deg); opacity: 0; }
+        15%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        85%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      }
+      @keyframes stack-mid {
+        0%   { transform: translate(4px, 6px) rotate(4deg); opacity: 0; }
+        8%   { transform: translate(4px, 6px) rotate(4deg); opacity: 0; }
+        22%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        85%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      }
+      @keyframes stack-front {
+        0%   { transform: translate(0px, 3px) rotate(2deg); opacity: 0; }
+        16%  { transform: translate(0px, 3px) rotate(2deg); opacity: 0; }
+        30%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        85%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      }
+
+      @keyframes float-back {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-1.6px); }
+      }
+      @keyframes float-mid {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-1px); }
+      }
+      @keyframes float-front {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-0.5px); }
+      }
+
+      @keyframes pulse-green  { 0%, 100% { stroke-opacity: .5; } 50% { stroke-opacity: 1; } }
+      @keyframes pulse-purple { 0%, 100% { stroke-opacity: .6; } 50% { stroke-opacity: 1; } }
+      @keyframes pulse-blue   { 0%, 100% { stroke-opacity: .7; } 50% { stroke-opacity: 1; } }
+
+      @keyframes glow-pulse {
+        0%, 100% { opacity: .3; transform: scale(1); }
+        50% { opacity: .7; transform: scale(1.15); }
+      }
+
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+
+      .layer-back {
+        animation:
+          stack-back 5s ease-out infinite,
+          float-back 3s ease-in-out infinite 5s,
+          pulse-green 3s ease-in-out infinite;
+      }
+      .layer-mid {
+        animation:
+          stack-mid 5s ease-out infinite,
+          float-mid 3s ease-in-out infinite 5.3s,
+          pulse-purple 3s ease-in-out infinite .3s;
+      }
+      .layer-front {
+        animation:
+          stack-front 5s ease-out infinite,
+          float-front 3s ease-in-out infinite 5.6s,
+          pulse-blue 3s ease-in-out infinite .6s;
+      }
+      .ambient {
+        animation: glow-pulse 3s ease-in-out infinite;
+        transform-origin: center;
+      }
+      .cursor {
+        animation: blink 1s step-end infinite;
+      }
+    </style>
+  </defs>
+
+  <!-- ambient glow -->
+  <ellipse cx="34" cy="30" rx="24" ry="18" fill="url(#ambientGlow)" class="ambient"/>
+
+  <!-- card layers -->
+  <g class="layer-back">
+    <rect x="10" y="22" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#6dd9a1" stroke-opacity=".6"/>
+  </g>
+  <g class="layer-mid">
+    <rect x="14" y="18" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#c79bff" stroke-opacity=".7"/>
+  </g>
+  <g class="layer-front" filter="url(#shadow)">
+    <rect x="18" y="14" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#7aa7ff" stroke-opacity=".8"/>
+  </g>
+
+  <!-- brand card -->
+  <g filter="url(#glow)">
+    <rect x="20" y="16" width="28" height="22" rx="5" fill="url(#brandGrad)"/>
+  </g>
+
+  <!-- glare sweep over card -->
+  <rect x="20" y="16" width="28" height="22" rx="5" fill="url(#glare)" clip-path="url(#card-clip)"/>
+
+  <!-- terminal prompt -->
+  <path d="M28 22 L34 27 L28 32" stroke="#0c0c0f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="36" y1="32" x2="42" y2="32" stroke="#0c0c0f" stroke-width="2.4" stroke-linecap="round" class="cursor"/>
+</svg>
