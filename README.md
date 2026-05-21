@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/favicon-animated.svg" width="64" height="64" alt="claude-multi logo">
+<img src="public/favicon-animated.svg" width="256" height="256" alt="claude-multi logo">
 
 # claude-multi
 
