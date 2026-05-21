@@ -1,4 +1,10 @@
+<div align="center">
+
+<img src="public/favicon-animated.svg" width="64" height="64" alt="claude-multi logo">
+
 # claude-multi
+
+</div>
 
 Run multiple Claude Code instances side by side — each with its own provider, config, and `claude-<name>` command.
 
