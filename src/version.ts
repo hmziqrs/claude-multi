@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
+import { detectPackageManager } from "@/util/runtime";
 
 export interface VersionInfo {
   current: string | null;
@@ -59,22 +60,37 @@ export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInf
  * Upgrades claude-multi to the latest version
  */
 export function upgradeClaudeMulti(): void {
-  execSync("bun upgrade -g claude-multi", { stdio: "inherit" });
+  const pm = detectPackageManager();
+  const commands: Record<typeof pm, string> = {
+    bun: "bun upgrade -g claude-multi",
+    npm: "npm update -g claude-multi",
+    pnpm: "pnpm update -g claude-multi",
+    deno: "deno install --reload -g npm:claude-multi",
+  };
+  execSync(commands[pm], { stdio: "inherit" });
 }
 
 /**
  * Gets the currently installed version of @anthropic-ai/claude-code
  */
 export function getCurrentVersion(): string | null {
+  const pm = detectPackageManager();
   try {
-    const output = execSync("bun pm ls -g @anthropic-ai/claude-code --json", {
+    if (pm === 'deno') return null;
+
+    const commands: Record<Exclude<typeof pm, 'deno'>, string> = {
+      bun: "bun pm ls -g --json",
+      npm: "npm ls -g --json @anthropic-ai/claude-code",
+      pnpm: "pnpm ls -g --json",
+    };
+    const output = execSync(commands[pm as Exclude<typeof pm, 'deno'>], {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "ignore"],
     });
     const data = JSON.parse(output);
-    const version =
-      data.dependencies?.["@anthropic-ai/claude-code"]?.version;
-    return version || null;
+    // pnpm returns an array, npm/bun return an object
+    const root = Array.isArray(data) ? data[0] : data;
+    return root?.dependencies?.["@anthropic-ai/claude-code"]?.version ?? null;
   } catch {
     return null;
   }
@@ -85,14 +101,9 @@ export function getCurrentVersion(): string | null {
  */
 export async function getLatestVersion(): Promise<string> {
   try {
-    const output = execSync(
-      "bun pm npm view @anthropic-ai/claude-code version",
-      {
-        encoding: "utf-8",
-        stdio: ["pipe", "pipe", "ignore"],
-      }
-    );
-    return output.trim();
+    const response = await fetch("https://registry.npmjs.org/@anthropic-ai/claude-code/latest");
+    const data = await response.json() as { version: string };
+    return data.version;
   } catch (err: unknown) {
     throw new ClaudeMultiError(ErrorCode.VERSION_CHECK_FAILED, `Failed to fetch latest version from npm registry: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
@@ -135,11 +146,16 @@ export function compareVersions(v1: string, v2: string): number {
  * Updates @anthropic-ai/claude-code to the latest version
  */
 export async function updateClaudeCode(): Promise<void> {
+  const pm = detectPackageManager();
+  const commands: Record<typeof pm, string> = {
+    bun: "bun install -g @anthropic-ai/claude-code@latest",
+    npm: "npm install -g @anthropic-ai/claude-code@latest",
+    pnpm: "pnpm add -g @anthropic-ai/claude-code@latest",
+    deno: "deno install --reload -g npm:@anthropic-ai/claude-code@latest",
+  };
   try {
     console.log("Updating @anthropic-ai/claude-code...");
-    execSync("bun install -g @anthropic-ai/claude-code@latest", {
-      stdio: "inherit",
-    });
+    execSync(commands[pm], { stdio: "inherit" });
     console.log("Update completed successfully!");
   } catch (err: unknown) {
     throw new ClaudeMultiError(ErrorCode.UPDATE_FAILED, `Failed to update @anthropic-ai/claude-code: ${err instanceof Error ? err.message : String(err)}`, { cause: err });

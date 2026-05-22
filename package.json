@@ -1,16 +1,14 @@
 {
   "name": "claude-multi",
-  "version": "0.5.1",
+  "version": "0.5.5",
   "description": "Manage multiple Claude Code instances with different aliases and configurations",
   "type": "module",
   "bin": {
     "claude-multi": "./dist/cli.js"
   },
   "scripts": {
-    "build": "bun build src/cli.ts --outdir dist --target bun --format esm && chmod +x dist/cli.js",
-    "build:ink": "bun build src/ink/main.tsx --outfile dist/ink-cli.js --target bun --format esm && chmod +x dist/ink-cli.js",
+    "build": "bun build src/cli.ts --outdir dist --target node --format esm && chmod +x dist/cli.js",
     "dev": "bun run src/cli.ts",
-    "dev:ink": "bun run src/ink/main.tsx",
     "test": "bun test",
     "prepublishOnly": "bun run build",
     "test:binary": "./dist/cli.js",
@@ -42,28 +40,26 @@
     "@anthropic-ai/claude-code": ">=2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/prompts": "^2.4.9",
-    "@types/react": "^19.2.14",
-    "bun-types": "latest",
-    "execa": "^9.6.1",
-    "ink-testing-library": "^4.0.0",
-    "playwright": "^1.60.0",
-    "puppeteer": "^25.0.4",
-    "puppeteer-screen-recorder": "^3.0.6",
-    "react-devtools-core": "^7.0.1"
-  },
-  "dependencies": {
     "@astrojs/starlight": "^0.39.2",
     "@astrojs/tailwind": "^6.0.2",
     "@inkjs/ui": "^2.0.0",
     "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
+    "@types/react": "^19.2.14",
     "astro": "^6.3.3",
+    "bun-types": "latest",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
+    "execa": "^9.6.1",
     "ink": "^7.0.2",
+    "ink-testing-library": "^4.0.0",
+    "playwright": "^1.60.0",
     "prompts": "^2.4.2",
+    "puppeteer": "^25.0.4",
+    "puppeteer-screen-recorder": "^3.0.6",
     "react": "^19.2.6",
+    "react-devtools-core": "^7.0.1",
     "tailwindcss": "^4.3.0",
     "three": "^0.184.0"
   },

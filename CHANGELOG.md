@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.5] - 2026-05-22
+
+### Added
+- **Runtime detection** (`src/util/runtime.ts`): `detectPackageManager()` identifies the active package manager (bun / npm / pnpm / deno) at runtime
+
+### Changed
+- **Cross-runtime support**: all package-manager operations (`upgradeClaudeMulti`, `getCurrentVersion`, `updateClaudeCode`) now use the detected package manager instead of hard-coding bun commands
+- `getLatestVersion()` replaced `bun pm npm view` with a direct `fetch()` to the npm registry — works in any runtime
+- `getDefaultBinaryPath()` selects the correct global bin directory for the active package manager on Windows (was always `%LOCALAPPDATA%\bun\bin`)
+- Generated wrapper shebang changed from `#!/usr/bin/env bun` to `#!/usr/bin/env node`
+- Default action (no subcommand) always launches the Ink TUI and awaits `waitUntilExit()` — the `CLAUDE_MULTI_INK=false` prompts fallback is removed
+- Update check is now **opt-in**: set `CLAUDE_MULTI_UPDATE_CHECK=true` to enable; it no longer runs on every invocation
+- Removed `interactive` / `i` command alias (default action covers this)
+
+### Fixed
+- `AddInstance` provider selection: choosing "None" now correctly resets `selectedProvider` to `null` and sets `useProvider` to `false`; choosing a provider correctly sets `useProvider` to `true`
+- `getCurrentVersion()` handles pnpm's array-shaped JSON response
+
+### CI
+- Publish workflow: skip git tag creation when the tag already exists remotely
+- Publish workflow: make git tagging optional via workflow input
+- Switch publish workflow from bun to npm with OIDC trusted publishing (no token)
+- Update Node.js to 24.x in CI and deployment workflows
+- Add `ci:publish` script to trigger versioned publish from local
+
 ## [0.5.1] - 2026-05-22
 
 ### Changed
@@ -231,6 +256,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.5.5]: https://github.com/hmziqrs/claude-multi/compare/v0.5.1...v0.5.5
+[0.5.1]: https://github.com/hmziqrs/claude-multi/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/hmziqrs/claude-multi/compare/v0.4.4...v0.5.0
 [0.4.4]: https://github.com/hmziqrs/claude-multi/compare/v0.4.3...v0.4.4
 [0.3.0]: https://github.com/hmziqrs/claude-multi/compare/v0.2.0...v0.3.0

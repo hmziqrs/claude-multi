@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { Command } from "commander";
 import chalk from "chalk";
@@ -82,7 +82,7 @@ const program = new Command();
 program
   .name("claude-multi")
   .description("Manage multiple Claude Code instances with different aliases")
-  .version("0.5.1");
+  .version("0.5.5");
 
 // Add command
 program
@@ -896,37 +896,6 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
   console.log(chalk.bold("\n✨ Done!"));
 }
 
-// Interactive mode command
-program
-  .command("interactive")
-  .alias("i")
-  .description("Launch interactive mode for managing Claude Code instances")
-  .action(async () => {
-    const useInk = process.env.CLAUDE_MULTI_INK !== "false";
-    if (useInk) {
-      try {
-        const { render } = await import("ink");
-        const React = await import("react");
-        const { App } = await import("./ink/App.js");
-        render(React.createElement(App));
-      } catch (error: unknown) {
-        console.error(chalk.red(`Ink UI failed, falling back to prompts: ${toMessage(error)}`));
-        try {
-          await runInteractiveMode();
-        } catch (err2: unknown) {
-          console.error(chalk.red(`✗ Error: ${err2 instanceof Error ? err2.message : String(err2)}`));
-          exitWithCode(1);
-        }
-      }
-    } else {
-      try {
-        await runInteractiveMode();
-      } catch (error: unknown) {
-        console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-        exitWithCode(1);
-      }
-    }
-  });
 
 async function runInteractiveMode(): Promise<void> {
   console.log(chalk.bold.cyan("\n🤖 Claude Multi - Interactive Mode"));
@@ -1794,36 +1763,29 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
 
 // Default action: launch interactive mode when no subcommand is given
 program.action(async () => {
-  const useInk = process.env.CLAUDE_MULTI_INK !== "false";
-  if (useInk) {
-    try {
-      const { render } = await import("ink");
-      const React = await import("react");
-      const { App } = await import("./ink/App.js");
-      render(React.createElement(App));
-    } catch (error: unknown) {
-      console.error(chalk.red(`Ink UI failed, falling back to prompts: ${toMessage(error)}`));
-      try {
-        await runInteractiveMode();
-      } catch (err2: unknown) {
-        console.error(chalk.red(`✗ Error: ${err2 instanceof Error ? err2.message : String(err2)}`));
-        exitWithCode(1);
-      }
-    }
-  } else {
-    try {
-      await runInteractiveMode();
-    } catch (error: unknown) {
-      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
-      exitWithCode(1);
-    }
+  skipGlobalUpdateCheck = true;
+  try {
+    const { render } = await import("ink");
+    const React = await import("react");
+    const { App } = await import("./ink/App.js");
+    const { waitUntilExit } = render(React.createElement(App));
+    await waitUntilExit();
+  } catch (error: unknown) {
+    console.error(chalk.red(`✗ Error launching interactive mode: ${toMessage(error)}`));
+    exitWithCode(1);
+  }
+  if (process.env.CLAUDE_MULTI_UPDATE_CHECK === "true") {
+    await runUpdateCheck().catch(() => {});
   }
 });
+
+// Suppressed by interactive commands — they run the check after Ink exits
+let skipGlobalUpdateCheck = false;
 
 // Parse arguments
 program.parse();
 
-// Update check for claude-multi
+// Update check — disabled by default, set CLAUDE_MULTI_UPDATE_CHECK=true to enable
 async function runUpdateCheck() {
   try {
     const updateInfo = await checkForClaudeMultiUpdates();
@@ -1849,9 +1811,11 @@ async function runUpdateCheck() {
       }
     }
   } catch {
-    // Silent fail - don't interrupt CLI usage
+    // Silent fail — never interrupt CLI usage
   }
 }
 
-// Start update check (non-blocking)
-runUpdateCheck().catch(() => {});
+if (!skipGlobalUpdateCheck && process.env.CLAUDE_MULTI_UPDATE_CHECK === "true") {
+  runUpdateCheck().catch(() => {});
+}
+

@@ -134,9 +134,11 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   const handleProviderSelect = useCallback((value: string) => {
     if (value === CopyOption.None) {
       setUseProvider(false);
+      setSelectedProvider(null);
       setStep("paths-confirm");
       return;
     }
+    setUseProvider(true);
     setSelectedProvider(value);
     setStep("provider-apikey");
   }, []);
