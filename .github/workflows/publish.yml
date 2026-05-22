@@ -47,10 +47,9 @@ jobs:
           bun dist/cli.js --version
 
       - name: Publish to NPM
-        run: bun publish --provenance --access public
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Get package name
         id: package
