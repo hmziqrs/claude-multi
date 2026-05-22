@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-05-22
+
+### Changed
+- **Interactive-first launch**: Running `claude-multi` with no arguments now opens the Ink TUI directly instead of printing help text
+  - CLI subcommands (`add`, `remove`, `list`, etc.) continue to work as before
+  - `--help` and `--version` flags are unaffected
+  - `CLAUDE_MULTI_INK=false` still falls back to the `prompts`-based interactive mode
+
 ## [0.5.0] - 2026-05-14
 
 ### Added
