@@ -9,9 +9,9 @@ interface Props {
 }
 
 const SITE = 'https://claudemutli.hmziq.xyz';
-const DEFAULT_TITLE = 'claude-multi — Manage Claude Code across providers';
+const DEFAULT_TITLE = 'claude-multi: Run Claude Code across providers';
 const DEFAULT_DESC =
-  'Manage multiple Claude Code instances with different AI providers and configurations';
+  'Run multiple Claude Code instances with different AI providers and isolated configurations';
 
 const {
   title = DEFAULT_TITLE,
@@ -218,9 +218,9 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
               <span class="text-base font-bold">claude-multi</span>
             </div>
             <p class="text-sm text-text-mute max-w-xs leading-relaxed">
-              One CLI to manage every Claude Code instance — Anthropic, GLM,
-              MiniMax, DeepSeek. Isolated configs, synced plugins, zero
-              conflict.
+              Run Claude Code against Anthropic, GLM,
+              MiniMax, and DeepSeek from the same machine. Each instance
+              is isolated. Plugins sync automatically.
             </p>
           </div>
           <div>

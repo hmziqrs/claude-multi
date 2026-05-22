@@ -4,7 +4,7 @@ description: Manage multiple Claude Code instances with different AI providers a
 template: splash
 hero:
   title: claude-multi
-  tagline: One CLI to manage multiple Claude Code instances — each with its own provider, config, and history.
+  tagline: Run multiple Claude Code instances, each with its own provider, config, and history.
   actions:
     - text: Get Started
       link: /docs/getting-started/

@@ -2,8 +2,8 @@
 import Layout from '../layouts/MarketingLayout.astro';
 import { latestVersion, releases } from '../util/changelog';
 
-const title = 'About claude-multi — open-source CLI for managing Claude Code instances';
-const description = 'The story behind claude-multi: why it exists, the design philosophy of isolated configs with shared plugins, and the providers it supports today.';
+const title = 'About claude-multi: open-source CLI for managing Claude Code instances';
+const description = 'Why claude-multi exists, how isolated configs with shared plugins work, and which providers are supported.';
 const totalReleases = releases.length;
 ---
 <Layout title={title} description={description}>
@@ -22,7 +22,7 @@ const totalReleases = releases.length;
           One CLI. <span class="gradient-text">Every model.</span>
         </h1>
         <p class="mt-6 text-lg sm:text-xl text-text-dim max-w-xl mx-auto leading-relaxed">
-          claude-multi is an open-source command-line tool that lets you run multiple Claude Code instances side-by-side — each pointing at a different AI provider, with its own isolated configuration.
+          claude-multi is a CLI that runs multiple Claude Code instances side-by-side. Each is pointed at a different AI provider with its own config directory.
         </p>
       </div>
     </div>
@@ -38,10 +38,10 @@ const totalReleases = releases.length;
         </h2>
         <div class="mt-6 space-y-5 text-text-dim leading-relaxed text-[0.98rem]">
           <p>
-            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code> — settings, MCP servers, plugins, skills, and history. The moment you want to try a second model, share plugins between an experimental setup and your primary one, or A/B two providers on the same project, you start juggling environment variables, copying files around, and silently losing context.
+            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>: settings, MCP servers, plugins, skills, and history. The moment you want to try a second model, share plugins between an experimental setup and your primary one, or A/B two providers on the same project, you start juggling environment variables, copying files around, and silently losing context.
           </p>
           <p>
-            claude-multi treats every provider as a first-class citizen. One alias per provider — <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code> — each rooted at its own directory under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills sync from your primary install through symlinks, so you maintain them in one place and they're available everywhere.
+            claude-multi gives every provider its own alias and config directory. One alias per provider (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code>), each rooted under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills symlink from your primary install, so you maintain them in one place.
           </p>
           <p>
             No daemons. No background services. No telemetry. Every "instance" is a real directory you can <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code> into and inspect with the tools you already use.
@@ -78,7 +78,7 @@ const totalReleases = releases.length;
           </div>
           <h3 class="text-lg font-semibold mb-2">Native passthrough</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Each alias is a thin wrapper around the official <code class="font-mono text-lime text-xs">claude</code> binary. Every flag, every command, every keybinding — unchanged.
+            Each alias is a thin wrapper around the official <code class="font-mono text-lime text-xs">claude</code> binary. Every flag, every command, every keybinding, unchanged.
           </p>
         </div>
 
@@ -88,7 +88,7 @@ const totalReleases = releases.length;
           </div>
           <h3 class="text-lg font-semibold mb-2">Templates over docs</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Provider templates ship pre-configured with the right base URLs, model mappings, and defaults. Drop in your API key and go.
+            Provider templates come with the right base URLs, model mappings, and defaults. Drop in your API key and go.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ const totalReleases = releases.length;
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">2</span>
-              <span>Provider-specific env vars (base URL, model mappings) are merged into the instance's settings — without ever modifying your primary <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>.</span>
+              <span>Provider-specific env vars (base URL, model mappings) are merged into the instance's settings, without modifying your primary <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">3</span>
@@ -136,7 +136,7 @@ const totalReleases = releases.length;
             </li>
           </ol>
           <p class="pt-2">
-            That's the whole trick. No proxy, no monkey-patching, no daemon — just a config-dir environment variable and a symlink graph.
+            That's the whole trick. No proxy, no monkey-patching, no daemon. Just a config-dir environment variable and a symlink graph.
           </p>
         </div>
       </div>
@@ -183,7 +183,7 @@ const totalReleases = releases.length;
           <span class="eyebrow">// Author</span>
           <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Built by <span class="gradient-text">hmziqrs.</span></h2>
           <p class="mt-5 text-text-dim leading-relaxed text-[0.98rem] max-w-xl">
-            Independent developer. Builds open-source tooling around developer workflows. claude-multi started as a personal frustration with switching providers mid-day and grew into the tool you see now.
+            Independent developer, builds open-source tooling for developer workflows. claude-multi started because switching providers mid-day was annoying and nothing else solved it cleanly.
           </p>
           <div class="mt-7 flex flex-wrap gap-3">
             <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="btn-primary">
@@ -207,7 +207,7 @@ const totalReleases = releases.length;
       <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
         Ready to try it?
       </h2>
-      <p class="mt-4 text-text-dim text-lg">One npm install, three commands, and you're running every Claude.</p>
+      <p class="mt-4 text-text-dim text-lg">One npm install, a couple of commands, and you're running every Claude.</p>
       <div class="mt-7 flex gap-3 justify-center flex-wrap">
         <a href="/docs/getting-started/" class="btn-primary">
           Get started

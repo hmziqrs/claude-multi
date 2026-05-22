@@ -13,7 +13,7 @@ const highlight = latestHighlight();
         <div>
           <a href="/docs/changelog/" class="badge no-underline reveal">
             <span class="badge-dot"></span>
-            <span class="text-text-dim">v{latestVersion} — now with {highlight}</span>
+            <span class="text-text-dim">v{latestVersion}: now with {highlight}</span>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-lime" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
           </a>
 
@@ -24,7 +24,7 @@ const highlight = latestHighlight();
           </h1>
 
           <p class="reveal mt-7 text-lg sm:text-xl text-text-dim max-w-xl leading-relaxed">
-            Spin up isolated Claude Code instances across Anthropic, GLM, MiniMax, and DeepSeek — each with its own config, plugins, and history. No more juggling environment variables.
+            Run Claude Code against Anthropic, GLM, MiniMax, and DeepSeek from the same machine. Each with its own config, plugins, and history. Same CLI, no overlap.
           </p>
 
           <div class="reveal mt-10 flex gap-3 flex-wrap">
@@ -49,7 +49,7 @@ const highlight = latestHighlight();
             </span>
             <span class="flex items-center gap-1.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-lime)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-              Zero config conflicts
+              No shared state between instances
             </span>
           </div>
         </div>
@@ -68,7 +68,7 @@ const highlight = latestHighlight();
               <span class="terminal-dot bg-[#ff5f57]"></span>
               <span class="terminal-dot bg-[#febc2e]"></span>
               <span class="terminal-dot bg-[#28c840]"></span>
-              <span class="terminal-title">~/projects — claude-multi</span>
+              <span class="terminal-title">~/projects: claude-multi</span>
             </div>
             <div class="terminal-body">
               <span class="term-prompt">$</span> <span class="term-cmd">claude-multi add</span> <span class="term-arg">glm</span> --provider glm<br/>
@@ -93,7 +93,7 @@ const highlight = latestHighlight();
           One command. <span class="gradient-text">Any runtime.</span>
         </h2>
         <p class="mt-5 text-text-dim max-w-xl mx-auto">
-          Distributed on npm — install globally with whichever package manager you already use. No curl-pipe-sh, no platform binaries to babysit.
+          On npm. Install globally with whichever package manager you already use. No curl-pipe-sh, no platform binaries.
         </p>
       </div>
 
@@ -194,12 +194,12 @@ const highlight = latestHighlight();
           <div class="text-xs uppercase tracking-wider text-text-mute mt-1">Providers</div>
         </div>
         <div class="text-center sm:text-left">
-          <div class="stat-num text-3xl sm:text-4xl">∞</div>
-          <div class="text-xs uppercase tracking-wider text-text-mute mt-1">Instances</div>
+          <div class="stat-num text-3xl sm:text-4xl">12</div>
+          <div class="text-xs uppercase tracking-wider text-text-mute mt-1">Plugins linked</div>
         </div>
         <div class="text-center sm:text-left">
-          <div class="stat-num text-3xl sm:text-4xl">30s</div>
-          <div class="text-xs uppercase tracking-wider text-text-mute mt-1">To set up</div>
+          <div class="stat-num text-3xl sm:text-4xl">2</div>
+          <div class="text-xs uppercase tracking-wider text-text-mute mt-1">Commands to start</div>
         </div>
         <div class="text-center sm:text-left">
           <div class="stat-num text-3xl sm:text-4xl">0</div>
@@ -215,10 +215,10 @@ const highlight = latestHighlight();
       <div class="reveal text-center mb-14">
         <span class="eyebrow">// Features</span>
         <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Built for <span class="gradient-text">multi-model</span> workflows.
+          For when one model <span class="gradient-text">isn't enough.</span>
         </h2>
         <p class="mt-4 text-text-dim text-lg max-w-2xl mx-auto">
-          Stop juggling environment variables and overwriting <code class="font-mono text-lime">.claude</code> directories every time you switch models.
+          Stop overwriting your <code class="font-mono text-lime">.claude</code> directory every time you switch models.
         </p>
       </div>
 
@@ -235,7 +235,7 @@ const highlight = latestHighlight();
             </div>
             <h3 class="text-2xl font-bold mb-3">Multi-Provider, one CLI</h3>
             <p class="text-text-dim leading-relaxed max-w-md">
-              Pre-configured templates for Anthropic, GLM, MiniMax, and DeepSeek. Each gets its own alias — <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm">claude-deepseek</code> — that just works.
+              Templates for Anthropic, GLM, MiniMax, and DeepSeek. Each gets its own alias (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm">claude-deepseek</code>) that drops into your terminal and runs.
             </p>
 
             <div class="mt-7 grid grid-cols-2 gap-2 max-w-md">
@@ -265,7 +265,7 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Isolated configs</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Each instance has its own <code class="font-mono text-lime text-xs">settings.json</code>, history, and credentials — zero cross-contamination.
+            Each instance gets its own <code class="font-mono text-lime text-xs">settings.json</code>, history, and credentials. Your Anthropic setup never touches your GLM setup.
           </p>
         </div>
 
@@ -275,7 +275,7 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Plugin sync</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Symlinks keep plugins and skills in lockstep with your primary install. Add once, use everywhere.
+            Plugins and skills symlink from your primary install. Change once, every instance sees it.
           </p>
         </div>
 
@@ -285,7 +285,7 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Native CLI</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Wraps the official <code class="font-mono text-lime text-xs">claude</code> binary — every flag, every command, no surprises.
+            Wraps the official <code class="font-mono text-lime text-xs">claude</code> binary: every flag, every command, no surprises.
           </p>
         </div>
 
@@ -295,7 +295,7 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Local credentials</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            API keys stay on disk in per-instance config files — never touch a global env you might leak.
+            API keys live in per-instance config files on disk. No global env vars, no accidental leaks.
           </p>
         </div>
       </div>
@@ -309,10 +309,10 @@ const highlight = latestHighlight();
         <div class="reveal text-center lg:text-left">
           <span class="eyebrow">// Providers</span>
           <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
-            Pre-wired for <span class="gradient-text">every model.</span>
+            Ready for <span class="gradient-text">every model.</span>
           </h2>
           <p class="mt-4 text-text-dim text-lg max-w-xl lg:max-w-none">
-            Right endpoints, right models, right defaults. Just drop in your API key — claude-multi already knows the URL, the model names, and the sensible defaults for each provider.
+            Endpoints, model names, defaults: all correct out of the box. Add your API key and go.
           </p>
         </div>
 
@@ -449,7 +449,7 @@ const highlight = latestHighlight();
             <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold bg-lime/10 border border-edge-hover text-lime">1</div>
             <div>
               <h4 class="font-semibold mb-1">Add a provider</h4>
-              <p class="text-sm text-text-mute">Run <code class="font-mono text-lime text-xs">claude-multi add &lt;name&gt;</code> — the guided wizard picks your provider, sets the API key, and wires up plugins. Or use <code class="font-mono text-lime text-xs">claude-multi interactive</code> to manage everything from a full TUI.</p>
+              <p class="text-sm text-text-mute">Run <code class="font-mono text-lime text-xs">claude-multi add &lt;name&gt;</code>. The guided wizard picks your provider, sets the API key, and wires up plugins. Or use <code class="font-mono text-lime text-xs">claude-multi interactive</code> to manage everything from a full TUI.</p>
             </div>
           </li>
           <li class="reveal flex gap-4 items-start">
@@ -469,7 +469,7 @@ const highlight = latestHighlight();
             <span class="terminal-title">setup.sh</span>
           </div>
           <div class="terminal-body">
-            <span class="term-out"># guided wizard — no flags needed</span><br/>
+            <span class="term-out"># guided wizard: no flags needed</span><br/>
             <span class="term-prompt">$</span> <span class="term-cmd">claude-multi add</span> <span class="term-arg">glm</span><br/>
             <span class="term-out">  ? Provider › </span><span class="term-ok">GLM</span><span class="term-out">  MiniMax  DeepSeek  None</span><br/>
             <span class="term-out">  ? API key  </span><span class="term-str">••••••••••••••••</span><br/>
@@ -516,7 +516,7 @@ const highlight = latestHighlight();
             Run every Claude.<br/><span class="gradient-text">Conflict-free.</span>
           </h2>
           <p class="mt-5 text-lg text-text-dim max-w-lg mx-auto">
-            Open source. MIT licensed. Built for developers who refuse to pick one model.
+            Open source. MIT licensed. Use every model that fits the job.
           </p>
           <div class="mt-9 flex gap-3 justify-center flex-wrap">
             <a href="/docs/getting-started/" class="btn-primary">
