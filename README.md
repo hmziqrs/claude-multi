@@ -30,39 +30,39 @@ deno install -g -A -n claude-multi npm:claude-multi
 
 Requires Node 18+ (or Bun 1+) and `@anthropic-ai/claude-code` installed globally.
 
-## Interactive mode
+## Usage
 
-The recommended way to use claude-multi. Two entry points:
-
-**Full TUI** — manage all instances from a menu:
+Just run it — the interactive TUI opens by default:
 
 ```bash
-claude-multi interactive   # or: claude-multi i
+claude-multi
 ```
 
-**Guided wizard** — add one instance step by step (provider, API key, copy options):
+You get a full terminal UI to add instances, manage plugins, configure MCP servers, and more. No subcommand needed.
+
+**Adding an instance** — pick it from the menu, or run directly:
 
 ```bash
 claude-multi add glm
 ```
 
-Running `add` with no flags launches the Ink wizard: it asks for provider, API key, and what to copy from your existing `~/.claude` config. Pass `--skip-prompts` or any flag to skip the wizard and run non-interactively.
-
-## Quick start
+No flags = the guided wizard walks you through provider, API key, and copy options. Then use your new instance:
 
 ```bash
-claude-multi add glm --provider glm --api-key "sk-..."
 claude-glm
 ```
 
-## Commands
+## CLI (non-interactive)
+
+For scripting and automation, all operations are available as flags:
 
 ```bash
 # Instances
-claude-multi add <name> [--provider <p>] [--api-key <k>]
+claude-multi add <name> --provider glm --api-key "sk-..."
 claude-multi add <name> --config ~/path        # custom config dir
 claude-multi add <name> --copy-settings        # seed from ~/.claude
 claude-multi add <name> --copy-all             # copy everything + auto-sync
+claude-multi add <name> --skip-prompts         # start fresh, no wizard
 claude-multi add <name> --manual               # copy files instead of symlinking
 claude-multi list
 claude-multi info <name>
@@ -84,6 +84,8 @@ claude-multi fix-symlinks --all
 claude-multi version
 claude-multi update
 ```
+
+Set `CLAUDE_MULTI_INK=false` to force the simpler prompts-based UI instead of the Ink TUI.
 
 ## Providers
 
