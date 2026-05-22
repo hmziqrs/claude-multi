@@ -1792,6 +1792,34 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
   }
 }
 
+// Default action: launch interactive mode when no subcommand is given
+program.action(async () => {
+  const useInk = process.env.CLAUDE_MULTI_INK !== "false";
+  if (useInk) {
+    try {
+      const { render } = await import("ink");
+      const React = await import("react");
+      const { App } = await import("./ink/App.js");
+      render(React.createElement(App));
+    } catch (error: unknown) {
+      console.error(chalk.red(`Ink UI failed, falling back to prompts: ${toMessage(error)}`));
+      try {
+        await runInteractiveMode();
+      } catch (err2: unknown) {
+        console.error(chalk.red(`✗ Error: ${err2 instanceof Error ? err2.message : String(err2)}`));
+        exitWithCode(1);
+      }
+    }
+  } else {
+    try {
+      await runInteractiveMode();
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
+      exitWithCode(1);
+    }
+  }
+});
+
 // Parse arguments
 program.parse();
 
