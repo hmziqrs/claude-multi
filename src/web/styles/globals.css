@@ -90,36 +90,7 @@
 
 /* ========== Background layers ========== */
 
-@utility aurora {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
 
-  &::before, &::after {
-    content: "";
-    position: absolute;
-    width: 60vw;
-    height: 60vw;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.35;
-    will-change: transform;
-  }
-  &::before {
-    background: radial-gradient(circle, rgba(163, 230, 53, 0.45), transparent 70%);
-    top: -20vw;
-    left: -10vw;
-    animation: var(--animate-drift-1);
-  }
-  &::after {
-    background: radial-gradient(circle, rgba(101, 163, 13, 0.35), transparent 70%);
-    bottom: -25vw;
-    right: -15vw;
-    animation: var(--animate-drift-2);
-  }
-}
 
 @utility grid-overlay {
   position: fixed;
@@ -317,9 +288,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-@utility headline-glow {
-  text-shadow: 0 0 60px rgba(163, 230, 53, 0.2);
-}
 
 @utility stat-num {
   font-family: var(--font-sans);
@@ -332,7 +300,7 @@
 
 @utility divider-glow {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.4), transparent);
+  background: var(--color-edge);
 }
 
 /* ========== Terminal ========== */
