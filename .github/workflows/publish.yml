@@ -7,6 +7,11 @@ on:
         description: "Version to publish"
         required: true
         type: string
+      create_tag:
+        description: "Create git tag after publishing"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   publish:
@@ -56,6 +61,7 @@ jobs:
           echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
 
       - name: Create Git tag
+        if: ${{ inputs.create_tag }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -19,7 +19,7 @@
     "docs:build": "astro build",
     "docs:preview": "astro preview",
     "ci:docs:deploy": "gh workflow run deploy-docs.yml",
-    "ci:publish": "gh workflow run publish.yml -f version=$(node -p \"require('./package.json').version\")"
+    "ci:publish": "node scripts/publish.mjs"
   },
   "keywords": [
     "claude",
