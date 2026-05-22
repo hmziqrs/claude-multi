@@ -511,14 +511,14 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
             scene.add(pts);
 
             return (t) => {
-              inner.rotation.x = t * 0.12;
-              inner.rotation.y = t * 0.16;
-              outer.rotation.x = -t * 0.05;
-              outer.rotation.y = t * 0.07;
+              inner.rotation.x = t * 0.04;
+              inner.rotation.y = t * 0.06;
+              outer.rotation.x = -t * 0.02;
+              outer.rotation.y = t * 0.025;
               const arr = ptsGeo.attributes.position.array;
               for (let i = 0; i < N; i++) {
                 const s = seed[i];
-                const theta = s.theta + t * s.sp * 0.12;
+                const theta = s.theta + t * s.sp * 0.04;
                 arr[i * 3] = s.r * Math.sin(s.phi) * Math.cos(theta);
                 arr[i * 3 + 1] = s.r * Math.sin(s.phi) * Math.sin(theta);
                 arr[i * 3 + 2] = s.r * Math.cos(s.phi);
@@ -544,8 +544,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
             knot.position.x = 1.0;
             scene.add(knot);
             return (t) => {
-              knot.rotation.x = t * 0.08;
-              knot.rotation.y = t * 0.12;
+              knot.rotation.x = t * 0.03;
+              knot.rotation.y = t * 0.04;
             };
           });
 
@@ -575,8 +575,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
               );
               scene.add(mesh);
               return (t) => {
-                mesh.rotation.x = t * 0.25;
-                mesh.rotation.y = t * 0.35;
+                mesh.rotation.x = t * 0.08;
+                mesh.rotation.y = t * 0.12;
               };
             });
           });
@@ -606,10 +606,10 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
             );
             scene.add(a, b);
             return (t) => {
-              a.rotation.x = t * 0.1;
-              a.rotation.y = t * 0.15;
-              b.rotation.x = -t * 0.25;
-              b.rotation.y = t * 0.3;
+              a.rotation.x = t * 0.035;
+              a.rotation.y = t * 0.055;
+              b.rotation.x = -t * 0.08;
+              b.rotation.y = t * 0.1;
             };
           });
 
@@ -746,8 +746,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
             mark.rotation.y = 0.6;
 
             return (t) => {
-              mark.rotation.y = 0.6 + t * 0.22;
-              mark.rotation.x = -0.18 + Math.sin(t * 0.35) * 0.05;
+              mark.rotation.y = 0.6 + t * 0.07;
+              mark.rotation.x = -0.18 + Math.sin(t * 0.12) * 0.05;
             };
           });
       }
