@@ -12,25 +12,58 @@ on:
 
 jobs:
   # ─────────────────────────────────────────────
+  # Build once on Linux, upload tarball as artifact
+  # ─────────────────────────────────────────────
+  build:
+    name: Build tarball
+    runs-on: ubuntu-latest
+
+    outputs:
+      tgz: ${{ steps.pack.outputs.tgz }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install deps + build
+        run: bun install && bun run build
+
+      - name: Pack
+        id: pack
+        run: |
+          TGZ=$(npm pack)
+          echo "tgz=$TGZ" >> $GITHUB_OUTPUT
+          echo "Packed: $TGZ"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tarball
+          path: ${{ steps.pack.outputs.tgz }}
+          retention-days: 1
+
+  # ─────────────────────────────────────────────
   # Linux: bun only, no node at all
-  # Uses plain Debian + manual bun install.
-  # GITHUB_PATH doesn't propagate in container jobs so we symlink bun
-  # into /usr/local/bin immediately after installing it.
   # ─────────────────────────────────────────────
   linux-bun-only:
     name: Linux / bun only (no node)
+    needs: build
     runs-on: ubuntu-latest
     container:
       image: debian:12-slim
 
     steps:
-      - name: Install bun into /usr/local/bin (no node)
+      - name: Install bun (no node)
         run: |
           apt-get update -qq && apt-get install -y curl unzip -qq
           curl -fsSL https://bun.sh/install | bash
           ln -s /root/.bun/bin/bun /usr/local/bin/bun
 
-      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
       - name: Confirm bun present, node absent
         run: |
@@ -38,29 +71,18 @@ jobs:
           if command -v node 2>/dev/null; then echo "ERROR: node found" && exit 1; fi
           echo "Good: no node in PATH"
 
-      - name: Install deps + build
-        run: bun install && bun run build
-
-      - name: Pack tarball
-        run: |
-          TGZ=$(bun x npm pack)
-          echo "Packed: $TGZ"
-          echo "TGZ=$TGZ" >> $GITHUB_ENV
-
       - name: bun install -g
-        run: bun install -g "$TGZ"
+        run: bun install -g ${{ needs.build.outputs.tgz }}
 
-      - name: Verify shim resolves to our script
+      - name: Verify shim is our sh script
         run: |
           SHIM=$(which claude-multi)
-          echo "Shim: $SHIM"
-          ls -la "$SHIM"
           REAL=$(realpath "$SHIM")
-          echo "Real path: $REAL"
+          echo "Shim: $SHIM -> $REAL"
           head -2 "$REAL"
           grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: not our sh shim" && exit 1)
 
-      - name: Run --version (no node, bun only)
+      - name: Run --version (bun only, no node)
         run: claude-multi --version
 
       - name: Run --help
@@ -71,11 +93,10 @@ jobs:
   # ─────────────────────────────────────────────
   linux-npm-global:
     name: Linux / npm global (bun wins over node)
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
@@ -84,56 +105,49 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Install deps + build + pack
-        run: |
-          bun install && bun run build
-          npm pack
-          echo "TGZ=$(ls claude-multi-*.tgz)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
       - name: npm install -g
-        run: npm install -g "$TGZ"
+        run: npm install -g ${{ needs.build.outputs.tgz }}
 
       - name: Confirm shim is our sh script
         run: |
           REAL=$(realpath "$(which claude-multi)")
-          echo "Shim resolves to: $REAL"
+          echo "Resolves to: $REAL"
           head -2 "$REAL"
-          grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: npm replaced our shim with something else" && exit 1)
+          grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: npm replaced our shim" && exit 1)
 
       - name: Run --version (bun chosen over node)
         run: claude-multi --version
 
   # ─────────────────────────────────────────────
-  # Windows: bun global install — pure cmd.exe, no sh needed
+  # Windows: bun global install — pure cmd.exe, no sh
   # ─────────────────────────────────────────────
   windows-bun-global:
     name: Windows / bun global (cmd.exe)
+    needs: build
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install deps + build + pack
-        run: |
-          bun install
-          bun run build
-          $tgz = (npm pack)
-          echo "TGZ=$tgz" >> $env:GITHUB_ENV
-        shell: pwsh
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
-      - name: bun install -g (explicit path)
-        run: bun install -g "%TGZ%"
+      - name: bun install -g
+        run: bun install -g ${{ needs.build.outputs.tgz }}
         shell: cmd
 
       - name: Show shim location
         run: where claude-multi
         shell: cmd
 
-      - name: Run --version via cmd.exe (no sh anywhere)
+      - name: Run --version via cmd.exe (no sh)
         run: claude-multi --version
         shell: cmd
 
@@ -143,15 +157,14 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Windows: npm global install
-  # npm generates a .cmd calling sh — Git Bash is on windows-latest runners
+  # npm generates a .cmd calling sh — Git Bash is on windows-latest
   # ─────────────────────────────────────────────
   windows-npm-global:
     name: Windows / npm global (cmd.exe + Git Bash sh)
+    needs: build
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
@@ -160,16 +173,12 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Install deps + build + pack
-        run: |
-          bun install
-          bun run build
-          $tgz = (npm pack)
-          echo "TGZ=$tgz" >> $env:GITHUB_ENV
-        shell: pwsh
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
       - name: npm install -g
-        run: npm install -g "%TGZ%"
+        run: npm install -g ${{ needs.build.outputs.tgz }}
         shell: cmd
 
       - name: Show what npm generated as the global .cmd shim
@@ -184,15 +193,14 @@ jobs:
         shell: cmd
 
   # ─────────────────────────────────────────────
-  # Windows: local install — npm uses our .cmd in node_modules/.bin/
+  # Windows: local install — npm puts our .cmd in node_modules/.bin/
   # ─────────────────────────────────────────────
   windows-local-cmd:
     name: Windows / local .cmd (cmd.exe, bun only)
+    needs: build
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
@@ -201,27 +209,23 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Install deps + build + pack
-        run: |
-          bun install
-          bun run build
-          $tgz = (npm pack)
-          echo "TGZ=$tgz" >> $env:GITHUB_ENV
-        shell: pwsh
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
       - name: Local npm install
-        run: npm install "%TGZ%"
+        run: npm install ${{ needs.build.outputs.tgz }}
         shell: cmd
 
       - name: Show what npm put in .bin/
         run: dir node_modules\.bin\claude-multi*
         shell: cmd
 
-      - name: Confirm .bin\ has our .cmd (not npm-generated)
+      - name: Confirm .bin\ has our .cmd
         run: type node_modules\.bin\claude-multi.cmd
         shell: cmd
 
-      - name: Run our .cmd via cmd.exe (bun + node both in PATH)
+      - name: Run our .cmd via cmd.exe (bun + node both available)
         run: node_modules\.bin\claude-multi.cmd --version
         shell: cmd
 
@@ -236,22 +240,20 @@ jobs:
   # ─────────────────────────────────────────────
   macos-bun-global:
     name: macOS / bun global
+    needs: build
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install deps + build + pack
-        run: |
-          bun install && bun run build
-          echo "TGZ=$(npm pack)" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
       - name: bun install -g
-        run: bun install -g "$TGZ"
+        run: bun install -g ${{ needs.build.outputs.tgz }}
 
       - name: Run --version
         run: claude-multi --version
