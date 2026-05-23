@@ -16,6 +16,9 @@ jobs:
       contents: write
       id-token: write
 
+    env:
+      VERSION: ${{ inputs.version }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,27 +34,44 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Display version info
-        run: |
-          echo "📦 Publishing version: ${{ inputs.version }}"
+        run: echo "📦 Publishing version $VERSION"
 
       - name: Install dependencies
         run: bun install
 
-      - name: Bump version
-        run: npm version ${{ inputs.version }} --no-git-tag-version
+      - name: Verify package.json matches input version
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          if [ "$CURRENT" != "$VERSION" ]; then
+            echo "::error::package.json version ($CURRENT) does not match requested version ($VERSION)."
+            echo "::error::Commit the version bump to the branch before dispatching this workflow."
+            exit 1
+          fi
+          echo "package.json version matches: $CURRENT"
 
       - name: Build project
         run: bun run build
 
       - name: Verify build
         run: |
-          test -f dist/cli.js || exit 1
-          test -f bin/claude-multi || exit 1
+          test -f dist/cli.js || { echo "::error::dist/cli.js missing"; exit 1; }
+          test -f bin/claude-multi.js || { echo "::error::bin/claude-multi.js missing"; exit 1; }
           node dist/cli.js --version
-          bash bin/claude-multi --version
+          sh bin/claude-multi.js --version
 
       - name: Verify package contents
         run: npm pack --dry-run
+
+      - name: Create Git tag
+        run: |
+          if git ls-remote --tags origin "refs/tags/v$VERSION" | grep -q .; then
+            echo "Tag v$VERSION already exists, skipping"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "v$VERSION" -m "Release v$VERSION"
+            git push origin "v$VERSION"
+          fi
 
       - name: Publish to NPM
         run: npm publish --access public
@@ -60,26 +80,29 @@ jobs:
         id: package
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
-          echo "name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Create Git tag
-        run: |
-          if git ls-remote --tags origin "refs/tags/v${{ inputs.version }}" | grep -q .; then
-            echo "Tag v${{ inputs.version }} already exists, skipping"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
-            git push origin "v${{ inputs.version }}"
-          fi
+      - name: Extract release notes
+        run: bun run scripts/extract-changelog.ts "$VERSION" --out RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
 
       - name: Publish Summary
         run: |
-          echo "## 📦 NPM Publish Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Package**: ${{ steps.package.outputs.name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Successfully published version ${{ inputs.version }} to NPM!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "[View on NPM](https://www.npmjs.com/package/${{ steps.package.outputs.name }})" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📦 NPM Publish Summary"
+            echo ""
+            echo "- **Package**: ${{ steps.package.outputs.name }}"
+            echo "- **Version**: $VERSION"
+            echo ""
+            echo "✅ Successfully published version $VERSION to NPM!"
+            echo ""
+            echo "[View on NPM](https://www.npmjs.com/package/${{ steps.package.outputs.name }})"
+          } >> "$GITHUB_STEP_SUMMARY"
