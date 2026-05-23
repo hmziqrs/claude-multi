@@ -13,8 +13,9 @@ on:
 jobs:
   # ─────────────────────────────────────────────
   # Linux: bun only, no node at all
-  # Uses plain Debian + manual bun install so node is genuinely absent.
-  # oven/bun:latest ships /usr/local/bun-node-fallback-bin/node internally.
+  # Uses plain Debian + manual bun install.
+  # GITHUB_PATH doesn't propagate in container jobs so we symlink bun
+  # into /usr/local/bin immediately after installing it.
   # ─────────────────────────────────────────────
   linux-bun-only:
     name: Linux / bun only (no node)
@@ -23,28 +24,31 @@ jobs:
       image: debian:12-slim
 
     steps:
-      - name: Install bun (no node)
+      - name: Install bun into /usr/local/bin (no node)
         run: |
           apt-get update -qq && apt-get install -y curl unzip -qq
           curl -fsSL https://bun.sh/install | bash
-          echo "/root/.bun/bin" >> $GITHUB_PATH
+          ln -s /root/.bun/bin/bun /usr/local/bin/bun
 
       - uses: actions/checkout@v4
 
       - name: Confirm bun present, node absent
         run: |
           bun --version
-          ! command -v node || (echo "ERROR: node found in PATH" && exit 1)
-          echo "Good: no node"
+          if command -v node 2>/dev/null; then echo "ERROR: node found" && exit 1; fi
+          echo "Good: no node in PATH"
 
       - name: Install deps + build
         run: bun install && bun run build
 
       - name: Pack tarball
-        run: bun x npm pack
+        run: |
+          TGZ=$(bun x npm pack)
+          echo "Packed: $TGZ"
+          echo "TGZ=$TGZ" >> $GITHUB_ENV
 
-      - name: bun install -g from tarball
-        run: bun install -g ./claude-multi-*.tgz
+      - name: bun install -g
+        run: bun install -g "$TGZ"
 
       - name: Verify shim resolves to our script
         run: |
@@ -52,11 +56,11 @@ jobs:
           echo "Shim: $SHIM"
           ls -la "$SHIM"
           REAL=$(realpath "$SHIM")
-          echo "Resolves to: $REAL"
+          echo "Real path: $REAL"
           head -2 "$REAL"
           grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: not our sh shim" && exit 1)
 
-      - name: Run --version (no node, must use bun)
+      - name: Run --version (no node, bun only)
         run: claude-multi --version
 
       - name: Run --help
@@ -81,24 +85,26 @@ jobs:
           node-version: '20.x'
 
       - name: Install deps + build + pack
-        run: bun install && bun run build && npm pack
+        run: |
+          bun install && bun run build
+          npm pack
+          echo "TGZ=$(ls claude-multi-*.tgz)" >> $GITHUB_ENV
 
       - name: npm install -g
-        run: npm install -g ./claude-multi-*.tgz
+        run: npm install -g "$TGZ"
 
-      - name: Confirm shim is our sh script (not npm node wrapper)
+      - name: Confirm shim is our sh script
         run: |
-          SHIM=$(which claude-multi)
-          REAL=$(realpath "$SHIM")
-          echo "Shim content (first 2 lines):"
+          REAL=$(realpath "$(which claude-multi)")
+          echo "Shim resolves to: $REAL"
           head -2 "$REAL"
-          grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: npm replaced our shim" && exit 1)
+          grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: npm replaced our shim with something else" && exit 1)
 
       - name: Run --version (bun chosen over node)
         run: claude-multi --version
 
   # ─────────────────────────────────────────────
-  # Windows: bun global install — cmd.exe, no sh needed
+  # Windows: bun global install — pure cmd.exe, no sh needed
   # ─────────────────────────────────────────────
   windows-bun-global:
     name: Windows / bun global (cmd.exe)
@@ -112,19 +118,22 @@ jobs:
           bun-version: latest
 
       - name: Install deps + build + pack
-        run: bun install && bun run build && bun x npm pack
+        run: |
+          bun install
+          bun run build
+          $tgz = (npm pack)
+          echo "TGZ=$tgz" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: bun install -g from tarball
-        run: |
-          for /f %%f in ('dir /b claude-multi-*.tgz') do bun install -g %%f
+      - name: bun install -g (explicit path)
+        run: bun install -g "%TGZ%"
         shell: cmd
 
-      - name: Show bun shim location
+      - name: Show shim location
         run: where claude-multi
         shell: cmd
 
-      - name: Run --version via cmd.exe (pure cmd, no sh)
+      - name: Run --version via cmd.exe (no sh anywhere)
         run: claude-multi --version
         shell: cmd
 
@@ -134,7 +143,7 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Windows: npm global install
-  # npm generates a .cmd that calls sh (Git Bash available on runner)
+  # npm generates a .cmd calling sh — Git Bash is on windows-latest runners
   # ─────────────────────────────────────────────
   windows-npm-global:
     name: Windows / npm global (cmd.exe + Git Bash sh)
@@ -152,12 +161,16 @@ jobs:
           node-version: '20.x'
 
       - name: Install deps + build + pack
-        run: bun install && bun run build && npm pack
+        run: |
+          bun install
+          bun run build
+          $tgz = (npm pack)
+          echo "TGZ=$tgz" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: npm install -g
-        run: npm install -g (Get-Item claude-multi-*.tgz).FullName
-        shell: pwsh
+        run: npm install -g "%TGZ%"
+        shell: cmd
 
       - name: Show what npm generated as the global .cmd shim
         run: |
@@ -172,7 +185,6 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Windows: local install — npm uses our .cmd in node_modules/.bin/
-  # Tests our .cmd directly in bare cmd.exe with bun available
   # ─────────────────────────────────────────────
   windows-local-cmd:
     name: Windows / local .cmd (cmd.exe, bun only)
@@ -190,26 +202,30 @@ jobs:
           node-version: '20.x'
 
       - name: Install deps + build + pack
-        run: bun install && bun run build && npm pack
+        run: |
+          bun install
+          bun run build
+          $tgz = (npm pack)
+          echo "TGZ=$tgz" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Local npm install
-        run: npm install (Get-Item claude-multi-*.tgz).FullName
-        shell: pwsh
+        run: npm install "%TGZ%"
+        shell: cmd
 
       - name: Show what npm put in .bin/
         run: dir node_modules\.bin\claude-multi*
         shell: cmd
 
-      - name: Confirm .bin\ has our .cmd file
+      - name: Confirm .bin\ has our .cmd (not npm-generated)
         run: type node_modules\.bin\claude-multi.cmd
         shell: cmd
 
-      - name: Run our .cmd via cmd.exe (bun + node both available)
+      - name: Run our .cmd via cmd.exe (bun + node both in PATH)
         run: node_modules\.bin\claude-multi.cmd --version
         shell: cmd
 
-      - name: Run with node stripped from PATH (bun only scenario)
+      - name: Run with node stripped from PATH (bun only)
         run: |
           set "PATH=%USERPROFILE%\.bun\bin;%SystemRoot%\System32;%SystemRoot%\System32\WindowsPowerShell\v1.0"
           node_modules\.bin\claude-multi.cmd --version
@@ -230,10 +246,12 @@ jobs:
           bun-version: latest
 
       - name: Install deps + build + pack
-        run: bun install && bun run build && npm pack
+        run: |
+          bun install && bun run build
+          echo "TGZ=$(npm pack)" >> $GITHUB_ENV
 
       - name: bun install -g
-        run: bun install -g ./claude-multi-*.tgz
+        run: bun install -g "$TGZ"
 
       - name: Run --version
         run: claude-multi --version
