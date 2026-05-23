@@ -86,7 +86,7 @@ jobs:
           REAL=$(realpath "$SHIM")
           echo "Shim: $SHIM -> $REAL"
           head -2 "$REAL"
-          grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: not our sh shim" && exit 1)
+          grep -q '#!/usr/bin/env bun' "$REAL" || (echo "ERROR: shebang not #!/usr/bin/env bun" && exit 1)
 
           # Run it
           env PATH="$CLEAN" claude-multi --version
@@ -117,19 +117,19 @@ jobs:
       - name: npm install -g
         run: npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
 
-      - name: Confirm shim is our sh script
+      - name: Confirm shim is our bun script
         run: |
           REAL=$(realpath "$(which claude-multi)")
           echo "Resolves to: $REAL"
           head -2 "$REAL"
-          grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: npm replaced our shim" && exit 1)
+          grep -q '#!/usr/bin/env bun' "$REAL" || (echo "ERROR: shebang not #!/usr/bin/env bun" && exit 1)
 
       - name: Run --version (bun chosen over node)
         run: claude-multi --version
 
   # ─────────────────────────────────────────────
   # Windows: bun global install
-  # bun creates its own native shim — our sh script is never invoked directly
+  # bun creates a native .exe shim that reads #!/usr/bin/env bun and runs with bun
   # ─────────────────────────────────────────────
   windows-bun-global:
     name: Windows / bun global (cmd.exe)
