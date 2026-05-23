@@ -153,6 +153,13 @@ jobs:
           bun install -g $tgz
         shell: pwsh
 
+      # Bun's Windows .exe shim executes our #!/bin/sh script by looking up
+      # the interpreter in %PATH%. Git for Windows ships sh.exe but only its
+      # cmd\ dir is on PATH by default; usr\bin (where sh.exe lives) is not.
+      - name: Add Git sh.exe to PATH (required by bun shim to exec #!/bin/sh)
+        run: echo C:\Program Files\Git\usr\bin >> $env:GITHUB_PATH
+        shell: pwsh
+
       - name: Show shim bun created
         run: where claude-multi
         shell: cmd
