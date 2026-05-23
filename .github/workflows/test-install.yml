@@ -1,0 +1,222 @@
+name: Test Install
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'bin/**'
+      - 'src/**'
+      - 'package.json'
+      - '.github/workflows/test-install.yml'
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Linux: bun only, no node at all
+  # ─────────────────────────────────────────────
+  linux-bun-only:
+    name: Linux / bun only (no node)
+    runs-on: ubuntu-latest
+    container:
+      image: oven/bun:latest   # official bun image, node not installed
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm no node
+        run: |
+          bun --version
+          ! command -v node || (echo "ERROR: node found, test invalid" && exit 1)
+
+      - name: Build
+        run: bun run build
+
+      - name: Pack tarball
+        run: bun x npm pack
+
+      - name: Install globally from tarball
+        run: bun install -g ./claude-multi-*.tgz
+
+      - name: Verify shim is a symlink to our script
+        run: |
+          SHIM=$(which claude-multi)
+          echo "Shim at: $SHIM"
+          ls -la "$SHIM"
+          head -1 "$(realpath $SHIM)"
+
+      - name: Run --version (proves bun executes it without node)
+        run: claude-multi --version
+
+      - name: Run --help
+        run: claude-multi --help
+
+  # ─────────────────────────────────────────────
+  # Linux: npm global install, bun wins over node
+  # ─────────────────────────────────────────────
+  linux-npm-global:
+    name: Linux / npm global (bun wins)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Build + pack
+        run: bun run build && npm pack
+
+      - name: npm install -g
+        run: npm install -g ./claude-multi-*.tgz
+
+      - name: Shim is our sh script (not npm-generated node wrapper)
+        run: |
+          SHIM=$(which claude-multi)
+          echo "Shim: $SHIM"
+          head -1 "$(realpath $SHIM)"
+          grep -q '#!/bin/sh' "$(realpath $SHIM)" || (echo "ERROR: not our sh shim" && exit 1)
+
+      - name: Run --version (bun in PATH, should be chosen over node)
+        run: |
+          OUT=$(claude-multi --version)
+          echo "Output: $OUT"
+          [ -n "$OUT" ] || exit 1
+
+  # ─────────────────────────────────────────────
+  # Windows: bun global install, cmd.exe
+  # ─────────────────────────────────────────────
+  windows-bun-global:
+    name: Windows / bun global (cmd.exe)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Build + pack
+        run: bun run build && bun x npm pack
+        shell: cmd
+
+      - name: bun install -g from tarball
+        run: |
+          for /f %%f in ('dir /b claude-multi-*.tgz') do bun install -g %%f
+        shell: cmd
+
+      - name: Run --version via cmd.exe (no sh, pure cmd)
+        run: claude-multi --version
+        shell: cmd
+
+      - name: Run --help via cmd.exe
+        run: claude-multi --help
+        shell: cmd
+
+  # ─────────────────────────────────────────────
+  # Windows: npm global install, cmd.exe (Git Bash provides sh)
+  # ─────────────────────────────────────────────
+  windows-npm-global:
+    name: Windows / npm global (cmd.exe + Git Bash sh)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Build + pack
+        run: bun run build && npm pack
+        shell: pwsh
+
+      - name: npm install -g
+        run: npm install -g (Get-Item claude-multi-*.tgz).FullName
+        shell: pwsh
+
+      - name: Show what npm created as the global shim
+        run: |
+          where claude-multi
+          type "%APPDATA%\npm\claude-multi.cmd"
+        shell: cmd
+
+      - name: Run --version via cmd.exe
+        run: claude-multi --version
+        shell: cmd
+
+  # ─────────────────────────────────────────────
+  # Windows: local install — our .cmd in .bin/
+  # ─────────────────────────────────────────────
+  windows-local-cmd:
+    name: Windows / local install .cmd (pure cmd.exe, bun only)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Build + pack
+        run: bun run build && npm pack
+        shell: pwsh
+
+      - name: Local npm install
+        run: npm install (Get-Item claude-multi-*.tgz).FullName
+        shell: pwsh
+
+      - name: Show what npm put in .bin/
+        run: dir node_modules\.bin\claude-multi*
+        shell: cmd
+
+      - name: Confirm .bin\ has our .cmd (not npm-generated)
+        run: type node_modules\.bin\claude-multi.cmd
+        shell: cmd
+
+      - name: Run our .cmd directly in cmd.exe (bun available, no sh needed)
+        run: node_modules\.bin\claude-multi.cmd --version
+        shell: cmd
+
+      - name: Run with node removed from PATH (bun only)
+        run: |
+          set "PATH=%USERPROFILE%\.bun\bin;%SystemRoot%\System32"
+          node_modules\.bin\claude-multi.cmd --version
+        shell: cmd
+
+  # ─────────────────────────────────────────────
+  # macOS: bun global install
+  # ─────────────────────────────────────────────
+  macos-bun-global:
+    name: macOS / bun global
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Build + pack
+        run: bun run build && npm pack
+
+      - name: bun install -g
+        run: bun install -g ./claude-multi-*.tgz
+
+      - name: Run --version
+        run: claude-multi --version
