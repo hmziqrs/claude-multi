@@ -44,8 +44,7 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────────
-  # Linux: bun only, no node — simulated by removing node from PATH
-  # (Avoids Docker container step isolation issues)
+  # Linux: bun only, no node
   # ─────────────────────────────────────────────
   linux-bun-only:
     name: Linux / bun only (no node)
@@ -57,34 +56,41 @@ jobs:
         with:
           bun-version: latest
 
+      # Download into artifact/ subdir so we have a clean relative path
       - uses: actions/download-artifact@v4
         with:
           name: tarball
+          path: artifact
 
-      - name: Install + run with node stripped from PATH
+      - name: Install + verify (node stripped from PATH)
         run: |
-          TGZ="${{ needs.build.outputs.tgz }}"
+          TGZ="artifact/${{ needs.build.outputs.tgz }}"
 
-          # Strip every node-containing dir from PATH
-          CLEAN_PATH=$(echo "$PATH" | tr ':' '\n' | grep -v -E '/node|nvm|nodenv' | tr '\n' ':' | sed 's/:$//')
-          echo "Clean PATH: $CLEAN_PATH"
+          # Strip node from PATH for this step
+          CLEAN=$(echo "$PATH" | tr ':' '\n' | grep -vE '(node|nvm|nodenv)' | tr '\n' ':')
+          echo "Using PATH: $CLEAN"
 
-          # Confirm node is gone, bun remains
-          env PATH="$CLEAN_PATH" sh -c '! command -v node || (echo "ERROR: node still in PATH" && exit 1)'
-          env PATH="$CLEAN_PATH" bun --version
+          # Confirm bun exists, node does not
+          env PATH="$CLEAN" bun --version
+          if env PATH="$CLEAN" command -v node 2>/dev/null; then
+            echo "ERROR: node still in PATH after stripping" && exit 1
+          fi
+          echo "Good: no node"
 
-          # Install globally
-          env PATH="$CLEAN_PATH" bun install -g "./$TGZ"
+          # Install from local tarball (absolute path avoids bun CWD confusion)
+          ABS_TGZ="$(pwd)/$TGZ"
+          env PATH="$CLEAN" bun install -g "$ABS_TGZ"
 
-          # Verify shim + run
-          SHIM=$(env PATH="$CLEAN_PATH" which claude-multi)
+          # Verify shim
+          SHIM=$(env PATH="$CLEAN" which claude-multi)
           REAL=$(realpath "$SHIM")
           echo "Shim: $SHIM -> $REAL"
           head -2 "$REAL"
           grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: not our sh shim" && exit 1)
 
-          env PATH="$CLEAN_PATH" claude-multi --version
-          env PATH="$CLEAN_PATH" claude-multi --help
+          # Run it
+          env PATH="$CLEAN" claude-multi --version
+          env PATH="$CLEAN" claude-multi --help
 
   # ─────────────────────────────────────────────
   # Linux: npm global install, bun wins over node
@@ -106,9 +112,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tarball
+          path: artifact
 
       - name: npm install -g
-        run: npm install -g "./${{ needs.build.outputs.tgz }}"
+        run: npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
 
       - name: Confirm shim is our sh script
         run: |
@@ -121,8 +128,8 @@ jobs:
         run: claude-multi --version
 
   # ─────────────────────────────────────────────
-  # Windows: bun global install — pure cmd.exe, no sh needed
-  # bun creates its own native shim, bypasses our sh script entirely
+  # Windows: bun global install
+  # bun creates its own native shim — our sh script is never invoked directly
   # ─────────────────────────────────────────────
   windows-bun-global:
     name: Windows / bun global (cmd.exe)
@@ -137,15 +144,17 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tarball
+          path: artifact
 
-      - name: bun install -g (use .\ prefix so bun treats it as local file)
-        run: bun install -g ".\${{ needs.build.outputs.tgz }}"
-        shell: cmd
-
-      - name: Show shim location + type
+      - name: bun install -g (absolute path)
         run: |
-          where claude-multi
-          for /f "tokens=*" %%p in ('where claude-multi') do echo Shim: %%p
+          $tgz = (Resolve-Path "artifact\${{ needs.build.outputs.tgz }}").Path
+          Write-Host "Installing: $tgz"
+          bun install -g $tgz
+        shell: pwsh
+
+      - name: Show shim bun created
+        run: where claude-multi
         shell: cmd
 
       - name: Run --version via cmd.exe
@@ -158,10 +167,11 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Windows: npm global install
-  # npm generates a .cmd that calls sh — Git Bash provides sh on windows-latest
+  # npm generates a .cmd that passes Windows paths to sh (Git Bash).
+  # Run the final check via bash shell where paths work correctly.
   # ─────────────────────────────────────────────
   windows-npm-global:
-    name: Windows / npm global (cmd.exe + Git Bash sh)
+    name: Windows / npm global (Git Bash sh)
     needs: build
     runs-on: windows-latest
 
@@ -177,32 +187,33 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tarball
+          path: artifact
 
       - name: npm install -g
-        run: npm install -g ".\${{ needs.build.outputs.tgz }}"
-        shell: cmd
-
-      - name: Show npm global prefix + generated shim
         run: |
-          set "PREFIX="
-          for /f "tokens=*" %%p in ('npm prefix -g') do set "PREFIX=%%p"
-          echo NPM global prefix: %PREFIX%
-          where claude-multi
-          echo --- generated shim content ---
-          for /f "tokens=*" %%f in ('where claude-multi.cmd') do type "%%f"
-        shell: cmd
+          $tgz = (Resolve-Path "artifact\${{ needs.build.outputs.tgz }}").Path
+          npm install -g $tgz
+        shell: pwsh
 
-      - name: Run --version via cmd.exe
+      - name: Show what npm generated as the global shim
+        run: |
+          $prefix = npm prefix -g
+          Write-Host "NPM prefix: $prefix"
+          Get-Command claude-multi | Select-Object -ExpandProperty Source
+          Get-Content "$prefix\claude-multi.cmd"
+        shell: pwsh
+
+      # npm's .cmd calls sh with a Windows path — must use bash (Git Bash) here
+      - name: Run --version via Git Bash sh
         run: claude-multi --version
-        shell: cmd
+        shell: bash
 
   # ─────────────────────────────────────────────
   # Windows: local npm install
-  # Confirms npm generates its own .cmd (not using our bin/claude-multi.cmd)
-  # and that it works via Git Bash sh on the runner
+  # Confirms npm generates its own wrapper (not using our bin/claude-multi.cmd)
   # ─────────────────────────────────────────────
   windows-local-npm:
-    name: Windows / local npm install (cmd.exe)
+    name: Windows / local npm install
     needs: build
     runs-on: windows-latest
 
@@ -218,22 +229,26 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tarball
+          path: artifact
 
       - name: Local npm install
-        run: npm install ".\${{ needs.build.outputs.tgz }}"
-        shell: cmd
+        run: |
+          $tgz = (Resolve-Path "artifact\${{ needs.build.outputs.tgz }}").Path
+          npm install $tgz
+        shell: pwsh
 
-      - name: Show what npm created in .bin\
+      - name: Show npm-generated .bin\ shims
         run: dir node_modules\.bin\claude-multi*
         shell: cmd
 
-      - name: Show the generated .cmd content
+      - name: Show generated .cmd content (npm generates this, not us)
         run: type node_modules\.bin\claude-multi.cmd
         shell: cmd
 
-      - name: Run via node_modules\.bin\ in cmd.exe
-        run: node_modules\.bin\claude-multi --version
-        shell: cmd
+      # npm-generated .cmd calls sh — must use bash (Git Bash) on Windows
+      - name: Run via node_modules/.bin/ (Git Bash)
+        run: node_modules/.bin/claude-multi --version
+        shell: bash
 
   # ─────────────────────────────────────────────
   # macOS: bun global install
@@ -251,9 +266,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tarball
+          path: artifact
 
-      - name: bun install -g (use ./ prefix for local file)
-        run: bun install -g "./${{ needs.build.outputs.tgz }}"
+      - name: bun install -g (absolute path)
+        run: bun install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
 
       - name: Run --version
         run: claude-multi --version
