@@ -6,12 +6,17 @@
   "bin": {
     "claude-multi": "./bin/claude-multi"
   },
+  "files": [
+    "bin/",
+    "dist/cli.js",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "bun build src/cli.ts --outdir dist --target node --format esm && chmod +x bin/claude-multi",
     "dev": "bun run src/cli.ts",
     "test": "bun test",
     "prepublishOnly": "bun run build",
-    "test:binary": "./dist/cli.js",
+    "test:binary": "./bin/claude-multi",
     "install:global": "bun link",
     "docs:dev": "astro dev",
     "docs:build": "astro build",
