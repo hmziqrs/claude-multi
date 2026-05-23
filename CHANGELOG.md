@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] - 2026-05-23
+
+### Added
+- **`robots.txt` route** (`src/web/pages/robots.txt.ts`): serves sitemap reference and user-agent directives for the docs site
+
+### Changed
+- **Runtime-agnostic launcher** (`bin/claude-multi.js`): polyglot bin entry is simultaneously valid POSIX sh and ESM JavaScript
+  - On Linux/macOS: shell shebang detects bun/node/deno and execs the correct runtime
+  - On Windows + bun global install: bun's `.exe` shim reads the `.js` extension and runs directly as ESM — no `/bin/sh` lookup required
+  - On Windows + npm install: npm's `.cmd` shim calls `node` on the `.js` file
+  - Shebang changed to `#!/usr/bin/env bun` so bun's Windows shim can resolve itself in `PATH`
+
+### CI
+- Add cross-platform install verification workflow covering bun, node, and deno on Linux, Windows, and macOS
+- Separate build into its own job; test jobs download the artifact instead of rebuilding
+- Publish workflow now includes version bump step and enhanced post-publish verification
+- Add `ci:test-install` script to trigger the install-verification workflow from local
+
 ## [0.5.5] - 2026-05-22
 
 ### Added
