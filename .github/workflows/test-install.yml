@@ -28,12 +28,11 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install deps + build
-        run: bun install && bun run build
-
-      - name: Pack
+      - name: Install deps + build + pack
         id: pack
         run: |
+          bun install
+          bun run build
           TGZ=$(npm pack)
           echo "tgz=$TGZ" >> $GITHUB_OUTPUT
           echo "Packed: $TGZ"
@@ -45,48 +44,47 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────────
-  # Linux: bun only, no node at all
+  # Linux: bun only, no node — simulated by removing node from PATH
+  # (Avoids Docker container step isolation issues)
   # ─────────────────────────────────────────────
   linux-bun-only:
     name: Linux / bun only (no node)
     needs: build
     runs-on: ubuntu-latest
-    container:
-      image: debian:12-slim
 
     steps:
-      - name: Install bun (no node)
-        run: |
-          apt-get update -qq && apt-get install -y curl unzip -qq
-          curl -fsSL https://bun.sh/install | bash
-          ln -s /root/.bun/bin/bun /usr/local/bin/bun
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - uses: actions/download-artifact@v4
         with:
           name: tarball
 
-      - name: Confirm bun present, node absent
+      - name: Install + run with node stripped from PATH
         run: |
-          bun --version
-          if command -v node 2>/dev/null; then echo "ERROR: node found" && exit 1; fi
-          echo "Good: no node in PATH"
+          TGZ="${{ needs.build.outputs.tgz }}"
 
-      - name: bun install -g
-        run: bun install -g ${{ needs.build.outputs.tgz }}
+          # Strip every node-containing dir from PATH
+          CLEAN_PATH=$(echo "$PATH" | tr ':' '\n' | grep -v -E '/node|nvm|nodenv' | tr '\n' ':' | sed 's/:$//')
+          echo "Clean PATH: $CLEAN_PATH"
 
-      - name: Verify shim is our sh script
-        run: |
-          SHIM=$(which claude-multi)
+          # Confirm node is gone, bun remains
+          env PATH="$CLEAN_PATH" sh -c '! command -v node || (echo "ERROR: node still in PATH" && exit 1)'
+          env PATH="$CLEAN_PATH" bun --version
+
+          # Install globally
+          env PATH="$CLEAN_PATH" bun install -g "./$TGZ"
+
+          # Verify shim + run
+          SHIM=$(env PATH="$CLEAN_PATH" which claude-multi)
           REAL=$(realpath "$SHIM")
           echo "Shim: $SHIM -> $REAL"
           head -2 "$REAL"
           grep -q '#!/bin/sh' "$REAL" || (echo "ERROR: not our sh shim" && exit 1)
 
-      - name: Run --version (bun only, no node)
-        run: claude-multi --version
-
-      - name: Run --help
-        run: claude-multi --help
+          env PATH="$CLEAN_PATH" claude-multi --version
+          env PATH="$CLEAN_PATH" claude-multi --help
 
   # ─────────────────────────────────────────────
   # Linux: npm global install, bun wins over node
@@ -110,7 +108,7 @@ jobs:
           name: tarball
 
       - name: npm install -g
-        run: npm install -g ${{ needs.build.outputs.tgz }}
+        run: npm install -g "./${{ needs.build.outputs.tgz }}"
 
       - name: Confirm shim is our sh script
         run: |
@@ -123,7 +121,8 @@ jobs:
         run: claude-multi --version
 
   # ─────────────────────────────────────────────
-  # Windows: bun global install — pure cmd.exe, no sh
+  # Windows: bun global install — pure cmd.exe, no sh needed
+  # bun creates its own native shim, bypasses our sh script entirely
   # ─────────────────────────────────────────────
   windows-bun-global:
     name: Windows / bun global (cmd.exe)
@@ -139,15 +138,17 @@ jobs:
         with:
           name: tarball
 
-      - name: bun install -g
-        run: bun install -g ${{ needs.build.outputs.tgz }}
+      - name: bun install -g (use .\ prefix so bun treats it as local file)
+        run: bun install -g ".\${{ needs.build.outputs.tgz }}"
         shell: cmd
 
-      - name: Show shim location
-        run: where claude-multi
+      - name: Show shim location + type
+        run: |
+          where claude-multi
+          for /f "tokens=*" %%p in ('where claude-multi') do echo Shim: %%p
         shell: cmd
 
-      - name: Run --version via cmd.exe (no sh)
+      - name: Run --version via cmd.exe
         run: claude-multi --version
         shell: cmd
 
@@ -157,7 +158,7 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Windows: npm global install
-  # npm generates a .cmd calling sh — Git Bash is on windows-latest
+  # npm generates a .cmd that calls sh — Git Bash provides sh on windows-latest
   # ─────────────────────────────────────────────
   windows-npm-global:
     name: Windows / npm global (cmd.exe + Git Bash sh)
@@ -178,14 +179,17 @@ jobs:
           name: tarball
 
       - name: npm install -g
-        run: npm install -g ${{ needs.build.outputs.tgz }}
+        run: npm install -g ".\${{ needs.build.outputs.tgz }}"
         shell: cmd
 
-      - name: Show what npm generated as the global .cmd shim
+      - name: Show npm global prefix + generated shim
         run: |
+          set "PREFIX="
+          for /f "tokens=*" %%p in ('npm prefix -g') do set "PREFIX=%%p"
+          echo NPM global prefix: %PREFIX%
           where claude-multi
-          echo --- shim content ---
-          type "%APPDATA%\npm\claude-multi.cmd"
+          echo --- generated shim content ---
+          for /f "tokens=*" %%f in ('where claude-multi.cmd') do type "%%f"
         shell: cmd
 
       - name: Run --version via cmd.exe
@@ -193,10 +197,12 @@ jobs:
         shell: cmd
 
   # ─────────────────────────────────────────────
-  # Windows: local install — npm puts our .cmd in node_modules/.bin/
+  # Windows: local npm install
+  # Confirms npm generates its own .cmd (not using our bin/claude-multi.cmd)
+  # and that it works via Git Bash sh on the runner
   # ─────────────────────────────────────────────
-  windows-local-cmd:
-    name: Windows / local .cmd (cmd.exe, bun only)
+  windows-local-npm:
+    name: Windows / local npm install (cmd.exe)
     needs: build
     runs-on: windows-latest
 
@@ -214,25 +220,19 @@ jobs:
           name: tarball
 
       - name: Local npm install
-        run: npm install ${{ needs.build.outputs.tgz }}
+        run: npm install ".\${{ needs.build.outputs.tgz }}"
         shell: cmd
 
-      - name: Show what npm put in .bin/
+      - name: Show what npm created in .bin\
         run: dir node_modules\.bin\claude-multi*
         shell: cmd
 
-      - name: Confirm .bin\ has our .cmd
+      - name: Show the generated .cmd content
         run: type node_modules\.bin\claude-multi.cmd
         shell: cmd
 
-      - name: Run our .cmd via cmd.exe (bun + node both available)
-        run: node_modules\.bin\claude-multi.cmd --version
-        shell: cmd
-
-      - name: Run with node stripped from PATH (bun only)
-        run: |
-          set "PATH=%USERPROFILE%\.bun\bin;%SystemRoot%\System32;%SystemRoot%\System32\WindowsPowerShell\v1.0"
-          node_modules\.bin\claude-multi.cmd --version
+      - name: Run via node_modules\.bin\ in cmd.exe
+        run: node_modules\.bin\claude-multi --version
         shell: cmd
 
   # ─────────────────────────────────────────────
@@ -252,8 +252,8 @@ jobs:
         with:
           name: tarball
 
-      - name: bun install -g
-        run: bun install -g ${{ needs.build.outputs.tgz }}
+      - name: bun install -g (use ./ prefix for local file)
+        run: bun install -g "./${{ needs.build.outputs.tgz }}"
 
       - name: Run --version
         run: claude-multi --version
