@@ -44,10 +44,10 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────────
-  # Linux: bun only, no node
+  # Linux / bun — no node in PATH
   # ─────────────────────────────────────────────
   linux-bun-only:
-    name: Linux / bun only (no node)
+    name: Linux / bun (no node)
     needs: build
     runs-on: ubuntu-latest
 
@@ -56,46 +56,90 @@ jobs:
         with:
           bun-version: latest
 
-      # Download into artifact/ subdir so we have a clean relative path
       - uses: actions/download-artifact@v4
         with:
           name: tarball
           path: artifact
 
-      - name: Install + verify (node stripped from PATH)
+      - name: Install + verify
         run: |
-          TGZ="artifact/${{ needs.build.outputs.tgz }}"
-
-          # Strip node from PATH for this step
           CLEAN=$(echo "$PATH" | tr ':' '\n' | grep -vE '(node|nvm|nodenv)' | tr '\n' ':')
-          echo "Using PATH: $CLEAN"
+          echo "PATH: $CLEAN"
 
-          # Confirm bun exists, node does not
           env PATH="$CLEAN" bun --version
           if env PATH="$CLEAN" command -v node 2>/dev/null; then
-            echo "ERROR: node still in PATH after stripping" && exit 1
+            echo "ERROR: node still in PATH" && exit 1
           fi
           echo "Good: no node"
 
-          # Install from local tarball (absolute path avoids bun CWD confusion)
-          ABS_TGZ="$(pwd)/$TGZ"
+          ABS_TGZ="$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
           env PATH="$CLEAN" bun install -g "$ABS_TGZ"
 
-          # Verify shim
-          SHIM=$(env PATH="$CLEAN" which claude-multi)
-          REAL=$(realpath "$SHIM")
-          echo "Shim: $SHIM -> $REAL"
+          REAL=$(realpath "$(env PATH="$CLEAN" which claude-multi)")
           head -2 "$REAL"
-          grep -q '#!/usr/bin/env bun' "$REAL" || (echo "ERROR: shebang not #!/usr/bin/env bun" && exit 1)
+          grep -q '#!/usr/bin/env sh' "$REAL" || (echo "ERROR: wrong shebang" && exit 1)
 
-          # Run it
           env PATH="$CLEAN" claude-multi --version
           env PATH="$CLEAN" claude-multi --help
 
   # ─────────────────────────────────────────────
-  # Linux: npm global install, bun wins over node
+  # Linux / node — no bun in PATH
   # ─────────────────────────────────────────────
-  linux-npm-global:
+  linux-node-only:
+    name: Linux / node (no bun)
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: artifact
+
+      - name: Install via npm + run (bun absent)
+        run: |
+          if command -v bun 2>/dev/null; then
+            echo "ERROR: bun found unexpectedly" && exit 1
+          fi
+          echo "Good: no bun"
+
+          npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
+          claude-multi --version
+          claude-multi --help
+
+  # ─────────────────────────────────────────────
+  # Linux / deno — run dist/cli.js directly with deno
+  # ─────────────────────────────────────────────
+  linux-deno:
+    name: Linux / deno
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: artifact
+
+      - name: Extract + run dist/cli.js via deno
+        run: |
+          mkdir pkg
+          tar -xzf "artifact/${{ needs.build.outputs.tgz }}" -C pkg --strip-components=1
+          deno run -A pkg/dist/cli.js --version
+          deno run -A pkg/dist/cli.js --help
+
+  # ─────────────────────────────────────────────
+  # Linux / npm global — bun wins over node
+  # ─────────────────────────────────────────────
+  linux-npm-bun-wins:
     name: Linux / npm global (bun wins over node)
     needs: build
     runs-on: ubuntu-latest
@@ -117,22 +161,20 @@ jobs:
       - name: npm install -g
         run: npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
 
-      - name: Confirm shim is our bun script
+      - name: Confirm shim + run (bun chosen over node)
         run: |
           REAL=$(realpath "$(which claude-multi)")
-          echo "Resolves to: $REAL"
           head -2 "$REAL"
-          grep -q '#!/usr/bin/env bun' "$REAL" || (echo "ERROR: shebang not #!/usr/bin/env bun" && exit 1)
-
-      - name: Run --version (bun chosen over node)
-        run: claude-multi --version
+          grep -q '#!/usr/bin/env sh' "$REAL" || (echo "ERROR: wrong shebang" && exit 1)
+          claude-multi --version
 
   # ─────────────────────────────────────────────
-  # Windows: bun global install
-  # bun creates a native .exe shim that reads #!/usr/bin/env bun and runs with bun
+  # Windows / bun — pure cmd.exe
+  # bun's .exe shim resolves #!/usr/bin/env sh via PATH lookup for sh.
+  # Git for Windows ships sh.exe in usr\bin (not on PATH by default).
   # ─────────────────────────────────────────────
   windows-bun-global:
-    name: Windows / bun global (cmd.exe)
+    name: Windows / bun (cmd.exe)
     needs: build
     runs-on: windows-latest
 
@@ -146,11 +188,15 @@ jobs:
           name: tarball
           path: artifact
 
-      - name: bun install -g (absolute path)
+      - name: bun install -g
         run: |
           $tgz = (Resolve-Path "artifact\${{ needs.build.outputs.tgz }}").Path
           Write-Host "Installing: $tgz"
           bun install -g $tgz
+        shell: pwsh
+
+      - name: Add Git sh.exe to PATH (bun shim needs sh for #!/usr/bin/env sh)
+        run: echo C:\Program Files\Git\usr\bin >> $env:GITHUB_PATH
         shell: pwsh
 
       - name: Show shim bun created
@@ -166,12 +212,11 @@ jobs:
         shell: cmd
 
   # ─────────────────────────────────────────────
-  # Windows: npm global install
-  # npm generates a .cmd that passes Windows paths to sh (Git Bash).
-  # Run the final check via bash shell where paths work correctly.
+  # Windows / node — npm global install
+  # npm generates a .cmd that calls node directly (no sh needed)
   # ─────────────────────────────────────────────
-  windows-npm-global:
-    name: Windows / npm global (Git Bash sh)
+  windows-node-npm:
+    name: Windows / node via npm
     needs: build
     runs-on: windows-latest
 
@@ -195,22 +240,38 @@ jobs:
           npm install -g $tgz
         shell: pwsh
 
-      - name: Show what npm generated as the global shim
-        run: |
-          $prefix = npm prefix -g
-          Write-Host "NPM prefix: $prefix"
-          Get-Command claude-multi | Select-Object -ExpandProperty Source
-          Get-Content "$prefix\claude-multi.cmd"
-        shell: pwsh
-
-      # npm's .cmd calls sh with a Windows path — must use bash (Git Bash) here
-      - name: Run --version via Git Bash sh
+      - name: Run --version (Git Bash)
         run: claude-multi --version
         shell: bash
 
   # ─────────────────────────────────────────────
-  # Windows: local npm install
-  # Confirms npm generates its own wrapper (not using our bin/claude-multi.cmd)
+  # Windows / deno — run dist/cli.js directly with deno
+  # ─────────────────────────────────────────────
+  windows-deno:
+    name: Windows / deno
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: artifact
+
+      - name: Extract + run dist/cli.js via deno
+        run: |
+          mkdir pkg
+          tar -xzf "artifact/${{ needs.build.outputs.tgz }}" -C pkg --strip-components=1
+          deno run -A pkg/dist/cli.js --version
+          deno run -A pkg/dist/cli.js --help
+        shell: bash
+
+  # ─────────────────────────────────────────────
+  # Windows / local npm install
   # ─────────────────────────────────────────────
   windows-local-npm:
     name: Windows / local npm install
@@ -241,17 +302,12 @@ jobs:
         run: dir node_modules\.bin\claude-multi*
         shell: cmd
 
-      - name: Show generated .cmd content (npm generates this, not us)
-        run: type node_modules\.bin\claude-multi.cmd
-        shell: cmd
-
-      # npm-generated .cmd calls sh — must use bash (Git Bash) on Windows
       - name: Run via node_modules/.bin/ (Git Bash)
         run: node_modules/.bin/claude-multi --version
         shell: bash
 
   # ─────────────────────────────────────────────
-  # macOS: bun global install
+  # macOS / bun global
   # ─────────────────────────────────────────────
   macos-bun-global:
     name: macOS / bun global
@@ -268,11 +324,62 @@ jobs:
           name: tarball
           path: artifact
 
-      - name: bun install -g (absolute path)
-        run: bun install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
+      - name: bun install -g + run
+        run: |
+          bun install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
+          claude-multi --version
+          claude-multi --help
 
-      - name: Run --version
-        run: claude-multi --version
+  # ─────────────────────────────────────────────
+  # macOS / node — npm global, no bun
+  # ─────────────────────────────────────────────
+  macos-node-npm:
+    name: macOS / node via npm (no bun)
+    needs: build
+    runs-on: macos-latest
 
-      - name: Run --help
-        run: claude-multi --help
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: artifact
+
+      - name: npm install -g + run (bun absent)
+        run: |
+          if command -v bun 2>/dev/null; then
+            echo "ERROR: bun found unexpectedly" && exit 1
+          fi
+          echo "Good: no bun"
+
+          npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
+          claude-multi --version
+          claude-multi --help
+
+  # ─────────────────────────────────────────────
+  # macOS / deno — run dist/cli.js directly with deno
+  # ─────────────────────────────────────────────
+  macos-deno:
+    name: macOS / deno
+    needs: build
+    runs-on: macos-latest
+
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: artifact
+
+      - name: Extract + run dist/cli.js via deno
+        run: |
+          mkdir pkg
+          tar -xzf "artifact/${{ needs.build.outputs.tgz }}" -C pkg --strip-components=1
+          deno run -A pkg/dist/cli.js --version
+          deno run -A pkg/dist/cli.js --help
