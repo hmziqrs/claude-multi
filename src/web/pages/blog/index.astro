@@ -70,15 +70,15 @@ const posts = (await getCollection('blog'))
         )
       }
 
-      <div class="reveal mt-16 flex items-center gap-4 glass rounded-2xl p-6">
+      <div class="reveal mt-16 flex items-start gap-4 glass rounded-2xl p-6">
         <img
           src={author.avatar.dark}
           alt={author.name}
           width="56"
           height="56"
-          class="rounded-full border border-edge"
+          class="rounded-full border border-edge flex-shrink-0"
         />
-        <div>
+        <div class="flex-1">
           <div class="flex items-baseline gap-2">
             <a
               href={author.url}
@@ -90,9 +90,23 @@ const posts = (await getCollection('blog'))
             </a>
             <span class="text-xs text-text-mute font-mono">@{author.twitterHandle}</span>
           </div>
-          <p class="text-sm text-text-mute mt-1 leading-relaxed">
+          <p class="text-sm text-text-mute mt-1 mb-3 leading-relaxed">
             {author.bio}
           </p>
+          <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+            {
+              author.socials.map((s) => (
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="text-text-mute no-underline hover:text-lime capitalize"
+                >
+                  {s.platform}
+                </a>
+              ))
+            }
+          </div>
         </div>
       </div>
     </div>
