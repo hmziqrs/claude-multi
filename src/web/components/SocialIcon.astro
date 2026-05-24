@@ -1,0 +1,24 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  platform: string;
+  size?: number;
+  class?: string;
+}
+
+const { platform, size = 16, class: className = '' } = Astro.props;
+
+const ICON_MAP: Record<string, string> = {
+  website: 'lucide:globe',
+  x: 'simple-icons:x',
+  github: 'simple-icons:github',
+  linkedin: 'simple-icons:linkedin',
+  telegram: 'simple-icons:telegram',
+  reddit: 'simple-icons:reddit',
+};
+
+const name = ICON_MAP[platform.toLowerCase()] ?? 'lucide:globe';
+---
+
+<Icon name={name} width={size} height={size} class={className} />

@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwindcss from '@tailwindcss/vite';
+import icon from 'astro-icon';
 
 export default defineConfig({
   site: 'https://claudemutli.hmziq.xyz',
@@ -18,6 +19,12 @@ export default defineConfig({
     },
   },
   integrations: [
+    icon({
+      include: {
+        'simple-icons': ['x', 'github', 'linkedin', 'telegram', 'reddit'],
+        lucide: ['globe'],
+      },
+    }),
     starlight({
       title: 'claude-multi',
       description:

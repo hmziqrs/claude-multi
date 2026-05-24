@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/MarketingLayout.astro';
+import SocialIcon from '../../components/SocialIcon.astro';
 import { author, formatDate } from '../../util/author';
 
 const posts = (await getCollection('blog'))
@@ -93,16 +94,18 @@ const posts = (await getCollection('blog'))
           <p class="text-sm text-text-mute mt-1 mb-3 leading-relaxed">
             {author.bio}
           </p>
-          <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+          <div class="flex flex-wrap gap-2">
             {
               author.socials.map((s) => (
                 <a
                   href={s.url}
                   target="_blank"
                   rel="noopener"
-                  class="text-text-mute no-underline hover:text-lime capitalize"
+                  aria-label={s.platform}
+                  title={s.platform}
+                  class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-edge bg-[rgba(255,255,255,0.02)] text-text-mute no-underline hover:text-lime hover:border-edge-hover transition-colors"
                 >
-                  {s.platform}
+                  <SocialIcon platform={s.platform} size={15} />
                 </a>
               ))
             }

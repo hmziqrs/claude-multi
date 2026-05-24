@@ -72,5 +72,10 @@
   "engines": {
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.109",
+    "@iconify-json/simple-icons": "^1.2.83",
+    "astro-icon": "^1.1.5"
   }
 }
