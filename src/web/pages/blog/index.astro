@@ -1,0 +1,100 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/MarketingLayout.astro';
+import { author, formatDate } from '../../util/author';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<Layout
+  title="Blog · claude-multi"
+  description="Notes, deep dives, and updates about claude-multi."
+>
+  <section class="relative z-10 pt-36 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <span class="eyebrow">// Blog</span>
+      <h1
+        class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
+      >
+        Writing about <span class="gradient-text">claude-multi.</span>
+      </h1>
+      <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
+        Build notes, deep dives, and the occasional rant. New posts whenever
+        there's something worth saying.
+      </p>
+    </div>
+  </section>
+
+  <section class="relative z-10 pb-32 px-6">
+    <div class="max-w-4xl mx-auto">
+      {
+        posts.length === 0 ? (
+          <p class="text-text-mute text-center py-16">
+            No posts yet. Check back soon.
+          </p>
+        ) : (
+          <ul class="list-none p-0 m-0 space-y-4">
+            {posts.map((post) => (
+              <li class="reveal">
+                <a
+                  href={`/blog/${post.id}/`}
+                  class="block glass rounded-2xl p-7 no-underline transition-colors hover:border-edge-hover group"
+                >
+                  <div class="flex items-center gap-3 text-xs text-text-mute mb-3 font-mono">
+                    <time datetime={post.data.date.toISOString()}>
+                      {formatDate(post.data.date)}
+                    </time>
+                    {post.data.tags.length > 0 && (
+                      <>
+                        <span class="opacity-40">·</span>
+                        <span class="flex gap-2">
+                          {post.data.tags.map((t) => (
+                            <span class="text-lime">#{t}</span>
+                          ))}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <h2 class="text-2xl font-bold tracking-tight mb-2 group-hover:text-lime transition-colors">
+                    {post.data.title}
+                  </h2>
+                  <p class="text-text-dim leading-relaxed">
+                    {post.data.description}
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <div class="reveal mt-16 flex items-center gap-4 glass rounded-2xl p-6">
+        <img
+          src={author.avatar.dark}
+          alt={author.name}
+          width="56"
+          height="56"
+          class="rounded-full border border-edge"
+        />
+        <div>
+          <div class="flex items-baseline gap-2">
+            <a
+              href={author.url}
+              target="_blank"
+              rel="noopener"
+              class="font-semibold text-text no-underline hover:text-lime"
+            >
+              {author.name}
+            </a>
+            <span class="text-xs text-text-mute font-mono">@{author.twitterHandle}</span>
+          </div>
+          <p class="text-sm text-text-mute mt-1 leading-relaxed">
+            {author.bio}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

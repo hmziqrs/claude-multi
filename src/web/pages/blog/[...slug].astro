@@ -1,0 +1,228 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/MarketingLayout.astro';
+import { author, formatDate, readingTime } from '../../util/author';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const minutes = readingTime(post.body ?? '');
+---
+
+<Layout
+  title={`${post.data.title} · claude-multi blog`}
+  description={post.data.description}
+  ogType="article"
+>
+  <article class="relative z-10 pt-36 pb-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <a
+        href="/blog/"
+        class="text-sm text-text-mute no-underline hover:text-lime inline-flex items-center gap-1.5 mb-8"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m12 19-7-7 7-7"></path>
+          <path d="M19 12H5"></path>
+        </svg>
+        Back to blog
+      </a>
+
+      <div class="flex flex-wrap items-center gap-3 text-xs text-text-mute mb-5 font-mono">
+        <time datetime={post.data.date.toISOString()}>
+          {formatDate(post.data.date)}
+        </time>
+        <span class="opacity-40">·</span>
+        <span>{minutes} min read</span>
+        {
+          post.data.tags.length > 0 && (
+            <>
+              <span class="opacity-40">·</span>
+              <span class="flex gap-2">
+                {post.data.tags.map((t) => (
+                  <span class="text-lime">#{t}</span>
+                ))}
+              </span>
+            </>
+          )
+        }
+      </div>
+
+      <h1
+        class="text-3xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05] mb-5"
+      >
+        {post.data.title}
+      </h1>
+
+      <p class="text-lg text-text-dim leading-relaxed mb-10">
+        {post.data.description}
+      </p>
+
+      <div class="flex items-center gap-3 pb-10 mb-10 border-b border-edge">
+        <img
+          src={author.avatar.dark}
+          alt={author.name}
+          width="44"
+          height="44"
+          class="rounded-full border border-edge"
+        />
+        <div>
+          <a
+            href={author.url}
+            target="_blank"
+            rel="noopener"
+            class="font-semibold text-text text-sm no-underline hover:text-lime block"
+          >
+            {author.name}
+          </a>
+          <span class="text-xs text-text-mute font-mono">@{author.twitterHandle}</span>
+        </div>
+      </div>
+
+      <div class="prose-blog">
+        <Content />
+      </div>
+
+      <footer class="mt-16 pt-10 border-t border-edge">
+        <div class="glass rounded-2xl p-6 flex items-start gap-4">
+          <img
+            src={author.avatar.dark}
+            alt={author.name}
+            width="56"
+            height="56"
+            class="rounded-full border border-edge flex-shrink-0"
+          />
+          <div class="flex-1">
+            <div class="flex items-baseline gap-2 mb-1">
+              <a
+                href={author.url}
+                target="_blank"
+                rel="noopener"
+                class="font-semibold text-text no-underline hover:text-lime"
+              >
+                {author.name}
+              </a>
+              <span class="text-xs text-text-mute font-mono">@{author.twitterHandle}</span>
+            </div>
+            <p class="text-sm text-text-mute leading-relaxed mb-3">
+              {author.bio}
+            </p>
+            <div class="flex gap-3 text-xs">
+              {
+                author.socials.map((s) => (
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener"
+                    class="text-text-mute no-underline hover:text-lime capitalize"
+                  >
+                    {s.platform}
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </article>
+</Layout>
+
+<style is:global>
+  .prose-blog {
+    color: var(--color-text-dim);
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .prose-blog h2 {
+    color: var(--color-text);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+  .prose-blog h3 {
+    color: var(--color-text);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-top: 2.25rem;
+    margin-bottom: 0.85rem;
+  }
+  .prose-blog p {
+    margin-bottom: 1.25rem;
+  }
+  .prose-blog a {
+    color: var(--color-lime);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(163, 230, 53, 0.3);
+    transition: border-color 0.15s;
+  }
+  .prose-blog a:hover {
+    border-bottom-color: var(--color-lime);
+  }
+  .prose-blog code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--color-lime);
+    background: rgba(163, 230, 53, 0.08);
+    padding: 0.12rem 0.4rem;
+    border-radius: 0.3rem;
+  }
+  .prose-blog pre {
+    background: rgba(10, 10, 14, 0.85);
+    border: 1px solid var(--color-edge);
+    border-radius: 0.85rem;
+    padding: 1.1rem 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .prose-blog pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+  .prose-blog ul,
+  .prose-blog ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .prose-blog li {
+    margin-bottom: 0.4rem;
+  }
+  .prose-blog blockquote {
+    border-left: 3px solid var(--color-lime);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: var(--color-text-mute);
+    font-style: italic;
+  }
+  .prose-blog hr {
+    border: none;
+    border-top: 1px solid var(--color-edge);
+    margin: 2.5rem 0;
+  }
+  .prose-blog strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+</style>
