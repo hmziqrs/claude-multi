@@ -300,4 +300,4 @@ You get a basic prompt-based UI with the same flows.
 
 ## License
 
-MIT
+MIT. See [LICENSE](./LICENSE) for the full text. Copyright (c) 2026 hmziqrs.
