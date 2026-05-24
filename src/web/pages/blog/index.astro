@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../../layouts/MarketingLayout.astro';
-import SocialIcon from '../../components/SocialIcon.astro';
-import { author, formatDate } from '../../util/author';
+import Layout from '@/web/layouts/MarketingLayout.astro';
+import SocialIcon from '@/web/components/SocialIcon.astro';
+import { author, formatDate } from '@/web/util/author';
 
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)

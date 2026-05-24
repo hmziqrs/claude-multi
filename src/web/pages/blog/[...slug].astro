@@ -1,8 +1,8 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Layout from '../../layouts/MarketingLayout.astro';
-import SocialIcon from '../../components/SocialIcon.astro';
-import { author, formatDate, readingTime } from '../../util/author';
+import Layout from '@/web/layouts/MarketingLayout.astro';
+import SocialIcon from '@/web/components/SocialIcon.astro';
+import { author, formatDate, readingTime } from '@/web/util/author';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
