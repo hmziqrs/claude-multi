@@ -14,7 +14,7 @@ const highlight = latestHighlight();
           <h1
             class="reveal mt-5 text-[2.75rem] sm:text-6xl lg:text-[4.25rem] font-extrabold tracking-[-0.03em] leading-[1.02] headline-glow"
           >
-            One CLI for<br />
+            One harness for<br />
             <span class="gradient-text">every Claude</span><br />
             you run.
           </h1>
@@ -23,8 +23,8 @@ const highlight = latestHighlight();
             class="reveal mt-7 text-lg sm:text-xl text-text-dim max-w-xl leading-relaxed"
           >
             Run Claude Code against Anthropic, GLM, MiniMax, and DeepSeek from
-            the same machine. Each with its own config, plugins, and history.
-            Same CLI, no overlap.
+            the same machine. Each one keeps its own config, plugins, and
+            history. Nothing overlaps. One terminal UI runs the whole thing.
           </p>
 
           <div class="reveal mt-10 flex gap-3 flex-wrap">
@@ -142,20 +142,19 @@ const highlight = latestHighlight();
             </div>
             <div class="terminal-body">
               <span class="term-prompt">$</span>
-              <span class="term-cmd">claude-multi add</span>
-              <span class="term-arg">glm</span> --provider glm<br />
-              <span class="term-out"> Created instance </span><span
-                class="term-ok">glm</span
-              ><span class="term-out"> → ~/.claude-multi/glm/</span><br />
-              <span class="term-out"> Linked plugins (12), skills (5)</span><br
-              />
-              <span class="term-ok"> ✓ Ready.</span> Run <span class="term-cmd"
-                >claude-glm</span
-              > to start.<br />
+              <span class="term-cmd">claude-multi</span><br />
+              <span class="term-ok"> 🤖 Claude Multi</span>
+              <span class="term-out"> Interactive Mode</span><br />
               <br />
-              <span class="term-prompt">$</span>
-              <span class="term-cmd">claude-glm</span><span class="cursor-blink"
-              ></span>
+              <span class="term-out"> ▸ </span><span class="term-ok"
+                >➕ Add new instance</span
+              ><br />
+              <span class="term-out"> &nbsp;&nbsp;📋 List all instances</span><br />
+              <span class="term-out"> &nbsp;&nbsp;🔌 Manage plugins</span><br />
+              <span class="term-out"> &nbsp;&nbsp;🔄 Toggle auto-sync</span><br />
+              <span class="term-out"> &nbsp;&nbsp;⚙️&nbsp; MCP servers</span><br />
+              <span class="term-out"> &nbsp;&nbsp;🚪 Exit</span><span
+                class="cursor-blink"></span>
             </div>
           </div>
         </div>
@@ -172,8 +171,8 @@ const highlight = latestHighlight();
           One command. <span class="gradient-text">Any runtime.</span>
         </h2>
         <p class="mt-5 text-text-dim max-w-xl mx-auto">
-          On npm. Install globally with whichever package manager you already
-          use. No curl-pipe-sh, no platform binaries.
+          It's on npm. Install it globally with whatever package manager you
+          already use. No curl-pipe-sh, no platform binaries, no funny business.
         </p>
       </div>
 
@@ -413,8 +412,8 @@ const highlight = latestHighlight();
           For when one model <span class="gradient-text">isn't enough.</span>
         </h2>
         <p class="mt-4 text-text-dim text-lg max-w-2xl mx-auto">
-          Stop overwriting your <code class="font-mono text-lime">.claude</code> directory
-          every time you switch models.
+          Stop trampling your <code class="font-mono text-lime">.claude</code>
+          directory every time you swap models.
         </p>
       </div>
 
@@ -451,16 +450,16 @@ const highlight = latestHighlight();
                   d="M5 14v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"></path></svg
               >
             </div>
-            <h3 class="text-2xl font-bold mb-3">Multi-Provider, one CLI</h3>
+            <h3 class="text-2xl font-bold mb-3">Many providers, one harness</h3>
             <p class="text-text-dim leading-relaxed max-w-md">
-              Templates for Anthropic, GLM, MiniMax, and DeepSeek. Each gets its
-              own alias (<code
+              Templates for Anthropic, GLM, MiniMax, and DeepSeek. Every
+              provider you set up gets its own alias (<code
                 class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm"
                 >claude-glm</code
               >, <code
                 class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm"
                 >claude-deepseek</code
-              >) that drops into your terminal and runs.
+              >) that drops straight into your terminal.
             </p>
 
             <div class="mt-7 grid grid-cols-2 gap-2 max-w-md">
@@ -518,7 +517,7 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Isolated configs</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Each instance gets its own <code class="font-mono text-lime text-xs"
+            Every instance has its own <code class="font-mono text-lime text-xs"
               >settings.json</code
             >, history, and credentials. Your Anthropic setup never touches your
             GLM setup.
@@ -546,8 +545,8 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Plugin sync</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Plugins and skills symlink from your primary install. Change once,
-            every instance sees it.
+            Plugins and skills can symlink back to your primary install. Install
+            once, every instance picks it up.
           </p>
         </div>
 
@@ -567,11 +566,12 @@ const highlight = latestHighlight();
                 points="8 6 2 12 8 18"></polyline></svg
             >
           </div>
-          <h3 class="text-lg font-semibold mb-2">Native CLI</h3>
+          <h3 class="text-lg font-semibold mb-2">Real Claude underneath</h3>
           <p class="text-text-dim text-sm leading-relaxed">
             Wraps the official <code class="font-mono text-lime text-xs"
               >claude</code
-            > binary: every flag, every command, no surprises.
+            > binary. Every flag, every slash command, every plugin, exactly as
+            you know them.
           </p>
         </div>
 
@@ -593,8 +593,8 @@ const highlight = latestHighlight();
           </div>
           <h3 class="text-lg font-semibold mb-2">Local credentials</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            API keys live in per-instance config files on disk. No global env
-            vars, no accidental leaks.
+            API keys live in per-instance config files. No global env vars
+            leaking into the wrong session.
           </p>
         </div>
       </div>
@@ -611,8 +611,8 @@ const highlight = latestHighlight();
             Ready for <span class="gradient-text">every model.</span>
           </h2>
           <p class="mt-4 text-text-dim text-lg max-w-xl lg:max-w-none">
-            Endpoints, model names, defaults: all correct out of the box. Add
-            your API key and go.
+            Endpoints, model names, defaults. Already wired up. Pick a provider
+            in the TUI, paste your API key, you're done.
           </p>
         </div>
 
@@ -821,8 +821,8 @@ const highlight = latestHighlight();
       <div class="reveal text-center mb-14">
         <span class="eyebrow">// Quick start</span>
         <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          Interactive by default. <span class="gradient-text"
-            >Fast when you need it.</span
+          Two steps. <span class="gradient-text"
+            >No flags to remember.</span
           >
         </h2>
       </div>
@@ -836,15 +836,13 @@ const highlight = latestHighlight();
               1
             </div>
             <div>
-              <h4 class="font-semibold mb-1">Add a provider</h4>
+              <h4 class="font-semibold mb-1">Launch the TUI</h4>
               <p class="text-sm text-text-mute">
-                Run <code class="font-mono text-lime text-xs"
-                  >claude-multi add &lt;name&gt;</code
-                >. The guided wizard picks your provider, sets the API key, and
-                wires up plugins. Or use <code
-                  class="font-mono text-lime text-xs"
-                  >claude-multi interactive</code
-                > to manage everything from a full TUI.
+                Type <code class="font-mono text-lime text-xs">claude-multi</code
+                > and hit enter. The menu lets you add an instance, pick a
+                provider, paste your key, choose what to copy from your default
+                Claude setup, and you're done. Arrow keys to move, enter to
+                select, that's it.
               </p>
             </div>
           </li>
@@ -855,11 +853,13 @@ const highlight = latestHighlight();
               2
             </div>
             <div>
-              <h4 class="font-semibold mb-1">Use the new alias</h4>
+              <h4 class="font-semibold mb-1">Run your new alias</h4>
               <p class="text-sm text-text-mute">
-                Every flag from <code class="font-mono text-lime text-xs"
-                  >claude</code
-                > works as-is.
+                The wizard prints something like <code
+                  class="font-mono text-lime text-xs">claude-glm</code
+                >. Run it. Every flag and slash command from <code
+                  class="font-mono text-lime text-xs">claude</code
+                > works exactly as you'd expect.
               </p>
             </div>
           </li>
@@ -870,37 +870,33 @@ const highlight = latestHighlight();
             <span class="terminal-dot bg-[#ff5f57]"></span>
             <span class="terminal-dot bg-[#febc2e]"></span>
             <span class="terminal-dot bg-[#28c840]"></span>
-            <span class="terminal-title">setup.sh</span>
+            <span class="terminal-title">setup</span>
           </div>
           <div class="terminal-body">
-            <span class="term-out"># guided wizard: no flags needed</span><br />
+            <span class="term-out"># one command, then everything happens in the menu</span><br />
             <span class="term-prompt">$</span>
-            <span class="term-cmd">claude-multi add</span>
-            <span class="term-arg">glm</span><br />
-            <span class="term-out"> ? Provider › </span><span class="term-ok"
-              >GLM</span
-            ><span class="term-out"> MiniMax DeepSeek None</span><br />
-            <span class="term-out"> ? API key </span><span class="term-str"
-              >••••••••••••••••</span
+            <span class="term-cmd">claude-multi</span><br />
+            <span class="term-out"> ▸ </span><span class="term-ok"
+              >➕ Add new instance</span
             ><br />
-            <span class="term-out"> ? Copy from ~/.claude › </span><span
-              class="term-ok">Nothing</span
+            <span class="term-out"> Step 1 / 8 · Instance Name › </span><span
+              class="term-str">glm</span
             ><br />
-            <span class="term-ok"> ✓ Ready.</span> Run <span class="term-cmd"
-              >claude-glm</span
-            > to start.<br />
+            <span class="term-out"> Step 2 / 8 · Provider › </span><span
+              class="term-ok">GLM</span
+            ><br />
+            <span class="term-out"> Step 3 / 8 · API Key › </span><span
+              class="term-str">••••••••••••</span
+            ><br />
+            <span class="term-ok"> ✓ Instance 'glm' created.</span><br />
             <br />
             <span class="term-prompt">$</span>
             <span class="term-cmd">claude-glm</span><span class="cursor-blink"
             ></span>
           </div>
           <p class="mt-3 text-xs text-text-mute text-right">
-            Prefer a menu? <code class="font-mono text-lime"
-              >claude-multi interactive</code
-            > opens the full TUI. Pass <code class="font-mono text-lime"
-              >--provider</code
-            > / <code class="font-mono text-lime">--api-key</code> to skip the wizard
-            entirely.
+            The whole flow lives in the menu. No subcommands, no flags, nothing
+            to memorize.
           </p>
         </div>
       </div>
@@ -913,12 +909,12 @@ const highlight = latestHighlight();
       <div class="reveal text-center mb-12">
         <span class="eyebrow">// Interactive mode</span>
         <h2 class="mt-5 text-4xl sm:text-5xl font-extrabold tracking-tight">
-          A full <span class="gradient-text">TUI</span> when you want one.
+          The <span class="gradient-text">TUI</span> does everything.
         </h2>
         <p class="mt-5 text-text-dim max-w-xl mx-auto">
-          Run <code class="font-mono text-lime text-sm"
-            >claude-multi interactive</code
-          > to add, list, and manage every instance without remembering a single flag.
+          Type <code class="font-mono text-lime text-sm">claude-multi</code> and
+          the terminal UI opens. Add, list, manage plugins, swap MCP servers,
+          repair symlinks. No flags to remember, ever.
         </p>
       </div>
       <div class="max-w-2xl mx-auto">
@@ -952,7 +948,7 @@ const highlight = latestHighlight();
             >
           </h2>
           <p class="mt-5 text-lg text-text-dim max-w-lg mx-auto">
-            Open source. MIT licensed. Use every model that fits the job.
+            Open source. MIT licensed. Pick whichever model fits the job.
           </p>
           <div class="mt-9 flex gap-3 justify-center flex-wrap">
             <a href="/docs/getting-started/" class="btn-primary">

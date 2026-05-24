@@ -1,6 +1,6 @@
 ---
-// Animated mockup of the `claude-multi interactive` TUI.
-// Pure CSS — cycles through main menu → add-instance flow → done.
+// Animated mockup of the `claude-multi` TUI.
+// Pure CSS, cycles through main menu, add-instance flow, done.
 // Six 4s frames = 24s total loop.
 ---
 
@@ -9,7 +9,7 @@
     <span class="terminal-dot bg-[#ff5f57]"></span>
     <span class="terminal-dot bg-[#febc2e]"></span>
     <span class="terminal-dot bg-[#28c840]"></span>
-    <span class="terminal-title">claude-multi interactive</span>
+    <span class="terminal-title">claude-multi</span>
   </div>
 
   <div class="demo-body">
@@ -25,17 +25,17 @@
         <div class="demo-line demo-spacer"></div>
         <div class="demo-line demo-selected">▸ ➕ Add new instance</div>
         <div class="demo-line">&nbsp;&nbsp;📋 List all instances</div>
-        <div class="demo-line">&nbsp;&nbsp;ℹ️&nbsp; Instance details</div>
         <div class="demo-line">&nbsp;&nbsp;🔌 Manage plugins</div>
         <div class="demo-line">&nbsp;&nbsp;🔄 Toggle auto-sync</div>
+        <div class="demo-line">&nbsp;&nbsp;⚙️&nbsp; MCP servers</div>
         <div class="demo-line">&nbsp;&nbsp;🚪 Exit</div>
       </div>
 
       <!-- Frame 2 — name -->
       <div class="demo-frame demo-frame-2">
-        <div class="demo-line demo-step">Step 1 / 6 · Instance Name</div>
+        <div class="demo-line demo-step">Step 1 / 8 · Instance Name</div>
         <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">Pick a short alias. Used as the command name.</div>
+        <div class="demo-line demo-dim">Pick a short alias. Becomes your command name.</div>
         <div class="demo-line demo-spacer"></div>
         <div class="demo-line">
           <span class="demo-prompt">›</span>
@@ -45,20 +45,19 @@
 
       <!-- Frame 3 — provider -->
       <div class="demo-frame demo-frame-3">
-        <div class="demo-line demo-step">Step 2 / 6 · Provider Template</div>
+        <div class="demo-line demo-step">Step 2 / 8 · Provider Template</div>
         <div class="demo-line demo-spacer"></div>
         <div class="demo-line demo-selected">▸ GLM</div>
         <div class="demo-line">&nbsp;&nbsp;MiniMax</div>
         <div class="demo-line">&nbsp;&nbsp;DeepSeek</div>
-        <div class="demo-line">&nbsp;&nbsp;Kimi</div>
-        <div class="demo-line">&nbsp;&nbsp;None (manual)</div>
+        <div class="demo-line">&nbsp;&nbsp;None / Custom</div>
       </div>
 
       <!-- Frame 4 — api key -->
       <div class="demo-frame demo-frame-4">
-        <div class="demo-line demo-step">Step 3 / 6 · API Key</div>
+        <div class="demo-line demo-step">Step 3 / 8 · API Key</div>
         <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">Stored in ~/.claude-glm/auth.json</div>
+        <div class="demo-line demo-dim">Goes into ~/.claude-glm/settings.json</div>
         <div class="demo-line demo-spacer"></div>
         <div class="demo-line">
           <span class="demo-prompt">›</span>
@@ -68,9 +67,9 @@
 
       <!-- Frame 5 — autosync -->
       <div class="demo-frame demo-frame-5">
-        <div class="demo-line demo-step">Step 6 / 6 · Auto-Sync</div>
+        <div class="demo-line demo-step">Step 7 / 8 · Auto-Sync</div>
         <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">Mirror plugins &amp; MCP servers from ~/.claude on every launch?</div>
+        <div class="demo-line demo-dim">Symlink plugins &amp; skills from ~/.claude?</div>
         <div class="demo-line demo-spacer"></div>
         <div class="demo-line">
           <span class="demo-prompt">?</span>
