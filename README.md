@@ -19,7 +19,7 @@
 
 ## Demo
 
-<video src="https://github.com/hmziqrs/claude-multi/raw/master/public/claude-multi-demo.mov" controls="true" muted="true" width="100%"></video>
+https://github.com/user-attachments/assets/claude-multi-demo.mov
 
 ---
 
