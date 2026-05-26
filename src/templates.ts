@@ -75,6 +75,44 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
       alwaysThinkingEnabled: false,
     },
   },
+  mimo: {
+    name: "mimo",
+    displayName: "Xiaomi MiMo",
+    description: "MiMo-V2.5-Pro and MiMo-V2.5 models via xiaomimimo.com",
+    settings: {
+      env: {
+        ANTHROPIC_AUTH_TOKEN: "",
+        ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
+        API_TIMEOUT_MS: "3000000",
+        ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "mimo-v2.5-pro",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "mimo-v2.5-pro",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "mimo-v2.5",
+        ANTHROPIC_SMALL_FAST_MODEL: "mimo-v2.5",
+      },
+      includeCoAuthoredBy: false,
+      alwaysThinkingEnabled: false,
+    },
+  },
+  kimi: {
+    name: "kimi",
+    displayName: "Moonshot Kimi",
+    description: "Kimi K2.6 model via moonshot.ai",
+    settings: {
+      env: {
+        ANTHROPIC_AUTH_TOKEN: "",
+        ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
+        API_TIMEOUT_MS: "3000000",
+        ANTHROPIC_MODEL: "kimi-k2.6",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "kimi-k2.6",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "kimi-k2.6",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "kimi-k2.6",
+        ANTHROPIC_SMALL_FAST_MODEL: "kimi-k2.6",
+      },
+      includeCoAuthoredBy: false,
+      alwaysThinkingEnabled: false,
+    },
+  },
 };
 
 /**
