@@ -42,9 +42,6 @@
   "bugs": {
     "url": "https://github.com/hmziqrs/claude-multi/issues"
   },
-  "peerDependencies": {
-    "@anthropic-ai/claude-code": ">=2.0.0"
-  },
   "devDependencies": {
     "@astrojs/starlight": "^0.39.2",
     "@astrojs/tailwind": "^6.0.2",

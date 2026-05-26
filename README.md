@@ -17,6 +17,12 @@
 ---
 </div>
 
+## Demo
+
+<video src="https://github.com/hmziqrs/claude-multi/raw/master/public/claude-multi-demo.mov" controls="true" muted="true" width="100%"></video>
+
+---
+
 ## Why?
 
 Claude Code is great. Switching between providers and model setups is not.
