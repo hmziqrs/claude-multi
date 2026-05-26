@@ -1,0 +1,73 @@
+# claude-multi
+
+> Run multiple isolated Claude Code instances side by side. Each one gets its own provider, config directory, plugins, MCP servers, and `claude-<name>` command.
+
+## What it does
+
+claude-multi wraps the existing `claude` binary — no fork, no patches. Each instance gets a wrapper script at `~/.local/bin/claude-<name>` that sets `CLAUDE_CONFIG_DIR` before exec-ing the real `claude` binary. Instance metadata lives in `~/.claude-multi/config.json`.
+
+This lets you run Claude Code against different providers (GLM/Z.ai, MiniMax, DeepSeek) or different configurations without editing settings by hand.
+
+## Installation
+
+```bash
+bun install -g claude-multi
+# or: npm install -g claude-multi
+# or: pnpm install -g claude-multi
+# or: deno install -g npm:claude-multi
+```
+
+Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
+
+## Commands
+
+- `claude-multi` — Launch interactive terminal UI (default)
+- `claude-multi add <name>` — Create instance (flags: `--provider`, `--api-key`, `--copy-settings`, `--copy-all`, `--auto-sync`)
+- `claude-multi remove <name>` — Remove instance (`--force` to skip confirm)
+- `claude-multi list` — List all instances
+- `claude-multi info <name>` — Show instance details
+- `claude-multi version` — Check for Claude Code updates
+- `claude-multi update` — Update Claude Code to latest
+- `claude-multi auto-sync <name> <on|off>` — Toggle symlink-based plugin/skill sync
+- `claude-multi fix-symlinks` — Fix broken symlinks (`-a` for all)
+- `claude-multi plugins <action>` — Plugin management (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)
+- `claude-multi mcp <action>` — MCP management (list, copy, verify)
+
+## Provider templates
+
+| Provider | Endpoint | Models |
+|----------|----------|--------|
+| GLM (Zhipu AI) | api.z.ai | glm-5.1, glm-5-turbo |
+| MiniMax | api.minimax.io | MiniMax-M2.7 |
+| DeepSeek | api.deepseek.com | deepseek-v4-pro, deepseek-v4-flash |
+
+All providers use the Anthropic-compatible API format with their own base URL.
+
+## Key concepts
+
+- **Instances**: Named Claude Code configs stored in `~/.claude-<name>/`
+- **Auto-sync**: Symlinks `plugins/` and `skills/` from `~/.claude/` into each instance (toggleable)
+- **Manual mode**: Copies files instead of symlinking for full isolation
+- **Plugin management**: Install/remove individual plugins with MCP collision detection and rollback
+- **Health checks**: Detects broken symlinks, missing dirs, corrupted settings, failed migrations
+- **Migration system**: Version-based config upgrades with backup rotation and file locking
+
+## File locations
+
+| Path | Purpose |
+|------|---------|
+| `~/.claude-multi/config.json` | Instance registry |
+| `~/.claude-<name>/` | Per-instance config directory |
+| `~/.local/bin/claude-<name>` | Wrapper command |
+| `~/.claude/` | Default Claude Code config (source for copy/sync) |
+
+## Tech stack
+
+TypeScript (ESNext, strict, ESM) · Bun bundler · Commander.js CLI · Ink v7 TUI (React for terminals) · 155+ tests across unit/integration/e2e · Cross-platform (macOS, Linux, Windows)
+
+## Links
+
+- Docs: https://claudemutli.hmziq.xyz/docs/
+- GitHub: https://github.com/hmziqrs/claude-multi
+- npm: https://www.npmjs.com/package/claude-multi
+- Issues: https://github.com/hmziqrs/claude-multi/issues
