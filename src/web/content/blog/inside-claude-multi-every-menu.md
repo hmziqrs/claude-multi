@@ -1,21 +1,21 @@
 ---
-title: "Inside claude-multi: every menu, every option"
-description: "A walkthrough of every feature in claude-multi, one menu item at a time. Adding instances, managing plugins, syncing skills, swapping providers, and the small things that made me build this in the first place."
+title: "Mastering claude-multi: Your Guide to Every Menu & Option"
+description: "Dive deep into claude-multi with this comprehensive guide. We'll explore every menu item, from adding instances and managing plugins to syncing skills and seamlessly swapping AI providers. Discover the thoughtful design decisions that make claude-multi indispensable for multi-agent workflows."
 date: 2026-05-25
 tags: [claude-code, tui, deep-dive]
 ---
 
-I've been running Claude Code against three different providers for a while now. Anthropic for the real work, GLM when I want to try something cheaper, DeepSeek when I'm in the mood to experiment. The first month was fine. The second month I started losing files.
+I've been juggling Claude Code with various AI providers for a while now. Anthropic for serious projects, GLM for budget-conscious tests, and DeepSeek when I'm feeling experimental. Initially, it was manageable. Then, the chaos started.
 
-Not literally losing them. But every time I switched providers I'd overwrite my `~/.claude/settings.json`, half-remember which plugins I'd disabled where, forget which `CLAUDE.md` belonged to which experiment. Once I committed a `settings.json` with the wrong base URL and didn't notice for two days.
+I wasn't *literally* losing files, but every provider switch brought headaches: overwriting `~/.claude/settings.json`, forgetting plugin configurations, mixing up `CLAUDE.md` files across experiments. Once, I even committed a `settings.json` with an incorrect base URL, and it took two days to spot the error.
 
-That's the whole reason claude-multi exists. One harness, one workflow, many providers. Each one isolated in its own folder. You launch the TUI, you pick what you want from a menu, you're done.
+This frustrating experience is precisely why claude-multi was born. It's a unified environment, a single workflow designed to manage multiple AI providers effortlessly. Each setup is isolated in its own folder. Just launch the TUI, select your desired configuration from a clear menu, and you're good to go.
 
-This post walks through every menu item in that TUI. No flags. No subcommands. Just the menu.
+In this deep dive, we'll walk through every single menu item within the claude-multi TUI. No cryptic flags, no obscure subcommands – just a straightforward, intuitive menu.
 
-## Opening the TUI
+## Launching the claude-multi TUI
 
-You type `claude-multi`. That's the whole entry point. There is no second command, no flags, no subcommand to memorize. The terminal UI opens and shows you something like this:
+To begin, simply type `claude-multi` in your terminal. That's it – no complex commands, flags, or subcommands to remember. The interactive terminal UI (TUI) will launch, presenting you with a clear, concise menu like this:
 
 ```
 🤖 Claude Multi  -  Interactive Mode
@@ -33,71 +33,70 @@ You type `claude-multi`. That's the whole entry point. There is no second comman
     🚪 Exit
 ```
 
-Arrow keys to navigate. `Enter` to pick. `ESC` to back out of any screen. `q` to quit. Those four keys cover the entire app.
+Navigating the claude-multi interface is intuitive: use your arrow keys to move, `Enter` to select an option, `ESC` to return to the previous screen, and `q` to quit. These four simple keybindings control the entire application.
 
-## Adding an instance
+## Adding a New claude-multi Instance
 
-This is where most people start. Pick **➕ Add new instance** and you get an eight-step wizard. I'll walk through each step in order because the choices matter and most of them aren't obvious from the labels.
+This is typically the first step for most users. Select **➕ Add new instance** to launch an intuitive, eight-step setup wizard. I'll guide you through each step, as some choices have implications beyond their initial labels.
 
-### Step 1: Instance name
+### Step 1: Define Your Instance Name
 
-Type a short alias. `glm`, `deepseek`, `work`, `cheap`, whatever you want. Letters, numbers, hyphens, and underscores. The name you pick here becomes a real command on your `PATH`. Type `glm` and you can run `claude-glm` after the wizard finishes. Type `work` and you get `claude-work`.
+Choose a short, memorable alias for your new instance, such as `glm`, `deepseek`, `work`, or `explore`. This name, consisting of letters, numbers, hyphens, and underscores, isn't just a label—it becomes a direct command on your `PATH`. For example, if you choose `glm`, you'll be able to execute `claude-glm` once the wizard completes.
 
-I've gone back and forth on naming conventions. Provider name (`glm`, `deepseek`) is the most popular choice and probably what you want. But "purpose name" (`work`, `cheap`, `explore`) works too, especially if you want to remember why you set it up six months from now.
+While provider names like `glm` or `deepseek` are popular and often ideal, a purpose-driven name (e.g., `work`, `cheap`, `explore`) can be equally effective, helping you recall the instance's specific use case months down the line.
 
-### Step 2: Provider template
+### Step 2: Choose Your Provider Template
 
-Pick one of the templates, or pick `None / Custom` to skip and configure by hand later.
+Here, you'll select a pre-configured template for your AI provider, or opt for `None / Custom` if you prefer to set things up manually later.
 
-The templates write the right environment variables into the instance's `settings.json`. `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and a few related ones. That's it. There's no magic. The template just saves you from looking up endpoints and model names in three different docs sites.
+These templates aren't magic; they simply automate the process of populating the correct environment variables, such as `ANTHROPIC_BASE_URL` and `ANTHROPIC_MODEL`, directly into your instance's `settings.json`. This feature spares you the hassle of cross-referencing API endpoints and model names across multiple documentation sites.
 
-Current templates: GLM (Z.ai), MiniMax, DeepSeek. More coming.
+Currently, we offer templates for GLM (Z.ai), MiniMax, and DeepSeek, with more options on the way.
 
-### Step 3: API key
+### Step 3: Enter Your API Key (If Applicable)
 
-This only shows up if you picked a provider template. Paste your key. It's masked while you type, and it gets written into the instance's `settings.json`. Nothing lives in environment variables, nothing lives in your shell history.
+This step appears only if you've selected a provider template. Simply paste your API key here. For your security, the key will be masked as you type and then securely written into your instance's `settings.json`. Rest assured, your API key will not be exposed in environment variables or stored in your shell history.
 
-If you don't have a key handy, hit `ESC` and come back later. You can run the wizard again and pick `None / Custom`, then add the key by hand. The wizard doesn't lock you in.
+Should you not have your API key readily available, you can press `ESC` to exit and return later. The setup wizard is flexible; you can always re-run it, choose `None / Custom`, and add your key manually at your convenience.
 
-### Step 4: Confirm paths
+### Step 4: Verify Installation Paths
 
-The wizard shows you two default paths:
+The wizard will present two default paths for your new instance:
 
-- Config: `~/.claude-<name>/`
-- Binary: `~/.local/bin/claude-<name>`
+-   **Config:** `~/.claude-<name>/`
+-   **Binary:** `~/.local/bin/claude-<name>`
 
-Hit `y`. The defaults work for almost everyone. The config dir mirrors what Claude Code itself uses (just with a suffix), and `~/.local/bin/` is the standard user-binary location on Linux and macOS. If you ever need to customize either, you can edit the registry by hand later.
+Typically, pressing `y` to accept these defaults is the best choice. The configuration directory thoughtfully mirrors Claude Code's own structure (with a unique suffix), while `~/.local/bin/` serves as the standard location for user binaries on both Linux and macOS. Should you ever need to customize these paths, advanced users can modify the registry manually at a later time.
 
-### Step 5: Copy options
+### Step 5: Configure Copy Options
 
-This is the most interesting step. If you already have a working `~/.claude/` setup, you can pull pieces of it into the new instance:
+This is a crucial and highly flexible step, especially if you already have an established `~/.claude/` setup. You have the power to selectively integrate elements from your existing configuration into your new instance:
 
-- **Nothing.** Start fresh. The instance has no settings, no plugins, no skills. Useful if you want to test a clean slate.
-- **Only `settings.json`.** Copy your base settings file but leave plugins and skills alone. Good for when you want the same defaults but a different model.
-- **Select plugins.** Cherry-pick specific plugins from your default install. Goes to step 6.
-- **All files.** Copy `settings.json`, `CLAUDE.md`, plugins, skills, the whole tree. Goes to step 7.
+-   **Nothing.** Opt for a completely fresh start. Your new instance will begin without any pre-existing settings, plugins, or skills—perfect for testing a clean slate.
+-   **Only `settings.json`.** Transfer your core settings file while keeping plugins and skills separate. This is ideal when you want to retain your base preferences but experiment with a different model.
+-   **Select plugins.** This option allows you to cherry-pick specific plugins from your default installation. Choosing this will advance you to Step 6.
+-   **All files.** Copy everything: `settings.json`, your `CLAUDE.md` files, all plugins, and skills. This comprehensive transfer proceeds to Step 7.
 
 I almost always pick "All files." Setting up plugins twice is annoying. But if I'm testing something weird, "Nothing" is the right call.
 
-### Step 6: Select plugins (only if you picked "Select plugins")
+### Step 6: Curate Your Plugins (If "Select plugins" was chosen)
 
-A multi-select list of every plugin in your default `~/.claude`. `space` toggles. `enter` confirms. The wizard copies only the ones you check.
+If you chose to "Select plugins" in the previous step, you'll be presented with a multi-select list showcasing every plugin available in your default `~/.claude/` installation. Use the `space` key to toggle your selections and `enter` to confirm. The wizard will then meticulously copy only the plugins you've checked into your new instance.
 
-This is the option for the careful crowd. You get the benefit of your existing plugin library without dragging the half-broken ones along for the ride.
+This option is perfect for those who prefer precision. You gain the advantage of leveraging your established plugin library without inadvertently carrying over any experimental or potentially unstable plugins.
 
-### Step 7: Auto-sync (only if you picked "All files")
+### Step 7: Configure Auto-Sync for Plugins and Skills (If "All files" was chosen)
 
-The wizard asks whether you want to symlink the `plugins/` and `skills/` directories back to your default `~/.claude/`.
+When you opt for "All files," the wizard will prompt you whether you'd like to symlink the `plugins/` and `skills/` directories back to your default `~/.claude/` setup.
 
-If you say `y`, those folders become symlinks. Install a plugin once in your default Claude Code setup, and every instance that opted in sees it immediately. Same for skills. This is the option for people who want one source of truth and don't want to install the same plugin five times.
+*   **Saying `y`** transforms these folders into symbolic links. This means that any plugin or skill you install in your default Claude Code environment will instantly become available across all instances that have auto-sync enabled. It's the ideal choice for maintaining a single source of truth and avoiding redundant installations.
+*   **Opting for `n`** ensures that plugins and skills are fully copied into your new instance, allowing them to operate completely independently. This is particularly useful for isolated experiments where you want to freely modify plugins without impacting your primary setup.
 
-If you say `n`, the plugins and skills get fully copied into the new instance and stay independent. Useful for experiments where you want to mess with plugins without affecting your main setup.
+Remember, this decision isn't permanent; you can always adjust your auto-sync preferences later via a dedicated menu option.
 
-You can change your mind later. There's a menu item for exactly that.
+### Step 8: Instance Creation Complete!
 
-### Step 8: Done
-
-The wizard writes everything to disk and prints a confirmation:
+Upon successful completion, the wizard finalizes all configurations and presents a clear confirmation, detailing the paths for your newly created instance:
 
 ```
 ✓ Instance 'glm' created successfully!
@@ -105,89 +104,89 @@ The wizard writes everything to disk and prints a confirmation:
   └─ Config: /Users/you/.claude-glm
 ```
 
-Now run `claude-glm`. You get a full Claude Code session on the provider you picked, with its own isolated config, its own history, its own plugins. Same `claude` binary, just pointed at a different brain.
+You're all set! Now, simply execute `claude-glm` (or whatever name you chose). You'll immediately launch a full Claude Code session, seamlessly connected to your chosen AI provider, complete with its own isolated configuration, command history, and plugins. It's the same powerful `claude` binary, now intelligently directed to a distinct operational environment.
 
-## List all instances
+## List All Instances
 
-The simplest screen in the app. **📋 List all instances** shows you every instance you've created, the provider it uses, its paths, and its sync status. Useful when you've forgotten what you set up six weeks ago.
+Accessing **📋 List all instances** provides a quick, at-a-glance overview of your entire `claude-multi` ecosystem. This screen displays every instance you've configured, detailing its associated provider, installation paths, and current sync status. It's an invaluable resource for when you need a reminder of your setups, especially those created weeks or months prior.
 
-## Instance details
+## Dive Deeper: Instance Details
 
-**ℹ️ Instance details** is the deeper version. Pick an instance and you see its full config: where everything lives, which plugins are enabled, what its `settings.json` looks like at a glance, whether auto-sync is on. It's the screen I use when something seems off and I want to confirm reality before I touch anything.
+**ℹ️ Instance details** offers a comprehensive look into any specific `claude-multi` instance. After selecting an instance, you'll gain access to its complete configuration: the location of its files, which plugins are currently active, a snapshot of its `settings.json` file, and its auto-sync status. This view is my go-to for troubleshooting—it helps me quickly confirm the state of an instance before making any adjustments.
 
-## Manage plugins
+## Master Your Extensions: Manage Plugins
 
-**🔌 Manage plugins** is where most of my time goes. The flow is two steps. First you pick an instance. Then you get a list of every plugin currently in that instance's config dir, with toggle controls for each one.
+The **🔌 Manage plugins** menu is often where I spend most of my time. This two-step process begins by selecting the instance you wish to modify. Following that, you'll see a dynamic list of every plugin residing within that instance's configuration directory, each accompanied by intuitive toggle controls.
 
-From there you can:
+From this central hub, you have several powerful options:
 
-- Enable or disable a plugin without uninstalling it
-- Install a new plugin into this instance only
-- Copy a plugin from your default `~/.claude/` into this instance (the manual version of auto-sync)
-- Remove a plugin completely
+-   **Activate or Deactivate:** Effortlessly enable or disable a plugin without needing to uninstall it.
+-   **Install New Plugins:** Add a new plugin directly into this specific instance, keeping it isolated if desired.
+-   **Manual Plugin Copy:** Manually copy a plugin from your default `~/.claude/` setup into this instance, offering precise control over your plugin ecosystem.
+-   **Remove Plugins:** Completely uninstall a plugin from the instance.
 
-If auto-sync is on for the instance, the plugin list is a view into your default install. Changes you make sync everywhere. If auto-sync is off, the list is independent. That's the entire mental model.
+The key distinction lies in auto-sync: if it's enabled for an instance, the plugin list acts as a direct window into your default `~/.claude/` installation, ensuring changes propagate universally. If auto-sync is off, the instance's plugin configuration remains entirely independent.
 
-There's also a collision-check that runs when you install. If a plugin you're adding would clash with an existing one (same name, different version, that kind of thing), the TUI tells you before you commit.
+Furthermore, `claude-multi` intelligently performs a collision check during installation. If a new plugin might conflict with an existing one (e.g., due to identical names or version discrepancies), the TUI will alert you before any changes are committed, preventing potential issues.
 
-## Toggle auto-sync
+## Effortlessly Toggle Auto-Sync
 
-**🔄 Toggle auto-sync** does exactly what it says. Pick an instance, flip the switch. If you turn it on, the wrapper rebuilds the `plugins/` and `skills/` symlinks. If you turn it off, it converts them back into independent folders.
+The **🔄 Toggle auto-sync** feature performs precisely as its name suggests. Simply select an instance and flip the switch. When activated, `claude-multi` intelligently rebuilds the symbolic links for your `plugins/` and `skills/` directories. Conversely, disabling it converts them back into independent folders.
 
-I've flipped this on instances I originally created without sync, then realized I wanted to share my plugin library. Took two seconds.
+I've personally found this invaluable when I've initially set up instances without sync, only to later realize I wanted to centralize my plugin library. The process is quick and seamless.
 
-## Re-sync symlinks
+## Restore Harmony: Re-sync Symlinks
 
-**🔗 Re-sync symlinks** is a repair tool. If you've moved your `~/.claude/` around, renamed something, deleted a plugin that another instance was symlinked to, this rebuilds the chain. You can run it against a single instance or against all of them at once.
+Consider **🔗 Re-sync symlinks** your essential repair tool. If you've ever relocated your `~/.claude/` directory, renamed a file, or inadvertently deleted a plugin that another instance relied on, this function efficiently rebuilds those critical links. You have the flexibility to run it for a single instance or across all of them simultaneously.
 
-You probably won't need this often. But when something feels broken, this is the first thing to try.
+While you might not use this feature frequently, it's the first place to turn when something feels amiss with your `claude-multi` setup.
 
-## Remove instance
+## Clean Up Your Workspace: Remove Instance
 
-**🗑️ Remove instance** deletes an instance, its wrapper script, and (optionally) its config directory. The wizard asks before it nukes the config dir, so you can keep the data around if you want to come back to it later.
+The **🗑️ Remove instance** option allows you to cleanly delete an instance, its associated wrapper script, and (optionally) its configuration directory. For your safety, the wizard will always ask for confirmation before removing the config directory, giving you the choice to preserve your data if you envision returning to it later.
 
-This is also where you go if you typo'd the instance name during creation. Just remove it and start over.
+This is also your go-to option if you've made a typo during instance creation – simply remove the incorrect instance and start fresh.
 
-## MCP servers
+## Centralized MCP Server Management
 
-**⚙️ MCP servers** handles Model Context Protocol configs. You can list which MCP servers are configured per instance and copy server configs between instances.
+The **⚙️ MCP servers** menu provides robust management for your Model Context Protocol (MCP) configurations. Here, you can easily view which MCP servers are associated with each instance and, crucially, seamlessly copy server configurations between your instances.
 
-If you've spent ten minutes setting up an MCP server in your main Claude Code install and don't want to repeat the work, this is the screen. Pick the source instance, pick the destination, the configs move over.
+This feature is a significant time-saver. If you've invested effort in meticulously setting up an MCP server within your primary Claude Code installation, you won't need to repeat that work for every new instance. Simply select your source instance, choose the destination, and `claude-multi` handles the configuration transfer.
 
-## Health warnings
+## Proactive Health Warnings
 
-If anything's wrong, the main menu shows a colored banner at the top. Yellow for warnings, red for errors. Press `!` from the menu and you get a dedicated health screen listing every issue: a missing binary, a broken symlink, a stale registry entry, a config dir that's been deleted out from under the wrapper.
+`claude-multi` keeps a vigilant eye on your setup. If any issues arise, the main menu will prominently display a colored banner at the top—yellow for warnings, red for more critical errors. By pressing `!` from the menu, you'll access a dedicated health screen that meticulously lists every detected problem, such as a missing binary, a broken symbolic link, a stale registry entry, or a configuration directory that has been inadvertently removed.
 
-Each issue comes with an action. You don't have to dig through directories to figure out what's wrong. The TUI tells you, and most of the time it can fix the problem for you.
+Each identified issue is accompanied by a suggested action. This means you won't have to manually dig through directories to diagnose problems; the TUI provides clear guidance, and in most cases, can even resolve the issue for you automatically.
 
-## The pieces that aren't in any menu
+## Beyond the Menus: Automatic Behaviors You Should Know
 
-A few things happen automatically. They're worth knowing about.
+While the TUI provides direct control, some essential functionalities operate seamlessly in the background, making your `claude-multi` experience even smoother.
 
-**Path setup.** The first time you create an instance, the wrapper script goes to `~/.local/bin/`. If that's not on your `PATH`, the new `claude-<name>` command won't be found. Add this to your shell config:
+**Effortless Path Setup.** The very first time you create an instance, `claude-multi` intelligently places its wrapper script in `~/.local/bin/`. If this directory isn't yet part of your system's `PATH`, your new `claude-<name>` commands won't be recognized. A simple, one-time addition to your shell configuration resolves this:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-That's a one-time setup, not a per-instance thing.
+This is a global adjustment, not something you'll repeat for every instance.
 
-**The wrapper itself.** Every `claude-<name>` command is a tiny script that sets `CLAUDE_CONFIG_DIR` to the instance's config dir and then runs the normal `claude` binary. No fork, no patch, nothing weird. If Claude Code ships an update, all your instances pick it up automatically because they're all just running the same binary.
+**The Clever Wrapper Script.** Each `claude-<name>` command is powered by a remarkably lightweight script. Its sole purpose is to set the `CLAUDE_CONFIG_DIR` to your instance's specific configuration directory before executing the standard `claude` binary. There's no complex forking, no strange patching—just a direct, efficient handover. This elegant design ensures that when Claude Code releases an update, all your `claude-multi` instances automatically benefit, as they all share the same core binary.
 
-**Falling back to a simpler UI.** If the Ink-based TUI doesn't render right on your terminal (some SSH setups, some legacy terminals), you can fall back to a prompt-based UI:
+**Graceful UI Fallback.** Should the rich Ink-based TUI encounter rendering issues on your terminal (which can occasionally happen with certain SSH setups or older terminals), `claude-multi` offers a practical fallback: a prompt-based UI. Simply launch it with:
 
 ```bash
 CLAUDE_MULTI_INK=false claude-multi
 ```
 
-Same flows, same screens, simpler rendering.
+You'll access the same powerful flows and screens, just with a simplified rendering interface.
 
-## Why I built this in one menu
+## The Power of a Unified Menu: Why This Design Choice Matters
 
-I tried a bunch of approaches before settling on the TUI. The first version was flag-based. It worked but I couldn't remember any of the flags two days later. The second version was a guided prompts UI. Better but it asked the same questions every single time, even when I just wanted to enable a plugin.
+Before settling on the current TUI, I explored several alternatives. The initial flag-based version, while functional, became a memory test—I could never recall the specific flags a day later. A subsequent guided prompts UI was an improvement, but it annoyingly asked the same questions repeatedly, even for quick tasks like enabling a single plugin.
 
-The menu solved both problems. Discovery and depth. New users see every option laid out, no documentation required. Experienced users hit the menu item they want and move on. Nobody has to memorize anything.
+The unified menu system masterfully solved both these challenges, offering both **discovery** and **depth**. New users can effortlessly explore every available option without needing to consult external documentation. Experienced users can swiftly navigate directly to their desired menu item, bypassing unnecessary prompts. The result? Nobody needs to memorize anything.
 
-If there's one thing I want this post to do, it's convince you to type `claude-multi` and just poke around the menu. The whole app fits in your head after about five minutes. There's nothing hidden behind a flag, nothing buried in a config file you have to find. The menu is the entire surface area.
+If there's one key takeaway I hope you gain from this post, it's this: take a few minutes to type `claude-multi` and simply explore the menu. You'll find that the entire application's logic becomes clear after just five minutes. There are no hidden functionalities behind obscure flags, no critical settings buried deep within configuration files. The menu truly is the entire surface area of `claude-multi`.
 
-That's the whole pitch, honestly.
+And frankly, that simplicity is the whole pitch.
