@@ -17,6 +17,7 @@ export const collections = {
       date: z.coerce.date(),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),
+      audio: z.string().url().optional(),
     }),
   }),
   faq: defineCollection({

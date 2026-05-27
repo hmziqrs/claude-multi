@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["kokoro", "soundfile"]
-# ///
 import io
 import sys
+import subprocess
 import soundfile as sf
+import numpy as np
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
@@ -15,6 +13,19 @@ print(f"Loading Kokoro on {device}...")
 from kokoro import KPipeline
 pipeline = KPipeline(lang_code="a", device=device)
 print("Ready. Listening on http://localhost:8880")
+
+
+def wav_to_mp3(pcm: np.ndarray, sr: int) -> bytes:
+    wav_buf = io.BytesIO()
+    sf.write(wav_buf, pcm, sr, format="WAV")
+    proc = subprocess.run(
+        ["ffmpeg", "-y", "-i", "pipe:0", "-codec:a", "libmp3lame", "-b:a", "96k", "-f", "mp3", "pipe:1"],
+        input=wav_buf.getvalue(),
+        capture_output=True,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.decode())
+    return proc.stdout
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -38,23 +49,17 @@ class Handler(BaseHTTPRequestHandler):
         text = body.get("input", "")
         voice = body.get("voice", "af_heart")
 
-        buf = io.BytesIO()
         samples = []
-        sr = 24000
         for _, _, audio in pipeline(text, voice=voice):
-            import numpy as np
             samples.append(audio.numpy() if hasattr(audio, "numpy") else audio)
 
-        import numpy as np
-        combined = np.concatenate(samples)
-        sf.write(buf, combined, sr, format="WAV")
+        mp3 = wav_to_mp3(np.concatenate(samples), 24000)
 
-        wav = buf.getvalue()
         self.send_response(200)
-        self.send_header("Content-Type", "audio/wav")
-        self.send_header("Content-Length", str(len(wav)))
+        self.send_header("Content-Type", "audio/mpeg")
+        self.send_header("Content-Length", str(len(mp3)))
         self.end_headers()
-        self.wfile.write(wav)
+        self.wfile.write(mp3)
 
 
 HTTPServer(("localhost", 8880), Handler).serve_forever()

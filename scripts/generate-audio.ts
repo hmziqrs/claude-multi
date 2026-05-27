@@ -6,6 +6,7 @@ const BLOG_DIR = join(import.meta.dir, "../src/web/content/blog");
 const OUTPUT_DIR = join(import.meta.dir, "../public/audio");
 const API_URL = "http://localhost:8880/v1/audio/speech";
 const VOICE = "af_heart";
+const GITHUB_RAW = "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio";
 
 function stripMarkdown(content: string): string {
   return content
@@ -23,18 +24,25 @@ function stripMarkdown(content: string): string {
     .trim();
 }
 
+function injectAudioFrontmatter(raw: string, url: string): string {
+  if (/^audio:/m.test(raw)) {
+    return raw.replace(/^audio:.*$/m, `audio: "${url}"`);
+  }
+  return raw.replace(/^(---\n[\s\S]*?)(---)/, `$1audio: "${url}"\n$2`);
+}
+
 async function generateAudio(file: string) {
   const slug = basename(file, ".md").replace(/\.mdx$/, "");
-  const outPath = join(OUTPUT_DIR, `${slug}.wav`);
+  const outPath = join(OUTPUT_DIR, `${slug}.mp3`);
+
+  const raw = await readFile(file, "utf-8");
 
   if (existsSync(outPath)) {
     console.log(`  skip  ${slug}`);
     return;
   }
 
-  const raw = await readFile(file, "utf-8");
   const text = stripMarkdown(raw);
-
   if (!text) {
     console.log(`  skip  ${slug} (empty)`);
     return;
@@ -48,24 +56,23 @@ async function generateAudio(file: string) {
     body: JSON.stringify({ model: "kokoro", input: text, voice: VOICE }),
   });
 
-  if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${await res.text()}`);
-  }
+  if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`);
 
-  const buffer = await res.arrayBuffer();
-  await writeFile(outPath, Buffer.from(buffer));
+  await writeFile(outPath, Buffer.from(await res.arrayBuffer()));
 
-  console.log(`  done  ${slug}`);
+  const audioUrl = `${GITHUB_RAW}/${slug}.mp3`;
+  await writeFile(file, injectAudioFrontmatter(raw, audioUrl));
+
+  console.log(`  done  ${slug} → ${audioUrl}`);
 }
 
 async function main() {
   await mkdir(OUTPUT_DIR, { recursive: true });
 
-  // sanity check — fail early if server isn't running
   try {
     await fetch("http://localhost:8880/health");
   } catch {
-    console.error("kokoro-fastapi is not running. Start it first:\n  python -m kokoro_fastapi");
+    console.error("kokoro server not running. Start it first:\n  bun run tts-server");
     process.exit(1);
   }
 
@@ -74,11 +81,7 @@ async function main() {
     .map((f) => join(BLOG_DIR, f));
 
   console.log(`\nProcessing ${files.length} blog post(s)...\n`);
-
-  for (const file of files) {
-    await generateAudio(file);
-  }
-
+  for (const file of files) await generateAudio(file);
   console.log("\nDone.");
 }
 

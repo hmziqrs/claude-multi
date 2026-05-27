@@ -3,6 +3,7 @@ title: "Five New Provider Templates: MiMo, Kimi, Qwen, and More"
 description: "claude-multi now ships templates for Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen, including separate templates for providers that split their API across pay-per-token and subscription coding plans."
 date: 2026-05-27
 tags: [providers, templates, announcement]
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio/five-new-provider-templates.mp3"
 ---
 
 When I started claude-multi, the goal was simple: stop editing `settings.json` by hand every time you want to switch providers. GLM, MiniMax, DeepSeek. Those three covered the most common alternatives to Anthropic, and that felt like enough.

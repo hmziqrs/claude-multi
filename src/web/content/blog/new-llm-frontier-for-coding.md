@@ -3,6 +3,7 @@ title: "Three coding models worth paying attention to: MiMo, Kimi, and Qwen"
 description: "Xiaomi MiMo-V2.5-Pro, Moonshot Kimi K2.6, and Alibaba Qwen3-Coder-Next are doing real work now. A look at what each is actually good at, and how to wire them up with claude-multi."
 date: 2026-05-27
 tags: [AI coding, LLM comparison, Xiaomi MiMo, Moonshot Kimi, Alibaba Qwen, agentic AI, open-source LLMs, developer tools, claude-multi, workflow automation]
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio/new-llm-frontier-for-coding.mp3"
 ---
 
 For a while the choice for serious coding work was Claude or GPT, and everything else was a benchmark chart. That's not quite true anymore. Three models in particular have crossed the line from "interesting on paper" to "I'd actually use this for work": Xiaomi's MiMo-V2.5-Pro, Moonshot's Kimi K2.6, and Alibaba's Qwen3-Coder-Next.

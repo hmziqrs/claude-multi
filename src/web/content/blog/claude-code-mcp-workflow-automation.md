@@ -3,6 +3,7 @@ title: "How MCP lets Claude Code actually do the rest of your job"
 description: "MCP gives Claude Code a way to talk to the tools you already use: Jira, GitHub, Slack, your databases. Here is what that buys you and where it breaks down."
 date: 2026-05-27
 tags: [Claude Code, Model Context Protocol, MCP, workflow automation, AI co-engineer, developer productivity, tool integration, AI in software development]
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio/claude-code-mcp-workflow-automation.mp3"
 ---
 
 Most of a developer's day is not coding. It is reading a ticket, finding the branch, running the tests, opening the PR, pasting the link into Slack, going back to the ticket to update the status. Each step is small. The total is not.
