@@ -8,7 +8,7 @@ description: Install and configure claude-multi
 You need two things:
 
 1. **Claude Code** installed globally
-2. **A JavaScript runtime** — Bun 1+, Node.js 18+, or Deno 1+
+2. **A JavaScript runtime**, Bun 1+, Node.js 18+, or Deno 1+
 
 If you don't have Claude Code yet:
 
@@ -34,7 +34,7 @@ pnpm add -g claude-multi
 deno install -g npm:claude-multi
 ```
 
-The entry point is a polyglot file that auto-detects your runtime — you don't need to configure anything.
+The entry point is a polyglot file that auto-detects your runtime, you don't need to configure anything.
 
 ## Create your first instance
 
@@ -46,12 +46,12 @@ claude-multi
 
 Select **Add new instance** and follow the wizard:
 
-1. **Instance name** — something short like `glm` or `deepseek`. This becomes your command (`claude-glm`, `claude-deepseek`).
-2. **Provider template** — pick from the list, or choose `None / Custom` for manual setup.
-3. **API key** — paste your key (masked input, stored in the instance's `settings.json`).
-4. **Confirm paths** — accept the defaults (`~/.claude-<name>/` for config, `~/.local/bin/claude-<name>` for the binary).
-5. **Copy options** — optionally copy settings, plugins, or everything from your default `~/.claude`.
-6. **Auto-sync** — if you copied all files, choose whether to symlink plugins/skills back to `~/.claude`.
+1. **Instance name**, something short like `glm` or `deepseek`. This becomes your command (`claude-glm`, `claude-deepseek`).
+2. **Provider template**, pick from the list, or choose `None / Custom` for manual setup.
+3. **API key**, paste your key (masked input, stored in the instance's `settings.json`).
+4. **Confirm paths**, accept the defaults (`~/.claude-<name>/` for config, `~/.local/bin/claude-<name>` for the binary).
+5. **Copy options**, optionally copy settings, plugins, or everything from your default `~/.claude`.
+6. **Auto-sync**, if you copied all files, choose whether to symlink plugins/skills back to `~/.claude`.
 
 When the wizard finishes:
 
@@ -99,11 +99,11 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-The exact binary location depends on your package manager — the TUI will show the actual path when the instance is created.
+The exact binary location depends on your package manager, the TUI will show the actual path when the instance is created.
 
 ## What's next
 
-- [Providers](/docs/providers/) — full list of provider templates and model mappings
-- [Usage](/docs/usage/) — all CLI commands and flags
-- [Configuration](/docs/configuration/) — settings file reference
-- [Plugins & MCP](/docs/plugins-mcp/) — manage plugins and MCP servers across instances
+- [Providers](/docs/providers/): full list of provider templates and model mappings
+- [Usage](/docs/usage/): all CLI commands and flags
+- [Configuration](/docs/configuration/): settings file reference
+- [Plugins & MCP](/docs/plugins-mcp/): manage plugins and MCP servers across instances

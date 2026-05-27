@@ -22,11 +22,11 @@ All providers expose an Anthropic-compatible API, so claude-multi points the sam
 
 ## Plan distinctions
 
-Some providers offer two access models — a pay-per-token API and a subscription/coding plan — each with a **different base URL**. Use the right template for your account type:
+Some providers offer two access models, a pay-per-token API and a subscription/coding plan, each with a **different base URL**. Use the right template for your account type:
 
 | Provider | Pay-per-token template | Subscription template |
 |---|---|---|
-| Xiaomi MiMo | `mimo` | `mimo-token` (regional URL — swap in CN/SG/EU endpoint from your console) |
+| Xiaomi MiMo | `mimo` | `mimo-token` (regional URL, swap in CN/SG/EU endpoint from your console) |
 | Alibaba Qwen | `qwen` | `qwen-coding` |
 | GLM (Z.ai) | no Anthropic URL | `glm` (Anthropic endpoint is coding-plan-only) |
 | MiniMax | `minimax` | same URL, different key type |
@@ -37,5 +37,5 @@ Some providers offer two access models — a pay-per-token API and a subscriptio
 
 - **GLM**: The Anthropic-compatible endpoint (`api.z.ai/api/anthropic`) is exclusive to the Z.ai Coding Plan subscription. The standard pay-per-token API only exposes an OpenAI-compatible URL.
 - **MiMo Token Plan**: The default base URL is the CN regional endpoint. If your subscription is on SG or EU, update `ANTHROPIC_BASE_URL` in `~/.claude-<name>/settings.json` with the endpoint shown in your subscription console.
-- **Kimi**: No subscription plan — strictly pay-per-token at `api.moonshot.ai`.
+- **Kimi**: No subscription plan, strictly pay-per-token at `api.moonshot.ai`.
 - **MiniMax**: Both Token Plan and pay-per-token use the same `api.minimax.io` endpoint; the API key type determines which quota is consumed.

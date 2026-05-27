@@ -1,6 +1,6 @@
 ---
 question: "Can I use it with local models like Ollama?"
-description: "Any provider that exposes an Anthropic-compatible REST API works — including local setups like Ollama with the right adapter."
+description: "Any provider that exposes an Anthropic-compatible REST API works, including local setups like Ollama with the right adapter."
 category: "Providers"
 order: 16
 ---
@@ -33,18 +33,18 @@ Replace the URL and model names with whatever your local server exposes.
 
 If your local server faithfully implements the Anthropic messages API (the `/v1/messages` endpoint), Claude Code will work with it. Tools like [Ollama](https://ollama.ai) with an Anthropic-compatible adapter, [LiteLLM](https://github.com/BerriAI/litellm), or [vLLM](https://github.com/vllm-project/vllm) with the right proxy can bridge the gap.
 
-The further your local setup deviates from the Anthropic API spec, the more likely you are to hit edge cases — especially around streaming, tool use, and extended thinking.
+The further your local setup deviates from the Anthropic API spec, the more likely you are to hit edge cases, especially around streaming, tool use, and extended thinking.
 
 ## A practical note on cost
 
-Running local models eliminates per-token API costs entirely. You pay in compute (GPU time, electricity) instead. For high-volume tasks like code generation and refactoring, this can be significantly cheaper than any cloud provider — if you have the hardware.
+Running local models eliminates per-token API costs entirely. You pay in compute (GPU time, electricity) instead. For high-volume tasks like code generation and refactoring, this can be significantly cheaper than any cloud provider, if you have the hardware.
 
 ## Related questions
 
-- [Which providers are supported?](/faq/supported-providers/) — the built-in templates
-- [How do I create a new instance?](/faq/create-instance/) — the full setup walkthrough
+- [Which providers are supported?](/faq/supported-providers/): the built-in templates
+- [How do I create a new instance?](/faq/create-instance/): the full setup walkthrough
 
 ## More info
 
-- [/docs/providers/](/docs/providers/) — template reference and env var details
-- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts) — see how templates set `ANTHROPIC_BASE_URL` and model mappings for reference
+- [/docs/providers/](/docs/providers/): template reference and env var details
+- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): see how templates set `ANTHROPIC_BASE_URL` and model mappings for reference

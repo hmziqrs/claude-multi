@@ -43,10 +43,10 @@ deno install -g npm:claude-multi
 
 ## What happens to instances during updates
 
-Nothing. Updating Claude Code doesn't touch your instance directories — they keep their settings, plugins, and conversation history. Since instances are just config directories + wrapper scripts, updates to either tool are non-destructive.
+Nothing. Updating Claude Code doesn't touch your instance directories, they keep their settings, plugins, and conversation history. Since instances are just config directories + wrapper scripts, updates to either tool are non-destructive.
 
 ## More info
 
-- [src/version.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/version.ts) — `checkForUpdates()` and `updateClaudeCode()` implementation
-- [/changelog/](/changelog/) — release history
-- [claude-multi on npm](https://www.npmjs.com/package/claude-multi) — check the latest published version
+- [src/version.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/version.ts): `checkForUpdates()` and `updateClaudeCode()` implementation
+- [/changelog/](/changelog/): release history
+- [claude-multi on npm](https://www.npmjs.com/package/claude-multi): check the latest published version

@@ -15,13 +15,13 @@ claude-multi
 
 Pick **Add new instance** from the menu. You'll walk through these steps:
 
-1. **Instance Name** — a short alias like `deepseek` or `glm`
-2. **Provider Template** — choose from the list, or skip for a manual setup
-3. **API Key** — paste your key (input is masked)
-4. **Paths** — confirm the config directory and wrapper script locations
-5. **Copy Options** — optionally copy settings from your primary `~/.claude` install
-6. **Select Plugins** — pick which plugins to bring over
-7. **Auto-Sync** — turn on symlink-based plugin syncing from `~/.claude`
+1. **Instance Name**, a short alias like `deepseek` or `glm`
+2. **Provider Template**, choose from the list, or skip for a manual setup
+3. **API Key**, paste your key (input is masked)
+4. **Paths**, confirm the config directory and wrapper script locations
+5. **Copy Options**, optionally copy settings from your primary `~/.claude` install
+6. **Select Plugins**, pick which plugins to bring over
+7. **Auto-Sync**, turn on symlink-based plugin syncing from `~/.claude`
 
 The instance is created and you're back at the menu.
 
@@ -55,16 +55,16 @@ After that, run `claude-<name>` (e.g. `claude-deepseek`) to launch Claude Code w
 
 ## Related questions
 
-- [How does plugin syncing work?](/faq/plugin-syncing/) — keep plugins in sync across instances
-- [How do I manage MCP servers?](/faq/mcp-servers/) — copy MCP configs to new instances
-- [How do I remove an instance?](/faq/remove-instance/) — the reverse of this process
+- [How does plugin syncing work?](/faq/plugin-syncing/): keep plugins in sync across instances
+- [How do I manage MCP servers?](/faq/mcp-servers/): copy MCP configs to new instances
+- [How do I remove an instance?](/faq/remove-instance/): the reverse of this process
 
 ## More info
 
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — detailed walkthrough of the creation wizard
-- [/docs/getting-started/](/docs/getting-started/) — first instance setup
-- [/docs/usage/](/docs/usage/) — full CLI reference
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): detailed walkthrough of the creation wizard
+- [/docs/getting-started/](/docs/getting-started/): first instance setup
+- [/docs/usage/](/docs/usage/): full CLI reference
 - Run `claude-multi` and select **Add new instance** to try it
-- [src/ink/screens/AddInstance.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/AddInstance.tsx) — the TUI wizard code
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — `addInstance()` implementation
-- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts) — wrapper generation
+- [src/ink/screens/AddInstance.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/AddInstance.tsx): the TUI wizard code
+- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): `addInstance()` implementation
+- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): wrapper generation

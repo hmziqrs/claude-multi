@@ -5,7 +5,7 @@ description: Common issues and how to fix them
 
 ## `claude-<name>` command not found
 
-Your global binary directory isn't on `PATH`. The exact location depends on your package manager — the TUI shows it when an instance is created.
+Your global binary directory isn't on `PATH`. The exact location depends on your package manager, the TUI shows it when an instance is created.
 
 **Common locations:**
 
@@ -85,7 +85,7 @@ Same flows, simpler rendering.
 If Claude Code can't authenticate with your provider:
 
 1. **Check the key is set:** `claude-multi info <name>` shows the instance's settings
-2. **Check the base URL:** Make sure you used the right provider template for your account type. Some providers (MiMo, Qwen) have separate templates for pay-per-token vs. subscription plans — using the wrong one means the wrong endpoint
+2. **Check the base URL:** Make sure you used the right provider template for your account type. Some providers (MiMo, Qwen) have separate templates for pay-per-token vs. subscription plans, using the wrong one means the wrong endpoint
 3. **Verify the settings file:** Open `~/.claude-<name>/settings.json` and check the `env` block
 
 ```bash
@@ -129,7 +129,7 @@ claude-multi add deepseek --provider deepseek --api-key sk-...
 If an MCP server fails to connect:
 
 1. **Verify the config:** `claude-multi mcp verify` checks that referenced executables and paths exist
-2. **Check for collisions:** `claude-multi plugins check-collisions <instance> <plugin-id>` — two plugins might register the same MCP server name
+2. **Check for collisions:** `claude-multi plugins check-collisions <instance> <plugin-id>`, two plugins might register the same MCP server name
 3. **Inspect the config:** Open `~/.claude-<name>/settings.json` and look at the `mcpServers` field
 
 ---

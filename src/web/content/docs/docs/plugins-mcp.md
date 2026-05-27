@@ -5,7 +5,7 @@ description: Plugin and MCP server management across instances
 
 ## Plugin management
 
-Claude Code keeps plugins in `~/.claude/plugins/`. Each claude-multi instance can have its own set of plugins — either symlinked from `~/.claude` (auto-sync) or independently installed.
+Claude Code keeps plugins in `~/.claude/plugins/`. Each claude-multi instance can have its own set of plugins, either symlinked from `~/.claude` (auto-sync) or independently installed.
 
 ### How plugins are stored
 
@@ -50,7 +50,7 @@ Default plugins show category badges (`[internal]` / `[ext]`) and MCP indicators
 claude-multi plugins install deepseek <plugin-id> [<plugin-id>...]
 ```
 
-Before installing, claude-multi runs collision detection — if a new plugin would conflict with an existing one (same MCP server name, different content), you'll be warned before anything is committed.
+Before installing, claude-multi runs collision detection, if a new plugin would conflict with an existing one (same MCP server name, different content), you'll be warned before anything is committed.
 
 ### Enabling and disabling
 
@@ -75,7 +75,7 @@ claude-multi plugins copy <source-instance> <dest-instance> <plugin-id> [<plugin
 claude-multi plugins remove deepseek <plugin-id> [<plugin-id>...]
 ```
 
-Removal uses a rename-to-backup safety pattern — the plugin directory is renamed rather than deleted outright.
+Removal uses a rename-to-backup safety pattern, the plugin directory is renamed rather than deleted outright.
 
 ### Collision detection
 
@@ -92,7 +92,7 @@ This scans for plugins that share an MCP server name but have different content.
 When auto-sync is enabled on an instance, the `plugins/` directory is a symlink back to `~/.claude/plugins/`. This means:
 
 - Install a plugin in `~/.claude` → every synced instance sees it
-- You can't do per-plugin operations (install/remove/enable/disable) on a symlinked instance — changes happen at the source
+- You can't do per-plugin operations (install/remove/enable/disable) on a symlinked instance, changes happen at the source
 - Disable auto-sync to convert back to independent copies
 
 ```bash
@@ -105,7 +105,7 @@ claude-multi auto-sync deepseek off
 
 ## MCP server management
 
-MCP (Model Context Protocol) servers let Claude Code talk to external tools — databases, APIs, file systems, and anything else you wire up. Each instance can have its own MCP server configuration.
+MCP (Model Context Protocol) servers let Claude Code talk to external tools, databases, APIs, file systems, and anything else you wire up. Each instance can have its own MCP server configuration.
 
 ### Listing MCP servers
 
@@ -143,7 +143,7 @@ Checks that referenced executables and paths still exist.
 
 **TUI:** Select **MCP servers** → pick an instance → **Add custom server**. Enter the server name and JSON config.
 
-MCP configs use the same format as Claude Code's native MCP config — no abstraction layer added.
+MCP configs use the same format as Claude Code's native MCP config, no abstraction layer added.
 
 ### Where configs live
 

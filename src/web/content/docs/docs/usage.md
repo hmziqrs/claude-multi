@@ -19,7 +19,7 @@ CLAUDE_MULTI_INK=false claude-multi
 
 ## Instance management
 
-### `add` — Create a new instance
+### `add`, Create a new instance
 
 ```bash
 claude-multi add <name> [options]
@@ -41,29 +41,29 @@ claude-multi add <name> [options]
 **Examples:**
 
 ```bash
-# Interactive — the TUI asks everything
+# Interactive, the TUI asks everything
 claude-multi add deepseek
 
-# Non-interactive — fully scripted
+# Non-interactive, fully scripted
 claude-multi add deepseek --provider deepseek --api-key sk-your-key --skip-prompts
 
 # Copy everything from default setup with auto-sync
 claude-multi add glm --provider glm --api-key your-key --copy-all --auto-sync
 ```
 
-### `remove` — Remove an instance
+### `remove`, Remove an instance
 
 ```bash
 claude-multi remove <name>
 ```
 
-Removes the instance from the registry and deletes the wrapper script. The config directory is kept on disk — you'll see a hint to delete it manually if you want.
+Removes the instance from the registry and deletes the wrapper script. The config directory is kept on disk, you'll see a hint to delete it manually if you want.
 
 | Flag | Description |
 |------|-------------|
 | `-f, --force` | Skip confirmation prompt |
 
-### `list` — List all instances
+### `list`, List all instances
 
 ```bash
 claude-multi list
@@ -71,7 +71,7 @@ claude-multi list
 
 Shows every instance with its provider, paths, and sync status. Alias: `claude-multi ls`.
 
-### `info` — Show instance details
+### `info`, Show instance details
 
 ```bash
 claude-multi info <name>

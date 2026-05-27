@@ -9,13 +9,13 @@ claude-multi is a CLI that lets you run multiple Claude Code instances at the sa
 
 ## The problem it solves
 
-Claude Code keeps everything in one `~/.claude` folder — settings, plugins, skills, MCP servers, conversation history. That works fine until you want to try a second provider, or keep a work setup separate from a personal one. Suddenly you're manually copying files around, swapping environment variables, and hoping nothing gets overwritten.
+Claude Code keeps everything in one `~/.claude` folder, settings, plugins, skills, MCP servers, conversation history. That works fine until you want to try a second provider, or keep a work setup separate from a personal one. Suddenly you're manually copying files around, swapping environment variables, and hoping nothing gets overwritten.
 
 claude-multi gives each provider its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`), each backed by a real directory you can browse and edit. No shared state, no accidental overwrites.
 
 ## What it isn't
 
-It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn't do model routing. Each instance is a standalone Claude Code environment — claude-multi just manages the plumbing.
+It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn't do model routing. Each instance is a standalone Claude Code environment, claude-multi just manages the plumbing.
 
 ## What you get
 
@@ -27,15 +27,15 @@ It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn
 
 ## Related questions
 
-- [Is it a fork of Claude Code?](/faq/is-it-a-fork/) — how the wrapper mechanism works
-- [Which providers are supported?](/faq/supported-providers/) — the full template list
-- [Does it cost anything?](/faq/pricing/) — it's free, you just pay for API usage
+- [Is it a fork of Claude Code?](/faq/is-it-a-fork/): how the wrapper mechanism works
+- [Which providers are supported?](/faq/supported-providers/): the full template list
+- [Does it cost anything?](/faq/pricing/): it's free, you just pay for API usage
 
-## Dive deeper
+## More info
 
-- [/about/](/about/) — design principles and how it works
-- [/docs/getting-started/](/docs/getting-started/) — install and create your first instance
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — walkthrough of every TUI screen
-- [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/) — how it fits into the Claude Code ecosystem
-- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts) — where provider templates are defined
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — instance creation and plugin management
+- [/about/](/about/): design principles and how it works
+- [/docs/getting-started/](/docs/getting-started/): install and create your first instance
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): walkthrough of every TUI screen
+- [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/): how it fits into the Claude Code ecosystem
+- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): where provider templates are defined
+- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): instance creation and plugin management

@@ -5,7 +5,7 @@ category: "Troubleshooting"
 order: 9
 ---
 
-claude-multi has a health monitoring system that scans all your instances and surfaces problems. It won't fix things without asking — it shows you what's wrong and suggests how to fix it.
+claude-multi has a health monitoring system that scans all your instances and surfaces problems. It won't fix things without asking, it shows you what's wrong and suggests how to fix it.
 
 ## Running health checks
 
@@ -46,7 +46,7 @@ claude-multi remove broken-instance
 claude-multi add broken-instance --provider deepseek --api-key sk-your-key
 ```
 
-Your conversation history lives in `~/.claude-multi/broken-instance/projects/` — it's separate from config, so back it up before removing if you want to keep it.
+Your conversation history lives in `~/.claude-multi/broken-instance/projects/`, it's separate from config, so back it up before removing if you want to keep it.
 
 ### Migration failures
 
@@ -58,14 +58,14 @@ Migrations create backups before touching anything. If one fails:
 
 ## Related questions
 
-- [How does plugin syncing work?](/faq/plugin-syncing/) — understanding symlinks and auto-sync
-- [How do I create a new instance?](/faq/create-instance/) — recreating a corrupted instance
+- [How does plugin syncing work?](/faq/plugin-syncing/): understanding symlinks and auto-sync
+- [How do I create a new instance?](/faq/create-instance/): recreating a corrupted instance
 
 ## More info
 
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — health warnings and fix-symlinks sections
-- [/docs/usage/](/docs/usage/) — CLI command reference
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): health warnings and fix-symlinks sections
+- [/docs/usage/](/docs/usage/): CLI command reference
 - Run `claude-multi` and press `!` (or watch for the warning banner)
-- [src/health.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/health.ts) — health check implementation
-- [src/ink/screens/HealthScreen.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/HealthScreen.tsx) — TUI health screen
-- [src/migration.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/migration.ts) — config migration with backups
+- [src/health.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/health.ts): health check implementation
+- [src/ink/screens/HealthScreen.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/HealthScreen.tsx): TUI health screen
+- [src/migration.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/migration.ts): config migration with backups

@@ -21,7 +21,7 @@ set "CLAUDE_CONFIG_DIR=%USERPROFILE%\.claude-multi\deepseek"
 "C:\path\to\claude.exe" %*
 ```
 
-That's the entire mechanism. Claude Code reads its config from the pointed-to directory instead of `~/.claude`. Everything else — flags, commands, keybindings, plugins, MCP — works exactly as it does normally.
+That's the entire mechanism. Claude Code reads its config from the pointed-to directory instead of `~/.claude`. Everything else, flags, commands, keybindings, plugins, MCP, works exactly as it does normally.
 
 ## File layout
 
@@ -44,7 +44,7 @@ That's the entire mechanism. Claude Code reads its config from the pointed-to di
 
 | Path | Purpose |
 |------|---------|
-| `~/.claude-multi/config.json` | Central registry of all instances — name, paths, creation date, auto-sync status |
+| `~/.claude-multi/config.json` | Central registry of all instances, name, paths, creation date, auto-sync status |
 | `~/.claude-<name>/` | Per-instance config directory. Mirrors Claude Code's `~/.claude` structure |
 | `~/.local/bin/claude-<name>` | Generated wrapper command (`.cmd` on Windows) |
 | `~/.claude/` | Your default Claude Code config. Treated as the source for copy and sync operations. Never modified. |
@@ -53,10 +53,10 @@ That's the entire mechanism. Claude Code reads its config from the pointed-to di
 
 Each instance is fully independent:
 
-- **Own `settings.json`** — provider env vars, enabled plugins, MCP servers
-- **Own `.claude.json`** — onboarding state, migration version, user ID
-- **Own `plugins/` and `skills/`** — either symlinked (auto-sync) or independent copies
-- **Own `projects/`** — conversation history, completely separate
+- **Own `settings.json`**, provider env vars, enabled plugins, MCP servers
+- **Own `.claude.json`**, onboarding state, migration version, user ID
+- **Own `plugins/` and `skills/`**, either symlinked (auto-sync) or independent copies
+- **Own `projects/`**, conversation history, completely separate
 
 Two instances can run at the same time in different terminals with no conflicts. No shared state, no lock files, no port conflicts.
 
@@ -75,7 +75,7 @@ If you move or delete `~/.claude`, the symlinks break. Use `claude-multi fix-sym
 
 ## Provider templates
 
-A provider template is a bundle of environment variables — base URL, model mappings, default settings — that gets merged into an instance's `settings.json` during creation. You supply the API key; the template handles the rest.
+A provider template is a bundle of environment variables, base URL, model mappings, default settings, that gets merged into an instance's `settings.json` during creation. You supply the API key; the template handles the rest.
 
 ```json
 {
@@ -91,7 +91,7 @@ A provider template is a bundle of environment variables — base URL, model map
 }
 ```
 
-Templates are pure config — they don't install anything, make network calls, or change Claude Code's behavior beyond pointing it at a different endpoint.
+Templates are pure config, they don't install anything, make network calls, or change Claude Code's behavior beyond pointing it at a different endpoint.
 
 See [Providers](/docs/providers/) for the full template reference.
 
@@ -130,10 +130,10 @@ Migrations use a PID-based lock to prevent concurrent runs. If a migration fails
 
 ## Runtime detection
 
-The entry point (`bin/claude-multi.js`) is a polyglot file — simultaneously valid POSIX shell and ESM JavaScript. When executed:
+The entry point (`bin/claude-multi.js`) is a polyglot file, simultaneously valid POSIX shell and ESM JavaScript. When executed:
 
 1. The shell portion checks for `bun`, then `node`, then `deno` in your PATH
 2. Re-executes itself under the first runtime found
 3. The JavaScript portion takes over
 
-Generated wrapper scripts are plain shell scripts (or `.cmd` batch files on Windows) that don't require a JavaScript runtime at launch — they just set `CLAUDE_CONFIG_DIR` and exec the `claude` binary.
+Generated wrapper scripts are plain shell scripts (or `.cmd` batch files on Windows) that don't require a JavaScript runtime at launch, they just set `CLAUDE_CONFIG_DIR` and exec the `claude` binary.

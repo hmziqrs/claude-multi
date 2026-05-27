@@ -9,15 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Provider templates** (`src/templates.ts`): five new AI provider templates
-  - **Xiaomi MiMo** (`mimo`): MiMo-V2.5-Pro and MiMo-V2.5 via xiaomimimo.com — pay-per-token API
+  - **Xiaomi MiMo** (`mimo`): MiMo-V2.5-Pro and MiMo-V2.5 via xiaomimimo.com, pay-per-token API
   - **Xiaomi MiMo Token Plan** (`mimo-token`): MiMo-V2.5-Pro via xiaomimimo.com subscription; replace base URL with your regional endpoint (CN/SG/EU) from the subscription console
-  - **Moonshot Kimi** (`kimi`): Kimi K2.6 (opus) and Kimi K2.5 (sonnet/haiku) via moonshot.ai — pay-per-token
-  - **Alibaba Qwen** (`qwen`): Qwen3-Coder-Next/Plus/Flash via Alibaba DashScope — pay-per-token API
+  - **Moonshot Kimi** (`kimi`): Kimi K2.6 (opus) and Kimi K2.5 (sonnet/haiku) via moonshot.ai, pay-per-token
+  - **Alibaba Qwen** (`qwen`): Qwen3-Coder-Next/Plus/Flash via Alibaba DashScope, pay-per-token API
   - **Alibaba Qwen Coding Plan** (`qwen-coding`): Qwen3-Coder-Next/Plus/Flash via DashScope Coding Plan subscription
 
 ### Changed
 - **GLM template** (`glm`): display name updated to "GLM Coding Plan"; description now clarifies the Anthropic endpoint is coding-plan-only (standard Z.ai pay-per-token API has no Anthropic-compatible URL)
-- **Kimi template** (`kimi`): sonnet/haiku tiers use `kimi-k2.5` instead of `kimi-k2.6` — same family, ~37% cheaper; legacy K2 series EOL'd May 25 2026
+- **Kimi template** (`kimi`): sonnet/haiku tiers use `kimi-k2.5` instead of `kimi-k2.6`, same family, ~37% cheaper; legacy K2 series EOL'd May 25 2026
 
 ## [0.5.6] - 2026-05-23
 
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Runtime-agnostic launcher** (`bin/claude-multi.js`): polyglot bin entry is simultaneously valid POSIX sh and ESM JavaScript
   - On Linux/macOS: shell shebang detects bun/node/deno and execs the correct runtime
-  - On Windows + bun global install: bun's `.exe` shim reads the `.js` extension and runs directly as ESM — no `/bin/sh` lookup required
+  - On Windows + bun global install: bun's `.exe` shim reads the `.js` extension and runs directly as ESM, no `/bin/sh` lookup required
   - On Windows + npm install: npm's `.cmd` shim calls `node` on the `.js` file
   - Shebang changed to `#!/usr/bin/env bun` so bun's Windows shim can resolve itself in `PATH`
 
@@ -44,10 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Cross-runtime support**: all package-manager operations (`upgradeClaudeMulti`, `getCurrentVersion`, `updateClaudeCode`) now use the detected package manager instead of hard-coding bun commands
-- `getLatestVersion()` replaced `bun pm npm view` with a direct `fetch()` to the npm registry — works in any runtime
+- `getLatestVersion()` replaced `bun pm npm view` with a direct `fetch()` to the npm registry, works in any runtime
 - `getDefaultBinaryPath()` selects the correct global bin directory for the active package manager on Windows (was always `%LOCALAPPDATA%\bun\bin`)
 - Generated wrapper shebang changed from `#!/usr/bin/env bun` to `#!/usr/bin/env node`
-- Default action (no subcommand) always launches the Ink TUI and awaits `waitUntilExit()` — the `CLAUDE_MULTI_INK=false` prompts fallback is removed
+- Default action (no subcommand) always launches the Ink TUI and awaits `waitUntilExit()`, the `CLAUDE_MULTI_INK=false` prompts fallback is removed
 - Update check is now **opt-in**: set `CLAUDE_MULTI_UPDATE_CHECK=true` to enable; it no longer runs on every invocation
 - Removed `interactive` / `i` command alias (default action covers this)
 
@@ -117,11 +117,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Verify MCP configuration
   - Copy between instances
 - **CLI Plugin Commands**: 5 new `plugins` sub-commands
-  - `plugins install <instance> <ids...>` — install plugins with collision detection
-  - `plugins remove <instance> <ids...>` — remove plugins with symlink guard
-  - `plugins list-defaults` — list all 50 default plugins with category/MCP badges
-  - `plugins list-installed [instance]` — list installed plugins per instance
-  - `plugins check-collisions <instance> <ids...>` — detect MCP name conflicts
+  - `plugins install <instance> <ids...>`, install plugins with collision detection
+  - `plugins remove <instance> <ids...>`, remove plugins with symlink guard
+  - `plugins list-defaults`, list all 50 default plugins with category/MCP badges
+  - `plugins list-installed [instance]`, list installed plugins per instance
+  - `plugins check-collisions <instance> <ids...>`, detect MCP name conflicts
 - **Provider Templates**: DeepSeek provider template added
 - **Instance State**: `initializeInstanceState()` creates `.claude.json` with `hasCompletedOnboarding: true`
 - **Provider Env**: `mergeProviderEnv()` integrates provider template env vars into instance settings
@@ -131,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `copyAllFromDefault()` restored `autoSync` parameter for symlink-based plugin sync
 - `syncPluginsAndSkills()` creates actual symlinks instead of copying files
 - Broken symlink detection uses `lstatSync` (works when `existsSync` returns false)
-- `~/.claude` is strictly read-only — never modified by any operation
+- `~/.claude` is strictly read-only, never modified by any operation
 - Atomic file writes for both config.json and settings.json (temp-file-rename pattern)
 - Lazy path resolution in migration.ts and health.ts for testability
 
@@ -139,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `syncPluginsAndSkills` was doing recursive copy instead of creating symlinks
 - `copyAllFromDefault` `autoSync` parameter was removed, breaking symlink-based sync
 - Broken symlinks not cleaned before creating new ones (used `lstatSync` instead of `existsSync`)
-- `isClaudeCodeRunning()` blocked tests — skips in `NODE_ENV=test`
+- `isClaudeCodeRunning()` blocked tests, skips in `NODE_ENV=test`
 - `writeFileSync` not imported in config.ts
 - `McpSourceDetails` prop name mismatch in ManageMcp
 - `renameSync` dynamic import in `saveConfigAtomic` replaced with top-level import

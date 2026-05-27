@@ -1,11 +1,11 @@
 ---
 title: "Five New Provider Templates: MiMo, Kimi, Qwen, and More"
-description: "claude-multi now ships templates for Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen — including separate templates for providers that split their API across pay-per-token and subscription coding plans."
+description: "claude-multi now ships templates for Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen, including separate templates for providers that split their API across pay-per-token and subscription coding plans."
 date: 2026-05-27
 tags: [providers, templates, announcement]
 ---
 
-When I started claude-multi, the goal was simple: stop editing `settings.json` by hand every time you want to switch providers. GLM, MiniMax, DeepSeek — those three covered the most common alternatives to Anthropic, and that felt like enough.
+When I started claude-multi, the goal was simple: stop editing `settings.json` by hand every time you want to switch providers. GLM, MiniMax, DeepSeek. Those three covered the most common alternatives to Anthropic, and that felt like enough.
 
 Then the past few months happened. Xiaomi shipped MiMo-V2.5-Pro with a 1-trillion parameter MoE at a fraction of Claude's per-token cost. Moonshot dropped Kimi K2.6 and matched frontier benchmarks on agentic coding. Alibaba's Qwen3-Coder-Next quietly became the go-to model for a lot of the open-source crowd. The provider landscape got busy fast, and the template list needed to catch up.
 
@@ -15,15 +15,15 @@ So here's what's new.
 
 ### Xiaomi MiMo (`mimo`)
 
-MiMo-V2.5-Pro is a 1T MoE model with 42B active parameters and a 1M-token context window. It has a native Anthropic-compatible endpoint, which means zero friction with Claude Code — swap the URL, paste your key, done.
+MiMo-V2.5-Pro is a 1T MoE model with 42B active parameters and a 1M-token context window. It has a native Anthropic-compatible endpoint, which means zero friction with Claude Code. Swap the URL, paste your key, done.
 
 - **Opus/Sonnet**: `mimo-v2.5-pro`
-- **Haiku/fast**: `mimo-v2.5` (310B, 15B active — meaningfully cheaper for background tasks)
+- **Haiku/fast**: `mimo-v2.5` (310B, 15B active, meaningfully cheaper for background tasks)
 - **Endpoint**: `api.xiaomimimo.com/anthropic`
 
 ### Xiaomi MiMo Token Plan (`mimo-token`)
 
-MiMo also offers a subscription model called Token Plan — a monthly credit pool rather than pay-per-token billing. The catch: it runs on a different domain. Xiaomi exposes regional endpoints (CN, SG, EU), and the right one comes from your subscription console.
+MiMo also offers a subscription model called Token Plan: a monthly credit pool rather than pay-per-token billing. The catch: it runs on a different domain. Xiaomi exposes regional endpoints (CN, SG, EU), and the right one comes from your subscription console.
 
 The template ships with the CN endpoint as a placeholder. After setup, edit `~/.claude-<name>/settings.json` and swap `ANTHROPIC_BASE_URL` for whichever regional URL your console shows.
 
@@ -34,7 +34,7 @@ Kimi K2.6 is Moonshot's open-weight 1T MoE, 32B active, 256K context. Released A
 One thing worth knowing: the `kimi-k2-turbo-preview` model was EOL'd on May 25, 2026. There's no K2.6-turbo yet. So the template uses:
 
 - **Opus**: `kimi-k2.6`
-- **Sonnet/Haiku**: `kimi-k2.5` — same model family, ~37% cheaper per token, still active
+- **Sonnet/Haiku**: `kimi-k2.5` (same model family, ~37% cheaper per token, still active)
 
 Moonshot is strictly pay-per-token. No separate subscription plan, no different URL for different billing tiers.
 
@@ -50,7 +50,7 @@ Endpoint: `dashscope-intl.aliyuncs.com/apps/anthropic` (the international DashSc
 
 ### Alibaba Qwen Coding Plan (`qwen-coding`)
 
-Alibaba offers a subscription coding plan with dedicated infrastructure — different subdomain, separate quota, subscription-based pricing. If you're on the coding plan rather than pay-per-token, use this template instead:
+Alibaba offers a subscription coding plan with dedicated infrastructure: different subdomain, separate quota, subscription-based pricing. If you're on the coding plan rather than pay-per-token, use this template instead:
 
 - Same models as `qwen`
 - Endpoint: `coding-intl.dashscope.aliyuncs.com/apps/anthropic`
@@ -59,13 +59,13 @@ Alibaba offers a subscription coding plan with dedicated infrastructure — diff
 
 ## The plan-split problem
 
-Adding MiMo and Qwen surfaced something worth explaining: some providers run their pay-per-token API and their coding plan subscription on **completely different base URLs**. This isn't a minor detail — if you use the wrong URL for your account type, your API key won't authenticate.
+Adding MiMo and Qwen surfaced something worth explaining: some providers run their pay-per-token API and their coding plan subscription on **completely different base URLs**. This isn't a minor detail. If you use the wrong URL for your account type, your API key won't authenticate.
 
 Here's the full picture across all providers claude-multi supports:
 
 | Provider | Has plan split? | How |
 |---|---|---|
-| GLM (Z.ai) | Yes | Anthropic endpoint exists **only** for Coding Plan — standard API has no Anthropic URL |
+| GLM (Z.ai) | Yes | Anthropic endpoint exists **only** for Coding Plan, standard API has no Anthropic URL |
 | Xiaomi MiMo | Yes | Different domain per plan (`api.xiaomimimo.com` vs `token-plan-*.xiaomimimo.com`) |
 | Alibaba Qwen | Yes | Different subdomain (`dashscope-intl` vs `coding-intl.dashscope`) |
 | MiniMax | Partial | Same URL for both; different key type determines which quota is consumed |
@@ -99,7 +99,7 @@ claude-multi add mimo --provider mimo-token --api-key tp-...
 claude-multi add qwen --provider qwen-coding --api-key sk-...
 ```
 
-Then just run `claude-kimi`, `claude-qwen`, or `claude-mimo` from any terminal. The provider-specific env vars are already wired into the instance's `settings.json` — no manual editing required.
+Then just run `claude-kimi`, `claude-qwen`, or `claude-mimo` from any terminal. The provider-specific env vars are already wired into the instance's `settings.json`, no manual editing required.
 
 ---
 

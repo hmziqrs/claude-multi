@@ -73,7 +73,7 @@ bun test --grep "symlink"
 
 The test suite has 155+ tests across 16 files covering config management, plugin operations, health checks, migration, wrapper generation, Ink components, CLI commands, and end-to-end flows.
 
-Tests use `CLAUDE_MULTI_HOME` to isolate from your real config — they create temporary directories and clean up after themselves.
+Tests use `CLAUDE_MULTI_HOME` to isolate from your real config, they create temporary directories and clean up after themselves.
 
 ## Lint and typecheck
 
@@ -104,9 +104,9 @@ bun run docs:dev
 
 **Atomic writes:** Config files are written using a temp-file-rename pattern with JSON verification. See `src/util/json-file.ts`.
 
-**Security:** Settings copy from `~/.claude` uses a whitelist — only safe fields are transferred. The `env` block (containing API keys) is never copied.
+**Security:** Settings copy from `~/.claude` uses a whitelist, only safe fields are transferred. The `env` block (containing API keys) is never copied.
 
-**Error handling:** All thrown errors use `ClaudeMultiError` with a machine-readable `ErrorCode`. Catch blocks use `unknown` typing — no `(err as Error)` casts.
+**Error handling:** All thrown errors use `ClaudeMultiError` with a machine-readable `ErrorCode`. Catch blocks use `unknown` typing, no `(err as Error)` casts.
 
 **String constants:** Bare string literals used in comparisons are replaced with typed constants in `src/constants.ts`.
 
@@ -114,10 +114,10 @@ bun run docs:dev
 
 The project uses GitHub Actions for:
 
-- **ci.yml** — Cross-platform build + test on push to master and PRs
-- **publish.yml** — npm publish with OIDC trusted publishing
-- **deploy-docs.yml** — Docs site deployment to Cloudflare Pages
-- **test-install.yml** — Cross-platform install verification (bun/node/deno × Linux/Windows/macOS)
+- **ci.yml**, Cross-platform build + test on push to master and PRs
+- **publish.yml**, npm publish with OIDC trusted publishing
+- **deploy-docs.yml**, Docs site deployment to Cloudflare Pages
+- **test-install.yml**, Cross-platform install verification (bun/node/deno × Linux/Windows/macOS)
 
 ## Adding a provider template
 

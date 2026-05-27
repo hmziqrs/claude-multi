@@ -1,29 +1,44 @@
 ---
-title: "Claude Code as Your AI Co-Engineer: Why It's Reshaping Development Workflows (and How claude-multi Makes it Even Better)"
-description: "Explore how Claude Code is evolving beyond a coding assistant into a true AI co-engineer, and discover how claude-multi simplifies integrating third-party LLM providers for a flexible and cost-effective development stack."
+title: "Claude Code is doing more of the job now, and claude-multi makes the rest of it cheaper"
+description: "Claude Code has moved past autocomplete. With MCP and a million-token context, it handles real workflows end to end. claude-multi is how you point it at different providers without burning your config to the ground."
 date: 2026-05-27
 tags: [Claude Code, AI engineering, LLM integration, claude-multi, developer tools, AI coding, workflow automation, MCP]
 ---
 
-The landscape of AI coding assistants is evolving rapidly. What started as simple code copilots offering suggestions has matured into powerful AI co-engineers capable of handling end-to-end development tasks. At the forefront of this shift is Claude Code, and when paired with `claude-multi`, it offers an unparalleled, flexible, and cost-effective solution for modern engineering teams.
+The thing that has actually changed about AI coding assistants in the last year is not the suggestion quality. It is the scope of what you can hand off in one shot.
 
-### Why Claude Code is More Than Just a Copilot
+Two years ago you were tab-completing functions. Now you can say "fix the race condition in the auth service" and walk away. Claude Code reads the files, plans the change, writes the code, runs the tests, and comes back when it's done or when it's stuck. Sometimes the answer is wrong. But it's wrong about a real attempt at the whole problem, which is a different kind of wrong than "I generated a function that compiles."
 
-In 2026, Claude Code stands out by transitioning from a mere assistant to a true co-engineer. The distinction is crucial: instead of just accepting line-by-line suggestions, developers can delegate complex tasks and entire workflows. This capability is largely driven by two key innovations:
+`claude-multi` does not change any of that. What it does is let you point that same workflow at a different provider, without rewriting your config every time you do it.
 
-1.  **End-to-End Workflow Automation**: Claude Code, especially with its Model Context Protocol (MCP) integrations, can operate across your entire engineering stack. Imagine delegating a task like "fix the race condition in the auth service," and Claude Code takes it from there: reading relevant files, planning the changes, executing the code, running builds and tests, and iterating until the task is complete—all without you constantly switching contexts or tools. This significantly reduces cognitive load, allowing developers to focus on higher-level reasoning and architectural decisions.
-2.  **Model Context Protocol (MCP)**: MCP is an open standard enabling AI models to connect with external systems through a unified interface. This means Claude Code can interact with Jira, Slack, GitHub, databases, Figma, Sentry, and more, all within a single conversation. You can ask Claude Code to "implement the fix, create a PR on GitHub, and update the Jira issue status," and it handles the coordination across all these tools. This deep integration makes it practical for tasks like reviewing pull requests with full context (Jira ticket + design doc + code changes), checking commit histories, creating branches, and running security scans autonomously.
-3.  **Extended Context Window**: With a 1-million-token context window (compared to competitors' 200K), Claude Code can manage long, multi-file refactors and complex reasoning tasks without losing crucial context. This is particularly beneficial for multi-tool workflows that might burn through smaller context windows quickly, ensuring expensive models are used efficiently.
+### What's actually different about Claude Code in 2026
 
-Ultimately, Claude Code helps teams operate with fundamentally different leverage, handling more tickets per engineer, reducing context-switching, and freeing senior engineers to focus on architecture and judgment rather than coordination overhead.
+Three things, mostly.
 
-### `claude-multi`: Integrating 3rd Party Providers for a Flexible AI Stack
+**The agent loop**. Claude Code does not just write code. It runs the build, reads the failure, edits the file, runs the build again. Most of the value lands in this loop, because most of what makes code work is not the first attempt.
 
-While Claude Code provides powerful capabilities, the LLM provider landscape is diverse and constantly evolving. Developers often want the flexibility to use different models for different tasks or to optimize for cost and performance. This is where `claude-multi` shines, making it easy to integrate a wide array of third-party providers with your Claude Code workflows.
+**MCP**. Model Context Protocol is the open standard from Anthropic that lets the model talk to your tools. Jira, GitHub, Slack, Sentry, your database, Figma. Once a server is configured, you can say "implement the fix, open the PR, update the ticket" and the model coordinates across those systems in one conversation. The integration is what makes the agent loop useful past the file you're editing.
 
-1.  **Seamless Provider Switching**: `claude-multi` eliminates the hassle of manually editing `settings.json` every time you want to switch between providers. It ships with pre-configured templates for new, high-performing models like Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen, alongside existing options like GLM, MiniMax, and DeepSeek.
-2.  **Addressing the "Plan-Split Problem"**: A common challenge with multiple providers is that some run their pay-per-token API and subscription-based coding plans on completely different base URLs or require different API key types. `claude-multi` accounts for this by providing separate templates (e.g., `mimo` vs. `mimo-token`, `qwen` vs. `qwen-coding`), ensuring your API keys authenticate correctly and you use the right infrastructure for your account type.
-3.  **Cost Optimization and Multi-Model Routing**: `claude-multi` integrates with tools like `claude-code-llm-router` (an MCP server) to intelligently route AI calls to the cheapest model that can perform the task well. This "free-first" routing prioritizes local models (like Ollama), then cost-effective options (Codex, Gemini Flash), and escalates to premium models (Claude Opus) only when necessary for complex tasks. This approach can lead to significant cost savings (60-80% compared to running everything on Claude Opus) by preventing expensive models from being used for low-value work like file lookups or small edits.
-4.  **Flexible Instance Management**: Whether you prefer a Terminal User Interface (TUI) or command-line interface (CLI), `claude-multi` makes adding new provider instances straightforward. Once an instance is set up, the provider-specific environment variables are automatically configured, requiring no further manual editing.
+**A 1M-token context window**. Most competitors are still at 200K. This sounds like a spec-sheet number until you watch the model fail at a multi-file refactor because half the project fell out of context. With 1M you can fit the surrounding code, the ticket, the design doc, and the prior PRs, and the model can actually reason about the whole thing.
 
-In summary, `claude-multi` acts as the orchestration layer for your AI-assisted development. It allows you to harness the power of Claude Code's co-engineer capabilities while giving you the flexibility to integrate and optimize with a diverse ecosystem of third-party LLM providers. This combination empowers developers to build more efficiently, cost-effectively, and with greater control over their AI tools.
+The combined effect is a real shift in what one engineer can ship per day. The senior engineer is not writing less code. They are writing less coordination boilerplate.
+
+### Where claude-multi fits
+
+The provider landscape is messier than Anthropic alone. There are cheap models that handle most tasks fine, premium models you want for the hard ones, and a few specialized ones that are weirdly good at a specific thing. You probably want access to several of them without your `~/.claude` directory turning into a graveyard.
+
+A few specifics on what claude-multi does for that.
+
+**Switching without editing settings.json**. Each provider gets its own alias and its own config directory. `claude-glm` for GLM, `claude-deepseek` for DeepSeek, `claude-mimo` for MiMo. You pick from a template, paste a key, that's it.
+
+**The plan-split problem**. Some providers run their pay-per-token API on a different base URL from their subscription coding plan. MiMo does this. Qwen does this. claude-multi has separate templates for each (`mimo` vs `mimo-token`, `qwen` vs `qwen-coding`) so the right key hits the right endpoint.
+
+**Routing**. If you wire in an MCP server like `claude-code-llm-router`, claude-multi instances become the substrate it routes across. Cheap models for small edits and lookups, premium models for the parts that need them. The rough number people quote is 60 to 80 percent cost reduction versus running everything on the top-tier model. Your mileage will vary, but the direction is real.
+
+**TUI or CLI**. Both work. The TUI is faster the first time. The CLI is faster once you know what you want.
+
+### Putting it together
+
+Claude Code is doing more of the job. claude-multi is how you do that job across whichever provider is the right call for the task in front of you, without spending half your week on config plumbing.
+
+That's the whole pitch.

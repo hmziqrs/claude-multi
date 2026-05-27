@@ -28,7 +28,7 @@ All instances are tracked in a central registry:
 |-------|------|-------------|
 | `version` | `string` | Config format version (`"2"` after migration) |
 | `instances` | `array` | All registered instances |
-| `instances[].name` | `string` | Instance name — letters, numbers, hyphens, underscores |
+| `instances[].name` | `string` | Instance name, letters, numbers, hyphens, underscores |
 | `instances[].configDir` | `string` | Absolute path to the instance's config directory |
 | `instances[].binaryPath` | `string` | Absolute path to the generated wrapper script |
 | `instances[].createdAt` | `string` | ISO 8601 creation timestamp |

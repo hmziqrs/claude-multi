@@ -1,6 +1,6 @@
 ---
 question: "How does plugin and skill syncing work?"
-description: "When auto-sync is enabled, plugins and skills directories in each instance are symlinked to ~/.claude — update once, every instance sees it."
+description: "When auto-sync is enabled, plugins and skills directories in each instance are symlinked to ~/.claude, update once, every instance sees it."
 category: "Plugins & MCP"
 order: 6
 ---
@@ -53,13 +53,13 @@ This scans for conflicts and reports any plugins that share an MCP server name b
 
 ## Related questions
 
-- [How do I manage MCP servers?](/faq/mcp-servers/) — MCP configs work independently per instance
-- [How do I troubleshoot broken instances?](/faq/troubleshooting/) — fixing broken symlinks and more
+- [How do I manage MCP servers?](/faq/mcp-servers/): MCP configs work independently per instance
+- [How do I troubleshoot broken instances?](/faq/troubleshooting/): fixing broken symlinks and more
 
 ## More info
 
-- [/docs/plugins-mcp/](/docs/plugins-mcp/) — plugin and MCP management guide
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — Manage Plugins and Toggle Auto-sync screens
+- [/docs/plugins-mcp/](/docs/plugins-mcp/): plugin and MCP management guide
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): Manage Plugins and Toggle Auto-sync screens
 - Run `claude-multi` and try **Manage plugins**, **Toggle auto-sync**, or **Re-sync symlinks**
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — `syncPluginsAndSkills()` and symlink repair logic
-- [src/ink/screens/ManagePlugins.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/ManagePlugins.tsx) — the TUI plugin screen
+- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): `syncPluginsAndSkills()` and symlink repair logic
+- [src/ink/screens/ManagePlugins.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/ManagePlugins.tsx): the TUI plugin screen

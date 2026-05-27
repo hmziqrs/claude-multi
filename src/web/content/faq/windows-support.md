@@ -1,6 +1,6 @@
 ---
 question: "Does it work on Windows?"
-description: "Yes — wrapper scripts are generated as .cmd batch files on Windows, and the polyglot entry point works with Node.js on any platform."
+description: "Yes, wrapper scripts are generated as .cmd batch files on Windows, and the polyglot entry point works with Node.js on any platform."
 category: "Compatibility"
 order: 13
 ---
@@ -22,10 +22,10 @@ Same mechanism, different syntax. The CLI, TUI, and all commands work identicall
 
 ## CI/CD testing
 
-The project's CI runs install and execution tests on all three platforms (Linux, macOS, Windows) with all three runtimes (bun, node, deno). So Windows isn't an afterthought — it's tested on every release.
+The project's CI runs install and execution tests on all three platforms (Linux, macOS, Windows) with all three runtimes (bun, node, deno). So Windows isn't an afterthought, it's tested on every release.
 
 ## More info
 
-- [.github/workflows/test-install.yml](https://github.com/hmziqrs/claude-multi/blob/master/.github/workflows/test-install.yml) — cross-platform test matrix
-- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts) — `generateWindowsWrapperScript()` implementation
-- [src/util/runtime.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/runtime.ts) — platform-aware package manager detection
+- [.github/workflows/test-install.yml](https://github.com/hmziqrs/claude-multi/blob/master/.github/workflows/test-install.yml): cross-platform test matrix
+- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): `generateWindowsWrapperScript()` implementation
+- [src/util/runtime.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/runtime.ts): platform-aware package manager detection
