@@ -1,7 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { existsSync } from 'fs';
+import { join } from 'path';
 import Layout from '@/web/layouts/MarketingLayout.astro';
 import SocialIcon from '@/web/components/SocialIcon.astro';
+import AudioPlayer from '@/web/components/AudioPlayer.astro';
 import { author, formatDate, readingTime } from '@/web/util/author';
 
 export async function getStaticPaths() {
@@ -15,6 +18,8 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 const minutes = readingTime(post.body ?? '');
+const audioPath = join(process.cwd(), 'public', 'audio', `${post.id}.wav`);
+const hasAudio = existsSync(audioPath);
 ---
 
 <Layout
@@ -118,6 +123,10 @@ const minutes = readingTime(post.body ?? '');
           <span class="text-xs text-text-mute font-mono">@{author.twitterHandle}</span>
         </div>
       </div>
+
+      {hasAudio && (
+        <AudioPlayer src={`/audio/${post.id}.wav`} title={post.data.title} />
+      )}
 
       <div class="prose-blog">
         <Content />

@@ -1,0 +1,160 @@
+---
+interface Props {
+  src: string;
+  title: string;
+}
+const { src, title } = Astro.props;
+const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="audio-player glass rounded-2xl px-5 py-4 mb-10" data-player={id}>
+  <div class="flex items-center gap-4">
+    <!-- Play / Pause -->
+    <button
+      class="play-btn flex-shrink-0 w-10 h-10 rounded-full border border-edge bg-[rgba(163,230,53,0.06)] hover:bg-[rgba(163,230,53,0.14)] hover:border-edge-hover text-lime flex items-center justify-center transition-all duration-200"
+      aria-label="Play"
+    >
+      <svg class="icon-play w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <svg class="icon-pause w-4 h-4 hidden" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+      </svg>
+    </button>
+
+    <div class="flex-1 min-w-0">
+      <!-- Label -->
+      <p class="text-xs text-text-mute font-mono mb-2 truncate">{title}</p>
+
+      <!-- Scrubber -->
+      <div class="flex items-center gap-3">
+        <div
+          class="progress-track relative flex-1 h-1 bg-[rgba(163,230,53,0.1)] rounded-full cursor-pointer group"
+        >
+          <div
+            class="progress-fill h-full bg-lime rounded-full pointer-events-none transition-none"
+            style="width:0%"
+          ></div>
+          <div
+            class="progress-thumb absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-lime opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+            style="left:0%"
+          ></div>
+        </div>
+        <span class="time-display text-xs font-mono text-text-mute whitespace-nowrap tabular-nums">
+          0:00 / 0:00
+        </span>
+      </div>
+    </div>
+
+    <!-- Volume -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button class="mute-btn text-text-mute hover:text-lime transition-colors" aria-label="Mute">
+        <svg class="icon-vol w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+        </svg>
+        <svg class="icon-mute w-4 h-4 hidden" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+        </svg>
+      </button>
+      <input
+        type="range"
+        class="vol-slider w-16 h-1 accent-lime cursor-pointer"
+        min="0"
+        max="1"
+        step="0.05"
+        value="1"
+        aria-label="Volume"
+      />
+    </div>
+  </div>
+
+  <audio class="audio-el" src={src} preload="metadata"></audio>
+</div>
+
+<script define:vars={{ id }}>
+  const root = document.querySelector(`[data-player="${id}"]`);
+  const audio = root.querySelector('.audio-el');
+  const playBtn = root.querySelector('.play-btn');
+  const iconPlay = root.querySelector('.icon-play');
+  const iconPause = root.querySelector('.icon-pause');
+  const fill = root.querySelector('.progress-fill');
+  const thumb = root.querySelector('.progress-thumb');
+  const track = root.querySelector('.progress-track');
+  const timeDisplay = root.querySelector('.time-display');
+  const volSlider = root.querySelector('.vol-slider');
+  const muteBtn = root.querySelector('.mute-btn');
+  const iconVol = root.querySelector('.icon-vol');
+  const iconMute = root.querySelector('.icon-mute');
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const ss = Math.floor(s % 60).toString().padStart(2, '0');
+    return `${m}:${ss}`;
+  }
+
+  function setProgress(pct) {
+    fill.style.width = `${pct}%`;
+    thumb.style.left = `${pct}%`;
+  }
+
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    setProgress(pct);
+    timeDisplay.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
+  });
+
+  audio.addEventListener('loadedmetadata', () => {
+    timeDisplay.textContent = `0:00 / ${fmt(audio.duration)}`;
+  });
+
+  audio.addEventListener('ended', () => {
+    iconPlay.classList.remove('hidden');
+    iconPause.classList.add('hidden');
+    playBtn.setAttribute('aria-label', 'Play');
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      iconPlay.classList.add('hidden');
+      iconPause.classList.remove('hidden');
+      playBtn.setAttribute('aria-label', 'Pause');
+    } else {
+      audio.pause();
+      iconPlay.classList.remove('hidden');
+      iconPause.classList.add('hidden');
+      playBtn.setAttribute('aria-label', 'Play');
+    }
+  });
+
+  track.addEventListener('click', (e) => {
+    const rect = track.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = pct * audio.duration;
+  });
+
+  // drag scrubbing
+  let dragging = false;
+  track.addEventListener('mousedown', () => { dragging = true; });
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const rect = track.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = pct * audio.duration;
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  volSlider.addEventListener('input', () => {
+    audio.volume = volSlider.value;
+    audio.muted = false;
+    iconVol.classList.remove('hidden');
+    iconMute.classList.add('hidden');
+  });
+
+  muteBtn.addEventListener('click', () => {
+    audio.muted = !audio.muted;
+    iconVol.classList.toggle('hidden', audio.muted);
+    iconMute.classList.toggle('hidden', !audio.muted);
+  });
+</script>
