@@ -2,7 +2,8 @@
 import Layout from '../layouts/MarketingLayout.astro';
 
 const title = 'Terms of Use — claude-multi';
-const description = 'Terms of use for the claude-multi open-source CLI and website. MIT license, no warranty, third-party provider responsibility, and trademark notice.';
+const description =
+  'Terms of use for the claude-multi open-source CLI and website. MIT license, no warranty, third-party provider responsibility, and trademark notice.';
 const updated = '2026-05-20';
 
 const sections = [
@@ -19,27 +20,43 @@ const sections = [
   { id: 'contact', label: 'Contact' },
 ];
 ---
+
 <Layout title={title} description={description}>
   <!-- HERO -->
   <section class="relative z-10 pt-32 pb-12 px-6">
     <div class="max-w-4xl mx-auto">
       <div class="reveal flex justify-center mb-6">
         <a href="/" class="badge no-underline">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-lime rotate-180" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-lime rotate-180"
+            aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg
+          >
           <span class="text-text-dim">Back to home</span>
         </a>
       </div>
 
       <div class="reveal text-center">
         <span class="eyebrow">// Legal</span>
-        <h1 class="mt-5 text-5xl sm:text-6xl font-extrabold tracking-[-0.03em] leading-[1.05] headline-glow">
+        <h1
+          class="mt-5 text-5xl sm:text-6xl font-extrabold tracking-[-0.03em] leading-[1.05] headline-glow"
+        >
           Terms of <span class="gradient-text">Use.</span>
         </h1>
         <p class="mt-5 font-mono text-sm text-text-mute">
           Last updated <time datetime={updated}>{updated}</time>
         </p>
         <p class="mt-6 text-lg text-text-dim max-w-2xl mx-auto leading-relaxed">
-          The short version: claude-multi is free, open source under MIT, and provided as-is. You're responsible for how you use it and for any third-party services it connects to.
+          The short version: claude-multi is free, open source under MIT, and
+          provided as-is. You're responsible for how you use it and for any
+          third-party services it connects to.
         </p>
       </div>
     </div>
@@ -47,22 +64,34 @@ const sections = [
 
   <!-- TWO COLUMN: TOC + CONTENT -->
   <section class="relative z-10 px-6 pb-24">
-    <div class="max-w-5xl mx-auto grid lg:grid-cols-[16rem_1fr] gap-10 items-start">
-
+    <div
+      class="max-w-5xl mx-auto grid lg:grid-cols-[16rem_1fr] gap-10 items-start"
+    >
       <!-- Sticky TOC -->
       <aside class="reveal lg:sticky lg:top-24 self-start">
         <div class="glass rounded-2xl p-5">
-          <h2 class="text-[11px] font-mono uppercase tracking-[0.12em] text-lime mb-3">// Contents</h2>
+          <h2
+            class="text-[11px] font-mono uppercase tracking-[0.12em] text-lime mb-3"
+          >
+            // Contents
+          </h2>
           <nav>
             <ol class="space-y-1.5 list-none p-0 m-0 mono">
-              {sections.map((s, i) => (
-                <li>
-                  <a href={`#${s.id}`} class="flex items-baseline gap-3 px-2 py-1.5 rounded-md text-sm text-text-dim hover:text-lime hover:bg-lime/[0.04] no-underline transition-colors">
-                    <span class="font-mono text-xs text-text-mute w-5 flex-shrink-0">{String(i + 1).padStart(2, '0')}</span>
-                    <span class="font-sans">{s.label}</span>
-                  </a>
-                </li>
-              ))}
+              {
+                sections.map((s, i) => (
+                  <li>
+                    <a
+                      href={`#${s.id}`}
+                      class="flex items-baseline gap-3 px-2 py-1.5 rounded-md text-sm text-text-dim hover:text-lime hover:bg-lime/[0.04] no-underline transition-colors"
+                    >
+                      <span class="font-mono text-xs text-text-mute w-5 flex-shrink-0">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span class="font-sans">{s.label}</span>
+                    </a>
+                  </li>
+                ))
+              }
             </ol>
           </nav>
         </div>
@@ -70,151 +99,328 @@ const sections = [
 
       <!-- Content -->
       <article class="reveal space-y-5">
-
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="acceptance" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="acceptance"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">01</span>Acceptance
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            By installing or using the claude-multi command-line tool, or by browsing this website, you agree to these terms. If you do not agree, do not install or use the software, and please leave the site.
+            By installing or using the claude-multi command-line tool, or by
+            browsing this website, you agree to these terms. If you do not
+            agree, do not install or use the software, and please leave the
+            site.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="software" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="software"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">02</span>The software
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem] mb-4">
-            claude-multi is released under the <strong class="text-text">MIT License</strong>. The full license text is included in the <a href="https://github.com/hmziqrs/claude-multi/blob/master/LICENSE" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">LICENSE file</a> in the source repository. In summary, you may:
+            claude-multi is released under the <strong class="text-text"
+              >MIT License</strong
+            >. The full license text is included in the <a
+              href="https://github.com/hmziqrs/claude-multi/blob/master/LICENSE"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline">LICENSE file</a
+            > in the source repository. In summary, you may:
           </p>
           <ul class="space-y-2 list-none p-0 m-0">
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Use the software for any purpose, commercial or non-commercial</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Modify, fork, and redistribute it</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Bundle it into your own products</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Sell copies of it (with the MIT license preserved)</li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Use the software for any purpose, commercial or
+              non-commercial
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Modify, fork, and redistribute it
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Bundle it into your own products
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Sell copies of it (with the MIT license preserved)
+            </li>
           </ul>
           <p class="mt-4 text-text-dim leading-relaxed text-[0.95rem]">
-            The only obligation is that the copyright notice and license text travel with any copies or substantial portions you redistribute.
+            The only obligation is that the copyright notice and license text
+            travel with any copies or substantial portions you redistribute.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="no-warranty" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="no-warranty"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">03</span>No warranty
           </h2>
-          <div class="p-4 rounded-xl border border-amber-400/30 bg-amber-400/[0.05] mb-4">
-            <p class="font-mono text-[11px] uppercase tracking-wider text-amber-300 mb-1">As-is</p>
+          <div
+            class="p-4 rounded-xl border border-amber-400/30 bg-amber-400/[0.05] mb-4"
+          >
+            <p
+              class="font-mono text-[11px] uppercase tracking-wider text-amber-300 mb-1"
+            >
+              As-is
+            </p>
             <p class="text-text-dim text-[0.93rem] leading-relaxed">
-              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+              EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+              MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+              NON-INFRINGEMENT.
             </p>
           </div>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            In plain English: this is a project maintained by an independent developer in their own time. We do our best to ship working, safe software — but we make no guarantees that it will work for your specific setup, that it will be free of bugs, or that it will be maintained indefinitely. Test in a non-critical environment first.
+            In plain English: this is a project maintained by an independent
+            developer in their own time. We do our best to ship working, safe
+            software — but we make no guarantees that it will work for your
+            specific setup, that it will be free of bugs, or that it will be
+            maintained indefinitely. Test in a non-critical environment first.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="third-party-providers" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
-            <span class="font-mono text-lime mr-2">04</span>Third-party providers
+          <h2
+            id="third-party-providers"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
+            <span class="font-mono text-lime mr-2">04</span>Third-party
+            providers
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem] mb-4">
-            claude-multi connects to AI services operated by other companies. <strong class="text-text">We are not affiliated with, endorsed by, or partnered with any of these providers.</strong> Your usage of each provider is governed entirely by their own terms of service and acceptable use policies:
+            claude-multi connects to AI services operated by other companies. <strong
+              class="text-text"
+              >We are not affiliated with, endorsed by, or partnered with any of
+              these providers.</strong
+            > Your usage of each provider is governed entirely by their own terms
+            of service and acceptable use policies:
           </p>
           <div class="grid sm:grid-cols-2 gap-3">
-            <a href="https://www.anthropic.com/legal/consumer-terms" target="_blank" rel="noopener noreferrer" class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors">
+            <a
+              href="https://www.anthropic.com/legal/consumer-terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors"
+            >
               <div class="font-semibold text-text">Anthropic</div>
-              <div class="text-xs text-text-mute mt-1 font-mono">anthropic.com/legal</div>
+              <div class="text-xs text-text-mute mt-1 font-mono">
+                anthropic.com/legal
+              </div>
             </a>
-            <a href="https://www.z.ai/" target="_blank" rel="noopener noreferrer" class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors">
+            <a
+              href="https://www.z.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors"
+            >
               <div class="font-semibold text-text">Z.ai (GLM)</div>
               <div class="text-xs text-text-mute mt-1 font-mono">z.ai</div>
             </a>
-            <a href="https://www.minimax.io/" target="_blank" rel="noopener noreferrer" class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors">
+            <a
+              href="https://www.minimax.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors"
+            >
               <div class="font-semibold text-text">MiniMax</div>
-              <div class="text-xs text-text-mute mt-1 font-mono">minimax.io</div>
+              <div class="text-xs text-text-mute mt-1 font-mono">
+                minimax.io
+              </div>
             </a>
-            <a href="https://www.deepseek.com/" target="_blank" rel="noopener noreferrer" class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors">
+            <a
+              href="https://www.deepseek.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block p-4 rounded-xl border border-edge bg-lime/[0.03] hover:border-edge-hover hover:bg-lime/[0.06] no-underline transition-colors"
+            >
               <div class="font-semibold text-text">DeepSeek</div>
-              <div class="text-xs text-text-mute mt-1 font-mono">deepseek.com</div>
+              <div class="text-xs text-text-mute mt-1 font-mono">
+                deepseek.com
+              </div>
             </a>
           </div>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="api-costs" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="api-costs"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">05</span>API costs
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            Each AI provider charges separately for API usage. claude-multi does not bill you, does not see your API keys (they stay on your machine in per-instance config files), and does not receive any commission from the providers it interoperates with. Any cost you incur is between you and the provider whose API key you supply.
+            Each AI provider charges separately for API usage. claude-multi does
+            not bill you, does not see your API keys (they stay on your machine
+            in per-instance config files), and does not receive any commission
+            from the providers it interoperates with. Any cost you incur is
+            between you and the provider whose API key you supply.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="responsibilities" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
-            <span class="font-mono text-lime mr-2">06</span>Your responsibilities
+          <h2
+            id="responsibilities"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
+            <span class="font-mono text-lime mr-2">06</span>Your
+            responsibilities
           </h2>
-          <p class="text-text-dim leading-relaxed text-[0.95rem] mb-4">When using claude-multi, you agree to:</p>
+          <p class="text-text-dim leading-relaxed text-[0.95rem] mb-4">
+            When using claude-multi, you agree to:
+          </p>
           <ul class="space-y-2 list-none p-0 m-0">
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Keep your API keys secure and not share them publicly</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Comply with the acceptable-use policies of every provider you configure</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Respect applicable laws and intellectual property rights in your jurisdiction</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Not use the software to generate or distribute illegal or harmful content</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Back up anything important — see the no-warranty clause above</li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Keep your API keys secure and not share them publicly
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Comply with the acceptable-use policies of every provider
+              you configure
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Respect applicable laws and intellectual property rights
+              in your jurisdiction
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Not use the software to generate or distribute illegal or
+              harmful content
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Back up anything important — see the no-warranty clause
+              above
+            </li>
           </ul>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="trademarks" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="trademarks"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">07</span>Trademarks
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            "Claude" and "Claude Code" are trademarks of Anthropic, PBC. "GLM" is a trademark of Zhipu AI. "MiniMax" and "DeepSeek" are trademarks of their respective owners. <strong class="text-text">claude-multi is an independent open-source project.</strong> It is not affiliated with, endorsed by, or sponsored by any of these companies. We reference their names only to identify the third-party services the tool interoperates with.
+            "Claude" and "Claude Code" are trademarks of Anthropic, PBC. "GLM"
+            is a trademark of Zhipu AI. "MiniMax" and "DeepSeek" are trademarks
+            of their respective owners. <strong class="text-text"
+              >claude-multi is an independent open-source project.</strong
+            > It is not affiliated with, endorsed by, or sponsored by any of these
+            companies. We reference their names only to identify the third-party services
+            the tool interoperates with.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="website" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="website"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">08</span>Website use
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            This website (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claudemutli.hmziq.xyz</code>) is provided for informational purposes. You may not attempt to attack, scrape at abusive rates, reverse-engineer infrastructure, or otherwise interfere with the operation of the site. Reasonable use of public assets (RSS-style fetches, link previews) is welcome.
+            This website (<code
+              class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]"
+              >claude-mutli.hmziq.xyz</code
+            >) is provided for informational purposes. You may not attempt to
+            attack, scrape at abusive rates, reverse-engineer infrastructure, or
+            otherwise interfere with the operation of the site. Reasonable use
+            of public assets (RSS-style fetches, link previews) is welcome.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="modifications" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="modifications"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">09</span>Modifications
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            We may update these terms from time to time. Material changes will be reflected by bumping the "last updated" date at the top. Because this page is open source, every revision is auditable in the <a href="https://github.com/hmziqrs/claude-multi/commits/master/src/web/pages/terms.astro" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">git history</a>. Continued use of the software or the site after a change constitutes acceptance of the updated terms.
+            We may update these terms from time to time. Material changes will
+            be reflected by bumping the "last updated" date at the top. Because
+            this page is open source, every revision is auditable in the <a
+              href="https://github.com/hmziqrs/claude-multi/commits/master/src/web/pages/terms.astro"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline">git history</a
+            >. Continued use of the software or the site after a change
+            constitutes acceptance of the updated terms.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="governing-law" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="governing-law"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">10</span>Governing law
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            These terms are governed by the laws of the maintainer's primary jurisdiction. To the extent any provision is found unenforceable, the remainder remains in effect. Nothing in these terms limits any rights you may have under mandatory consumer protection laws in your local jurisdiction.
+            These terms are governed by the laws of the maintainer's primary
+            jurisdiction. To the extent any provision is found unenforceable,
+            the remainder remains in effect. Nothing in these terms limits any
+            rights you may have under mandatory consumer protection laws in your
+            local jurisdiction.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="contact" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="contact"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">11</span>Contact
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            For legal or licensing questions, open an <a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">issue on GitHub</a> or reach out via the channels on <a href="https://hmziq.rs" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">hmziq.rs</a>.
+            For legal or licensing questions, open an <a
+              href="https://github.com/hmziqrs/claude-multi/issues"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline">issue on GitHub</a
+            > or reach out via the channels on <a
+              href="https://hmziq.rs"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline">hmziq.rs</a
+            >.
           </p>
           <div class="mt-7 flex flex-wrap gap-3">
-            <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="btn-primary">
+            <a
+              href="https://github.com/hmziqrs/claude-multi"
+              target="_blank"
+              rel="noopener"
+              class="btn-primary"
+            >
               View source on GitHub
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                ><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg
+              >
             </a>
-            <a href="/privacy/" class="btn-secondary">Read the privacy policy</a>
+            <a href="/privacy/" class="btn-secondary">Read the privacy policy</a
+            >
           </div>
         </div>
-
       </article>
     </div>
   </section>

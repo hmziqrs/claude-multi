@@ -87,7 +87,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
-  site: 'https://claudemutli.hmziq.xyz',
+  site: 'https://claude-mutli.hmziq.xyz',
   integrations: [
     starlight({
       title: 'claude-multi',
@@ -173,7 +173,7 @@ No changes to `tsconfig.json`. The existing config already has `moduleResolution
     "docs:build": "astro build",
     "docs:preview": "astro preview"
   },
-  "homepage": "https://claudemutli.hmziq.xyz"
+  "homepage": "https://claude-mutli.hmziq.xyz"
 }
 ```
 
@@ -220,7 +220,7 @@ A standalone Astro page at `src/pages/index.astro` using `src/layouts/MarketingL
 
 ## 7. Deployment
 
-**Target:** `https://claudemutli.hmziq.xyz` (root domain).
+**Target:** `https://claude-mutli.hmziq.xyz` (root domain).
 
 The built output goes to `dist/`:
 ```
@@ -249,7 +249,7 @@ dist/
 2. Build command: `bun run docs:build`
 3. Output directory: `dist`
 4. Environment variable: `BUN_VERSION` = `latest`
-5. Custom domain: `claudemutli.hmziq.xyz`
+5. Custom domain: `claude-mutli.hmziq.xyz`
 
 ### Generic static host
 

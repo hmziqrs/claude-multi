@@ -2,7 +2,8 @@
 import Layout from '../layouts/MarketingLayout.astro';
 
 const title = 'Privacy Policy — claude-multi';
-const description = 'How the claude-multi marketing site handles your data. Firebase Analytics, cookies, third-party services, and how to opt out. The CLI itself collects no data.';
+const description =
+  'How the claude-multi marketing site handles your data. Firebase Analytics, cookies, third-party services, and how to opt out. The CLI itself collects no data.';
 const updated = '2026-05-20';
 
 const sections = [
@@ -18,27 +19,43 @@ const sections = [
   { id: 'contact', label: 'Contact' },
 ];
 ---
+
 <Layout title={title} description={description}>
   <!-- HERO -->
   <section class="relative z-10 pt-32 pb-12 px-6">
     <div class="max-w-4xl mx-auto">
       <div class="reveal flex justify-center mb-6">
         <a href="/" class="badge no-underline">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-lime rotate-180" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-lime rotate-180"
+            aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg
+          >
           <span class="text-text-dim">Back to home</span>
         </a>
       </div>
 
       <div class="reveal text-center">
         <span class="eyebrow">// Legal</span>
-        <h1 class="mt-5 text-5xl sm:text-6xl font-extrabold tracking-[-0.03em] leading-[1.05] headline-glow">
+        <h1
+          class="mt-5 text-5xl sm:text-6xl font-extrabold tracking-[-0.03em] leading-[1.05] headline-glow"
+        >
           Privacy <span class="gradient-text">Policy.</span>
         </h1>
         <p class="mt-5 font-mono text-sm text-text-mute">
           Last updated <time datetime={updated}>{updated}</time>
         </p>
         <p class="mt-6 text-lg text-text-dim max-w-2xl mx-auto leading-relaxed">
-          We respect your data because we'd want the same. This page explains what this website (claudemutli.hmziq.xyz) collects, what it doesn't, and how to opt out.
+          We respect your data because we'd want the same. This page explains
+          what this website (claude-mutli.hmziq.xyz) collects, what it doesn't,
+          and how to opt out.
         </p>
       </div>
     </div>
@@ -46,22 +63,34 @@ const sections = [
 
   <!-- TWO COLUMN: TOC + CONTENT -->
   <section class="relative z-10 px-6 pb-24">
-    <div class="max-w-5xl mx-auto grid lg:grid-cols-[16rem_1fr] gap-10 items-start">
-
+    <div
+      class="max-w-5xl mx-auto grid lg:grid-cols-[16rem_1fr] gap-10 items-start"
+    >
       <!-- Sticky TOC -->
       <aside class="reveal lg:sticky lg:top-24 self-start">
         <div class="glass rounded-2xl p-5">
-          <h2 class="text-[11px] font-mono uppercase tracking-[0.12em] text-lime mb-3">// Contents</h2>
+          <h2
+            class="text-[11px] font-mono uppercase tracking-[0.12em] text-lime mb-3"
+          >
+            // Contents
+          </h2>
           <nav>
             <ol class="space-y-1.5 list-none p-0 m-0 mono">
-              {sections.map((s, i) => (
-                <li>
-                  <a href={`#${s.id}`} class="flex items-baseline gap-3 px-2 py-1.5 rounded-md text-sm text-text-dim hover:text-lime hover:bg-lime/[0.04] no-underline transition-colors">
-                    <span class="font-mono text-xs text-text-mute w-5 flex-shrink-0">{String(i + 1).padStart(2, '0')}</span>
-                    <span class="font-sans">{s.label}</span>
-                  </a>
-                </li>
-              ))}
+              {
+                sections.map((s, i) => (
+                  <li>
+                    <a
+                      href={`#${s.id}`}
+                      class="flex items-baseline gap-3 px-2 py-1.5 rounded-md text-sm text-text-dim hover:text-lime hover:bg-lime/[0.04] no-underline transition-colors"
+                    >
+                      <span class="font-mono text-xs text-text-mute w-5 flex-shrink-0">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span class="font-sans">{s.label}</span>
+                    </a>
+                  </li>
+                ))
+              }
             </ol>
           </nav>
         </div>
@@ -69,145 +98,324 @@ const sections = [
 
       <!-- Content -->
       <article class="reveal space-y-5">
-
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="scope" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="scope"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">01</span>Scope
           </h2>
           <div class="space-y-3 text-text-dim leading-relaxed text-[0.95rem]">
-            <p>This privacy policy covers <strong class="text-text">the claude-multi marketing website</strong> hosted at <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claudemutli.hmziq.xyz</code>.</p>
-            <p>It does <em>not</em> cover the claude-multi command-line tool itself. The CLI runs entirely on your machine, makes no outbound connections of its own, and collects no telemetry. Any data sent by the CLI is sent to the AI providers you configure (Anthropic, GLM, MiniMax, DeepSeek, etc.) — and is governed by <em>their</em> privacy policies, not ours.</p>
+            <p>
+              This privacy policy covers <strong class="text-text"
+                >the claude-multi marketing website</strong
+              > hosted at <code
+                class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]"
+                >claude-mutli.hmziq.xyz</code
+              >.
+            </p>
+            <p>
+              It does <em>not</em> cover the claude-multi command-line tool itself.
+              The CLI runs entirely on your machine, makes no outbound connections
+              of its own, and collects no telemetry. Any data sent by the CLI is sent
+              to the AI providers you configure (Anthropic, GLM, MiniMax, DeepSeek,
+              etc.) — and is governed by <em>their</em> privacy policies, not ours.
+            </p>
           </div>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="data-we-collect" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="data-we-collect"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">02</span>Data we collect
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem] mb-4">
-            When you visit this website, Google Firebase Analytics records the following anonymized signals:
+            When you visit this website, Google Firebase Analytics records the
+            following anonymized signals:
           </p>
           <ul class="space-y-2 list-none p-0 m-0">
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>The pages you visit on this site</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Approximate location (country and region — derived from IP, IP itself is not stored)</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Device type, operating system, and browser</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Referrer URL (the link you clicked to arrive here)</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Session duration and bounce events</li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>The pages you visit on this site
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Approximate location (country and region — derived from
+              IP, IP itself is not stored)
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Device type, operating system, and browser
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Referrer URL (the link you clicked to arrive here)
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Session duration and bounce events
+            </li>
           </ul>
           <p class="mt-4 text-text-dim leading-relaxed text-[0.95rem]">
-            We use this data exclusively to understand which pages are useful, where readers come from, and whether to invest more time in particular sections of the docs.
+            We use this data exclusively to understand which pages are useful,
+            where readers come from, and whether to invest more time in
+            particular sections of the docs.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="data-we-dont" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
-            <span class="font-mono text-lime mr-2">03</span>Data we don't collect
+          <h2
+            id="data-we-dont"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
+            <span class="font-mono text-lime mr-2">03</span>Data we don't
+            collect
           </h2>
           <ul class="space-y-2 list-none p-0 m-0">
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Your name, email, or any personally identifiable information</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"></span>API keys, credentials, or any data from your local CLI</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"></span>The content of your conversations with any AI provider</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Your full IP address (Firebase truncates it for analytics)</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"></span>Cross-site behavior (we don't run third-party advertising trackers)</li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span
+                class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"
+              ></span>Your name, email, or any personally identifiable
+              information
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span
+                class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"
+              ></span>API keys, credentials, or any data from your local CLI
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span
+                class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"
+              ></span>The content of your conversations with any AI provider
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span
+                class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"
+              ></span>Your full IP address (Firebase truncates it for analytics)
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span
+                class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400"
+              ></span>Cross-site behavior (we don't run third-party advertising
+              trackers)
+            </li>
           </ul>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="cookies" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="cookies"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">04</span>Cookies
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            Firebase Analytics sets first-party cookies (typically <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">_ga</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">_ga_*</code>) to distinguish unique visitors and sessions. These cookies expire after up to two years. You can delete them at any time through your browser's cookie controls.
+            Firebase Analytics sets first-party cookies (typically <code
+              class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]"
+              >_ga</code
+            >, <code
+              class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]"
+              >_ga_*</code
+            >) to distinguish unique visitors and sessions. These cookies expire
+            after up to two years. You can delete them at any time through your
+            browser's cookie controls.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="third-party" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="third-party"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">05</span>Third-party services
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem] mb-4">
             This site loads resources from a small number of external services:
           </p>
           <div class="space-y-3">
-            <div class="flex gap-4 items-start p-4 rounded-xl border border-edge bg-lime/[0.03]">
+            <div
+              class="flex gap-4 items-start p-4 rounded-xl border border-edge bg-lime/[0.03]"
+            >
               <div class="font-mono text-xs text-lime mt-0.5">→</div>
               <div>
-                <div class="font-semibold text-text">Google Firebase Analytics</div>
-                <p class="text-sm text-text-dim mt-1">Privacy-preserving page analytics. See <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener noreferrer" class="text-lime no-underline hover:underline">Firebase Privacy</a>.</p>
+                <div class="font-semibold text-text">
+                  Google Firebase Analytics
+                </div>
+                <p class="text-sm text-text-dim mt-1">
+                  Privacy-preserving page analytics. See <a
+                    href="https://firebase.google.com/support/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-lime no-underline hover:underline"
+                    >Firebase Privacy</a
+                  >.
+                </p>
               </div>
             </div>
-            <div class="flex gap-4 items-start p-4 rounded-xl border border-edge bg-lime/[0.03]">
+            <div
+              class="flex gap-4 items-start p-4 rounded-xl border border-edge bg-lime/[0.03]"
+            >
               <div class="font-mono text-xs text-lime mt-0.5">→</div>
               <div>
                 <div class="font-semibold text-text">Google Fonts</div>
-                <p class="text-sm text-text-dim mt-1">We load Inter and JetBrains Mono from Google's CDN. See the <a href="https://developers.google.com/fonts/faq/privacy" target="_blank" rel="noopener noreferrer" class="text-lime no-underline hover:underline">Google Fonts privacy FAQ</a>.</p>
+                <p class="text-sm text-text-dim mt-1">
+                  We load Inter and JetBrains Mono from Google's CDN. See the <a
+                    href="https://developers.google.com/fonts/faq/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-lime no-underline hover:underline"
+                    >Google Fonts privacy FAQ</a
+                  >.
+                </p>
               </div>
             </div>
-            <div class="flex gap-4 items-start p-4 rounded-xl border border-edge bg-lime/[0.03]">
+            <div
+              class="flex gap-4 items-start p-4 rounded-xl border border-edge bg-lime/[0.03]"
+            >
               <div class="font-mono text-xs text-lime mt-0.5">→</div>
               <div>
                 <div class="font-semibold text-text">GitHub</div>
-                <p class="text-sm text-text-dim mt-1">External links to <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">github.com</a> redirect there; GitHub's privacy practices apply once you leave this site.</p>
+                <p class="text-sm text-text-dim mt-1">
+                  External links to <a
+                    href="https://github.com/hmziqrs/claude-multi"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-lime no-underline hover:underline">github.com</a
+                  > redirect there; GitHub's privacy practices apply once you leave
+                  this site.
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="your-rights" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="your-rights"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">06</span>Your rights
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            Under GDPR (EU/EEA) and CCPA (California), you have the right to know what data is processed, to request deletion, and to object to processing. Because the data we collect is anonymized and not tied to any identifier we control, the practical exercise of these rights is browser-side: clear your cookies or block the analytics script and the data linking stops. If you believe data has been improperly collected, contact us using the channel below.
+            Under GDPR (EU/EEA) and CCPA (California), you have the right to
+            know what data is processed, to request deletion, and to object to
+            processing. Because the data we collect is anonymized and not tied
+            to any identifier we control, the practical exercise of these rights
+            is browser-side: clear your cookies or block the analytics script
+            and the data linking stops. If you believe data has been improperly
+            collected, contact us using the channel below.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="opt-out" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="opt-out"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">07</span>How to opt out
           </h2>
           <ul class="space-y-2 list-none p-0 m-0">
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Use a privacy-focused browser (Brave, Firefox with Enhanced Tracking Protection)</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Browse in incognito / private mode</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Install uBlock Origin or a similar content blocker</li>
-            <li class="flex gap-3 text-[0.93rem] text-text-dim"><span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"></span>Use the official <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" class="text-lime no-underline hover:underline">Google Analytics Opt-out Browser Add-on</a></li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Use a privacy-focused browser (Brave, Firefox with
+              Enhanced Tracking Protection)
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Browse in incognito / private mode
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Install uBlock Origin or a similar content blocker
+            </li>
+            <li class="flex gap-3 text-[0.93rem] text-text-dim">
+              <span class="flex-shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-lime"
+              ></span>Use the official <a
+                href="https://tools.google.com/dlpage/gaoptout"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-lime no-underline hover:underline"
+                >Google Analytics Opt-out Browser Add-on</a>
+            </li>
           </ul>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="children" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="children"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">08</span>Children's privacy
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            This site is a developer tool for adults building software. It is not directed at children under 13, and we do not knowingly collect data from them.
+            This site is a developer tool for adults building software. It is
+            not directed at children under 13, and we do not knowingly collect
+            data from them.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="changes" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
-            <span class="font-mono text-lime mr-2">09</span>Changes to this policy
+          <h2
+            id="changes"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
+            <span class="font-mono text-lime mr-2">09</span>Changes to this
+            policy
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            If we change this policy materially, we'll update the "last updated" date at the top of this page. The full version history lives in the GitHub repository, so you can <a href="https://github.com/hmziqrs/claude-multi/commits/master/src/web/pages/privacy.astro" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">audit every change</a>.
+            If we change this policy materially, we'll update the "last updated"
+            date at the top of this page. The full version history lives in the
+            GitHub repository, so you can <a
+              href="https://github.com/hmziqrs/claude-multi/commits/master/src/web/pages/privacy.astro"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline"
+              >audit every change</a
+            >.
           </p>
         </div>
 
         <div class="glass rounded-2xl p-7 sm:p-9">
-          <h2 id="contact" class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3">
+          <h2
+            id="contact"
+            class="scroll-mt-24 text-xl sm:text-2xl font-bold tracking-tight mb-3"
+          >
             <span class="font-mono text-lime mr-2">10</span>Contact
           </h2>
           <p class="text-text-dim leading-relaxed text-[0.95rem]">
-            Questions, concerns, or takedown requests? Open an <a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener" class="text-lime no-underline hover:underline">issue on GitHub</a> — it's the fastest channel and produces a public record we can act on.
+            Questions, concerns, or takedown requests? Open an <a
+              href="https://github.com/hmziqrs/claude-multi/issues"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline">issue on GitHub</a
+            > — it's the fastest channel and produces a public record we can act on.
           </p>
           <div class="mt-7 flex flex-wrap gap-3">
-            <a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener" class="btn-primary">
+            <a
+              href="https://github.com/hmziqrs/claude-multi/issues"
+              target="_blank"
+              rel="noopener"
+              class="btn-primary"
+            >
               Open an issue
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+                ><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg
+              >
             </a>
             <a href="/terms/" class="btn-secondary">Read the terms</a>
           </div>
         </div>
-
       </article>
     </div>
   </section>

@@ -77,8 +77,8 @@ All frontmatter (hero links, internal references) stays the same. With `base` re
 ### 2.4 `package.json` homepage
 
 ```diff
-- "homepage": "https://claudemutli.hmziq.xyz/docs"
-+ "homepage": "https://claudemutli.hmziq.xyz"
+- "homepage": "https://claude-mutli.hmziq.xyz/docs"
++ "homepage": "https://claude-mutli.hmziq.xyz"
 ```
 
 ---

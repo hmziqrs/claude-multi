@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 
 export default defineConfig({
-  site: 'https://claudemutli.hmziq.xyz',
+  site: 'https://claude-mutli.hmziq.xyz',
   srcDir: './src/web',
   vite: {
     plugins: [tailwindcss()],
