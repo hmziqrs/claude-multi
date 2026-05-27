@@ -72,7 +72,7 @@ TypeScript (ESNext, strict, ESM) · Bun bundler · Commander.js CLI · Ink v7 TU
 
 ## Links
 
-- Docs: https://claude-mutli.hmziq.xyz/docs/
+- Docs: https://claude-multi.hmziq.xyz/docs/
 - GitHub: https://github.com/hmziqrs/claude-multi
 - npm: https://www.npmjs.com/package/claude-multi
 - Issues: https://github.com/hmziqrs/claude-multi/issues
