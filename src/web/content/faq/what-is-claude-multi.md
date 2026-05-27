@@ -29,6 +29,7 @@ It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn
 
 - [Is it a fork of Claude Code?](/faq/is-it-a-fork/) — how the wrapper mechanism works
 - [Which providers are supported?](/faq/supported-providers/) — the full template list
+- [Does it cost anything?](/faq/pricing/) — it's free, you just pay for API usage
 
 ## Dive deeper
 

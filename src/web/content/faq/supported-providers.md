@@ -48,6 +48,7 @@ Set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_SMALL_FAST_MODEL` to
 ## Related questions
 
 - [How do I create a new instance?](/faq/create-instance/) — the actual setup steps
+- [Can I use local models like Ollama?](/faq/local-models/) — any Anthropic-compatible API works
 
 ## More info
 
