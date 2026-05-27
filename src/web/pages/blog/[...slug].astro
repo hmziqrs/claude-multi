@@ -21,6 +21,29 @@ const minutes = readingTime(post.body ?? '');
   title={`${post.data.title} - claude-multi | AI Assistant & Multi-Agent Workflows Blog`}
   description={post.data.description}
   ogType="article"
+  articlePublishedTime={post.data.date}
+  articleTags={post.data.tags}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: post.data.date.toISOString(),
+    author: {
+      '@type': 'Person',
+      name: 'hmziqrs',
+      url: 'https://hmziq.rs',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'claude-multi',
+      url: 'https://claude-multi.hmziq.xyz',
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://claude-multi.hmziq.xyz/blog/${post.id}/`,
+    },
+  }}
 >
   <article class="relative z-10 pt-36 pb-24 px-6">
     <div class="max-w-3xl mx-auto">

@@ -5,6 +5,10 @@ interface Props {
   title?: string;
   description?: string;
   ogType?: 'website' | 'article';
+  ogImage?: string;
+  articlePublishedTime?: Date;
+  articleTags?: string[];
+  jsonLd?: Record<string, unknown>;
   noindex?: boolean;
 }
 
@@ -13,14 +17,30 @@ const DEFAULT_TITLE = 'claude-multi: Run Claude Code across providers';
 const DEFAULT_DESC =
   'Run multiple Claude Code instances with different AI providers and isolated configurations';
 
+const DEFAULT_OG_IMAGE = `${SITE}/og-image.jpg`;
+
 const {
   title = DEFAULT_TITLE,
   description = DEFAULT_DESC,
   ogType = 'website',
+  ogImage = DEFAULT_OG_IMAGE,
+  articlePublishedTime,
+  articleTags,
+  jsonLd,
   noindex = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE).toString();
+const pathSegments = Astro.url.pathname.replace(/^\/|\/$/g, '').split('/');
+const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
+  ? [
+      { name: 'Home', url: SITE },
+      ...pathSegments.map((seg, i) => ({
+        name: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/[-_]/g, ' '),
+        url: `${SITE}/${pathSegments.slice(0, i + 1).join('/')}/`,
+      })),
+    ]
+  : [{ name: 'Home', url: SITE }];
 ---
 
 <!doctype html>
@@ -51,11 +71,25 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="claude-multi" />
     <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content={title} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@hmziqrs" />
     <meta name="twitter:creator" content="@hmziqrs" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
+    <meta name="pinterest:media" content={ogImage} />
+    {ogType === 'article' && articlePublishedTime && (
+      <meta property="article:published_time" content={articlePublishedTime.toISOString()} />
+    )}
+    {ogType === 'article' && articleTags?.map((tag) => (
+      <meta property="article:tag" content={tag} />
+    ))}
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -64,29 +98,42 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     />
     <script
       type="application/ld+json"
-      set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'claude-multi',
-        url: SITE,
-        description: DEFAULT_DESC,
-        applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'macOS, Linux, Windows',
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'USD',
+      set:html={JSON.stringify([
+        {
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'claude-multi',
+          url: SITE,
+          description: DEFAULT_DESC,
+          applicationCategory: 'DeveloperApplication',
+          operatingSystem: 'macOS, Linux, Windows',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+          },
+          author: {
+            '@type': 'Person',
+            name: 'hmziqrs',
+            url: 'https://hmziq.rs',
+          },
+          license: 'https://opensource.org/licenses/MIT',
+          codeRepository: 'https://github.com/hmziqrs/claude-multi',
+          programmingLanguage: 'TypeScript',
+          installUrl: 'https://www.npmjs.com/package/claude-multi',
         },
-        author: {
-          '@type': 'Person',
-          name: 'hmziqrs',
-          url: 'https://hmziq.rs',
+        ...(jsonLd ? [jsonLd] : []),
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: breadcrumbs.map((crumb, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: crumb.name,
+            item: crumb.url,
+          })),
         },
-        license: 'https://opensource.org/licenses/MIT',
-        codeRepository: 'https://github.com/hmziqrs/claude-multi',
-        programmingLanguage: 'TypeScript',
-        installUrl: 'https://www.npmjs.com/package/claude-multi',
-      })}
+      ])}
     />
     <style is:global>
       @import '../styles/globals.css';

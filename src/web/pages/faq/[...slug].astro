@@ -26,6 +26,20 @@ const next =
   title={`${entry.data.question} - claude-multi FAQ`}
   description={entry.data.description}
   ogType="article"
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: entry.data.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: entry.data.description,
+        },
+      },
+    ],
+  }}
 >
   <article class="relative z-10 pt-36 pb-24 px-6">
     <div class="max-w-3xl mx-auto">

@@ -5,7 +5,19 @@ import { latestVersion, latestHighlight } from '../util/changelog';
 const highlight = latestHighlight();
 ---
 
-<Layout>
+<Layout
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'claude-multi',
+    url: 'https://claude-multi.hmziq.xyz',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://claude-multi.hmziq.xyz/docs/?q={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  }}
+>
   <!-- ========== HERO ========== -->
   <section class="relative z-10 pt-36 pb-24 px-6">
     <div class="max-w-6xl mx-auto">
