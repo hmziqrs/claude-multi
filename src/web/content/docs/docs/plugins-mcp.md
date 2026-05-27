@@ -1,4 +1,162 @@
 ---
 title: Plugins & MCP
-description: Plugin and MCP server management commands
+description: Plugin and MCP server management across instances
 ---
+
+## Plugin management
+
+Claude Code keeps plugins in `~/.claude/plugins/`. Each claude-multi instance can have its own set of plugins — either symlinked from `~/.claude` (auto-sync) or independently installed.
+
+### How plugins are stored
+
+Each instance has a `plugins/` directory in its config dir:
+
+```
+~/.claude-deepseek/plugins/
+├── some-plugin/              # actual plugin files
+│   ├── plugin.json
+│   └── ...
+└── external_plugins/         # external plugins live here
+    └── another-plugin/
+        ├── plugin.json
+        └── ...
+```
+
+Plugin state is tracked in `installed_plugins.json` (v2 format) with scope, install path, version, and timestamps.
+
+### Listing plugins
+
+**TUI:** Select **Manage plugins**, pick an instance, and see all installed plugins with their status.
+
+**CLI:**
+
+```bash
+# List all available default plugins
+claude-multi plugins list-defaults
+
+# List installed plugins for a specific instance
+claude-multi plugins list-installed deepseek
+```
+
+Default plugins show category badges (`[internal]` / `[ext]`) and MCP indicators when a plugin provides MCP servers.
+
+### Installing plugins
+
+**TUI:** Select **Manage plugins** → pick an instance → **Install** → multi-select from the list. `space` toggles, `enter` confirms.
+
+**CLI:**
+
+```bash
+claude-multi plugins install deepseek <plugin-id> [<plugin-id>...]
+```
+
+Before installing, claude-multi runs collision detection — if a new plugin would conflict with an existing one (same MCP server name, different content), you'll be warned before anything is committed.
+
+### Enabling and disabling
+
+Toggle a plugin without uninstalling it:
+
+```bash
+claude-multi plugins enable deepseek <plugin-id>
+claude-multi plugins disable deepseek <plugin-id>
+```
+
+### Copying between instances
+
+Copy one or more plugins from one instance to another:
+
+```bash
+claude-multi plugins copy <source-instance> <dest-instance> <plugin-id> [<plugin-id>...]
+```
+
+### Removing plugins
+
+```bash
+claude-multi plugins remove deepseek <plugin-id> [<plugin-id>...]
+```
+
+Removal uses a rename-to-backup safety pattern — the plugin directory is renamed rather than deleted outright.
+
+### Collision detection
+
+If you've installed the same plugin in multiple places (one symlinked, one copied, different versions), MCP server names might conflict:
+
+```bash
+claude-multi plugins check-collisions deepseek <plugin-id> [<plugin-id>...]
+```
+
+This scans for plugins that share an MCP server name but have different content.
+
+### Auto-sync and symlinks
+
+When auto-sync is enabled on an instance, the `plugins/` directory is a symlink back to `~/.claude/plugins/`. This means:
+
+- Install a plugin in `~/.claude` → every synced instance sees it
+- You can't do per-plugin operations (install/remove/enable/disable) on a symlinked instance — changes happen at the source
+- Disable auto-sync to convert back to independent copies
+
+```bash
+# Toggle auto-sync
+claude-multi auto-sync deepseek on
+claude-multi auto-sync deepseek off
+```
+
+---
+
+## MCP server management
+
+MCP (Model Context Protocol) servers let Claude Code talk to external tools — databases, APIs, file systems, and anything else you wire up. Each instance can have its own MCP server configuration.
+
+### Listing MCP servers
+
+**TUI:** Select **MCP servers** from the main menu.
+
+**CLI:**
+
+```bash
+claude-multi mcp list
+```
+
+Shows MCP server configs across all instances so you can see at a glance what's connected where.
+
+### Copying between instances
+
+Set up an MCP server in one instance and want it in another:
+
+```bash
+claude-multi mcp copy
+```
+
+From the TUI, select **MCP servers** → **Copy**. Pick source and destination instances.
+
+### Verifying configs
+
+MCP server configs can go stale if a server binary gets moved or removed:
+
+```bash
+claude-multi mcp verify
+```
+
+Checks that referenced executables and paths still exist.
+
+### Adding MCP servers
+
+**TUI:** Select **MCP servers** → pick an instance → **Add custom server**. Enter the server name and JSON config.
+
+MCP configs use the same format as Claude Code's native MCP config — no abstraction layer added.
+
+### Where configs live
+
+Each instance stores MCP server configuration in its own `settings.json`:
+
+```
+~/.claude-deepseek/settings.json → mcpServers field
+```
+
+### Setting up MCP during instance creation
+
+When creating a new instance through the TUI, the Copy Options step lets you bring over MCP server configs from your default `~/.claude` install. Use `--copy-mcp` on the CLI:
+
+```bash
+claude-multi add new-instance --provider deepseek --api-key sk-... --copy-mcp
+```

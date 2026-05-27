@@ -57,6 +57,8 @@ export default defineConfig({
           label: 'Reference',
           items: [
             { slug: 'docs/configuration' },
+            { slug: 'docs/environment-variables' },
+            { slug: 'docs/troubleshooting' },
             { slug: 'docs/changelog' },
           ],
         },
@@ -64,6 +66,7 @@ export default defineConfig({
           label: 'Development',
           collapsed: true,
           items: [
+            { slug: 'docs/contributing' },
             { slug: 'docs/development/subagent-model-plan' },
           ],
         },
