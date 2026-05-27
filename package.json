@@ -71,6 +71,7 @@
     "bun": ">=1.0.0"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.18",
     "@iconify-json/lucide": "^1.2.109",
     "@iconify-json/simple-icons": "^1.2.83",
     "astro-icon": "^1.1.5"

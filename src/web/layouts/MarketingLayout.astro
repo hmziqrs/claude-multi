@@ -50,9 +50,44 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="claude-multi" />
+    <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@hmziqrs" />
+    <meta name="twitter:creator" content="@hmziqrs" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="claude-multi Blog"
+      href={`${SITE}/feed.xml`}
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'claude-multi',
+        url: SITE,
+        description: DEFAULT_DESC,
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'macOS, Linux, Windows',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        author: {
+          '@type': 'Person',
+          name: 'hmziqrs',
+          url: 'https://hmziq.rs',
+        },
+        license: 'https://opensource.org/licenses/MIT',
+        codeRepository: 'https://github.com/hmziqrs/claude-multi',
+        programmingLanguage: 'TypeScript',
+        installUrl: 'https://www.npmjs.com/package/claude-multi',
+      })}
+    />
     <style is:global>
       @import '../styles/globals.css';
     </style>

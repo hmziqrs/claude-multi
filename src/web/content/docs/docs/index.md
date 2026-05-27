@@ -1,5 +1,5 @@
 ---
-title: claude-multi
+title: Documentation
 description: Manage multiple Claude Code instances with different AI providers and configurations
 template: splash
 hero:
