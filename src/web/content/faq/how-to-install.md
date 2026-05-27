@@ -43,6 +43,11 @@ You'll need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), 
 
 The `bin/claude-multi.js` file is a polyglot — it works as both a shell script and a JavaScript module. When you run it, the shell portion checks for bun, then node, then deno, and re-executes itself under whichever one it finds. You never have to think about it.
 
+## Related questions
+
+- [How do I create a new instance?](/faq/create-instance/) — step-by-step after install
+- [Which providers are supported?](/faq/supported-providers/) — pick the right one
+
 ## More info
 
 - [/docs/getting-started/](/docs/getting-started/) — full setup walkthrough

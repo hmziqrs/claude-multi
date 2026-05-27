@@ -53,6 +53,11 @@ Four things:
 
 After that, run `claude-<name>` (e.g. `claude-deepseek`) to launch Claude Code with that provider.
 
+## Related questions
+
+- [How does plugin syncing work?](/faq/plugin-syncing/) — keep plugins in sync across instances
+- [How do I manage MCP servers?](/faq/mcp-servers/) — copy MCP configs to new instances
+
 ## More info
 
 - [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — detailed walkthrough of the creation wizard

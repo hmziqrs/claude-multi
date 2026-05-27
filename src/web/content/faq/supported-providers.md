@@ -24,6 +24,16 @@ Each provider is a template — a bundle of environment variables (base URL, mod
 
 Xiaomi and Alibaba run separate endpoints for pay-per-token vs. subscription plans. Rather than making you edit URLs after setup, claude-multi ships a template for each — `mimo` vs. `mimo-token`, `qwen` vs. `qwen-coding`.
 
+## Using Anthropic directly
+
+You don't need a template for Anthropic — that's just Claude Code's default. Run `claude` directly for Anthropic, and use claude-multi for everything else. If you still want a managed instance for Anthropic (to keep its config isolated), create one without a provider:
+
+```sh
+claude-multi add anthropic --skip-prompts
+```
+
+It'll connect to Anthropic's API using Claude Code's built-in defaults.
+
 ## Using a provider that's not listed
 
 You can create an instance without a template and configure it manually:
@@ -34,6 +44,10 @@ claude-multi add my-provider
 ```
 
 Set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_SMALL_FAST_MODEL` to match your provider's API.
+
+## Related questions
+
+- [How do I create a new instance?](/faq/create-instance/) — the actual setup steps
 
 ## More info
 

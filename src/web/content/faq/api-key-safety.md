@@ -24,6 +24,10 @@ Settings files are written using a temp-file-rename pattern with JSON verificati
 - Run `claude-multi info <name>` to see what's stored for any instance
 - The `version` subcommand checks npm for updates, but that's the only network call claude-multi ever makes, and it doesn't involve your API key
 
+## Related questions
+
+- [What is claude-multi?](/faq/what-is-claude-multi/) — the "no telemetry" overview
+
 ## More info
 
 - [/privacy/](/privacy/) — data collection policy (website only — the CLI collects nothing)

@@ -51,6 +51,11 @@ claude-multi plugins check-collisions <instance> <plugin-id>...
 
 This scans for conflicts and reports any plugins that share an MCP server name but have different content.
 
+## Related questions
+
+- [How do I manage MCP servers?](/faq/mcp-servers/) — MCP configs work independently per instance
+- [How do I troubleshoot broken instances?](/faq/troubleshooting/) — fixing broken symlinks and more
+
 ## More info
 
 - [/docs/plugins-mcp/](/docs/plugins-mcp/) — plugin and MCP management guide

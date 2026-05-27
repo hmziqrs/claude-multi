@@ -56,6 +56,11 @@ Migrations create backups before touching anything. If one fails:
 2. Look for `.bak` files in the instance directory
 3. The health screen will show the specific error and offer to retry or restore from backup
 
+## Related questions
+
+- [How does plugin syncing work?](/faq/plugin-syncing/) — understanding symlinks and auto-sync
+- [How do I create a new instance?](/faq/create-instance/) — recreating a corrupted instance
+
 ## More info
 
 - [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — health warnings and fix-symlinks sections

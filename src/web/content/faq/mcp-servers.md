@@ -43,6 +43,10 @@ When you create a new instance through the TUI, the Copy Options step lets you b
 
 Each instance stores MCP server configuration in its own `settings.json` at `~/.claude-multi/<name>/settings.json`. Same format as Claude Code's native MCP config — no abstraction layer added.
 
+## Related questions
+
+- [How does plugin syncing work?](/faq/plugin-syncing/) — symlinks, auto-sync, and collision detection
+
 ## More info
 
 - [/docs/plugins-mcp/](/docs/plugins-mcp/) — plugin and MCP guide

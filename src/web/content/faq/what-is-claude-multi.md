@@ -25,6 +25,11 @@ It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn
 - Health monitoring that catches broken symlinks, missing dirs, corrupted config
 - A terminal UI built with Ink/React, plus a fallback prompts mode
 
+## Related questions
+
+- [Is it a fork of Claude Code?](/faq/is-it-a-fork/) — how the wrapper mechanism works
+- [Which providers are supported?](/faq/supported-providers/) — the full template list
+
 ## Dive deeper
 
 - [/about/](/about/) — design principles and how it works
