@@ -78,7 +78,13 @@ The GLM situation is the most surprising: the Anthropic-compatible URL at `api.z
 
 ## Getting started
 
-Pick a template in the TUI when creating a new instance, or pass it on the CLI:
+**Using the TUI:**
+
+When creating a new instance in the `claude-multi` TUI, navigate to the provider selection menu and choose your desired template. For example, to add Kimi, simply select `kimi` from the list. If you're on a Token Plan or Coding Plan, select the corresponding `*-token` or `*-coding` variant.
+
+**Using the CLI:**
+
+Alternatively, you can pass the template on the CLI:
 
 ```bash
 claude-multi add kimi --provider kimi --api-key sk-...
@@ -86,7 +92,7 @@ claude-multi add qwen --provider qwen --api-key sk-...
 claude-multi add mimo --provider mimo --api-key sk-...
 ```
 
-If you're on a Token Plan or Coding Plan, use the subscription variant:
+For Token Plans or Coding Plans, use the subscription variant:
 
 ```bash
 claude-multi add mimo --provider mimo-token --api-key tp-...
