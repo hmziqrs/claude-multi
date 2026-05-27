@@ -22,9 +22,10 @@ const highlight = latestHighlight();
           <p
             class="reveal mt-7 text-lg sm:text-xl text-text-dim max-w-xl leading-relaxed"
           >
-            Run Claude Code against Anthropic, GLM, MiniMax, and DeepSeek from
-            the same machine. Each one keeps its own config, plugins, and
-            history. Nothing overlaps. One terminal UI runs the whole thing.
+            Run Claude Code against Anthropic, GLM, MiniMax, DeepSeek, MiMo,
+            Kimi, Qwen and more from the same machine. Each one keeps its own
+            config, plugins, and history. Nothing overlaps. One terminal UI runs
+            the whole thing.
           </p>
 
           <div class="reveal mt-10 flex gap-3 flex-wrap">
@@ -376,7 +377,7 @@ const highlight = latestHighlight();
         class="glass rounded-2xl px-8 py-7 grid grid-cols-2 sm:grid-cols-4 gap-6"
       >
         <div class="text-center sm:text-left">
-          <div class="stat-num text-3xl sm:text-4xl">4+</div>
+          <div class="stat-num text-3xl sm:text-4xl">6+</div>
           <div class="text-xs uppercase tracking-wider text-text-mute mt-1">
             Providers
           </div>
@@ -452,13 +453,13 @@ const highlight = latestHighlight();
             </div>
             <h3 class="text-2xl font-bold mb-3">Many providers, one harness</h3>
             <p class="text-text-dim leading-relaxed max-w-md">
-              Templates for Anthropic, GLM, MiniMax, and DeepSeek. Every
-              provider you set up gets its own alias (<code
+              Templates for GLM, MiniMax, DeepSeek, MiMo, Kimi, Qwen and more.
+              Every provider you set up gets its own alias (<code
                 class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm"
-                >claude-glm</code
+                >claude-kimi</code
               >, <code
                 class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-sm"
-                >claude-deepseek</code
+                >claude-qwen</code
               >) that drops straight into your terminal.
             </p>
 
@@ -467,13 +468,13 @@ const highlight = latestHighlight();
                 class="flex items-center gap-2 px-3 py-2 rounded-lg border border-edge bg-lime/[0.03]"
               >
                 <span class="w-1.5 h-1.5 rounded-full bg-lime"></span>
-                <span class="font-mono text-xs text-text-dim">claude-glm</span>
+                <span class="font-mono text-xs text-text-dim">claude-kimi</span>
               </div>
               <div
                 class="flex items-center gap-2 px-3 py-2 rounded-lg border border-edge bg-lime/[0.03]"
               >
                 <span class="w-1.5 h-1.5 rounded-full bg-lime"></span>
-                <span class="font-mono text-xs text-text-dim">claude-mini</span>
+                <span class="font-mono text-xs text-text-dim">claude-mimo</span>
               </div>
               <div
                 class="flex items-center gap-2 px-3 py-2 rounded-lg border border-edge bg-lime/[0.03]"
@@ -488,7 +489,7 @@ const highlight = latestHighlight();
               >
                 <span class="w-1.5 h-1.5 rounded-full bg-lime"></span>
                 <span class="font-mono text-xs text-text-dim"
-                  >claude-anthropic</span
+                  >claude-qwen</span
                 >
               </div>
             </div>
@@ -634,9 +635,9 @@ const highlight = latestHighlight();
               </div>
               <div class="logo-card lc-2">
                 <div class="dots"><i></i><i></i><i></i></div>
-                <div class="tag">glm</div>
+                <div class="tag">kimi</div>
                 <div class="body">
-                  <span class="prompt">$ claude-glm</span>
+                  <span class="prompt">$ claude-kimi</span>
                   <div class="l mid"></div>
                   <div class="l short"></div>
                   <div class="l accent"></div>
@@ -644,9 +645,9 @@ const highlight = latestHighlight();
               </div>
               <div class="logo-card lc-3">
                 <div class="dots"><i></i><i></i><i></i></div>
-                <div class="tag">minimax</div>
+                <div class="tag">mimo</div>
                 <div class="body">
-                  <span class="prompt">$ claude-mini</span>
+                  <span class="prompt">$ claude-mimo</span>
                   <div class="l mid"></div>
                   <div class="l short"></div>
                   <div class="l accent"></div>
@@ -654,9 +655,9 @@ const highlight = latestHighlight();
               </div>
               <div class="logo-card lc-4">
                 <div class="dots"><i></i><i></i><i></i></div>
-                <div class="tag">deepseek</div>
+                <div class="tag">qwen</div>
                 <div class="body">
-                  <span class="prompt">$ claude-deepseek</span>
+                  <span class="prompt">$ claude-qwen</span>
                   <div class="l mid"></div>
                   <div class="l short"></div>
                   <div class="l accent"></div>
@@ -732,10 +733,7 @@ const highlight = latestHighlight();
                 >Templated</span
               >
             </div>
-            <h3 class="text-lg font-bold mb-1">
-              GLM <span class="text-sm font-normal text-text-mute"
-                >(智谱AI)</span>
-            </h3>
+            <h3 class="text-lg font-bold mb-1">GLM Coding Plan</h3>
             <p class="text-sm text-text-dim mb-3">GLM-5.1, GLM-5-Turbo</p>
             <p class="font-mono text-xs text-text-mute">api.z.ai</p>
           </div>
@@ -788,6 +786,81 @@ const highlight = latestHighlight();
             <h3 class="text-lg font-bold mb-1">DeepSeek</h3>
             <p class="text-sm text-text-dim mb-3">V4-Pro, V4-Flash</p>
             <p class="font-mono text-xs text-text-mute">api.deepseek.com</p>
+          </div>
+        </div>
+
+        <div class="reveal glass provider-card rounded-2xl p-7 relative">
+          <div
+            data-three="provider-shape"
+            data-shape="ico"
+            class="absolute top-3 right-3 w-20 h-20 opacity-80"
+          >
+          </div>
+          <div class="relative">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold bg-gradient-to-br from-orange-500 to-orange-700 text-white mb-5"
+            >
+              M
+            </div>
+            <div class="absolute top-0 right-0">
+              <span
+                class="text-[10px] font-mono uppercase tracking-wider px-2 py-1 rounded-md border border-edge text-text-mute"
+                >Templated</span
+              >
+            </div>
+            <h3 class="text-lg font-bold mb-1">Xiaomi MiMo</h3>
+            <p class="text-sm text-text-dim mb-3">MiMo-V2.5-Pro, MiMo-V2.5</p>
+            <p class="font-mono text-xs text-text-mute">api.xiaomimimo.com</p>
+          </div>
+        </div>
+
+        <div class="reveal glass provider-card rounded-2xl p-7 relative">
+          <div
+            data-three="provider-shape"
+            data-shape="octa"
+            class="absolute top-3 right-3 w-20 h-20 opacity-80"
+          >
+          </div>
+          <div class="relative">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold bg-gradient-to-br from-sky-500 to-sky-700 text-white mb-5"
+            >
+              K
+            </div>
+            <div class="absolute top-0 right-0">
+              <span
+                class="text-[10px] font-mono uppercase tracking-wider px-2 py-1 rounded-md border border-edge text-text-mute"
+                >Templated</span
+              >
+            </div>
+            <h3 class="text-lg font-bold mb-1">Moonshot Kimi</h3>
+            <p class="text-sm text-text-dim mb-3">Kimi K2.6, K2.5</p>
+            <p class="font-mono text-xs text-text-mute">api.moonshot.ai</p>
+          </div>
+        </div>
+
+        <div class="reveal glass provider-card rounded-2xl p-7 relative">
+          <div
+            data-three="provider-shape"
+            data-shape="tetra"
+            class="absolute top-3 right-3 w-20 h-20 opacity-80"
+          >
+          </div>
+          <div class="relative">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold bg-gradient-to-br from-emerald-500 to-emerald-700 text-white mb-5"
+            >
+              Q
+            </div>
+            <div class="absolute top-0 right-0">
+              <span
+                class="text-[10px] font-mono uppercase tracking-wider px-2 py-1 rounded-md border border-edge text-text-mute"
+                >Templated</span
+              >
+            </div>
+            <h3 class="text-lg font-bold mb-1">Alibaba Qwen</h3>
+            <p class="text-sm text-text-dim mb-3">Qwen3-Coder-Next, Plus, Flash</p>
+            <p class="font-mono text-xs text-text-mute">dashscope-intl.aliyuncs.com</p>
           </div>
         </div>
       </div>

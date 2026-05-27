@@ -213,9 +213,14 @@ If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
 
 | Provider | Endpoint | Template name |
 |---|---|---|
-| GLM (智谱AI) | `api.z.ai` | `glm` |
+| GLM Coding Plan | `api.z.ai` | `glm` |
 | MiniMax | `api.minimax.io` | `minimax` |
 | DeepSeek | `api.deepseek.com` | `deepseek` |
+| Xiaomi MiMo | `api.xiaomimimo.com` | `mimo` |
+| Xiaomi MiMo (Token Plan) | `token-plan-cn.xiaomimimo.com` | `mimo-token` |
+| Moonshot Kimi | `api.moonshot.ai` | `kimi` |
+| Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen` |
+| Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen-coding` |
 
 The templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and a few related env vars into `~/.claude-<name>/settings.json`. Edit that file if you want to tweak things further.
 

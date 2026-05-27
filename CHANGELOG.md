@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.7] - 2026-05-27
+
+### Added
+- **Provider templates** (`src/templates.ts`): five new AI provider templates
+  - **Xiaomi MiMo** (`mimo`): MiMo-V2.5-Pro and MiMo-V2.5 via xiaomimimo.com — pay-per-token API
+  - **Xiaomi MiMo Token Plan** (`mimo-token`): MiMo-V2.5-Pro via xiaomimimo.com subscription; replace base URL with your regional endpoint (CN/SG/EU) from the subscription console
+  - **Moonshot Kimi** (`kimi`): Kimi K2.6 (opus) and Kimi K2.5 (sonnet/haiku) via moonshot.ai — pay-per-token
+  - **Alibaba Qwen** (`qwen`): Qwen3-Coder-Next/Plus/Flash via Alibaba DashScope — pay-per-token API
+  - **Alibaba Qwen Coding Plan** (`qwen-coding`): Qwen3-Coder-Next/Plus/Flash via DashScope Coding Plan subscription
+
+### Changed
+- **GLM template** (`glm`): display name updated to "GLM Coding Plan"; description now clarifies the Anthropic endpoint is coding-plan-only (standard Z.ai pay-per-token API has no Anthropic-compatible URL)
+- **Kimi template** (`kimi`): sonnet/haiku tiers use `kimi-k2.5` instead of `kimi-k2.6` — same family, ~37% cheaper; legacy K2 series EOL'd May 25 2026
+
 ## [0.5.6] - 2026-05-23
 
 ### Added

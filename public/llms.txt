@@ -6,7 +6,7 @@
 
 claude-multi wraps the existing `claude` binary — no fork, no patches. Each instance gets a wrapper script at `~/.local/bin/claude-<name>` that sets `CLAUDE_CONFIG_DIR` before exec-ing the real `claude` binary. Instance metadata lives in `~/.claude-multi/config.json`.
 
-This lets you run Claude Code against different providers (GLM/Z.ai, MiniMax, DeepSeek) or different configurations without editing settings by hand.
+This lets you run Claude Code against different providers (GLM/Z.ai, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, Alibaba Qwen) or different configurations without editing settings by hand.
 
 ## Installation
 
@@ -37,9 +37,14 @@ Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
 
 | Provider | Endpoint | Models |
 |----------|----------|--------|
-| GLM (Zhipu AI) | api.z.ai | glm-5.1, glm-5-turbo |
+| GLM Coding Plan | api.z.ai | glm-5.1, glm-5-turbo |
 | MiniMax | api.minimax.io | MiniMax-M2.7 |
 | DeepSeek | api.deepseek.com | deepseek-v4-pro, deepseek-v4-flash |
+| Xiaomi MiMo | api.xiaomimimo.com | mimo-v2.5-pro, mimo-v2.5 |
+| Xiaomi MiMo (Token Plan) | token-plan-cn.xiaomimimo.com | mimo-v2.5-pro, mimo-v2.5 |
+| Moonshot Kimi | api.moonshot.ai | kimi-k2.6, kimi-k2.5 |
+| Alibaba Qwen | dashscope-intl.aliyuncs.com | qwen3-coder-next, qwen3-coder-plus, qwen3-coder-flash |
+| Alibaba Qwen Coding Plan | coding-intl.dashscope.aliyuncs.com | qwen3-coder-next, qwen3-coder-plus, qwen3-coder-flash |
 
 All providers use the Anthropic-compatible API format with their own base URL.
 
