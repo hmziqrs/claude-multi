@@ -2,12 +2,32 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+function serveLocalAudio() {
+  return {
+    name: 'serve-local-audio',
+    configureServer(server) {
+      server.middlewares.use('/audio', (req, res, next) => {
+        const filePath = join(process.cwd(), 'audio', req.url.replace(/^\//, ''));
+        try {
+          const data = readFileSync(filePath);
+          res.setHeader('Content-Type', 'audio/mpeg');
+          res.end(data);
+        } catch {
+          next();
+        }
+      });
+    },
+  };
+}
 
 export default defineConfig({
   site: 'https://claude-multi.hmziq.xyz',
   srcDir: './src/web',
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), serveLocalAudio()],
     build: {
       rollupOptions: {
         output: {

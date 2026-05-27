@@ -3,7 +3,7 @@ title: "Claude Code is doing more of the job now, and claude-multi makes the res
 description: "Claude Code has moved past autocomplete. With MCP and a million-token context, it handles real workflows end to end. claude-multi is how you point it at different providers without burning your config to the ground."
 date: 2026-05-27
 tags: [Claude Code, AI engineering, LLM integration, claude-multi, developer tools, AI coding, workflow automation, MCP]
-audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio/claude-code-co-engineer-and-claude-multi.mp3"
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/claude-code-co-engineer-and-claude-multi.mp3"
 ---
 
 The thing that has actually changed about AI coding assistants in the last year is not the suggestion quality. It is the scope of what you can hand off in one shot.

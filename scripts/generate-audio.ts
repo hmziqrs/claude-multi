@@ -3,10 +3,10 @@ import { existsSync } from "fs";
 import { join, basename } from "path";
 
 const BLOG_DIR = join(import.meta.dir, "../src/web/content/blog");
-const OUTPUT_DIR = join(import.meta.dir, "../public/audio");
+const OUTPUT_DIR = join(import.meta.dir, "../audio");
 const API_URL = "http://localhost:8880/v1/audio/speech";
 const VOICE = "af_heart";
-const GITHUB_RAW = "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio";
+const GITHUB_RAW = "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio";
 
 function stripMarkdown(content: string): string {
   return content

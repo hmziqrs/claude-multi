@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 const minutes = readingTime(post.body ?? '');
-const localAudioPath = join(process.cwd(), 'public', 'audio', `${post.id}.mp3`);
+const localAudioPath = join(process.cwd(), 'audio', `${post.id}.mp3`);
 const audioSrc = post.data.audio ?? (existsSync(localAudioPath) ? `/audio/${post.id}.mp3` : null);
 ---
 

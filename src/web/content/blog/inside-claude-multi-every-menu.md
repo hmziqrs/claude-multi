@@ -3,7 +3,7 @@ title: "Inside claude-multi: a tour of every menu"
 description: "A walkthrough of every screen in the claude-multi TUI. What each option does, when to use it, and the design calls I made along the way."
 date: 2026-05-25
 tags: [claude-code, tui, deep-dive]
-audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio/inside-claude-multi-every-menu.mp3"
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/inside-claude-multi-every-menu.mp3"
 ---
 
 I've been running Claude Code against several providers for a while. Anthropic for the work I care about, GLM when I want to burn fewer tokens, DeepSeek when I'm curious. For a while this was fine. Then it wasn't.

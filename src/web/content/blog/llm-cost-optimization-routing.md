@@ -3,7 +3,7 @@ title: "Stop paying Opus prices for a git status"
 description: "If you're sending every request to a flagship model, you're overpaying by a lot. A look at how LLM routing actually works, what kind of savings to expect, and how to set it up."
 date: 2026-05-27
 tags: [LLM cost optimization, AI development, LLM routing, claude-code-llm-router, tiered models, cost savings, AI engineering, developer tools]
-audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/audio/llm-cost-optimization-routing.mp3"
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/llm-cost-optimization-routing.mp3"
 ---
 
 Running every Claude Code call through Opus is fine if you're not paying the bill. If you are, it's the most expensive way to do something a model 50x cheaper would have done correctly.
