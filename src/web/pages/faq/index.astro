@@ -1,0 +1,97 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@/web/layouts/MarketingLayout.astro';
+
+const entries = (await getCollection('faq')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+const categories = [...new Set(entries.map((e) => e.data.category))];
+---
+
+<Layout
+  title="FAQ - claude-multi | Frequently Asked Questions"
+  description="Common questions about claude-multi — installation, providers, plugin syncing, MCP servers, troubleshooting, and more."
+>
+  <section class="relative z-10 pt-36 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <span class="eyebrow">// FAQ</span>
+      <h1
+        class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
+      >
+        Frequently asked <span class="gradient-text">questions.</span>
+      </h1>
+      <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
+        Quick answers to common questions. Each answer links to the relevant
+        docs, blog posts, source code, and in-app screens.
+      </p>
+    </div>
+  </section>
+
+  <section class="relative z-10 pb-32 px-6">
+    <div class="max-w-4xl mx-auto space-y-12">
+      {
+        categories.map((category) => (
+          <div class="reveal">
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-5">
+              {category}
+            </h2>
+            <ul class="list-none p-0 m-0 space-y-4">
+              {entries
+                .filter((e) => e.data.category === category)
+                .map((entry) => (
+                  <li>
+                    <a
+                      href={`/faq/${entry.id}/`}
+                      class="block glass rounded-2xl p-7 no-underline transition-colors hover:border-edge-hover group"
+                    >
+                      <h3 class="text-xl font-bold tracking-tight mb-2 group-hover:text-lime transition-colors">
+                        {entry.data.question}
+                      </h3>
+                      <p class="text-text-dim leading-relaxed text-[0.95rem]">
+                        {entry.data.description}
+                      </p>
+                    </a>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="relative z-10 px-6 pb-20">
+    <div class="max-w-2xl mx-auto reveal text-center">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        Still have questions?
+      </h2>
+      <p class="mt-4 text-text-dim text-lg">
+        Open an issue on GitHub or check the docs.
+      </p>
+      <div class="mt-7 flex gap-3 justify-center flex-wrap">
+        <a
+          href="https://github.com/hmziqrs/claude-multi/issues"
+          target="_blank"
+          rel="noopener"
+          class="btn-primary"
+        >
+          Ask on GitHub
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            ><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg
+          >
+        </a>
+        <a href="/docs/" class="btn-secondary">Browse docs</a>
+      </div>
+    </div>
+  </section>
+</Layout>

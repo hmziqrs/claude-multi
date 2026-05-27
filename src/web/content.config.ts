@@ -19,4 +19,13 @@ export const collections = {
       draft: z.boolean().default(false),
     }),
   }),
+  faq: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/web/content/faq' }),
+    schema: z.object({
+      question: z.string(),
+      description: z.string(),
+      category: z.string(),
+      order: z.number().default(0),
+    }),
+  }),
 };
