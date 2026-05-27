@@ -78,7 +78,7 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   mimo: {
     name: "mimo",
     displayName: "Xiaomi MiMo",
-    description: "MiMo-V2.5-Pro and MiMo-V2.5 models via xiaomimimo.com",
+    description: "MiMo-V2.5-Pro and MiMo-V2.5 via xiaomimimo.com — pay-per-token API",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -97,7 +97,7 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   kimi: {
     name: "kimi",
     displayName: "Moonshot Kimi",
-    description: "Kimi K2.6 and K2.5 models via moonshot.ai",
+    description: "Kimi K2.6 and K2.5 models via moonshot.ai — pay-per-token only, no subscription plan",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -116,7 +116,7 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   "mimo-token": {
     name: "mimo-token",
     displayName: "Xiaomi MiMo (Token Plan)",
-    description: "MiMo-V2.5-Pro via xiaomimimo.com Token Plan subscription — replace base URL with your regional endpoint (CN/SG/EU) from the subscription console",
+    description: "MiMo-V2.5-Pro via xiaomimimo.com Token Plan — monthly subscription with credit pool, replace base URL with your regional endpoint (CN/SG/EU) from the subscription console",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
