@@ -5,69 +5,62 @@ category: "Troubleshooting"
 order: 9
 ---
 
-claude-multi includes a **health monitoring system** that scans all instances for common problems and offers one-click fixes.
+claude-multi has a health monitoring system that scans all your instances and surfaces problems. It won't fix things without asking — it shows you what's wrong and suggests how to fix it.
 
 ## Running health checks
 
-From the TUI, press `!` (when the health indicator is visible) or look for the warning banner at the top of the main menu. The health screen shows all detected issues across every instance.
+In the TUI, a warning banner appears at the top of the main menu when issues are detected. Press `!` to jump straight to the health screen, which lists everything it found across all instances.
 
-From the CLI, health status is shown when you list instances:
+You can also see health status when listing instances:
 
 ```sh
 claude-multi list
 ```
 
-## What health checks detect
+## What gets checked
 
-| Issue | Description | Fix |
-|-------|-------------|-----|
-| **Missing directory** | Instance directory was deleted outside claude-multi | Remove the instance from the registry |
-| **Broken symlinks** | Plugin/skill symlinks point to non-existent targets | Run `claude-multi fix-symlinks` |
-| **Corrupted settings** | `settings.json` contains invalid JSON | Restore from backup or recreate |
-| **Migration failure** | Config schema migration failed or was interrupted | Re-run migration with backup restore |
-| **Missing wrapper** | Wrapper script was deleted but instance exists | Regenerate with `claude-multi fix-symlinks` |
+| Problem | What happened | How to fix |
+|---------|--------------|------------|
+| Config directory missing | Instance dir was deleted outside claude-multi | Remove the instance from the registry, or recreate the directory |
+| Binary not found | Wrapper script was deleted | Re-create the instance or run `claude-multi sync` |
+| Corrupted settings.json | Invalid JSON in the config file | Fix or delete the corrupted file |
+| Broken symlinks | Plugin/skill links point to nonexistent targets | Run `claude-multi fix-symlinks` |
+| Migration failed | Config schema migration was interrupted | The health screen offers retry/restore options |
 
 ## Common fixes
 
-### Broken symlinks
+### Symlinks
 
 ```sh
 claude-multi fix-symlinks
 ```
 
-Repairs all symlinks across all instances. Can also target specific instances:
+Repairs symlinks across all instances. Target specific ones with `claude-multi fix-symlinks deepseek glm`.
 
-```sh
-claude-multi fix-symlinks deepseek glm
-```
+### Corrupted config
 
-### Corrupted instance
-
-If an instance's config is corrupted beyond repair, remove and recreate it:
+If a settings file is too far gone, remove and recreate the instance:
 
 ```sh
 claude-multi remove broken-instance
 claude-multi add broken-instance --provider deepseek --api-key sk-your-key
 ```
 
-Your conversation history in `~/.claude-multi/broken-instance/projects/` is preserved separately from config — back it up before removing.
+Your conversation history lives in `~/.claude-multi/broken-instance/projects/` — it's separate from config, so back it up before removing if you want to keep it.
 
-### Migration issues
+### Migration failures
 
-Config migrations create backups before making changes. If a migration fails:
+Migrations create backups before touching anything. If one fails:
 
 1. Check `~/.claude-multi/config.json` for migration status flags
 2. Look for `.bak` files in the instance directory
-3. The health screen will show the specific failure and offer to retry or restore
+3. The health screen will show the specific error and offer to retry or restore from backup
 
-## References
+## More info
 
-| Resource | Link |
-|----------|------|
-| **Blog: Every TUI menu** | [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — Health warnings and fix-symlinks sections |
-| **Usage docs** | [/docs/usage/](/docs/usage/) — CLI command reference |
-| **In-app: Health screen** | Run `claude-multi` and press `!` or watch for the warning banner |
-| **In-app: Re-sync symlinks** | Run `claude-multi` and select **Re-sync symlinks** |
-| **GitHub: Health checks** | [src/health.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/health.ts) — health check implementation |
-| **GitHub: HealthScreen** | [src/ink/screens/HealthScreen.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/HealthScreen.tsx) — TUI health screen |
-| **GitHub: Migration** | [src/migration.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/migration.ts) — config migration with backups |
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — health warnings and fix-symlinks sections
+- [/docs/usage/](/docs/usage/) — CLI command reference
+- Run `claude-multi` and press `!` (or watch for the warning banner)
+- [src/health.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/health.ts) — health check implementation
+- [src/ink/screens/HealthScreen.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/HealthScreen.tsx) — TUI health screen
+- [src/migration.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/migration.ts) — config migration with backups

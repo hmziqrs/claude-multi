@@ -1,33 +1,32 @@
 ---
 question: "Which AI providers are supported?"
-description: "claude-multi ships 8 templates covering Anthropic, GLM, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen — each with pre-configured endpoints and model mappings."
+description: "claude-multi ships 8 templates covering GLM, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen — each with pre-configured endpoints and model mappings."
 category: "Providers"
 order: 3
 ---
 
-Every provider in claude-multi is a **template** — a bundle of environment variables (base URL, model mappings, default settings) that gets merged into a new instance's config. You bring the API key; the template handles the rest.
+Each provider is a template — a bundle of environment variables (base URL, model mappings, default settings) that gets merged into a new instance. You bring the API key; the template handles the rest.
 
-## Provider table
+## All available templates
 
 | Template | Provider | Models | Endpoint |
 |----------|----------|--------|----------|
-| `anthropic` | Anthropic | Claude Opus, Sonnet, Haiku | api.anthropic.com |
 | `glm` | GLM Coding Plan | GLM-5.1, GLM-5-Turbo | api.z.ai |
 | `minimax` | MiniMax | MiniMax-M2.7 | api.minimax.io |
 | `deepseek` | DeepSeek | DeepSeek-V4-Pro, V4-Flash | api.deepseek.com |
-| `mimo` | Xiaomi MiMo (Pay-per-token) | MiMo-V2.5-Pro, V2.5 | api.xiaomimimo.com |
-| `mimo-token` | Xiaomi MiMo (Subscription) | MiMo-V2.5-Pro | token-plan-cn.xiaomimimo.com |
+| `mimo` | Xiaomi MiMo (pay-per-token) | MiMo-V2.5-Pro, V2.5 | api.xiaomimimo.com |
+| `mimo-token` | Xiaomi MiMo (subscription) | MiMo-V2.5-Pro | token-plan-cn.xiaomimimo.com |
 | `kimi` | Moonshot Kimi | Kimi K2.6, K2.5 | api.moonshot.ai |
-| `qwen` | Alibaba Qwen (Pay-per-token) | Qwen3-Coder-Next/Plus/Flash | dashscope-intl.aliyuncs.com |
-| `qwen-coding` | Alibaba Qwen (Coding plan) | Qwen3-Coder-Next/Plus/Flash | coding-intl.dashscope.aliyuncs.com |
+| `qwen` | Alibaba Qwen (pay-per-token) | Qwen3-Coder-Next/Plus/Flash | dashscope-intl.aliyuncs.com |
+| `qwen-coding` | Alibaba Qwen (coding plan) | Qwen3-Coder-Next/Plus/Flash | coding-intl.dashscope.aliyuncs.com |
 
-## The plan-split problem
+## Why some providers have two templates
 
-Some providers (Xiaomi, Alibaba) run separate endpoints for pay-per-token vs. subscription plans. claude-multi ships separate templates for each — for example `mimo` vs. `mimo-token` — so you don't have to manually edit URLs after setup.
+Xiaomi and Alibaba run separate endpoints for pay-per-token vs. subscription plans. Rather than making you edit URLs after setup, claude-multi ships a template for each — `mimo` vs. `mimo-token`, `qwen` vs. `qwen-coding`.
 
-## Adding a custom provider
+## Using a provider that's not listed
 
-If your provider isn't in the template list, you can create an instance and manually set the environment variables in `settings.json`:
+You can create an instance without a template and configure it manually:
 
 ```sh
 claude-multi add my-provider
@@ -36,12 +35,10 @@ claude-multi add my-provider
 
 Set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_SMALL_FAST_MODEL` to match your provider's API.
 
-## References
+## More info
 
-| Resource | Link |
-|----------|------|
-| **Providers docs** | [/docs/providers/](/docs/providers/) — full template reference with model mappings |
-| **Blog: Five new templates** | [/blog/five-new-provider-templates/](/blog/five-new-provider-templates/) — announcement of MiMo, Kimi, Qwen support |
-| **Blog: Claude Code co-engineer** | [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/) — LLM routing and cost optimization |
-| **In-app: Instance creation** | Run `claude-multi` and select **Add new instance** — the provider picker shows all available templates |
-| **GitHub: Templates** | [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts) — template definitions with env vars and model mappings |
+- [/docs/providers/](/docs/providers/) — full template reference with model mappings
+- [/blog/five-new-provider-templates/](/blog/five-new-provider-templates/) — the MiMo, Kimi, Qwen announcement
+- [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/) — cost optimization with LLM routing
+- Run `claude-multi` and select **Add new instance** to see all templates in the picker
+- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts) — template definitions

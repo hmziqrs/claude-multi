@@ -5,39 +5,29 @@ category: "Security"
 order: 8
 ---
 
-claude-multi stores your API keys **locally** in each instance's `settings.json` file. The tool itself has no backend, no telemetry, and no network calls.
+Your API keys stay on your machine. claude-multi has no backend, no telemetry, and makes no network calls during normal operation.
 
-## Where keys are stored
+## Where keys end up
 
-```
-~/.claude-multi/<name>/settings.json
-```
+Each instance stores its key in `~/.claude-multi/<name>/settings.json` as part of the `ANTHROPIC_AUTH_TOKEN` env var. When you launch that instance, Claude Code reads the key directly from the config file — claude-multi isn't involved at runtime.
 
-Each instance's settings file contains the provider environment variables, including `ANTHROPIC_AUTH_TOKEN` (your API key). The file is written with restrictive permissions.
+The only time claude-multi touches your key is during instance creation, when it writes it into the settings file. After that, it's between you and Claude Code.
 
-## What claude-multi does with keys
+## About those config writes
 
-- **Nothing.** claude-multi reads the key only to write it into the instance config. It never sends it anywhere.
-- The key is passed to Claude Code via the `CLAUDE_CONFIG_DIR` mechanism — Claude Code reads it directly from the config file at runtime.
-- claude-multi itself makes zero network requests during normal operation (only `version` checks npm for updates, which doesn't involve your API key).
+Settings files are written using a temp-file-rename pattern with JSON verification. The file gets written to a temp path, verified as valid JSON, then atomically renamed into place. No partial writes, no corrupted configs.
 
-## Atomic writes
+## Practical tips
 
-Config files are written using an atomic temp-file-rename pattern with JSON verification. This prevents partial writes that could corrupt your config or leave a key in a broken state.
+- If you use the same key across providers, you can copy settings from `~/.claude` during instance creation instead of re-entering it
+- For different keys per provider, enter them individually during setup or edit the settings file directly
+- Run `claude-multi info <name>` to see what's stored for any instance
+- The `version` subcommand checks npm for updates, but that's the only network call claude-multi ever makes, and it doesn't involve your API key
 
-## Key storage best practices
+## More info
 
-- If you use the same key across providers, you can copy settings from your primary `~/.claude` during instance creation
-- For different keys per provider, enter them individually during setup or edit `settings.json` directly
-- You can inspect any instance's config by running `claude-multi info <name>` or browsing `~/.claude-multi/<name>/`
-
-## References
-
-| Resource | Link |
-|----------|------|
-| **Privacy policy** | [/privacy/](/privacy/) — data collection policy (website only, CLI collects nothing) |
-| **About page** | [/about/](/about/) — "No daemons, no background services, no telemetry" |
-| **Configuration docs** | [/docs/configuration/](/docs/configuration/) — settings.json schema |
-| **In-app: Instance details** | Run `claude-multi`, select **Instance details** to see stored config |
-| **GitHub: Atomic JSON writes** | [src/util/json-file.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/json-file.ts) — `writeJsonFileAtomic()` implementation |
-| **GitHub: Config** | [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — how settings are created and stored |
+- [/privacy/](/privacy/) — data collection policy (website only — the CLI collects nothing)
+- [/about/](/about/) — "no daemons, no background services, no telemetry"
+- [/docs/configuration/](/docs/configuration/) — settings.json schema
+- [src/util/json-file.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/json-file.ts) — atomic write implementation
+- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — how settings are created and stored

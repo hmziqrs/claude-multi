@@ -5,35 +5,31 @@ category: "Getting Started"
 order: 1
 ---
 
-**claude-multi** is a CLI tool that lets you run multiple Claude Code instances simultaneously, each configured with a different AI provider. Every instance gets its own config directory (`~/.claude-<name>/`), so settings, history, and MCP servers stay isolated.
+claude-multi is a CLI that lets you run multiple Claude Code instances at the same time, each pointed at a different AI provider. Every instance gets its own config directory under `~/.claude-<name>/`, so settings, history, and MCP servers don't bleed into each other.
 
-## Why it exists
+## The problem it solves
 
-Claude Code stores everything in a single `~/.claude` directory — settings, plugins, skills, MCP servers, and conversation history. The moment you want to try a second provider, A/B test models, or keep work and personal configs separate, you start manually juggling environment variables and copying files.
+Claude Code keeps everything in one `~/.claude` folder — settings, plugins, skills, MCP servers, conversation history. That works fine until you want to try a second provider, or keep a work setup separate from a personal one. Suddenly you're manually copying files around, swapping environment variables, and hoping nothing gets overwritten.
 
-claude-multi solves this by giving each provider its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`) backed by a real directory you can inspect and modify.
+claude-multi gives each provider its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`), each backed by a real directory you can browse and edit. No shared state, no accidental overwrites.
 
-## What it is not
+## What it isn't
 
-- It is **not** a fork of Claude Code — it wraps the unmodified `claude` binary
-- It is **not** a proxy or daemon — no background processes, no telemetry
-- It is **not** a model router — each instance is a fully isolated Claude Code environment
+It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn't do model routing. Each instance is a standalone Claude Code environment — claude-multi just manages the plumbing.
 
-## Key capabilities
+## What you get
 
-- **8 provider templates** with pre-configured base URLs and model mappings
-- **Plugin auto-sync** via symlinks so you maintain plugins in one place
-- **MCP server management** across instances
-- **Health monitoring** to detect broken symlinks, missing dirs, or corrupted config
-- **Rich TUI** (Ink/React) with a fallback prompts mode
+- 8 provider templates with pre-configured endpoints and model mappings
+- Plugin auto-sync via symlinks (update once, all instances get it)
+- MCP server management across instances
+- Health monitoring that catches broken symlinks, missing dirs, corrupted config
+- A terminal UI built with Ink/React, plus a fallback prompts mode
 
-## References
+## Dive deeper
 
-| Resource | Link |
-|----------|------|
-| **About page** | [/about/](/about/) — design principles and how it works |
-| **Getting started docs** | [/docs/getting-started/](/docs/getting-started/) — install and first instance |
-| **Blog: Every TUI menu** | [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — deep dive into the terminal UI |
-| **Blog: Claude Code co-engineer** | [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/) — how claude-multi fits into the Claude Code ecosystem |
-| **GitHub: Templates** | [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts) — provider template definitions |
-| **GitHub: Config** | [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — instance CRUD and plugin management |
+- [/about/](/about/) — design principles and how it works
+- [/docs/getting-started/](/docs/getting-started/) — install and create your first instance
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — walkthrough of every TUI screen
+- [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/) — how it fits into the Claude Code ecosystem
+- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts) — where provider templates are defined
+- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — instance creation and plugin management

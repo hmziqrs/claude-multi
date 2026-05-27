@@ -5,22 +5,22 @@ category: "Plugins & MCP"
 order: 6
 ---
 
-Claude Code stores plugins and skills in `~/.claude/plugins/` and `~/.claude/skills/`. If every instance had its own copies, you'd need to update each one separately. Auto-sync fixes this with **symlinks**.
+Claude Code keeps plugins and skills in `~/.claude/plugins/` and `~/.claude/skills/`. If every instance had its own copies, you'd need to update each one separately. Auto-sync avoids that with symlinks.
 
-## How auto-sync works
+## What auto-sync does
 
-When auto-sync is enabled on an instance, claude-multi creates symlinks:
+When it's enabled on an instance, claude-multi creates symlinks pointing back to your primary install:
 
 ```
 ~/.claude-multi/deepseek/plugins/  →  ~/.claude/plugins/
 ~/.claude-multi/deepseek/skills/   →  ~/.claude/skills/
 ```
 
-Install or update a plugin in your primary `~/.claude` install, and every auto-synced instance picks it up immediately.
+Install or update a plugin once in `~/.claude`, and every synced instance picks it up immediately.
 
-## Toggling auto-sync
+## Turning it on and off
 
-From the TUI, select **Toggle auto-sync** and pick an instance to enable or disable it.
+From the TUI: select **Toggle auto-sync** and pick an instance.
 
 From the CLI:
 
@@ -29,34 +29,32 @@ claude-multi auto-sync deepseek on
 claude-multi auto-sync deepseek off
 ```
 
-## Fixing broken symlinks
+## When symlinks break
 
-If symlinks break (e.g. you moved `~/.claude`), the **fix-symlinks** command repairs them:
+If you move or delete `~/.claude`, the symlinks point to nothing. Fix them with:
 
 ```sh
 claude-multi fix-symlinks
 ```
 
-Or from the TUI, select **Re-sync symlinks**.
+You can also target specific instances: `claude-multi fix-symlinks deepseek glm`.
 
-## Plugin collision detection
+From the TUI, the **Re-sync symlinks** option does the same thing.
 
-When multiple instances have different versions of the same plugin (e.g. one symlinked, one copied), conflicts can arise. The plugin manager includes collision detection:
+## Collision detection
+
+If you've installed the same plugin in multiple places (one symlinked, one copied, different versions), you might get MCP server name collisions. Check for them with:
 
 ```sh
-claude-multi plugins check-collisions
+claude-multi plugins check-collisions <instance> <plugin-id>...
 ```
 
-This scans all instances and reports any plugins that exist in multiple locations with different content.
+This scans for conflicts and reports any plugins that share an MCP server name but have different content.
 
-## References
+## More info
 
-| Resource | Link |
-|----------|------|
-| **Plugins & MCP docs** | [/docs/plugins-mcp/](/docs/plugins-mcp/) — plugin and MCP management guide |
-| **Blog: Every TUI menu** | [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — Manage Plugins and Toggle Auto-sync sections |
-| **In-app: Manage plugins** | Run `claude-multi` and select **Manage plugins** |
-| **In-app: Toggle auto-sync** | Run `claude-multi` and select **Toggle auto-sync** |
-| **In-app: Re-sync symlinks** | Run `claude-multi` and select **Re-sync symlinks** |
-| **GitHub: Config (symlink logic)** | [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — `syncPlugins()`, `syncSkills()`, and symlink repair functions |
-| **GitHub: ManagePlugins screen** | [src/ink/screens/ManagePlugins.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/ManagePlugins.tsx) — TUI plugin management |
+- [/docs/plugins-mcp/](/docs/plugins-mcp/) — plugin and MCP management guide
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/) — Manage Plugins and Toggle Auto-sync screens
+- Run `claude-multi` and try **Manage plugins**, **Toggle auto-sync**, or **Re-sync symlinks**
+- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) — `syncPluginsAndSkills()` and symlink repair logic
+- [src/ink/screens/ManagePlugins.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/ManagePlugins.tsx) — the TUI plugin screen
