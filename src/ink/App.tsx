@@ -5,10 +5,12 @@ import { isThirdPartyApiBroken } from "@/version";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { Footer } from "@/ink/components/Footer";
+import { StatusBar } from "@/ink/components/StatusBar";
 import { WarningBanner } from "@/ink/components/WarningBanner";
 import { useConfig } from "@/ink/hooks/useConfig";
 import { useHealthCheck } from "@/ink/hooks/useHealthCheck";
 import { useFadeIn, useTypewriter } from "@/ink/hooks/useAnimations";
+import { fixWrapperVersions } from "@/health";
 import { AddInstance } from "@/ink/screens/AddInstance";
 import { ListInstances } from "@/ink/screens/ListInstances";
 import { ShowInstanceInfo } from "@/ink/screens/ShowInstanceInfo";
@@ -30,6 +32,7 @@ type Screen =
   | "plugins"
   | "mcp"
   | "health"
+  | "doctor-result"
   | "goodbye";
 
 const GoodbyeScreen: React.FC = () => {
@@ -37,6 +40,28 @@ const GoodbyeScreen: React.FC = () => {
   return (
     <Box paddingX={2} paddingY={1}>
       <Text dimColor>{msg}</Text>
+    </Box>
+  );
+};
+
+const DoctorResultScreen: React.FC<{ fixedCount: number; onBack: () => void }> = ({ fixedCount, onBack }) => {
+  useNavigation(onBack);
+  return (
+    <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
+      <Header title="🔧 Doctor Fix" />
+      {fixedCount > 0 ? (
+        <>
+          <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude version!`} type="success" />
+          <Box marginTop={1}>
+            <Text dimColor>All 3rd-party API instances now use the correct Claude binary.</Text>
+          </Box>
+        </>
+      ) : (
+        <StatusBar message="All wrappers already use the correct Claude version" type="info" />
+      )}
+      <Box marginTop={1}>
+        <Text dimColor>ESC to go back</Text>
+      </Box>
     </Box>
   );
 };
@@ -61,6 +86,7 @@ export const App: React.FC = () => {
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
   const [ccVersion, setCcVersion] = useState<string | null>(null);
+  const [doctorFixedCount, setDoctorFixedCount] = useState(0);
 
   useEffect(() => {
     try {
@@ -75,7 +101,7 @@ export const App: React.FC = () => {
       setScreen("goodbye");
       setTimeout(() => exit(), 300);
     } else if (input === "!" && issues.length > 0) {
-      setScreen("health");
+      goToHealth();
     }
   });
 
@@ -103,9 +129,18 @@ export const App: React.FC = () => {
         onDismiss={dismiss}
         onDismissAll={dismissAll}
         onRetry={retry}
+        onFix={() => {
+          const fixed = fixWrapperVersions(instances);
+          setDoctorFixedCount(fixed.length);
+          retry();
+        }}
         onBack={goToMenu}
       />
     );
+  }
+
+  if (screen === "doctor-result") {
+    return <DoctorResultScreen fixedCount={doctorFixedCount} onBack={goToMenu} />;
   }
 
   if (screen !== "menu") {
@@ -119,6 +154,12 @@ export const App: React.FC = () => {
 
   const errorCount = issues.filter(i => i.severity === "error").length;
   const warningCount = issues.filter(i => i.severity === "warning").length;
+  const versionIssues = issues.filter(i => i.category === "version");
+  const hasVersionIssues = versionIssues.length > 0;
+
+  const goToHealth = () => {
+    setScreen("health");
+  };
 
   const menuOptions = [
     { label: "➕ Add new instance", value: "add" },
@@ -133,6 +174,10 @@ export const App: React.FC = () => {
           { label: "⚙️  MCP servers", value: "mcp" },
         ]
       : []),
+    { label: "🩺 Doctor check", value: "doctor-check" },
+    ...(hasVersionIssues
+      ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
+      : []),
     { label: "🚪 Exit", value: "exit" },
   ];
 
@@ -144,6 +189,7 @@ export const App: React.FC = () => {
         issueCount={issues.length}
         errorCount={errorCount}
         warningCount={warningCount}
+        hasVersionIssues={hasVersionIssues}
       />
 
       {ccVersion && isThirdPartyApiBroken(ccVersion) && (
@@ -163,6 +209,15 @@ export const App: React.FC = () => {
           if (value === "exit") {
             setScreen("goodbye");
             setTimeout(() => exit(), 300);
+          } else if (value === "doctor-check") {
+            setScreen("health");
+          } else if (value === "doctor-fix") {
+            const fixed = fixWrapperVersions(instances);
+            setDoctorFixedCount(fixed.length);
+            if (fixed.length > 0) {
+              retry();
+            }
+            setScreen("doctor-result");
           } else {
             setScreen(value as Screen);
           }

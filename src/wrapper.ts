@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, chmodSync, unlinkSync, realpathSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { homedir } from "node:os";
+import { resolve, dirname, join } from "node:path";
 import { execSync } from "node:child_process";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { detectPackageManager } from "@/util/runtime";
@@ -11,15 +12,21 @@ export interface WrapperOptions {
   binaryPath: string;
 }
 
+const PINNED_CLAUDE_BIN =
+  process.platform === "win32"
+    ? join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude.cmd")
+    : join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude");
+
 /**
  * Gets the path to the claude binary for wrapper scripts.
  *
  * Priority:
  *  1. CLAUDE_MULTI_CLAUDE_PATH env var (explicit override)
- *  2. Global install in PATH (skipping node_modules copies)
+ *  2. Pinned install at ~/.claude-multi/bin (managed by claude-multi)
+ *  3. Global install in PATH
  */
 export function getClaudePath(): string {
-  // Allow explicit override via env var
+  // 1. Allow explicit override via env var
   const override = process.env.CLAUDE_MULTI_CLAUDE_PATH;
   if (override) {
     const resolved = resolve(override);
@@ -32,6 +39,12 @@ export function getClaudePath(): string {
     return resolved;
   }
 
+  // 2. Check pinned local install
+  if (existsSync(PINNED_CLAUDE_BIN)) {
+    return PINNED_CLAUDE_BIN;
+  }
+
+  // 3. Fall back to global PATH
   try {
     const command =
       process.platform === "win32" ? "where claude" : "which claude";
@@ -40,33 +53,7 @@ export function getClaudePath(): string {
     if (!firstPath) {
       throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Could not determine Claude path");
     }
-
-    const trimmed = firstPath.trim();
-
-    // Resolve symlinks to get the real binary path
-    const resolved = realpathSync(trimmed);
-
-    // If the resolved path is inside node_modules, try to find a global one
-    if (resolved.includes("node_modules")) {
-      try {
-        const allPaths = execSync("which -a claude 2>/dev/null || true", {
-          encoding: "utf-8",
-        })
-          .trim()
-          .split("\n")
-          .map((p) => p.trim())
-          .filter(Boolean);
-
-        for (const p of allPaths) {
-          const r = realpathSync(p);
-          if (!r.includes("node_modules")) return r;
-        }
-      } catch {
-        // Fall through — use the node_modules path if nothing else exists
-      }
-    }
-
-    return resolved;
+    return firstPath.trim();
   } catch (err) {
     if (err instanceof ClaudeMultiError) throw err;
     throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Claude Code is not installed. Please install @anthropic-ai/claude-code first.", { cause: err });

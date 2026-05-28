@@ -1,11 +1,15 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
+import { tmpdir, homedir } from "node:os";
 import type { Instance } from "@/config";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
+
+// Match the real pinned path from health.ts
+const PINNED_BIN = join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude");
+const HAS_PINNED = existsSync(PINNED_BIN);
 
 function makeInstance(overrides: Partial<Instance> = {}): Instance {
   return {
@@ -16,6 +20,22 @@ function makeInstance(overrides: Partial<Instance> = {}): Instance {
     autoSync: false,
     ...overrides,
   };
+}
+
+function writeShellWrapper(path: string, claudePath: string): void {
+  writeFileSync(path, `#!/bin/sh
+export CLAUDE_CONFIG_DIR="/fake"
+exec "${claudePath}" "$@"
+`, { mode: 0o755 });
+}
+
+function writeNodeWrapper(path: string, claudePath: string): void {
+  writeFileSync(path, `#!/usr/bin/env node
+import { spawn } from 'child_process';
+process.env.CLAUDE_CONFIG_DIR = "/fake";
+const claude = spawn("${claudePath}", process.argv.slice(2), { stdio: 'inherit', env: process.env });
+claude.on('exit', (code) => { process.exit(code || 0); });
+`, { mode: 0o755 });
 }
 
 describe("Health Check", () => {
@@ -98,7 +118,6 @@ describe("Health Check", () => {
       const inst = makeInstance({ configDir: join(testDir, "nonexistent") });
 
       const issues = runHealthChecks([inst]);
-      // Should only have the configDir missing issue, not binary or settings
       expect(issues.length).toBe(1);
       expect(issues[0]!.id).toBe("configdir-missing-test-inst");
     });
@@ -117,7 +136,7 @@ describe("Health Check", () => {
       for (const issue of issues) {
         expect(issue.id).toBeTruthy();
         expect(issue.severity).toMatch(/^(error|warning|info)$/);
-        expect(issue.category).toMatch(/^(migration|config|symlink|binary|settings)$/);
+        expect(issue.category).toMatch(/^(migration|config|symlink|binary|settings|version)$/);
         expect(issue.title).toBeTruthy();
         expect(issue.message).toBeTruthy();
         expect(issue.timestamp).toBeTruthy();
@@ -125,6 +144,170 @@ describe("Health Check", () => {
         expect(issue.resolved).toBe(false);
         expect(issue.resolutionHint).toBeDefined();
       }
+    });
+  });
+
+  describe("version detection", () => {
+    test("detects shell wrapper pointing to wrong binary", async () => {
+      if (!HAS_PINNED) return; // Skip if pinned bin not installed
+      const { runHealthChecks } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const issues = runHealthChecks([inst]);
+      const versionIssue = issues.find(i => i.id === "wrong-claude-version-test-inst");
+      expect(versionIssue).toBeDefined();
+      expect(versionIssue!.severity).toBe("error");
+      expect(versionIssue!.category).toBe("version");
+      expect(versionIssue!.detail).toContain("/usr/local/bin/claude");
+    });
+
+    test("detects Node.js spawn wrapper pointing to wrong binary", async () => {
+      if (!HAS_PINNED) return;
+      const { runHealthChecks } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeNodeWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const issues = runHealthChecks([inst]);
+      const versionIssue = issues.find(i => i.id === "wrong-claude-version-test-inst");
+      expect(versionIssue).toBeDefined();
+      expect(versionIssue!.severity).toBe("error");
+      expect(versionIssue!.category).toBe("version");
+      expect(versionIssue!.detail).toContain("/usr/local/bin/claude");
+    });
+
+    test("no version issue when wrapper points to pinned binary", async () => {
+      if (!HAS_PINNED) return;
+      const { runHealthChecks } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst.binaryPath, PINNED_BIN);
+
+      const issues = runHealthChecks([inst]);
+      const versionIssue = issues.find(i => i.category === "version");
+      expect(versionIssue).toBeUndefined();
+    });
+
+    test("no version issue when pinned binary does not exist", async () => {
+      // This test only runs when the pinned bin does NOT exist
+      if (HAS_PINNED) return;
+      const { runHealthChecks } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const issues = runHealthChecks([inst]);
+      const versionIssue = issues.find(i => i.category === "version");
+      expect(versionIssue).toBeUndefined();
+    });
+  });
+
+  describe("fixWrapperVersions", () => {
+    test("fixes shell wrapper pointing to wrong binary", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const fixed = fixWrapperVersions([inst]);
+      expect(fixed).toEqual(["test-inst"]);
+
+      const content = readFileSync(inst.binaryPath, "utf-8");
+      expect(content).toContain(`exec "${PINNED_BIN}"`);
+      expect(content).toContain('CLAUDE_CONFIG_DIR="');
+      expect(content).not.toContain("/usr/local/bin/claude");
+    });
+
+    test("fixes Node.js spawn wrapper by regenerating as shell", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeNodeWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const fixed = fixWrapperVersions([inst]);
+      expect(fixed).toEqual(["test-inst"]);
+
+      const content = readFileSync(inst.binaryPath, "utf-8");
+      expect(content).toContain("#!/bin/sh");
+      expect(content).toContain(`exec "${PINNED_BIN}"`);
+      expect(content).not.toContain("spawn");
+      expect(content).not.toContain("child_process");
+    });
+
+    test("preserves configDir in regenerated wrapper", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const customConfigDir = join(testDir, ".claude-mycustom");
+      const inst = makeInstance({ configDir: customConfigDir });
+      mkdirSync(customConfigDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeNodeWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const fixed = fixWrapperVersions([inst]);
+      expect(fixed).toEqual(["test-inst"]);
+
+      const content = readFileSync(inst.binaryPath, "utf-8");
+      expect(content).toContain(`CLAUDE_CONFIG_DIR="${customConfigDir}"`);
+    });
+
+    test("skips wrapper already pointing to pinned binary", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst.binaryPath, PINNED_BIN);
+
+      const fixed = fixWrapperVersions([inst]);
+      expect(fixed).toEqual([]);
+    });
+
+    test("skips missing wrapper file", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const inst = makeInstance();
+
+      const fixed = fixWrapperVersions([inst]);
+      expect(fixed).toEqual([]);
+    });
+
+    test("returns empty when pinned binary does not exist", async () => {
+      if (HAS_PINNED) return; // Only run when pinned bin doesn't exist
+      const { fixWrapperVersions } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      const fixed = fixWrapperVersions([inst]);
+      expect(fixed).toEqual([]);
+    });
+
+    test("fixes multiple instances", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const inst1 = makeInstance({ name: "a", binaryPath: join(testDir, "bin", "a") });
+      const inst2 = makeInstance({ name: "b", binaryPath: join(testDir, "bin", "b") });
+      mkdirSync(inst1.configDir, { recursive: true });
+      mkdirSync(inst2.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeShellWrapper(inst1.binaryPath, "/usr/local/bin/claude");
+      writeNodeWrapper(inst2.binaryPath, "/other/claude");
+
+      const fixed = fixWrapperVersions([inst1, inst2]);
+      expect(fixed).toContain("a");
+      expect(fixed).toContain("b");
+      expect(fixed.length).toBe(2);
     });
   });
 

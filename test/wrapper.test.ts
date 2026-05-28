@@ -3,11 +3,15 @@ import {
   generateWrapperScript,
   generateWindowsWrapperScript,
   getDefaultBinaryPath,
+  getClaudePath,
 } from "@/wrapper";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 describe("Wrapper Script Generation", () => {
   describe("Unix wrapper", () => {
-    it("should generate a valid Node.js wrapper script", () => {
+    it("should generate a shell script with exec", () => {
       const options = {
         name: "test",
         configDir: "/home/user/.claude-test",
@@ -16,12 +20,10 @@ describe("Wrapper Script Generation", () => {
 
       const script = generateWrapperScript(options);
 
-      expect(script).toContain("#!/usr/bin/env bun");
-      expect(script).toContain(
-        'process.env.CLAUDE_CONFIG_DIR = "/home/user/.claude-test"',
-      );
-      expect(script).toContain("claude-multi");
-      expect(script).toContain("spawn");
+      expect(script).toContain("#!/bin/sh");
+      expect(script).toContain('CLAUDE_CONFIG_DIR="/home/user/.claude-test"');
+      expect(script).toContain("exec ");
+      expect(script).toContain('"$@"');
     });
   });
 
@@ -39,8 +41,37 @@ describe("Wrapper Script Generation", () => {
       expect(script).toContain(
         'set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"',
       );
-      expect(script).toContain("claude-multi");
       expect(script).toContain("%*");
+    });
+  });
+
+  describe("getClaudePath", () => {
+    it("should use CLAUDE_MULTI_CLAUDE_PATH env var when set", () => {
+      const tmpDir = mkdtempSync(join(tmpdir(), "claude-path-test-"));
+      const fakeClaude = join(tmpDir, "claude");
+      writeFileSync(fakeClaude, "#!/bin/sh");
+
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaude;
+
+      try {
+        const result = getClaudePath();
+        expect(result).toBe(fakeClaude);
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+        rmSync(tmpDir, { recursive: true, force: true });
+      }
+    });
+
+    it("should throw when CLAUDE_MULTI_CLAUDE_PATH points to missing file", () => {
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/nonexistent/claude";
+
+      try {
+        expect(() => getClaudePath()).toThrow();
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+      }
     });
   });
 

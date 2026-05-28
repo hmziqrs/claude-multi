@@ -12,6 +12,7 @@ interface HealthScreenProps {
   onDismiss: (id: string) => void;
   onDismissAll: () => void;
   onRetry: () => void;
+  onFix: () => void;
   onBack: () => void;
 }
 
@@ -22,10 +23,12 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
   onDismiss,
   onDismissAll,
   onRetry,
+  onFix,
   onBack,
 }) => {
   const [step, setStep] = useState<Step>("list");
   const [selectedIssue, setSelectedIssue] = useState<HealthIssue | null>(null);
+  const [fixMessage, setFixMessage] = useState<string | null>(null);
 
   useNavigation(() => {
     if (step === "detail") {
@@ -45,6 +48,10 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
       onDismissAll();
     } else if (input === "r") {
       onRetry();
+    } else if (input === "f") {
+      onFix();
+      setFixMessage("Wrappers updated to pinned Claude version!");
+      setTimeout(() => setFixMessage(null), 3000);
     } else if (input === " " && selectedIssue) {
       setStep("detail");
     }
@@ -55,6 +62,11 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="💚 System Health" />
         <StatusBar message="All systems healthy!" type="success" />
+        {fixMessage && (
+          <Box marginTop={1}>
+            <Text color="green">✓ {fixMessage}</Text>
+          </Box>
+        )}
         <Box marginTop={1}>
           <Text dimColor>ESC to go back</Text>
         </Box>
@@ -63,10 +75,17 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
   }
 
   const showActions = useFadeIn(100);
+  const hasVersionIssues = issues.some(i => i.category === "version");
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="⚠ System Health" />
+
+      {fixMessage && (
+        <Box marginBottom={1}>
+          <Text color="green">✓ {fixMessage}</Text>
+        </Box>
+      )}
 
       {step === "list" && (
         <Box flexDirection="column" gap={1}>
@@ -76,6 +95,13 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
           ))}
           {showActions && (
             <Box marginTop={1} flexDirection="column">
+              {hasVersionIssues && (
+                <Box marginBottom={1}>
+                  <Text color="cyan" bold>f</Text>
+                  <Text color="cyan"> fix wrappers </Text>
+                  <Text dimColor>│</Text>
+                </Box>
+              )}
               <Text dimColor>Space view detail │ d dismiss │ D dismiss all │ r retry │ ESC back</Text>
             </Box>
           )}

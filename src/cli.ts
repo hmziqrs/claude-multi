@@ -527,6 +527,59 @@ program
     await handleFixSymlinks(names, options.all);
   });
 
+// Doctor command — diagnose and fix common issues
+program
+  .command("doctor")
+  .description("Diagnose and fix common issues")
+  .argument("[action]", "Action to perform (fix, check)", "check")
+  .action(async (action = "check") => {
+    try {
+      const instances = await listInstances();
+      const { runHealthChecks, fixWrapperVersions } = await import("@/health");
+
+      if (action === "fix") {
+        console.log(chalk.bold("\n🔧 Doctor Fix\n"));
+
+        // Fix wrapper versions
+        const fixed = fixWrapperVersions(instances);
+        if (fixed.length > 0) {
+          console.log(chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use pinned Claude version:`));
+          for (const name of fixed) {
+            console.log(chalk.gray(`  • ${name}`));
+          }
+        } else {
+          console.log(chalk.gray("  All wrappers already use the correct Claude version"));
+        }
+
+        console.log(chalk.green("\n✓ Doctor fix complete!"));
+      } else {
+        // Check mode
+        console.log(chalk.bold("\n🔍 Doctor Check\n"));
+        const issues = runHealthChecks(instances);
+
+        if (issues.length === 0) {
+          console.log(chalk.green("✓ No issues found!"));
+        } else {
+          console.log(chalk.yellow(`Found ${issues.length} issue(s):\n`));
+          for (const issue of issues) {
+            const icon = issue.severity === "error" ? "✗" : "⚠";
+            const color = issue.severity === "error" ? chalk.red : chalk.yellow;
+            console.log(color(`  ${icon} ${issue.title}`));
+            console.log(chalk.gray(`    ${issue.message}`));
+            if (issue.resolutionHint) {
+              console.log(chalk.gray(`    Fix: ${issue.resolutionHint}`));
+            }
+            console.log();
+          }
+          console.log(chalk.gray("Run 'claude-multi doctor fix' to auto-fix"));
+        }
+      }
+    } catch (error: unknown) {
+      console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
+      exitWithCode(1);
+    }
+  });
+
 // Plugins command
 program
   .command("plugins")
