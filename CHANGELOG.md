@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.8] - 2026-05-28
+
+### Added
+- **Region selection for MiMo Token Plan** (`--region`): `mimo-token` provider now supports regional endpoints — China (`cn`), Singapore (`sgp`), Europe (`ams`). Users are prompted to pick a region after selecting `mimo-token` in all three entry points (CLI `--region` flag, interactive prompts, Ink TUI wizard). Defaults to `cn` for backward compatibility.
+- **API key prefix mapping** (`API_KEY_PREFIXES`): `mimo-token` shows `tp_...` placeholder in the API key input; all other providers show `sk-...`. Extensible map for future providers with non-standard key formats.
+
+### Changed
+- **`--provider` error message** (`src/cli.ts`): unknown provider error now dynamically lists all available providers instead of hardcoding three names.
+- **Region advisory**: both the interactive prompts and Ink TUI display a highlighted message reminding users to check their Xiaomi account console for the correct region.
+
 ## [0.5.7] - 2026-05-27
 
 ### Added
