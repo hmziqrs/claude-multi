@@ -97,14 +97,8 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const defaultPlugins = useMemo(() => cfg.listDefaultPlugins(), [cfg]);
 
-  useNavigation(() => {
-    if (step === "done") onBack();
-    else onBack();
-  });
-
-  useInput((input) => {
-    if (input === "q" && step === "done") exit();
-  });
+  const TEXT_INPUT_STEPS: Set<Step> = new Set(["name", "provider-apikey", "creating", "done"]);
+  const NO_NAV_STEPS = TEXT_INPUT_STEPS;
 
   const goBack = useCallback(() => {
     const prevMap: Partial<Record<Step, Step>> = {
@@ -124,6 +118,39 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       onBack();
     }
   }, [step, onBack]);
+
+  const goForward = useCallback(() => {
+    switch (step) {
+      case "provider-select":
+        if (useProvider && selectedProvider) {
+          setStep(providerHasRegions(selectedProvider) ? "provider-region" : "provider-apikey");
+        }
+        break;
+      case "provider-region":
+        if (selectedRegion) setStep("provider-apikey");
+        break;
+      case "paths-confirm":
+        setStep("copy-options");
+        break;
+    }
+  }, [step, useProvider, selectedProvider, selectedRegion]);
+
+  useNavigation(() => {
+    if (step === "done") onBack();
+    else onBack();
+  });
+
+  useInput((input, key) => {
+    if (input === "q" && step === "done") exit();
+
+    if (key.leftArrow && !NO_NAV_STEPS.has(step)) {
+      goBack();
+    }
+
+    if (key.rightArrow && !NO_NAV_STEPS.has(step)) {
+      goForward();
+    }
+  });
 
   const handleNameSubmit = useCallback((value: string) => {
     if (!value.trim()) { setError("Name is required"); return; }
@@ -392,7 +419,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       )}
 
       <Box marginTop={1}>
-        <Text dimColor>ESC back │ q quit</Text>
+        <Text dimColor>← back │ → next │ ESC back │ q quit</Text>
       </Box>
     </Box>
   );
