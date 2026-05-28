@@ -48,6 +48,7 @@ import {
   getCurrentVersion,
   checkForClaudeMultiUpdates,
   upgradeClaudeMulti,
+  getClaudeMultiVersion,
 } from "@/version";
 import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS } from "@/templates";
 import { toMessage } from "@/errors";
@@ -80,7 +81,7 @@ const program = new Command();
 program
   .name("claude-multi")
   .description("Manage multiple Claude Code instances with different aliases")
-  .version("0.5.8");
+  .version(getClaudeMultiVersion());
 
 // Add command
 program
