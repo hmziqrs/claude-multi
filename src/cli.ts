@@ -49,7 +49,7 @@ import {
   checkForClaudeMultiUpdates,
   upgradeClaudeMulti,
 } from "@/version";
-import { getAvailableProviders, getProviderTemplate } from "@/templates";
+import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS } from "@/templates";
 import { toMessage } from "@/errors";
 import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType } from "@/constants";
 import type { ProviderTemplate } from "@/templates";
@@ -97,8 +97,9 @@ program
   .option("--copy-all", "Copy all files from default Claude")
   .option("--copy-mcp", "Copy MCP server configurations from default Claude")
   .option("--skip-prompts", "Skip interactive prompts (start fresh)")
-  .option("--provider <name>", "Use a provider template (glm, minimax)")
+  .option("--provider <name>", "Use a provider template (glm, minimax, deepseek, mimo, mimo-token, kimi, qwen, qwen-coding)")
   .option("--api-key <key>", "API key for the provider")
+  .option("--region <region>", "Region for regional providers (e.g., cn, sgp, ams for mimo-token)")
   .option("--auto-sync", "Auto-sync plugins/skills via symlinks (default)")
   .option("--manual", "Manually manage plugins/skills (copy files)")
   .action(
@@ -113,6 +114,7 @@ program
         skipPrompts?: boolean;
         provider?: string;
         apiKey?: string;
+        region?: string;
         autoSync?: boolean;
         manual?: boolean;
       },
@@ -139,7 +141,7 @@ program
           if (!providerTemplate) {
             console.error(
               chalk.red(
-                `✗ Unknown provider '${options.provider}'. Available: glm, minimax, deepseek`,
+                `✗ Unknown provider '${options.provider}'. Available: ${getAvailableProviders().map((p) => p.name).join(", ")}`,
               ),
             );
             exitWithCode(1);
@@ -154,6 +156,16 @@ program
 
           apiKey = options.apiKey;
           useProviderTemplate = true;
+
+          if (providerHasRegions(providerTemplate.name)) {
+            const region = options.region || "cn";
+            try {
+              providerTemplate = resolveRegionTemplate(providerTemplate, region);
+            } catch (err: unknown) {
+              console.error(chalk.red(`✗ ${toMessage(err)}`));
+              exitWithCode(1);
+            }
+          }
         }
 
         // Non-interactive mode (flags provided)
@@ -1060,6 +1072,29 @@ async function handleAddInstance(): Promise<void> {
 
         if (!inputApiKey) return;
         apiKey = inputApiKey;
+      }
+
+      if (providerTemplate && providerHasRegions(providerTemplate.name)) {
+        console.log(
+          chalk.yellow.bold("⚠ Check your Xiaomi account console to confirm the correct region for your subscription."),
+        );
+
+        const regionChoices = Object.entries(MIMO_TOKEN_REGIONS).map(([key, val]) => ({
+          title: `${val.label} — ${val.baseUrl}`,
+          value: key,
+        }));
+
+        const { selectedRegion } = await prompts({
+          type: "select",
+          name: "selectedRegion",
+          message: "Select your subscription region:",
+          choices: regionChoices,
+          initial: 0,
+        });
+
+        if (selectedRegion) {
+          providerTemplate = resolveRegionTemplate(providerTemplate, selectedRegion);
+        }
       }
     }
   }

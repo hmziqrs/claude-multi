@@ -43,7 +43,7 @@ import {
   type PluginInfo,
 } from "@/config";
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
-import { getAvailableProviders, getProviderTemplate } from "@/templates";
+import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS, getApiKeyPlaceholder } from "@/templates";
 import { getMigrationStatus, clearMigrationFailure } from "@/migration";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 
@@ -130,6 +130,10 @@ export function useConfig() {
     getDefaultBinaryPath,
     getAvailableProviders,
     getProviderTemplate,
+    providerHasRegions,
+    resolveRegionTemplate,
+    MIMO_TOKEN_REGIONS,
+    getApiKeyPlaceholder,
     updateInstanceAutoSync,
     syncPluginsAndSkills,
     initializeInstanceState,

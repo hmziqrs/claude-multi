@@ -17,6 +17,7 @@ import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { CopyOption, PluginCategory } from "@/constants";
+import { providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS, getApiKeyPlaceholder } from "@/templates";
 
 const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string }> = ({
   name, binaryPath, configDir,
@@ -47,6 +48,7 @@ const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string 
 type Step =
   | "name"
   | "provider-select"
+  | "provider-region"
   | "provider-apikey"
   | "paths-confirm"
   | "copy-options"
@@ -58,6 +60,7 @@ type Step =
 const STEP_TITLES: Record<Step, string> = {
   name: "Instance Name",
   "provider-select": "Provider Template",
+  "provider-region": "Region",
   "provider-apikey": "API Key",
   "paths-confirm": "Paths",
   "copy-options": "Copy Options",
@@ -68,7 +71,7 @@ const STEP_TITLES: Record<Step, string> = {
 };
 
 const STEP_ORDER: Step[] = [
-  "name", "provider-select", "provider-apikey",
+  "name", "provider-select", "provider-region", "provider-apikey",
   "paths-confirm", "copy-options", "select-plugins", "autosync", "creating", "done",
 ];
 
@@ -85,6 +88,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   const [error, setError] = useState("");
   const [useProvider, setUseProvider] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [autoSync, setAutoSync] = useState(false);
   const [copyOption, setCopyOption] = useState<string>(CopyOption.None);
@@ -105,7 +109,8 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   const goBack = useCallback(() => {
     const prevMap: Partial<Record<Step, Step>> = {
       "provider-select": "name",
-      "provider-apikey": "provider-select",
+      "provider-region": "provider-select",
+      "provider-apikey": "provider-region",
       "paths-confirm": "provider-select",
       "copy-options": "paths-confirm",
       "select-plugins": "copy-options",
@@ -140,6 +145,15 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     }
     setUseProvider(true);
     setSelectedProvider(value);
+    if (providerHasRegions(value)) {
+      setStep("provider-region");
+    } else {
+      setStep("provider-apikey");
+    }
+  }, []);
+
+  const handleRegionSelect = useCallback((value: string) => {
+    setSelectedRegion(value);
     setStep("provider-apikey");
   }, []);
 
@@ -218,7 +232,10 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       }
 
       if (useProvider && selectedProvider) {
-        const template = cfg.getProviderTemplate(selectedProvider);
+        let template = cfg.getProviderTemplate(selectedProvider);
+        if (template && selectedRegion && providerHasRegions(selectedProvider)) {
+          template = resolveRegionTemplate(template, selectedRegion);
+        }
         if (template) await cfg.mergeProviderEnv(cDir, template, apiKey);
       }
 
@@ -280,10 +297,32 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
+      {step === "provider-region" && (
+        <Box flexDirection="column" gap={1}>
+          <Text>Select your subscription region:</Text>
+          <Box borderStyle="round" borderColor="yellow" paddingX={1}>
+            <Text bold color="yellow">
+              Check your Xiaomi account console to confirm the correct region for your subscription.
+            </Text>
+          </Box>
+          <Select
+            options={Object.entries(MIMO_TOKEN_REGIONS).map(([key, val]) => ({
+              label: `${val.label} — ${val.baseUrl}`,
+              value: key,
+            }))}
+            visibleOptionCount={3}
+            onChange={handleRegionSelect}
+          />
+        </Box>
+      )}
+
       {step === "provider-apikey" && (
         <Box flexDirection="column" gap={1}>
           <Text>Enter {selectedProvider} API key:</Text>
-          <PasswordInput placeholder="sk-..." onSubmit={handleApiKeySubmit} />
+          <PasswordInput
+            placeholder={selectedProvider ? getApiKeyPlaceholder(selectedProvider) : "sk-..."}
+            onSubmit={handleApiKeySubmit}
+          />
         </Box>
       )}
 

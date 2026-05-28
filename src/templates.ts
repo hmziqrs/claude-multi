@@ -172,6 +172,54 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   },
 };
 
+export const API_KEY_PREFIXES: Record<string, string> = {
+  "mimo-token": "tp_",
+};
+
+export function getApiKeyPlaceholder(providerName: string): string {
+  const prefix = API_KEY_PREFIXES[providerName];
+  return prefix ? `${prefix}...` : "sk-...";
+}
+
+export const MIMO_TOKEN_REGIONS: Record<string, { label: string; baseUrl: string }> = {
+  cn: {
+    label: "China",
+    baseUrl: "https://token-plan-cn.xiaomimimo.com/anthropic",
+  },
+  sgp: {
+    label: "Singapore",
+    baseUrl: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+  },
+  ams: {
+    label: "Europe",
+    baseUrl: "https://token-plan-ams.xiaomimimo.com/anthropic",
+  },
+};
+
+export function providerHasRegions(providerName: string): boolean {
+  return providerName === "mimo-token";
+}
+
+export function resolveRegionTemplate(
+  template: ProviderTemplate,
+  region: string,
+): ProviderTemplate {
+  if (!providerHasRegions(template.name)) {
+    return template;
+  }
+
+  const regionConfig = MIMO_TOKEN_REGIONS[region];
+  if (!regionConfig) {
+    throw new Error(
+      `Unknown region '${region}' for ${template.name}. Available: ${Object.keys(MIMO_TOKEN_REGIONS).join(", ")}`,
+    );
+  }
+
+  const resolved = structuredClone(template);
+  resolved.settings.env.ANTHROPIC_BASE_URL = regionConfig.baseUrl;
+  return resolved;
+}
+
 /**
  * Get available provider templates
  */
