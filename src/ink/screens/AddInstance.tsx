@@ -170,12 +170,13 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const goForward = useCallback(() => {
     const next = getNextStep(step, wizardState);
-    if (next) navTo(next);
+    if (next && next !== Step.Creating && next !== Step.Done) {
+      navTo(next);
+    }
   }, [step, wizardState, navTo]);
 
   useNavigation(() => {
-    if (step === Step.Done) onBack();
-    else onBack();
+    onBack();
   });
 
   useInput((input, key) => {
@@ -256,7 +257,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   }, [copyOption, selectedPluginIds]);
 
   const doCreate = async (copyOpt: string, sync: boolean) => {
-    setStep("creating");
+    setStep(Step.Creating);
     setError("");
 
     try {
@@ -276,9 +277,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       await cfg.initializeInstanceState(cDir);
 
       if (copyOpt === CopyOption.SelectPlugins) {
-        // Copy settings first
         await cfg.copySettingsFromDefault(cDir);
-        // Copy selected plugins
         const selections = selectedPluginIds.map(id => {
           const plugin = defaultPlugins.find(p => p.id === id);
           return { id, category: plugin?.category ?? PluginCategory.External };
@@ -301,12 +300,12 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       }
 
       setResult({ configDir: cDir, binaryPath: bPath });
-      setStep("done");
+      setStep(Step.Done);
     } catch (err: unknown) {
       await removeInstanceFromConfig(name).catch(() => {});
       removeWrapper(cfg.getDefaultBinaryPath(name));
       setError(err instanceof Error ? err.message : String(err));
-      setStep("name");
+      setStep(Step.Name);
     }
   };
 
