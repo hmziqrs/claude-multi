@@ -132,7 +132,7 @@ program
         let copyAllFiles = false;
         let copyMcpServers = false;
         let useProviderTemplate = false;
-        let providerTemplate: ProviderTemplate | null = null;
+        let providerTemplate: ProviderTemplate | null | undefined = null;
         let apiKey = "";
         let autoSync = !options.manual;
 
