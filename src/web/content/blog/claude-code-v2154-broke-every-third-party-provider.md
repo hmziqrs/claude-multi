@@ -1,3 +1,11 @@
+---
+title: "Claude Code v2.1.154 Broke Every Third-Party Provider. Here's What Happened."
+description: "On May 28, 2026, Anthropic shipped a Claude Code update that broke every non-Anthropic API provider within hours. A post-mortem on what went wrong, the fallout, and the compatibility safeguards we added to claude-multi."
+date: 2026-05-28
+tags: [Claude Code, post-mortem, third-party providers, compatibility, claude-multi]
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/claude-code-v2154-broke-every-third-party-provider.mp3"
+---
+
 # Claude Code v2.1.154 Broke Every Third-Party Provider. Here's What Happened.
 
 On May 28, 2026, Anthropic shipped Claude Code v2.1.154. Within hours, every non-Anthropic API provider stopped working. GLM, DeepSeek, MiniMax, Kimi, Qwen, MiMo -- all of them returned the same error:
