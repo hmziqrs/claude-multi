@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-29
+
+### Added
+- **`doctor fix` auto-installs pinned Claude binary**: when the compatible binary at `~/.claude-multi/bin` is missing or running an incompatible version, `doctor fix` now installs Claude Code v2.1.153 (the last version before 3rd-party API breakage) before fixing wrappers. Works from both CLI and TUI.
+- **Version verification on pinned binary**: `getPinnedBinaryVersion()` reads the installed version and triggers a reinstall if it's v2.1.154+.
+- **`COMPATIBLE_CLAUDE_VERSION` constant** (`src/version.ts`): single source of truth for the pinned version (`2.1.153`).
+- **`PINNED_CLAUDE_BIN` in `src/paths.ts`**: shared path constant (previously duplicated in `wrapper.ts` and `health.ts`).
+
+### Changed
+- **Global version banner**: now reads "Run 'claude-multi doctor fix' to install a compatible version" instead of the passive "wait for a fix" message.
+- **TUI "Fix wrappers" action**: installs the pinned binary first if missing, then fixes wrappers. Both the menu option and the `f` key in the health screen follow this flow.
+- **Wrapper scripts now use pinned binary by default**: `getClaudePath()` checks `~/.claude-multi/bin` before falling back to global `which claude`, so new instances automatically use the compatible version.
+
+### Fixed
+- **Tests**: integration tests updated for current version and help output.
+
 ## [0.5.8] - 2026-05-28
 
 ### Added

@@ -29,7 +29,7 @@ describe("CLI Integration", () => {
 
   it("shows version", async () => {
     const { stdout } = await runCli(["--version"]);
-    expect(stdout).toContain("0.5.8");
+    expect(stdout).toContain("0.6.0");
   });
 
   it("shows help", async () => {
