@@ -97,9 +97,6 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const defaultPlugins = useMemo(() => cfg.listDefaultPlugins(), [cfg]);
 
-  const TEXT_INPUT_STEPS: Set<Step> = new Set(["name", "provider-apikey", "creating", "done"]);
-  const NO_NAV_STEPS = TEXT_INPUT_STEPS;
-
   const goBack = useCallback(() => {
     const prevMap: Partial<Record<Step, Step>> = {
       "provider-select": "name",
@@ -143,11 +140,11 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   useInput((input, key) => {
     if (input === "q" && step === "done") exit();
 
-    if (key.leftArrow && !NO_NAV_STEPS.has(step)) {
+    if (key.shift && key.leftArrow && step !== "creating" && step !== "done") {
       goBack();
     }
 
-    if (key.rightArrow && !NO_NAV_STEPS.has(step)) {
+    if (key.shift && key.rightArrow && step !== "creating" && step !== "done") {
       goForward();
     }
   });
@@ -309,7 +306,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         <Box flexDirection="column" gap={1}>
           <Text>Instance name:</Text>
           <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
-          <TextInput placeholder="my-instance" onSubmit={handleNameSubmit} />
+          <TextInput placeholder="my-instance" defaultValue={name} onSubmit={handleNameSubmit} />
         </Box>
       )}
 
@@ -319,6 +316,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
           <Select
             options={providerOptions}
             visibleOptionCount={providerOptions.length}
+            defaultValue={selectedProvider ?? undefined}
             onChange={handleProviderSelect}
           />
         </Box>
@@ -338,6 +336,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
               value: key,
             }))}
             visibleOptionCount={3}
+            defaultValue={selectedRegion ?? undefined}
             onChange={handleRegionSelect}
           />
         </Box>
@@ -419,7 +418,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       )}
 
       <Box marginTop={1}>
-        <Text dimColor>← back │ → next │ ESC back │ q quit</Text>
+        <Text dimColor>Shift+← back │ Shift+→ next │ ESC back │ q quit</Text>
       </Box>
     </Box>
   );
