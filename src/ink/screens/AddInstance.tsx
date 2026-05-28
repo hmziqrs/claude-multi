@@ -45,45 +45,97 @@ const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string 
   );
 };
 
-type Step =
-  | "name"
-  | "provider-select"
-  | "provider-region"
-  | "provider-apikey"
-  | "paths-confirm"
-  | "copy-options"
-  | "select-plugins"
-  | "autosync"
-  | "creating"
-  | "done";
+enum Step {
+  Name = "name",
+  ProviderSelect = "provider-select",
+  ProviderRegion = "provider-region",
+  ProviderApiKey = "provider-apikey",
+  PathsConfirm = "paths-confirm",
+  CopyOptions = "copy-options",
+  SelectPlugins = "select-plugins",
+  Autosync = "autosync",
+  Creating = "creating",
+  Done = "done",
+}
 
 const STEP_TITLES: Record<Step, string> = {
-  name: "Instance Name",
-  "provider-select": "Provider Template",
-  "provider-region": "Region",
-  "provider-apikey": "API Key",
-  "paths-confirm": "Paths",
-  "copy-options": "Copy Options",
-  "select-plugins": "Select Plugins",
-  autosync: "Auto-Sync",
-  creating: "Creating...",
-  done: "Complete",
+  [Step.Name]: "Instance Name",
+  [Step.ProviderSelect]: "Provider Template",
+  [Step.ProviderRegion]: "Region",
+  [Step.ProviderApiKey]: "API Key",
+  [Step.PathsConfirm]: "Paths",
+  [Step.CopyOptions]: "Copy Options",
+  [Step.SelectPlugins]: "Select Plugins",
+  [Step.Autosync]: "Auto-Sync",
+  [Step.Creating]: "Creating...",
+  [Step.Done]: "Complete",
 };
 
-const STEP_ORDER: Step[] = [
-  "name", "provider-select", "provider-region", "provider-apikey",
-  "paths-confirm", "copy-options", "select-plugins", "autosync", "creating", "done",
+const STEP_FLOW: Step[] = [
+  Step.Name,
+  Step.ProviderSelect,
+  Step.ProviderRegion,
+  Step.ProviderApiKey,
+  Step.PathsConfirm,
+  Step.CopyOptions,
+  Step.SelectPlugins,
+  Step.Autosync,
+  Step.Creating,
+  Step.Done,
 ];
 
 function stepNumber(step: Step): number {
-  return STEP_ORDER.indexOf(step) + 1;
+  return STEP_FLOW.indexOf(step) + 1;
+}
+
+interface WizardState {
+  useProvider: boolean;
+  selectedProvider: string | null;
+  copyOption: string;
+}
+
+function isStepVisible(step: Step, state: WizardState): boolean {
+  switch (step) {
+    case Step.ProviderRegion:
+      return !!state.selectedProvider && providerHasRegions(state.selectedProvider);
+    case Step.ProviderApiKey:
+      return state.useProvider;
+    case Step.SelectPlugins:
+      return state.copyOption === CopyOption.SelectPlugins;
+    case Step.Autosync:
+      return state.copyOption === CopyOption.All || state.copyOption === CopyOption.SelectPlugins;
+    default:
+      return true;
+  }
+}
+
+function getVisibleSteps(state: WizardState): Step[] {
+  return STEP_FLOW.filter((s) => isStepVisible(s, state));
+}
+
+function getPrevStep(current: Step, state: WizardState): Step | null {
+  const visible = getVisibleSteps(state);
+  const idx = visible.indexOf(current);
+  return idx > 0 ? visible[idx - 1] : null;
+}
+
+function getNextStep(current: Step, state: WizardState): Step | null {
+  const visible = getVisibleSteps(state);
+  const idx = visible.indexOf(current);
+  return idx >= 0 && idx < visible.length - 1 ? visible[idx + 1] : null;
+}
+
+function getVisibleStepCount(state: WizardState): number {
+  return getVisibleSteps(state).filter(
+    (s) => s !== Step.Creating && s !== Step.Done,
+  ).length;
 }
 
 export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }> = ({ onBack, initialName }) => {
   const { exit } = useApp();
   const cfg = useConfig();
 
-  const [step, setStep] = useState<Step>(initialName ? "provider-select" : "name");
+  const [step, setStep] = useState<Step>(initialName ? Step.ProviderSelect : Step.Name);
   const [name, setName] = useState(initialName ?? "");
   const [error, setError] = useState("");
   const [useProvider, setUseProvider] = useState(false);
@@ -97,54 +149,43 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const defaultPlugins = useMemo(() => cfg.listDefaultPlugins(), [cfg]);
 
-  const goBack = useCallback(() => {
-    const prevMap: Partial<Record<Step, Step>> = {
-      "provider-select": "name",
-      "provider-region": "provider-select",
-      "provider-apikey": "provider-region",
-      "paths-confirm": "provider-select",
-      "copy-options": "paths-confirm",
-      "select-plugins": "copy-options",
-      autosync: "copy-options",
-    };
-    const prev = prevMap[step];
-    if (prev) {
-      setStep(prev);
+  const wizardState = useMemo<WizardState>(() => ({
+    useProvider,
+    selectedProvider,
+    copyOption,
+  }), [useProvider, selectedProvider, copyOption]);
+
+  const navTo = useCallback((target: Step | null) => {
+    if (target) {
+      setStep(target);
       setError("");
     } else {
       onBack();
     }
-  }, [step, onBack]);
+  }, [onBack]);
+
+  const goBack = useCallback(() => {
+    navTo(getPrevStep(step, wizardState));
+  }, [step, wizardState, navTo]);
 
   const goForward = useCallback(() => {
-    switch (step) {
-      case "provider-select":
-        if (useProvider && selectedProvider) {
-          setStep(providerHasRegions(selectedProvider) ? "provider-region" : "provider-apikey");
-        }
-        break;
-      case "provider-region":
-        if (selectedRegion) setStep("provider-apikey");
-        break;
-      case "paths-confirm":
-        setStep("copy-options");
-        break;
-    }
-  }, [step, useProvider, selectedProvider, selectedRegion]);
+    const next = getNextStep(step, wizardState);
+    if (next) navTo(next);
+  }, [step, wizardState, navTo]);
 
   useNavigation(() => {
-    if (step === "done") onBack();
+    if (step === Step.Done) onBack();
     else onBack();
   });
 
   useInput((input, key) => {
-    if (input === "q" && step === "done") exit();
+    if (input === "q" && step === Step.Done) exit();
 
-    if (key.shift && key.leftArrow && step !== "creating" && step !== "done") {
+    if (key.shift && key.leftArrow && step !== Step.Creating && step !== Step.Done) {
       goBack();
     }
 
-    if (key.shift && key.rightArrow && step !== "creating" && step !== "done") {
+    if (key.shift && key.rightArrow && step !== Step.Creating && step !== Step.Done) {
       goForward();
     }
   });
@@ -157,47 +198,43 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     }
     setError("");
     setName(value);
-    setStep("provider-select");
+    setStep(Step.ProviderSelect);
   }, []);
 
   const handleProviderSelect = useCallback((value: string) => {
     if (value === CopyOption.None) {
       setUseProvider(false);
       setSelectedProvider(null);
-      setStep("paths-confirm");
+      setStep(Step.PathsConfirm);
       return;
     }
     setUseProvider(true);
     setSelectedProvider(value);
-    if (providerHasRegions(value)) {
-      setStep("provider-region");
-    } else {
-      setStep("provider-apikey");
-    }
+    setStep(providerHasRegions(value) ? Step.ProviderRegion : Step.ProviderApiKey);
   }, []);
 
   const handleRegionSelect = useCallback((value: string) => {
     setSelectedRegion(value);
-    setStep("provider-apikey");
+    setStep(Step.ProviderApiKey);
   }, []);
 
   const handleApiKeySubmit = useCallback((value: string) => {
     if (!value.trim()) { setError("API key is required"); return; }
     setError("");
     setApiKey(value);
-    setStep("paths-confirm");
+    setStep(Step.PathsConfirm);
   }, []);
 
   const handleDefaultsConfirm = useCallback((_confirmed: boolean) => {
-    setStep("copy-options");
+    setStep(Step.CopyOptions);
   }, []);
 
   const handleCopyOption = useCallback((value: string) => {
     setCopyOption(value);
     if (value === CopyOption.SelectPlugins) {
-      setStep("select-plugins");
+      setStep(Step.SelectPlugins);
     } else if (value === CopyOption.All) {
-      setStep("autosync");
+      setStep(Step.Autosync);
     } else {
       doCreate(value, false);
     }
@@ -210,7 +247,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     }
     setSelectedPluginIds(ids);
     setError("");
-    setStep("autosync");
+    setStep(Step.Autosync);
   }, []);
 
   const handleAutoSyncConfirm = useCallback((confirmed: boolean) => {
@@ -298,11 +335,11 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={stepNumber(step)} total={3} label={STEP_TITLES[step]} />
+      <StepIndicator current={stepNumber(step)} total={getVisibleStepCount(wizardState)} label={STEP_TITLES[step]} />
 
       {error && <StatusBar message={error} type="error" />}
 
-      {step === "name" && (
+      {step === Step.Name && (
         <Box flexDirection="column" gap={1}>
           <Text>Instance name:</Text>
           <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
@@ -310,7 +347,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "provider-select" && (
+      {step === Step.ProviderSelect && (
         <Box flexDirection="column" gap={1}>
           <Text>Select a provider:</Text>
           <Select
@@ -322,7 +359,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "provider-region" && (
+      {step === Step.ProviderRegion && (
         <Box flexDirection="column" gap={1}>
           <Text>Select your subscription region:</Text>
           <Box borderStyle="round" borderColor="yellow" paddingX={1}>
@@ -342,7 +379,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "provider-apikey" && (
+      {step === Step.ProviderApiKey && (
         <Box flexDirection="column" gap={1}>
           <Text>Enter {selectedProvider} API key:</Text>
           <PasswordInput
@@ -352,7 +389,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "paths-confirm" && (
+      {step === Step.PathsConfirm && (
         <Box flexDirection="column" gap={1}>
           <Text>Use default paths?</Text>
           <Text dimColor>Config: {join(homedir(), `.claude-${name}`)}</Text>
@@ -364,7 +401,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "copy-options" && !hasDefaultConfig && (
+      {step === Step.CopyOptions && !hasDefaultConfig && (
         <Box flexDirection="column" gap={1}>
           <Text dimColor>No default Claude config found. Starting fresh.</Text>
           <ConfirmInput
@@ -374,7 +411,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "copy-options" && hasDefaultConfig && (
+      {step === Step.CopyOptions && hasDefaultConfig && (
         <Box flexDirection="column" gap={1}>
           <Text>Found existing Claude config at ~/.claude</Text>
           <Text>What to copy?</Text>
@@ -386,7 +423,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "select-plugins" && (
+      {step === Step.SelectPlugins && (
         <Box flexDirection="column" gap={1}>
           <Text>Select plugins to install:</Text>
           <Text dimColor>{defaultPlugins.length} available · space to toggle · enter to confirm</Text>
@@ -398,7 +435,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "autosync" && (
+      {step === Step.Autosync && (
         <Box flexDirection="column" gap={1}>
           <Text>Auto-sync plugins and skills via symlinks?</Text>
           <Text dimColor>Shares plugins/skills from ~/.claude across instances</Text>
@@ -409,11 +446,11 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === "creating" && (
+      {step === Step.Creating && (
         <Text dimColor>Creating instance...</Text>
       )}
 
-      {step === "done" && result && (
+      {step === Step.Done && result && (
         <AddResult name={name} binaryPath={result.binaryPath} configDir={result.configDir} />
       )}
 
