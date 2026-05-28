@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text, useApp, useInput } from "ink";
+import { execSync } from "node:child_process";
+import { isThirdPartyApiBroken } from "@/version";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { Footer } from "@/ink/components/Footer";
@@ -58,6 +60,14 @@ export const App: React.FC = () => {
   const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus);
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
+  const [ccVersion, setCcVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const output = execSync("claude --version 2>/dev/null", { encoding: "utf-8", timeout: 5000 }).trim();
+      setCcVersion(output.split(" ")[0] || null);
+    } catch { /* not found */ }
+  }, []);
 
   useInput((input, key) => {
     if (screen !== "menu") return;
@@ -135,6 +145,13 @@ export const App: React.FC = () => {
         errorCount={errorCount}
         warningCount={warningCount}
       />
+
+      {ccVersion && isThirdPartyApiBroken(ccVersion) && (
+        <Box marginBottom={1}>
+          <Text color="red" bold>⚠ Claude Code v{ccVersion} does not work with 3rd party APIs. </Text>
+          <Text color="red">Pin to an older version or wait for a fix.</Text>
+        </Box>
+      )}
 
       <InstanceLine instances={instances} />
 

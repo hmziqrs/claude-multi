@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, chmodSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync, chmodSync, unlinkSync, realpathSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { execSync } from "node:child_process";
@@ -12,20 +12,61 @@ export interface WrapperOptions {
 }
 
 /**
- * Gets the path to the original claude binary
+ * Gets the path to the claude binary for wrapper scripts.
+ *
+ * Priority:
+ *  1. CLAUDE_MULTI_CLAUDE_PATH env var (explicit override)
+ *  2. Global install in PATH (skipping node_modules copies)
  */
 export function getClaudePath(): string {
+  // Allow explicit override via env var
+  const override = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+  if (override) {
+    const resolved = resolve(override);
+    if (!existsSync(resolved)) {
+      throw new ClaudeMultiError(
+        ErrorCode.CLAUDE_NOT_FOUND,
+        `CLAUDE_MULTI_CLAUDE_PATH points to ${resolved} but that file does not exist`,
+      );
+    }
+    return resolved;
+  }
+
   try {
-    // Try to find claude in PATH
     const command =
       process.platform === "win32" ? "where claude" : "which claude";
     const claudePath = execSync(command, { encoding: "utf-8" }).trim();
-    // On Windows, 'where' might return multiple paths, take the first one
     const firstPath = claudePath.split("\n")[0];
     if (!firstPath) {
       throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Could not determine Claude path");
     }
-    return firstPath.trim();
+
+    const trimmed = firstPath.trim();
+
+    // Resolve symlinks to get the real binary path
+    const resolved = realpathSync(trimmed);
+
+    // If the resolved path is inside node_modules, try to find a global one
+    if (resolved.includes("node_modules")) {
+      try {
+        const allPaths = execSync("which -a claude 2>/dev/null || true", {
+          encoding: "utf-8",
+        })
+          .trim()
+          .split("\n")
+          .map((p) => p.trim())
+          .filter(Boolean);
+
+        for (const p of allPaths) {
+          const r = realpathSync(p);
+          if (!r.includes("node_modules")) return r;
+        }
+      } catch {
+        // Fall through — use the node_modules path if nothing else exists
+      }
+    }
+
+    return resolved;
   } catch (err) {
     if (err instanceof ClaudeMultiError) throw err;
     throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Claude Code is not installed. Please install @anthropic-ai/claude-code first.", { cause: err });

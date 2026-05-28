@@ -9,6 +9,16 @@ export interface ProviderTemplate {
   };
 }
 
+/**
+ * Env vars injected into every provider template.
+ * These prevent Claude Code from auto-updating to a version
+ * that breaks 3rd-party provider compatibility.
+ */
+const PROVIDER_COMMON_ENV: Record<string, string> = {
+  DISABLE_AUTOUPDATER: "1",
+  DISABLE_UPDATES: "1",
+};
+
 export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   glm: {
     name: "glm",
@@ -237,13 +247,15 @@ export function getProviderTemplate(
 }
 
 /**
- * Apply a provider template with an API key
+ * Apply a provider template with an API key.
+ * Merges common env vars (auto-update disabled, etc.) into the result.
  */
 export function applyProviderTemplate(
   template: ProviderTemplate,
   apiKey: string,
 ): Record<string, unknown> {
   const settings = structuredClone(template.settings);
+  settings.env = { ...PROVIDER_COMMON_ENV, ...settings.env };
   settings.env.ANTHROPIC_AUTH_TOKEN = apiKey;
   return settings;
 }

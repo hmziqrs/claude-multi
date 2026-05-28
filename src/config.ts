@@ -727,10 +727,9 @@ export async function mergeProviderEnv(
   }
 
   const env = (existing.env as Record<string, string>) ?? {};
-  const templateEnv = structuredClone(template.settings.env);
-  templateEnv.ANTHROPIC_AUTH_TOKEN = apiKey;
+  const templateSettings = applyProviderTemplate(template, apiKey) as { env: Record<string, string> };
 
-  existing.env = { ...env, ...templateEnv };
+  existing.env = { ...env, ...templateSettings.env };
   existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
 
   await writeFile(settingsFile, JSON.stringify(existing, null, 2), "utf-8");

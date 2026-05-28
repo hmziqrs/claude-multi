@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { compareVersions, getClaudeMultiVersion } from "@/version";
+import { compareVersions, getClaudeMultiVersion, isThirdPartyApiBroken } from "@/version";
 import { chdir } from "node:process";
 
 describe("compareVersions", () => {
@@ -36,5 +36,27 @@ describe("getClaudeMultiVersion", () => {
     } finally {
       chdir(originalCwd);
     }
+  });
+});
+
+describe("isThirdPartyApiBroken", () => {
+  test("versions before 2.1.154 are fine", () => {
+    expect(isThirdPartyApiBroken("2.1.153")).toBe(false);
+    expect(isThirdPartyApiBroken("2.1.0")).toBe(false);
+    expect(isThirdPartyApiBroken("2.0.0")).toBe(false);
+    expect(isThirdPartyApiBroken("1.0.0")).toBe(false);
+    expect(isThirdPartyApiBroken("0.5.7")).toBe(false);
+  });
+
+  test("2.1.154 is broken", () => {
+    expect(isThirdPartyApiBroken("2.1.154")).toBe(true);
+  });
+
+  test("versions after 2.1.154 are broken", () => {
+    expect(isThirdPartyApiBroken("2.1.155")).toBe(true);
+    expect(isThirdPartyApiBroken("2.2.0")).toBe(true);
+    expect(isThirdPartyApiBroken("2.2.1")).toBe(true);
+    expect(isThirdPartyApiBroken("3.0.0")).toBe(true);
+    expect(isThirdPartyApiBroken("10.0.0")).toBe(true);
   });
 });

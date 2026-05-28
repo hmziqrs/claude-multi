@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import semver from "semver";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { detectPackageManager } from "@/util/runtime";
 
@@ -94,6 +95,14 @@ export function getCurrentVersion(): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Check if a Claude Code version has broken 3rd party API compatibility.
+ * v2.1.154+ dropped support for non-Anthropic API endpoints.
+ */
+export function isThirdPartyApiBroken(version: string): boolean {
+  return semver.gte(version, "2.1.154");
 }
 
 /**
