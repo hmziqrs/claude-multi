@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { execSync } from "node:child_process";
-import { isThirdPartyApiBroken } from "@/version";
+import { existsSync } from "node:fs";
+import { isThirdPartyApiBroken, installPinnedClaude, getPinnedBinaryVersion, COMPATIBLE_CLAUDE_VERSION } from "@/version";
+import { PINNED_CLAUDE_BIN } from "@/paths";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { Footer } from "@/ink/components/Footer";
@@ -51,7 +53,7 @@ const DoctorResultScreen: React.FC<{ fixedCount: number; onBack: () => void }> =
       <Header title="🔧 Doctor Fix" />
       {fixedCount > 0 ? (
         <>
-          <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude version!`} type="success" />
+          <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude v${COMPATIBLE_CLAUDE_VERSION}!`} type="success" />
           <Box marginTop={1}>
             <Text dimColor>All 3rd-party API instances now use the correct Claude binary.</Text>
           </Box>
@@ -130,6 +132,15 @@ export const App: React.FC = () => {
         onDismissAll={dismissAll}
         onRetry={retry}
         onFix={() => {
+          // Ensure pinned binary is installed before fixing
+          if (!existsSync(PINNED_CLAUDE_BIN)) {
+            try { installPinnedClaude(); } catch { /* show result */ }
+          } else {
+            const pinnedVer = getPinnedBinaryVersion();
+            if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
+              try { installPinnedClaude(); } catch { /* show result */ }
+            }
+          }
           const fixed = fixWrapperVersions(instances);
           setDoctorFixedCount(fixed.length);
           retry();
@@ -195,7 +206,7 @@ export const App: React.FC = () => {
       {ccVersion && isThirdPartyApiBroken(ccVersion) && (
         <Box marginBottom={1}>
           <Text color="red" bold>⚠ Claude Code v{ccVersion} does not work with 3rd party APIs. </Text>
-          <Text color="red">Pin to an older version or wait for a fix.</Text>
+          <Text color="red">Run 'claude-multi doctor fix' to install a compatible version.</Text>
         </Box>
       )}
 
@@ -212,6 +223,15 @@ export const App: React.FC = () => {
           } else if (value === "doctor-check") {
             setScreen("health");
           } else if (value === "doctor-fix") {
+            // Ensure pinned binary is installed before fixing
+            if (!existsSync(PINNED_CLAUDE_BIN)) {
+              try { installPinnedClaude(); } catch { /* show result */ }
+            } else {
+              const pinnedVer = getPinnedBinaryVersion();
+              if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
+                try { installPinnedClaude(); } catch { /* show result */ }
+              }
+            }
             const fixed = fixWrapperVersions(instances);
             setDoctorFixedCount(fixed.length);
             if (fixed.length > 0) {

@@ -1,15 +1,14 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir, homedir } from "node:os";
+import { tmpdir } from "node:os";
 import type { Instance } from "@/config";
+import { PINNED_CLAUDE_BIN } from "@/paths";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
 
-// Match the real pinned path from health.ts
-const PINNED_BIN = join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude");
-const HAS_PINNED = existsSync(PINNED_BIN);
+const HAS_PINNED = existsSync(PINNED_CLAUDE_BIN);
 
 function makeInstance(overrides: Partial<Instance> = {}): Instance {
   return {
@@ -186,7 +185,7 @@ describe("Health Check", () => {
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
       mkdirSync(join(testDir, "bin"), { recursive: true });
-      writeShellWrapper(inst.binaryPath, PINNED_BIN);
+      writeShellWrapper(inst.binaryPath, PINNED_CLAUDE_BIN);
 
       const issues = runHealthChecks([inst]);
       const versionIssue = issues.find(i => i.category === "version");
@@ -221,7 +220,7 @@ describe("Health Check", () => {
       expect(fixed).toEqual(["test-inst"]);
 
       const content = readFileSync(inst.binaryPath, "utf-8");
-      expect(content).toContain(`exec "${PINNED_BIN}"`);
+      expect(content).toContain(`exec "${PINNED_CLAUDE_BIN}"`);
       expect(content).toContain('CLAUDE_CONFIG_DIR="');
       expect(content).not.toContain("/usr/local/bin/claude");
     });
@@ -239,7 +238,7 @@ describe("Health Check", () => {
 
       const content = readFileSync(inst.binaryPath, "utf-8");
       expect(content).toContain("#!/bin/sh");
-      expect(content).toContain(`exec "${PINNED_BIN}"`);
+      expect(content).toContain(`exec "${PINNED_CLAUDE_BIN}"`);
       expect(content).not.toContain("spawn");
       expect(content).not.toContain("child_process");
     });
@@ -266,7 +265,7 @@ describe("Health Check", () => {
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
       mkdirSync(join(testDir, "bin"), { recursive: true });
-      writeShellWrapper(inst.binaryPath, PINNED_BIN);
+      writeShellWrapper(inst.binaryPath, PINNED_CLAUDE_BIN);
 
       const fixed = fixWrapperVersions([inst]);
       expect(fixed).toEqual([]);

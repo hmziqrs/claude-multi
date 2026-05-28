@@ -29,7 +29,7 @@ describe("CLI Integration", () => {
 
   it("shows version", async () => {
     const { stdout } = await runCli(["--version"]);
-    expect(stdout).toContain("0.4.0");
+    expect(stdout).toContain("0.5.8");
   });
 
   it("shows help", async () => {
@@ -38,7 +38,7 @@ describe("CLI Integration", () => {
     expect(stdout).toContain("add");
     expect(stdout).toContain("remove");
     expect(stdout).toContain("list");
-    expect(stdout).toContain("interactive");
+    expect(stdout).toContain("doctor");
   });
 
   it("lists empty instances", async () => {

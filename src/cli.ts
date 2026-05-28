@@ -536,9 +536,26 @@ program
     try {
       const instances = await listInstances();
       const { runHealthChecks, fixWrapperVersions } = await import("@/health");
+      const { existsSync } = await import("node:fs");
+      const { PINNED_CLAUDE_BIN } = await import("@/paths");
+      const { installPinnedClaude, getPinnedBinaryVersion, isThirdPartyApiBroken, COMPATIBLE_CLAUDE_VERSION } = await import("@/version");
 
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
+
+        // Ensure pinned binary is installed
+        if (!existsSync(PINNED_CLAUDE_BIN)) {
+          console.log(chalk.cyan(`Installing compatible Claude v${COMPATIBLE_CLAUDE_VERSION}...`));
+          installPinnedClaude();
+          console.log(chalk.green(`✓ Installed pinned Claude v${COMPATIBLE_CLAUDE_VERSION}`));
+        } else {
+          const pinnedVer = getPinnedBinaryVersion();
+          if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
+            console.log(chalk.yellow(`Pinned binary is v${pinnedVer} (incompatible). Reinstalling v${COMPATIBLE_CLAUDE_VERSION}...`));
+            installPinnedClaude();
+            console.log(chalk.green(`✓ Reinstalled pinned Claude v${COMPATIBLE_CLAUDE_VERSION}`));
+          }
+        }
 
         // Fix wrapper versions
         const fixed = fixWrapperVersions(instances);

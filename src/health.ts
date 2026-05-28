@@ -1,18 +1,12 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { homedir } from "node:os";
 import { detectBrokenSymlinks } from "@/config";
 import type { Instance } from "@/config";
-import { getBaseDir } from "@/paths";
+import { getBaseDir, PINNED_CLAUDE_BIN } from "@/paths";
 import { MigrationStatus } from "@/constants";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings" | "version";
-
-const PINNED_CLAUDE_BIN =
-  process.platform === "win32"
-    ? join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude.cmd")
-    : join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude");
 
 export interface HealthIssue {
   id: string;

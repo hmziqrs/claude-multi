@@ -1,5 +1,7 @@
 import { describe, test, expect } from "bun:test";
-import { compareVersions, getClaudeMultiVersion, isThirdPartyApiBroken } from "@/version";
+import { compareVersions, getClaudeMultiVersion, isThirdPartyApiBroken, COMPATIBLE_CLAUDE_VERSION, getPinnedBinaryVersion } from "@/version";
+import { existsSync } from "node:fs";
+import { PINNED_CLAUDE_BIN } from "@/paths";
 import { chdir } from "node:process";
 
 describe("compareVersions", () => {
@@ -58,5 +60,27 @@ describe("isThirdPartyApiBroken", () => {
     expect(isThirdPartyApiBroken("2.2.1")).toBe(true);
     expect(isThirdPartyApiBroken("3.0.0")).toBe(true);
     expect(isThirdPartyApiBroken("10.0.0")).toBe(true);
+  });
+});
+
+describe("COMPATIBLE_CLAUDE_VERSION", () => {
+  test("is the last safe version before the breakage", () => {
+    expect(COMPATIBLE_CLAUDE_VERSION).toBe("2.1.153");
+    expect(isThirdPartyApiBroken(COMPATIBLE_CLAUDE_VERSION)).toBe(false);
+  });
+});
+
+describe("getPinnedBinaryVersion", () => {
+  test("returns null when pinned binary is not installed", () => {
+    if (existsSync(PINNED_CLAUDE_BIN)) return;
+    expect(getPinnedBinaryVersion()).toBeNull();
+  });
+
+  test("returns a version string when pinned binary is installed", () => {
+    if (!existsSync(PINNED_CLAUDE_BIN)) return;
+    const version = getPinnedBinaryVersion();
+    expect(version).not.toBeNull();
+    expect(typeof version).toBe("string");
+    expect(version!).toMatch(/^\d+\.\d+\.\d+/);
   });
 });

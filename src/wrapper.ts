@@ -1,21 +1,16 @@
-import { existsSync, mkdirSync, chmodSync, unlinkSync, realpathSync } from "node:fs";
+import { existsSync, mkdirSync, chmodSync, unlinkSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
-import { resolve, dirname, join } from "node:path";
+import { resolve, dirname } from "node:path";
 import { execSync } from "node:child_process";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { detectPackageManager } from "@/util/runtime";
+import { PINNED_CLAUDE_BIN } from "@/paths";
 
 export interface WrapperOptions {
   name: string;
   configDir: string;
   binaryPath: string;
 }
-
-const PINNED_CLAUDE_BIN =
-  process.platform === "win32"
-    ? join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude.cmd")
-    : join(homedir(), ".claude-multi", "bin", "node_modules", ".bin", "claude");
 
 /**
  * Gets the path to the claude binary for wrapper scripts.

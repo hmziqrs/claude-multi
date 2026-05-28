@@ -1,10 +1,11 @@
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import semver from "semver";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { detectPackageManager } from "@/util/runtime";
+import { PINNED_BIN_DIR, PINNED_CLAUDE_BIN } from "@/paths";
 
 export interface VersionInfo {
   current: string | null;
@@ -103,6 +104,61 @@ export function getCurrentVersion(): string | null {
  */
 export function isThirdPartyApiBroken(version: string): boolean {
   return semver.gte(version, "2.1.154");
+}
+
+export const COMPATIBLE_CLAUDE_VERSION = "2.1.153";
+
+/**
+ * Reads the version of the pinned Claude binary installed at ~/.claude-multi/bin/
+ */
+export function getPinnedBinaryVersion(): string | null {
+  const pkgJsonPath = join(
+    PINNED_BIN_DIR,
+    "node_modules",
+    "@anthropic-ai",
+    "claude-code",
+    "package.json",
+  );
+  try {
+    if (!existsSync(pkgJsonPath)) return null;
+    const pkg = JSON.parse(readFileSync(pkgJsonPath, "utf-8")) as { version?: string };
+    return pkg.version ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Installs a compatible version of Claude Code to ~/.claude-multi/bin/
+ */
+export function installPinnedClaude(): void {
+  const pm = detectPackageManager();
+
+  mkdirSync(PINNED_BIN_DIR, { recursive: true });
+
+  // Ensure a package.json exists for the install
+  const pkgJsonPath = join(PINNED_BIN_DIR, "package.json");
+  if (!existsSync(pkgJsonPath)) {
+    writeFileSync(pkgJsonPath, JSON.stringify({ dependencies: {} }, null, 2));
+  }
+
+  const pkg = `@anthropic-ai/claude-code@${COMPATIBLE_CLAUDE_VERSION}`;
+  const commands: Record<typeof pm, string> = {
+    bun: `bun add --cwd ${PINNED_BIN_DIR} ${pkg}`,
+    npm: `npm install --prefix ${PINNED_BIN_DIR} ${pkg}`,
+    pnpm: `pnpm add --dir ${PINNED_BIN_DIR} ${pkg}`,
+    deno: `cd ${PINNED_BIN_DIR} && npm install ${pkg}`,
+  };
+
+  try {
+    execSync(commands[pm], { stdio: "inherit" });
+  } catch (err: unknown) {
+    throw new ClaudeMultiError(
+      ErrorCode.UPDATE_FAILED,
+      `Failed to install pinned Claude v${COMPATIBLE_CLAUDE_VERSION}: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
+  }
 }
 
 /**
