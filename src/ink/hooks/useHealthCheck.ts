@@ -18,7 +18,7 @@ export function useHealthCheck(
   const [issues, setIssues] = useState<HealthIssue[]>([]);
   const [checking, setChecking] = useState(false);
 
-  const runChecks = useCallback(async () => {
+  const runChecks = useCallback(() => {
     setChecking(true);
     try {
       const found = runHealthChecks(instances, migrationStatus, instanceMigrationVersion);

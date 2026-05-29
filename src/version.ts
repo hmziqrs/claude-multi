@@ -61,7 +61,7 @@ export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInf
 /**
  * Upgrades claude-multi to the latest version
  */
-export async function upgradeClaudeMulti(): Promise<void> {
+export function upgradeClaudeMulti(): void {
   const pm = detectPackageManager();
   const commands: Record<typeof pm, string> = {
     bun: "bun upgrade -g claude-multi",
@@ -202,7 +202,7 @@ export async function checkForUpdates(): Promise<VersionInfo> {
 /**
  * Updates @anthropic-ai/claude-code to the latest version
  */
-export async function updateClaudeCode(): Promise<void> {
+export function updateClaudeCode(): void {
   const pm = detectPackageManager();
   const commands: Record<typeof pm, string> = {
     bun: "bun install -g @anthropic-ai/claude-code@latest",

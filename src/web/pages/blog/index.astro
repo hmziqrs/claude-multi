@@ -6,7 +6,7 @@ import { author, formatDate } from '@/web/util/author';
 
 const posts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  .toSorted((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <Layout

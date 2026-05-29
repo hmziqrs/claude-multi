@@ -562,7 +562,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
         // ----- Hero glyph: dual nested wireframe icosahedra + orbiting points -----
         const heroHost = document.querySelector('[data-three="hero-glyph"]');
         if (heroHost)
-          makeScene(heroHost, ({ THREE, scene, camera }) => {
+          makeScene(heroHost, ({ scene, camera }) => {
             camera.position.z = 4.5;
             const inner = new THREE.Mesh(
               new THREE.IcosahedronGeometry(1.0, 1),
@@ -634,7 +634,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
         // ----- Bento orb: spinning torus knot -----
         const bentoHost = document.querySelector('[data-three="bento-orb"]');
         if (bentoHost)
-          makeScene(bentoHost, ({ THREE, scene, camera }) => {
+          makeScene(bentoHost, ({ scene, camera }) => {
             camera.position.z = 4;
             const knot = new THREE.Mesh(
               new THREE.TorusKnotGeometry(1.0, 0.32, 140, 16, 2, 3),
@@ -658,7 +658,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
           .querySelectorAll('[data-three="provider-shape"]')
           .forEach((host) => {
             const kind = host.getAttribute('data-shape') || 'ico';
-            makeScene(host, ({ THREE, scene, camera }) => {
+            makeScene(host, ({ scene, camera }) => {
               camera.position.z = 3.6;
               const geo =
                 kind === 'octa'
@@ -688,7 +688,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
         // ----- CTA shape: large slowly spinning polyhedron -----
         const ctaHost = document.querySelector('[data-three="cta-shape"]');
         if (ctaHost)
-          makeScene(ctaHost, ({ THREE, scene, camera }) => {
+          makeScene(ctaHost, ({ scene, camera }) => {
             camera.position.z = 5;
             const a = new THREE.Mesh(
               new THREE.IcosahedronGeometry(1.8, 0),
@@ -720,7 +720,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
         // ----- Spiral icon: nautilus shell logo -----
         const spiralHost = document.querySelector('[data-three="spiral-icon"]');
         if (spiralHost)
-          makeScene(spiralHost, ({ THREE, scene, camera }) => {
+          makeScene(spiralHost, ({ scene, camera }) => {
             camera.position.set(0, 0, 4.5);
 
             // === Dramatic 3-point lighting ===

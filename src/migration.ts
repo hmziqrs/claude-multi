@@ -21,12 +21,12 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   {
     version: "0.6.2",
     description: "Regenerate wrappers and update stale .claude.json for current claude-multi behavior",
-    migrate: async (instance) => {
+    migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
 
       // Fast path: instance already at current version, no migration needed
       if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
-        return instance;
+        return Promise.resolve(instance);
       }
 
       // Only regenerate wrapper if the file exists and content differs
@@ -52,7 +52,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
       // Update stale .claude.json values
       updateClaudeJson(instance.configDir);
 
-      return instance;
+      return Promise.resolve(instance);
     },
   },
 ];
@@ -101,7 +101,7 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
     const stored = semver.coerce(config.instanceMigrationVersion || "0.0.0");
     const applicable = INSTANCE_MIGRATIONS
       .filter(m => stored ? (semver.gt(m.version, stored) && semver.lte(m.version, currentVersion)) : true)
-      .sort((a, b) => semver.compare(a.version, b.version));
+      .toSorted((a, b) => semver.compare(a.version, b.version));
 
     for (const migration of applicable) {
       for (let i = 0; i < config.instances.length; i++) {
@@ -175,7 +175,7 @@ export function clearMigrationFailure(config: Config): Config {
   return config;
 }
 
-export async function createBackup(config: Config): Promise<string> {
+export function createBackup(config: Config): string {
   const backupDir = getBackupDir();
   if (!existsSync(backupDir)) {
     mkdirSync(backupDir, { recursive: true });
@@ -205,7 +205,7 @@ export async function createBackup(config: Config): Promise<string> {
   }
 
   // Clean old backups (keep last 3)
-  const backups = readdirSync(backupDir).sort();
+  const backups = readdirSync(backupDir).toSorted();
   for (let i = 0; i < backups.length - 3; i++) {
     rmSync(join(backupDir, backups[i]!), { force: true, recursive: true });
   }
@@ -271,5 +271,5 @@ export function getMigrationStatus(config: Config): MigrationMeta | null {
 export function listBackups(): string[] {
   const backupDir = getBackupDir();
   if (!existsSync(backupDir)) return [];
-  return readdirSync(backupDir).sort().reverse();
+  return readdirSync(backupDir).toSorted().toReversed();
 }

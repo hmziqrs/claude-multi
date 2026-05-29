@@ -9,7 +9,7 @@ import {
 } from "@/wrapper";
 import { existsSync } from "node:fs";
 import { PINNED_CLAUDE_BIN } from "@/paths";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 

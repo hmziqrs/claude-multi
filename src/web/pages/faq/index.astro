@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import Layout from '@/web/layouts/MarketingLayout.astro';
 
-const entries = (await getCollection('faq')).sort(
+const entries = (await getCollection('faq')).toSorted(
   (a, b) => a.data.order - b.data.order
 );
 

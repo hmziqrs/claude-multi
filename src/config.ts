@@ -153,8 +153,9 @@ export async function loadConfig(): Promise<Config> {
   // Auto-backfill missing createdWithVersion (default value, not a migration)
   let backfilled = false;
   for (let i = 0; i < config.instances.length; i++) {
-    if (!config.instances[i].createdWithVersion) {
-      config.instances[i] = { ...config.instances[i], createdWithVersion: LEGACY_INSTANCE_VERSION };
+    const inst = config.instances[i]!;
+    if (!inst.createdWithVersion) {
+      config.instances[i] = { ...inst, createdWithVersion: LEGACY_INSTANCE_VERSION };
       backfilled = true;
     }
   }
@@ -738,6 +739,22 @@ export async function syncPluginsAndSkills(
   }
 }
 
+async function copyFilesRecursive(source: string, target: string): Promise<void> {
+  const entries = readdirSync(source);
+  for (const entry of entries) {
+    const sourceEntry = join(source, entry);
+    const targetEntry = join(target, entry);
+    const stat = statSync(sourceEntry);
+
+    if (stat.isDirectory()) {
+      await mkdir(targetEntry, { recursive: true });
+      await copyFilesRecursive(sourceEntry, targetEntry);
+    } else {
+      await copyFile(sourceEntry, targetEntry);
+    }
+  }
+}
+
 /**
  * Unsync plugins and skills by copying actual files and removing symlinks
  */
@@ -782,22 +799,7 @@ export async function unsyncPluginsAndSkills(
 
     // Copy files from source
     await mkdir(targetPath, { recursive: true });
-    const copyRecursive = async (source: string, target: string) => {
-      const entries = readdirSync(source);
-      for (const entry of entries) {
-        const sourceEntry = join(source, entry);
-        const targetEntry = join(target, entry);
-        const stat = statSync(sourceEntry);
-
-        if (stat.isDirectory()) {
-          await mkdir(targetEntry, { recursive: true });
-          await copyRecursive(sourceEntry, targetEntry);
-        } else {
-          await copyFile(sourceEntry, targetEntry);
-        }
-      }
-    };
-    await copyRecursive(sourcePath, targetPath);
+    await copyFilesRecursive(sourcePath, targetPath);
     console.log(chalk.green(`  ✓ Copied files for ${dir}`));
   }
 }
@@ -990,7 +992,7 @@ export function scanPluginsFromDir(baseDir: string): PluginInfo[] {
 
   const internal = scanPluginDir(baseDir, PluginCategory.Internal, enabledPlugins);
   const external = scanPluginDir(baseDir, PluginCategory.External, enabledPlugins);
-  return [...internal, ...external].sort((a, b) => a.name.localeCompare(b.name));
+  return [...internal, ...external].toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
 export function listDefaultPlugins(): PluginInfo[] {

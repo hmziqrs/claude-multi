@@ -16,9 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `instanceMigrationVersion` in config now stores the actual package version rather than a separate numbering scheme.
 - The legacy sentinel (`"0.5"`) is defined once as `LEGACY_INSTANCE_VERSION` and imported everywhere, instead of being hardcoded in multiple files.
+- Wrapper script template exists in a single place (`buildWrapperScript` in `wrapper.ts`). Migration and health check both delegate to it instead of duplicating the template string.
+- Instance migration only rewrites wrappers when the file content actually differs (version check + content diff), instead of unconditionally regenerating every wrapper.
+- `fixWrapperVersions` uses the canonical template targeting the pinned binary explicitly, with a content-diff check to avoid unnecessary writes.
 
 ### Fixed
 - Removed broken `compareVersions` references from `version.test.ts`.
+- `resolveClaudePath()` in `migration.ts` used `await` in a non-async function (TypeScript error). Removed — replaced by `generateWrapperScriptSafe` from `wrapper.ts`.
+- Unused imports (`COMPATIBLE_CLAUDE_VERSION`, `installPinnedClaude`, `getPinnedBinaryVersion`, `isThirdPartyApiBroken`, `PINNED_CLAUDE_BIN`) removed from `migration.ts`.
+- `config.ts` `loadConfig` backfill loop now handles `noUncheckedIndexedAccess` correctly (pre-existing TypeScript error).
+- `createBackup` changed from async to sync (had no `await` expressions — pre-existing lint warning).
+- Array `.sort()` / `.reverse()` calls in `migration.ts` and `config.ts` changed to `.toSorted()` / `.toReversed()` (pre-existing lint warnings).
+- Duplicate `existsSync` import in `test/wrapper.test.ts` merged into single import.
 
 ## [0.6.1] - 2026-05-29
 

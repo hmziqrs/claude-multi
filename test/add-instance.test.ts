@@ -28,6 +28,13 @@ function isClaudeInstalled(): boolean {
   }
 }
 
+const makeInstance = (name: string, base: string): Instance => ({
+  name,
+  configDir: join(base, `.claude-${name}`),
+  binaryPath: join(base, "bin", `claude-${name}`),
+  createdAt: new Date().toISOString(),
+});
+
 describe("handleAddInstance (component-level tests)", () => {
   let helper: AutoSyncTestHelper;
   let defaultClaudeDir: string;
@@ -101,13 +108,6 @@ describe("handleAddInstance (component-level tests)", () => {
 
   describe("addInstance — config isolation", () => {
     let testConfigDir: string;
-
-    const makeInstance = (name: string, base: string): Instance => ({
-      name,
-      configDir: join(base, `.claude-${name}`),
-      binaryPath: join(base, "bin", `claude-${name}`),
-      createdAt: new Date().toISOString(),
-    });
 
     beforeEach(() => {
       testConfigDir = mkdtempSync(join(tmpdir(), "claude-multi-cfg-test-"));

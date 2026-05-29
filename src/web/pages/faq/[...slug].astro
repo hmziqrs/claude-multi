@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const allEntries = (await getCollection('faq')).sort(
+const allEntries = (await getCollection('faq')).toSorted(
   (a, b) => a.data.order - b.data.order
 );
 const currentIndex = allEntries.findIndex((e) => e.id === entry.id);

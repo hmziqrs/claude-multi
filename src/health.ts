@@ -6,7 +6,7 @@ import { getBaseDir, PINNED_CLAUDE_BIN } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
-import { generateWrapperScriptSafe } from "@/wrapper";
+import { buildWrapperScript } from "@/wrapper";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings" | "version";
@@ -263,13 +263,8 @@ export function fixWrapperVersions(instances: Instance[]): string[] {
       const currentBin = shellMatch?.[1] ?? nodeMatch?.[1];
       if (!currentBin || currentBin === PINNED_CLAUDE_BIN) continue;
 
-      // Regenerate using canonical wrapper source
-      const newContent = generateWrapperScriptSafe({
-        name: inst.name,
-        configDir: inst.configDir,
-        binaryPath: inst.binaryPath,
-      });
-      if (newContent === null) continue;
+      // Regenerate using canonical template, explicitly targeting pinned binary
+      const newContent = buildWrapperScript(inst, PINNED_CLAUDE_BIN);
 
       // Only write if content actually differs
       if (content !== newContent) {

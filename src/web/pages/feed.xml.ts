@@ -16,7 +16,7 @@ export async function GET(context: APIContext) {
       'Run multiple Claude Code instances with different AI providers and isolated configurations',
     site: context.site,
     items: posts
-      .sort(
+      .toSorted(
         (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) =>
           b.data.date.valueOf() - a.data.date.valueOf(),
       )
