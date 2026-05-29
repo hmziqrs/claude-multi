@@ -12,6 +12,7 @@ import { WarningBanner } from "@/ink/components/WarningBanner";
 import { useConfig } from "@/ink/hooks/useConfig";
 import { useHealthCheck } from "@/ink/hooks/useHealthCheck";
 import { useFadeIn, useTypewriter } from "@/ink/hooks/useAnimations";
+import { useNavigation } from "@/ink/hooks/useNavigation";
 import { fixWrapperVersions } from "@/health";
 import { AddInstance } from "@/ink/screens/AddInstance";
 import { ListInstances } from "@/ink/screens/ListInstances";

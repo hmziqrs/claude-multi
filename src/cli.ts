@@ -29,13 +29,11 @@ import {
   mergeProviderEnv,
   listDefaultPlugins,
   listInstancePlugins,
-  copySinglePlugin,
   copySelectedPlugins,
   removeSinglePlugin,
   isPluginsSymlinked,
   detectMcpCollisions,
   type Instance,
-  type PluginInfo,
 } from "@/config";
 import {
   createWrapper,
@@ -45,7 +43,6 @@ import {
 import {
   checkForUpdates,
   updateClaudeCode,
-  getCurrentVersion,
   checkForClaudeMultiUpdates,
   upgradeClaudeMulti,
   getClaudeMultiVersion,

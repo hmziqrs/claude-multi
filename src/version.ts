@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import semver from "semver";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { detectPackageManager } from "@/util/runtime";
-import { PINNED_BIN_DIR, PINNED_CLAUDE_BIN } from "@/paths";
+import { PINNED_BIN_DIR } from "@/paths";
 
 export interface VersionInfo {
   current: string | null;

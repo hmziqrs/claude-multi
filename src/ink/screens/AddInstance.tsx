@@ -8,7 +8,6 @@ import { useNavigation } from "@/ink/hooks/useNavigation";
 import {
   useConfig,
   type Instance,
-  type PluginInfo,
 } from "@/ink/hooks/useConfig";
 import { removeInstance as removeInstanceFromConfig } from "@/config";
 import { removeWrapper } from "@/wrapper";

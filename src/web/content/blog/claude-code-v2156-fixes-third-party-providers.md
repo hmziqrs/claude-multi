@@ -3,6 +3,7 @@ title: "Claude Code v2.1.156 fixes the third-party provider breakage"
 description: "Anthropic shipped v2.1.156, which fixes the HTTP 422 error that broke every non-Anthropic API provider in v2.1.154 and v2.1.155. Here is what changed and what claude-multi users need to do."
 date: 2026-05-29
 tags: [Claude Code, third-party providers, compatibility, claude-multi]
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/claude-code-v2156-fixes-third-party-providers.mp3"
 ---
 
 # Claude Code v2.1.156 fixes the third-party provider breakage

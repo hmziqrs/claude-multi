@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 const isCapture = () =>
   process.env.CAPTURE_MODE === "1" || process.env.NODE_ENV === "test";

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   loadConfig,
-  saveConfig,
   addInstance as addInstanceToConfig,
   removeInstance as removeInstanceFromConfig,
   getInstance as getInstanceFromConfig,

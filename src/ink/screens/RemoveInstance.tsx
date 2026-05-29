@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Text, useApp } from "ink";
+import { Box, Text } from "ink";
 import { Select, ConfirmInput } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { StatusBar } from "@/ink/components/StatusBar";
@@ -58,7 +58,6 @@ const RemoveConfirm: React.FC<{
 };
 
 export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { exit } = useApp();
   const { instances, reload } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);

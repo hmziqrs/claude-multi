@@ -83,7 +83,7 @@ const McpSourceDetails: React.FC<{
 };
 
 export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, listMcpServers, copyMcpServersBetweenInstances, getInstanceMcpServers, getMcpServersFromPlugins, listInstancePlugins, setCustomMcpServer, removeCustomMcpServer } = useConfig();
+  const { instances, copyMcpServersBetweenInstances, getInstanceMcpServers, listInstancePlugins, setCustomMcpServer, removeCustomMcpServer } = useConfig();
   const [step, setStep] = useState<Step>("action");
   const [action, setAction] = useState<string | null>(null);
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
@@ -91,7 +91,6 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [mcpSources, setMcpSources] = useState<McpSource[]>([]);
   const { error, setError, success, setSuccess } = useMessage();
   const [customName, setCustomName] = useState("");
-  const [customConfig, setCustomConfig] = useState("");
 
   useNavigation(() => {
     if (step === "details" || step === "select" || step === "remove-select" || step === "add-name" || step === "add-config") {
@@ -177,8 +176,6 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const { fromPlugins, fromSettings } = await getInstanceMcpServers(inst.configDir);
 
-    // Get plugin names for MCP servers
-    const pluginMcpNames = Object.keys(fromPlugins);
     const pluginDir = inst.configDir;
     // Build a reverse map: mcpServerName -> pluginName
     const mcpToPlugin: Record<string, string> = {};

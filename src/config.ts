@@ -1,11 +1,11 @@
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, readlinkSync, rmSync, lstatSync, readFileSync, renameSync, writeFileSync, type Stats } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, readlinkSync, rmSync, lstatSync, readFileSync, renameSync, type Stats } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import type { ProviderTemplate } from "@/templates";
 import { applyProviderTemplate } from "@/templates";
-import { writeJsonFileAtomic, readJsonFileSafe } from "@/util/json-file";
+import { writeJsonFileAtomic } from "@/util/json-file";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { MigrationStatus, PluginCategory, McpServerType, PluginAction } from "@/constants";
 import chalk from "chalk";
@@ -110,47 +110,6 @@ function resolveSymlinkTarget(symlinkPath: string): string | null {
   } catch {
     return null;
   }
-}
-
-async function ensureDirSymlink(params: {
-  configDir: string;
-  sourceBaseDir: string;
-  dir: (typeof SYNC_DIRS)[number];
-  logLabel?: string;
-}): Promise<"linked" | "already" | "skipped"> {
-  const { configDir, sourceBaseDir, dir, logLabel } = params;
-  const targetPath = join(configDir, dir);
-  const sourcePath = join(sourceBaseDir, dir);
-
-  if (!existsSync(sourcePath)) {
-    if (logLabel) {
-      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${logLabel}, skipping`));
-    }
-    return "skipped";
-  }
-
-  const existing = lstatSafe(targetPath);
-  if (existing) {
-    if (existing.isSymbolicLink()) {
-      const resolvedExisting = resolveSymlinkTarget(targetPath);
-      if (resolvedExisting === sourcePath) {
-        if (logLabel) console.log(chalk.gray(`  ✓ ${dir} already synced`));
-        return "already";
-      }
-      rmSync(targetPath, { force: true });
-    } else {
-      rmSync(targetPath, { force: true, recursive: true });
-    }
-  }
-
-  const linkTarget = relative(configDir, sourcePath);
-  const type = process.platform === "win32" ? "junction" : "dir";
-  await symlink(linkTarget, targetPath, type);
-
-  if (logLabel) {
-    console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ${logLabel}/${dir}`));
-  }
-  return "linked";
 }
 
 export function ensureConfigDir(): void {
@@ -513,7 +472,7 @@ export async function detectMcpConfigurations(
       if (settings.mcpServers && typeof settings.mcpServers === "object") {
         return { mcpServers: settings.mcpServers };
       }
-    } catch (error: unknown) {
+    } catch {
       // Ignore parsing errors, continue to other files
     }
   }
@@ -531,7 +490,7 @@ export async function detectMcpConfigurations(
         if (mcpConfig.mcpServers && typeof mcpConfig.mcpServers === "object") {
           return mcpConfig as McpConfiguration;
         }
-      } catch (error: unknown) {
+      } catch {
         // Ignore parsing errors, continue to next file
       }
     }
@@ -603,7 +562,7 @@ async function writeMcpConfiguration(
       settings.mcpServers = mcpConfig.mcpServers;
       await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
       return;
-    } catch (error: unknown) {
+    } catch {
       // If we can't parse/update settings.json, fall back to separate file
     }
   }

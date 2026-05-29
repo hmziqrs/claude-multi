@@ -1,0 +1,51 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "import"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "require-await": "warn",
+    "no-shadow": "warn",
+    "no-underscore-dangle": "off",
+    "no-empty-file": "off",
+    "react-hooks/exhaustive-deps": "error"
+  },
+  "settings": {
+    "react": {
+      "version": "19.0"
+    }
+  },
+  "ignorePatterns": [
+    "dist",
+    "bin",
+    "node_modules"
+  ],
+  "overrides": [
+    {
+      "files": ["test/**", "*.test.ts", "*.test.tsx"],
+      "rules": {
+        "no-unused-vars": "off",
+        "require-await": "off"
+      }
+    },
+    {
+      "files": ["scripts/**"],
+      "rules": {
+        "no-control-regex": "off",
+        "no-new-array": "off"
+      }
+    }
+  ],
+  "env": {
+    "builtin": true
+  }
+}
