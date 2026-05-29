@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Text, useInput } from "ink";
+import { Box, Text, useApp, useInput } from "ink";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { StatusBar } from "@/ink/components/StatusBar";
@@ -65,6 +65,7 @@ function VersionCard({
 }
 
 export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { exit } = useApp();
   const fadeIn = useFadeIn();
   const { error, success, setError, setSuccess, clear } = useMessage();
 
@@ -74,9 +75,11 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [updatingTarget, setUpdatingTarget] = useState<string | null>(null);
 
   // Suppress ESC during loading/updating to prevent corrupted installs
-  useInput((_input, key) => {
+  useInput((input, key) => {
     if (key.escape && step === "result") {
       onBack();
+    } else if (input === "q") {
+      exit();
     }
   });
 
@@ -111,12 +114,16 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         await upgradeClaudeMulti();
         const updated = await checkForClaudeMultiUpdates();
         setMultiInfo(updated);
-        setSuccess(`claude-multi updated to v${updated.latest}`);
+        setSuccess(updated.latest
+          ? `claude-multi updated to v${updated.latest}`
+          : "claude-multi updated successfully");
       } else {
         await updateClaudeCode();
         const updated = await checkForUpdates();
         setClaudeInfo(updated);
-        setSuccess(`@anthropic-ai/claude-code updated to v${updated.latest}`);
+        setSuccess(updated.latest
+          ? `@anthropic-ai/claude-code updated to v${updated.latest}`
+          : "@anthropic-ai/claude-code updated successfully");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Update failed");

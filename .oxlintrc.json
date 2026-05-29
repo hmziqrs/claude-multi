@@ -16,8 +16,7 @@
     "require-await": "warn",
     "no-shadow": "warn",
     "no-underscore-dangle": "off",
-    "no-empty-file": "off",
-    "react-hooks/exhaustive-deps": "error"
+    "react/exhaustive-deps": "error"
   },
   "settings": {
     "react": {
@@ -40,8 +39,7 @@
     {
       "files": ["scripts/**"],
       "rules": {
-        "no-control-regex": "off",
-        "no-new-array": "off"
+        "no-control-regex": "off"
       }
     }
   ],

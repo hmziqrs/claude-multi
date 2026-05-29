@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 interface Message {
   text: string;
@@ -7,11 +7,14 @@ interface Message {
 
 export function useMessage() {
   const [message, setMessage] = useState<Message | null>(null);
+  const setError = useCallback((text: string) => setMessage({ text, type: "error" }), []);
+  const setSuccess = useCallback((text: string) => setMessage({ text, type: "success" }), []);
+  const clear = useCallback(() => setMessage(null), []);
   return {
     error: message?.type === "error" ? message.text : null,
     success: message?.type === "success" ? message.text : null,
-    setError: (text: string) => setMessage({ text, type: "error" }),
-    setSuccess: (text: string) => setMessage({ text, type: "success" }),
-    clear: () => setMessage(null),
+    setError,
+    setSuccess,
+    clear,
   };
 }

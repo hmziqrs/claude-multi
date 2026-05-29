@@ -50,12 +50,19 @@ const GoodbyeScreen: React.FC = () => {
 };
 
 // [SAFE PARK] Doctor result screen for pinned binary fix flow
-const DoctorResultScreen: React.FC<{ fixedCount: number; onBack: () => void }> = ({ fixedCount, onBack }) => {
+const DoctorResultScreen: React.FC<{ fixedCount: number; installFailed: boolean; onBack: () => void }> = ({ fixedCount, installFailed, onBack }) => {
   useNavigation(onBack);
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="🔧 Doctor Fix" />
-      {fixedCount > 0 ? (
+      {installFailed ? (
+        <>
+          <StatusBar message="Failed to install pinned Claude binary" type="error" />
+          <Box marginTop={1}>
+            <Text dimColor>Check your network connection and try again.</Text>
+          </Box>
+        </>
+      ) : fixedCount > 0 ? (
         <>
           <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude v${COMPATIBLE_CLAUDE_VERSION}!`} type="success" />
           <Box marginTop={1}>
@@ -93,6 +100,7 @@ export const App: React.FC = () => {
   const [menuKey, setMenuKey] = useState(0);
   const [ccVersion, setCcVersion] = useState<string | null>(null);
   const [doctorFixedCount, setDoctorFixedCount] = useState(0);
+  const [doctorInstallFailed, setDoctorInstallFailed] = useState(false);
 
   useEffect(() => {
     try {
@@ -137,16 +145,18 @@ export const App: React.FC = () => {
         onRetry={retry}
         onFix={() => {
           // [SAFE PARK] Ensure pinned binary is installed before fixing
+          let installFailed = false;
           if (!existsSync(PINNED_CLAUDE_BIN)) {
-            try { installPinnedClaude(); } catch { /* show result */ }
+            try { installPinnedClaude(); } catch { installFailed = true; }
           } else {
             const pinnedVer = getPinnedBinaryVersion();
             if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
-              try { installPinnedClaude(); } catch { /* show result */ }
+              try { installPinnedClaude(); } catch { installFailed = true; }
             }
           }
-          const fixed = fixWrapperVersions(instances);
+          const fixed = installFailed ? [] : fixWrapperVersions(instances);
           setDoctorFixedCount(fixed.length);
+          setDoctorInstallFailed(installFailed);
           retry();
         }}
         onBack={goToMenu}
@@ -155,7 +165,7 @@ export const App: React.FC = () => {
   }
 
   if (screen === "doctor-result") {
-    return <DoctorResultScreen fixedCount={doctorFixedCount} onBack={goToMenu} />;
+    return <DoctorResultScreen fixedCount={doctorFixedCount} installFailed={doctorInstallFailed} onBack={goToMenu} />;
   }
 
   if (screen !== "menu") {
@@ -231,16 +241,18 @@ export const App: React.FC = () => {
             setScreen("health");
           } else if (value === "doctor-fix") {
             // [SAFE PARK] Ensure pinned binary is installed before fixing
+            let installFailed = false;
             if (!existsSync(PINNED_CLAUDE_BIN)) {
-              try { installPinnedClaude(); } catch { /* show result */ }
+              try { installPinnedClaude(); } catch { installFailed = true; }
             } else {
               const pinnedVer = getPinnedBinaryVersion();
               if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
-                try { installPinnedClaude(); } catch { /* show result */ }
+                try { installPinnedClaude(); } catch { installFailed = true; }
               }
             }
-            const fixed = fixWrapperVersions(instances);
+            const fixed = installFailed ? [] : fixWrapperVersions(instances);
             setDoctorFixedCount(fixed.length);
+            setDoctorInstallFailed(installFailed);
             if (fixed.length > 0) {
               retry();
             }

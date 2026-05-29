@@ -21,6 +21,7 @@
     "docs:dev": "astro dev",
     "docs:build": "astro build",
     "docs:preview": "astro preview",
+    "docs:typecheck": "astro check",
     "ci:docs:deploy": "gh workflow run deploy-docs.yml",
     "ci:publish": "gh workflow run publish.yml -f version=$(node -p \"require('./package.json').version\")",
     "ci:test-install": "gh workflow run test-install.yml",
@@ -48,6 +49,7 @@
     "url": "https://github.com/hmziqrs/claude-multi/issues"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@astrojs/starlight": "^0.39.2",
     "@astrojs/tailwind": "^6.0.2",
     "@inkjs/ui": "^2.0.0",
@@ -56,7 +58,7 @@
     "@types/prompts": "^2.4.9",
     "@types/react": "^19.2.14",
     "@types/semver": "^7.7.1",
-    "astro": "^6.3.3",
+    "astro": "^6.4.2",
     "bun-types": "latest",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
@@ -72,7 +74,7 @@
     "react-devtools-core": "^7.0.1",
     "tailwindcss": "^4.3.0",
     "three": "^0.184.0",
-    "typescript": "^5.8.0"
+    "typescript": "^6.0.3"
   },
   "engines": {
     "node": ">=18.0.0",
