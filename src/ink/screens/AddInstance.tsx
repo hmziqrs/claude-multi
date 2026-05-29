@@ -422,6 +422,9 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         createdAt: new Date().toISOString(),
         autoSync: sync,
         createdWithVersion: getClaudeMultiVersion(),
+        ...(state.selectedRegion && state.useProvider && state.selectedProvider && providerHasRegions(state.selectedProvider)
+          ? { providerRegion: state.selectedRegion }
+          : {}),
       };
 
       await cfg.addInstance(instance);

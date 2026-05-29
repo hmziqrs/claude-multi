@@ -847,5 +847,188 @@ describe("Migration", () => {
       const result = await runInstanceMigrations(config);
       expect(result.instances[0]!.providerTemplate).toBeUndefined();
     });
+
+    test("preserves mimo-token SGP base URL during migration", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-mimo-sgp");
+      mkdirSync(instDir, { recursive: true });
+
+      // Write settings with SGP region URL (should NOT be overwritten with cn)
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-sgp-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "mimo-sgp",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "mimo-sgp"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // The SGP URL MUST be preserved — not overwritten with cn default
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      // Template vars should still be updated
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      // API key must survive
+      expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-sgp-key");
+    });
+
+    test("preserves mimo-token AMS base URL during migration", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-mimo-ams");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-ams-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-ams.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "mimo-ams",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "mimo-ams"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-ams.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-ams-key");
+    });
+
+    test("keeps cn default URL for mimo-token without region override", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-mimo-cn");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-cn-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-cn.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "mimo-cn",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "mimo-cn"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-cn.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+    });
+
+    test("backfills providerRegion from detected base URL", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-region-backfill");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "region-backfill",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "region-backfill"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      const result = await runInstanceMigrations(config);
+      expect(result.instances[0]!.providerRegion).toBe("sgp");
+      expect(result.instances[0]!.providerTemplate).toBe("mimo-token");
+    });
+
+    test("uses stored providerRegion instead of detecting from URL", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-stored-region");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "stored-region",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "stored-region"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+          providerTemplate: "mimo-token",
+          providerRegion: "sgp",
+        }],
+      });
+
+      const result = await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // Should use the stored region (sgp), not fall back to cn
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      // providerRegion should remain unchanged
+      expect(result.instances[0]!.providerRegion).toBe("sgp");
+    });
   });
 });

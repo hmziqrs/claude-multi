@@ -235,6 +235,18 @@ export function providerHasRegions(providerName: string): boolean {
   return providerName === "mimo-token";
 }
 
+/**
+ * Detect the region code from a regional provider's base URL.
+ * Returns null if the URL doesn't match a known region pattern.
+ */
+export function detectRegionFromBaseUrl(baseUrl: string): string | null {
+  const match = baseUrl.match(/^https:\/\/token-plan-([a-z]+)\.xiaomimimo\.com\/anthropic$/);
+  if (match?.[1] && match[1] in MIMO_TOKEN_REGIONS) {
+    return match[1];
+  }
+  return null;
+}
+
 export function resolveRegionTemplate(
   template: ProviderTemplate,
   region: string,

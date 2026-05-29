@@ -136,6 +136,7 @@ program
         let providerTemplate: ProviderTemplate | null | undefined = null;
         let apiKey = "";
         let autoSync = !options.manual;
+        let providerRegion: string | undefined;
 
         // Handle provider template in CLI mode
         if (options.provider) {
@@ -161,6 +162,7 @@ program
 
           if (providerHasRegions(providerTemplate.name)) {
             const region = options.region || "cn";
+            providerRegion = region;
             try {
               providerTemplate = resolveRegionTemplate(providerTemplate, region);
             } catch (err: unknown) {
@@ -245,6 +247,7 @@ program
           createdAt: new Date().toISOString(),
           autoSync,
           createdWithVersion: getClaudeMultiVersion(),
+          ...(providerRegion ? { providerRegion } : {}),
         };
 
         await addInstance(instance);

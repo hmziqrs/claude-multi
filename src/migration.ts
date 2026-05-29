@@ -6,7 +6,7 @@ import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
-import { detectProvider, getProviderTemplate } from "@/templates";
+import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl } from "@/templates";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -63,7 +63,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
       const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
       if (!providerName) return Promise.resolve(instance);
 
-      const template = getProviderTemplate(providerName);
+      let template = getProviderTemplate(providerName);
       if (!template) return Promise.resolve(instance);
 
       // Read existing API key and settings before re-applying template
@@ -74,6 +74,20 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         const existing = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
         const existingEnv = (existing.env as Record<string, string>) ?? {};
         const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
+        const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
+
+        // For regional providers, resolve the correct regional template
+        // so the migration uses the right base URL instead of the default (cn)
+        if (providerHasRegions(providerName) && existingBaseUrl) {
+          const detectedRegion = instance.providerRegion ?? detectRegionFromBaseUrl(existingBaseUrl);
+          if (detectedRegion) {
+            template = resolveRegionTemplate(template, detectedRegion);
+            // Backfill providerRegion for future migrations
+            if (!instance.providerRegion) {
+              instance.providerRegion = detectedRegion;
+            }
+          }
+        }
 
         // Build new env from template, preserve API key
         const templateSettings = structuredClone(template.settings);
