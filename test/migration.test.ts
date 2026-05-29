@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync 
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Config } from "@/config";
+import { getClaudeMultiVersion } from "@/version";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -270,13 +271,13 @@ describe("Migration", () => {
 
       test("returns true when instanceMigrationVersion is behind", async () => {
         const { needsInstanceMigration } = await import("@/migration");
-        const config = makeConfig({ instanceMigrationVersion: "0" });
+        const config = makeConfig({ instanceMigrationVersion: "0.1.0" });
         expect(needsInstanceMigration(config)).toBe(true);
       });
 
       test("returns false when instanceMigrationVersion is current", async () => {
-        const { needsInstanceMigration, INSTANCE_MIGRATION_VERSION } = await import("@/migration");
-        const config = makeConfig({ instanceMigrationVersion: INSTANCE_MIGRATION_VERSION });
+        const { needsInstanceMigration } = await import("@/migration");
+        const config = makeConfig({ instanceMigrationVersion: getClaudeMultiVersion() });
         expect(needsInstanceMigration(config)).toBe(false);
       });
     });
@@ -322,18 +323,18 @@ describe("Migration", () => {
       });
 
       test("updates instanceMigrationVersion on success", async () => {
-        const { runInstanceMigrations, INSTANCE_MIGRATION_VERSION } = await import("@/migration");
+        const { runInstanceMigrations } = await import("@/migration");
 
         const cmDir = join(testDir, ".claude-multi");
         mkdirSync(cmDir, { recursive: true });
 
         const config = makeConfig();
         const result = await runInstanceMigrations(config);
-        expect(result.instanceMigrationVersion).toBe(INSTANCE_MIGRATION_VERSION);
+        expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
       });
 
       test("is idempotent", async () => {
-        const { runInstanceMigrations, INSTANCE_MIGRATION_VERSION, LEGACY_INSTANCE_VERSION } = await import("@/migration");
+        const { runInstanceMigrations, LEGACY_INSTANCE_VERSION } = await import("@/migration");
 
         const cmDir = join(testDir, ".claude-multi");
         mkdirSync(cmDir, { recursive: true });
@@ -349,19 +350,19 @@ describe("Migration", () => {
 
         const first = await runInstanceMigrations(config);
         const second = await runInstanceMigrations(first);
-        expect(second.instanceMigrationVersion).toBe(INSTANCE_MIGRATION_VERSION);
+        expect(second.instanceMigrationVersion).toBe(getClaudeMultiVersion());
         expect(second.instances[0]!.createdWithVersion).toBe(LEGACY_INSTANCE_VERSION);
       });
 
       test("handles empty instances array", async () => {
-        const { runInstanceMigrations, INSTANCE_MIGRATION_VERSION } = await import("@/migration");
+        const { runInstanceMigrations } = await import("@/migration");
 
         const cmDir = join(testDir, ".claude-multi");
         mkdirSync(cmDir, { recursive: true });
 
         const config = makeConfig({ instances: [] });
         const result = await runInstanceMigrations(config);
-        expect(result.instanceMigrationVersion).toBe(INSTANCE_MIGRATION_VERSION);
+        expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
         expect(result.instances).toHaveLength(0);
       });
 

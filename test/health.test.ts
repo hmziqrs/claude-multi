@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Instance } from "@/config";
 import { PINNED_CLAUDE_BIN } from "@/paths";
+import { getClaudeMultiVersion } from "@/version";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -57,7 +58,7 @@ describe("Health Check", () => {
       writeFileSync(inst.binaryPath, "#!/bin/sh");
       writeFileSync(join(inst.configDir, "settings.json"), "{}");
 
-      const issues = runHealthChecks([inst]);
+      const issues = runHealthChecks([inst], undefined, getClaudeMultiVersion());
       expect(issues.length).toBe(0);
     });
 
@@ -116,14 +117,14 @@ describe("Health Check", () => {
       const { runHealthChecks } = await import("@/health");
       const inst = makeInstance({ configDir: join(testDir, "nonexistent") });
 
-      const issues = runHealthChecks([inst]);
+      const issues = runHealthChecks([inst], undefined, getClaudeMultiVersion());
       expect(issues.length).toBe(1);
       expect(issues[0]!.id).toBe("configdir-missing-test-inst");
     });
 
     test("handles empty instance list", async () => {
       const { runHealthChecks } = await import("@/health");
-      const issues = runHealthChecks([]);
+      const issues = runHealthChecks([], undefined, getClaudeMultiVersion());
       expect(issues).toEqual([]);
     });
 
@@ -397,6 +398,30 @@ describe("Health Check", () => {
       for (const issue of status.issues) {
         expect(issue.dismissed).toBe(true);
       }
+    });
+  });
+
+  describe("instance migration detection", () => {
+    test("detects pending instance migrations when version is behind", async () => {
+      const { runHealthChecks } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+
+      const issues = runHealthChecks([inst], undefined, "0.1.0");
+      const pendingIssue = issues.find(i => i.id === "instance-migrations-pending");
+      expect(pendingIssue).toBeDefined();
+      expect(pendingIssue!.severity).toBe("warning");
+      expect(pendingIssue!.category).toBe("migration");
+    });
+
+    test("no pending migration warning when version is current", async () => {
+      const { runHealthChecks } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+
+      const issues = runHealthChecks([inst], undefined, getClaudeMultiVersion());
+      const pendingIssue = issues.find(i => i.id === "instance-migrations-pending");
+      expect(pendingIssue).toBeUndefined();
     });
   });
 });

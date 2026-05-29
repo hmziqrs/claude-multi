@@ -542,6 +542,8 @@ program
       const { existsSync } = await import("node:fs");
       const { PINNED_CLAUDE_BIN } = await import("@/paths");
       const { installPinnedClaude, getPinnedBinaryVersion, isThirdPartyApiBroken, COMPATIBLE_CLAUDE_VERSION } = await import("@/version");
+      const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
+      const { loadConfig, saveConfigAtomic } = await import("@/config");
 
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
@@ -573,11 +575,34 @@ program
           console.log(chalk.gray("  All wrappers already use the correct Claude version"));
         }
 
+        // Instance migrations
+        const fullConfig = await loadConfig();
+        if (needsInstanceMigration(fullConfig)) {
+          const currentVersion = getClaudeMultiVersion();
+          console.log(chalk.cyan(`\nInstance migrations available:`));
+          for (const inst of fullConfig.instances) {
+            const from = inst.createdWithVersion || "no version";
+            console.log(chalk.gray(`  • ${inst.name}: ${from} → v${currentVersion}`));
+          }
+          const response = await prompts({
+            type: "confirm",
+            name: "confirm",
+            message: "Run instance migrations?",
+            initial: true,
+          });
+          if (response.confirm) {
+            const migrated = await runInstanceMigrations(fullConfig);
+            await saveConfigAtomic(migrated);
+            console.log(chalk.green(`✓ Migrated ${fullConfig.instances.length} instance(s) to v${currentVersion}`));
+          }
+        }
+
         console.log(chalk.green("\n✓ Doctor fix complete!"));
       } else {
         // Check mode
         console.log(chalk.bold("\n🔍 Doctor Check\n"));
-        const issues = runHealthChecks(instances);
+        const fullConfig = await loadConfig();
+        const issues = runHealthChecks(instances, undefined, fullConfig.instanceMigrationVersion);
 
         if (issues.length === 0) {
           console.log(chalk.green("✓ No issues found!"));

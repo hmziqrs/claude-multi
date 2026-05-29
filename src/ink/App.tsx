@@ -94,8 +94,8 @@ const InstanceLine: React.FC<{ instances: { name: string }[] }> = ({ instances }
 
 export const App: React.FC = () => {
   const { exit } = useApp();
-  const { instances, loading, migrationStatus } = useConfig();
-  const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus);
+  const { instances, loading, migrationStatus, instanceMigrationVersion } = useConfig();
+  const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus, instanceMigrationVersion);
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
   const [ccVersion, setCcVersion] = useState<string | null>(null);

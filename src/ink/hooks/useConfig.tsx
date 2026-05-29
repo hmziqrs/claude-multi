@@ -108,6 +108,7 @@ export function useConfig() {
     removeInstance,
     toggleAutoSync,
     migrationStatus,
+    instanceMigrationVersion: config?.instanceMigrationVersion,
     getInstance: getInstanceFromConfig,
     listInstances: listInstancesFromConfig,
     hasDefaultConfig: hasDefaultClaudeConfig,

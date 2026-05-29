@@ -144,15 +144,21 @@ export async function loadConfig(): Promise<Config> {
   }
 
   // Run migration if needed
-  const { needsMigration, runMigration, needsInstanceMigration, runInstanceMigrations } = await import("./migration.js");
+  const { needsMigration, runMigration, LEGACY_INSTANCE_VERSION } = await import("./migration.js");
   if (needsMigration(config)) {
     config = await runMigration(config);
     await saveConfigAtomic(config);
   }
 
-  // Run instance-level migrations if needed
-  if (needsInstanceMigration(config)) {
-    config = await runInstanceMigrations(config);
+  // Auto-backfill missing createdWithVersion (default value, not a migration)
+  let backfilled = false;
+  for (let i = 0; i < config.instances.length; i++) {
+    if (!config.instances[i].createdWithVersion) {
+      config.instances[i] = { ...config.instances[i], createdWithVersion: LEGACY_INSTANCE_VERSION };
+      backfilled = true;
+    }
+  }
+  if (backfilled) {
     await saveConfigAtomic(config);
   }
 

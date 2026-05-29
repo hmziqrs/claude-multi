@@ -4,6 +4,7 @@ import { detectBrokenSymlinks } from "@/config";
 import type { Instance } from "@/config";
 import { getBaseDir, PINNED_CLAUDE_BIN } from "@/paths";
 import { MigrationStatus } from "@/constants";
+import { getClaudeMultiVersion } from "@/version";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings" | "version";
@@ -32,9 +33,29 @@ function getHealthFile() { return join(getBaseDir(), ".claude-multi", "health-st
 export function runHealthChecks(
   instances: Instance[],
   migrationStatus?: { migrationStatus: string; failureInfo?: { error: string } } | null,
+  instanceMigrationVersion?: string,
 ): HealthIssue[] {
   const now = new Date().toISOString();
   const issues: HealthIssue[] = [];
+
+  const currentVersion = getClaudeMultiVersion();
+
+  // Check for pending instance migrations
+  if (instanceMigrationVersion !== currentVersion) {
+    issues.push({
+      id: "instance-migrations-pending",
+      severity: "warning",
+      category: "migration",
+      title: "Instance migrations pending",
+      message: `Instance schema is v${instanceMigrationVersion || "0.0.0"}, current is v${currentVersion}`,
+      detail: null,
+      instanceName: null,
+      timestamp: now,
+      dismissed: false,
+      resolved: false,
+      resolutionHint: "Run 'claude-multi doctor fix' to migrate",
+    });
+  }
 
   // Check migration status
   if (migrationStatus?.migrationStatus === MigrationStatus.Failed) {
@@ -159,6 +180,23 @@ export function runHealthChecks(
       } catch {
         // Can't read wrapper — skip
       }
+    }
+
+    // Instance on older version
+    if (inst.createdWithVersion && inst.createdWithVersion !== "0.5" && inst.createdWithVersion !== currentVersion) {
+      issues.push({
+        id: `instance-outdated-${inst.name}`,
+        severity: "info",
+        category: "version",
+        title: "Instance on older version",
+        message: `Instance '${inst.name}' created with v${inst.createdWithVersion}, current is v${currentVersion}`,
+        detail: null,
+        instanceName: inst.name,
+        timestamp: now,
+        dismissed: false,
+        resolved: false,
+        resolutionHint: "Run 'claude-multi doctor fix' to migrate",
+      });
     }
   }
 

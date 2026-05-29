@@ -1,12 +1,13 @@
 import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
+import semver from "semver";
 import type { Config, Instance, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
+import { getClaudeMultiVersion } from "@/version";
 
 export const CONFIG_VERSION = "2.0.0";
 
-export const INSTANCE_MIGRATION_VERSION = "1";
 export const LEGACY_INSTANCE_VERSION = "0.5";
 
 export interface InstanceMigration {
@@ -17,7 +18,7 @@ export interface InstanceMigration {
 
 const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   {
-    version: "1",
+    version: "0.6.1",
     description: "Backfill createdWithVersion on instances created before version tracking",
     migrate: async (instance) => {
       if (!instance.createdWithVersion) {
@@ -29,8 +30,12 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
 ];
 
 export function needsInstanceMigration(config: Config): boolean {
-  const current = config.instanceMigrationVersion || "0";
-  return INSTANCE_MIGRATIONS.some(m => m.version > current);
+  const current = getClaudeMultiVersion();
+  const stored = config.instanceMigrationVersion;
+  if (!stored) return INSTANCE_MIGRATIONS.length > 0;
+  const storedCoerced = semver.coerce(stored);
+  if (!storedCoerced) return INSTANCE_MIGRATIONS.length > 0;
+  return INSTANCE_MIGRATIONS.some(m => semver.gt(m.version, storedCoerced) && semver.lte(m.version, current));
 }
 
 export async function runInstanceMigrations(config: Config): Promise<Config> {
@@ -41,10 +46,11 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
   try {
     await createBackup(config);
 
-    const currentVersion = config.instanceMigrationVersion || "0";
+    const currentVersion = getClaudeMultiVersion();
+    const stored = semver.coerce(config.instanceMigrationVersion || "0.0.0");
     const applicable = INSTANCE_MIGRATIONS
-      .filter(m => m.version > currentVersion)
-      .sort((a, b) => a.version.localeCompare(b.version));
+      .filter(m => stored ? (semver.gt(m.version, stored) && semver.lte(m.version, currentVersion)) : true)
+      .sort((a, b) => semver.compare(a.version, b.version));
 
     for (const migration of applicable) {
       for (let i = 0; i < config.instances.length; i++) {
@@ -53,7 +59,7 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
       }
     }
 
-    config.instanceMigrationVersion = applicable[applicable.length - 1]?.version ?? currentVersion;
+    config.instanceMigrationVersion = currentVersion;
     return config;
   } finally {
     releaseLock();
