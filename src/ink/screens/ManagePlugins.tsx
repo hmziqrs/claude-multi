@@ -91,7 +91,8 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     if (!inst) return;
 
     // Check symlink state for operations that modify plugins
-    if ([PluginAction.Install, PluginAction.Remove, PluginAction.Enable, PluginAction.Disable].includes(action ?? "" as PluginAction)) {
+    const modifiesPlugins = action === PluginAction.Install || action === PluginAction.Remove || action === PluginAction.Enable || action === PluginAction.Disable;
+    if (modifiesPlugins) {
       if (isPluginsSymlinked(inst.configDir)) {
         setStep("symlink-warning");
         return;

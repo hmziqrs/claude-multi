@@ -157,7 +157,10 @@ export const App: React.FC = () => {
           const fixed = installFailed ? [] : fixWrapperVersions(instances);
           setDoctorFixedCount(fixed.length);
           setDoctorInstallFailed(installFailed);
-          retry();
+          if (fixed.length > 0) {
+            retry();
+          }
+          setScreen("doctor-result");
         }}
         onBack={goToMenu}
       />

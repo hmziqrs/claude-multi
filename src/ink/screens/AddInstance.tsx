@@ -116,13 +116,13 @@ function getVisibleSteps(state: WizardState): Step[] {
 function getPrevStep(current: Step, state: WizardState): Step | null {
   const visible = getVisibleSteps(state);
   const idx = visible.indexOf(current);
-  return idx > 0 ? visible[idx - 1] : null;
+  return idx > 0 ? (visible[idx - 1] ?? null) : null;
 }
 
 function getNextStep(current: Step, state: WizardState): Step | null {
   const visible = getVisibleSteps(state);
   const idx = visible.indexOf(current);
-  return idx >= 0 && idx < visible.length - 1 ? visible[idx + 1] : null;
+  return idx >= 0 && idx < visible.length - 1 ? (visible[idx + 1] ?? null) : null;
 }
 
 function getVisibleStepCount(state: WizardState): number {
@@ -230,33 +230,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     setStep(Step.CopyOptions);
   }, []);
 
-  const handleCopyOption = useCallback((value: string) => {
-    setCopyOption(value);
-    if (value === CopyOption.SelectPlugins) {
-      setStep(Step.SelectPlugins);
-    } else if (value === CopyOption.All) {
-      setStep(Step.Autosync);
-    } else {
-      doCreate(value, false);
-    }
-  }, [name, useProvider, selectedProvider, apiKey]);
-
-  const handlePluginSelection = useCallback((ids: string[]) => {
-    if (ids.length === 0) {
-      setError("Select at least one plugin, or go back and choose a different option.");
-      return;
-    }
-    setSelectedPluginIds(ids);
-    setError("");
-    setStep(Step.Autosync);
-  }, []);
-
-  const handleAutoSyncConfirm = useCallback((confirmed: boolean) => {
-    setAutoSync(confirmed);
-    doCreate(copyOption, confirmed);
-  }, [copyOption, selectedPluginIds]);
-
-  const doCreate = async (copyOpt: string, sync: boolean) => {
+  const doCreate = useCallback(async (copyOpt: string, sync: boolean) => {
     setStep(Step.Creating);
     setError("");
 
@@ -308,7 +282,33 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       setError(err instanceof Error ? err.message : String(err));
       setStep(Step.Name);
     }
-  };
+  }, [name, apiKey, selectedProvider, selectedRegion, selectedPluginIds, useProvider, defaultPlugins, cfg]);
+
+  const handleCopyOption = useCallback((value: string) => {
+    setCopyOption(value);
+    if (value === CopyOption.SelectPlugins) {
+      setStep(Step.SelectPlugins);
+    } else if (value === CopyOption.All) {
+      setStep(Step.Autosync);
+    } else {
+      doCreate(value, false);
+    }
+  }, [doCreate]);
+
+  const handlePluginSelection = useCallback((ids: string[]) => {
+    if (ids.length === 0) {
+      setError("Select at least one plugin, or go back and choose a different option.");
+      return;
+    }
+    setSelectedPluginIds(ids);
+    setError("");
+    setStep(Step.Autosync);
+  }, []);
+
+  const handleAutoSyncConfirm = useCallback((confirmed: boolean) => {
+    setAutoSync(confirmed);
+    doCreate(copyOption, confirmed);
+  }, [copyOption, doCreate]);
 
   const hasDefaultConfig = cfg.hasDefaultConfig();
 

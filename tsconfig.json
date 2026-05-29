@@ -12,7 +12,6 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] },
     "verbatimModuleSyntax": true,
     "noEmit": true,

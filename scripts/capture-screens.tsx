@@ -334,7 +334,7 @@ const screens: Record<string, React.ReactElement> = {
 };
 
 // 256-color palette (Catppuccin Mocha theme)
-const COLOR_256: string[] = new Array(256);
+const COLOR_256: string[] = Array.from({ length: 256 });
 const palette16 = [
   "#555","#e06c75","#98c379","#e5c07b","#61afef","#c678dd","#56b6c2","#abb2bf",
   "#636d83","#e06c75","#98c379","#e5c07b","#61afef","#c678dd","#56b6c2","#cdd6f4",

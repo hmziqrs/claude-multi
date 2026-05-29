@@ -48,7 +48,7 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
 
     for (const migration of applicable) {
       for (let i = 0; i < config.instances.length; i++) {
-        const migrated = await migration.migrate({ ...config.instances[i] }, config);
+        const migrated = await migration.migrate({ ...config.instances[i] } as Instance, config);
         config.instances[i] = migrated;
       }
     }

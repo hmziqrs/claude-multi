@@ -1,3 +1,6 @@
+declare const Bun: object | undefined;
+declare const Deno: object | undefined;
+
 export type PackageManager = 'bun' | 'deno' | 'pnpm' | 'npm';
 
 export function detectPackageManager(): PackageManager {
