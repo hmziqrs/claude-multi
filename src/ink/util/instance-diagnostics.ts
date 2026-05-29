@@ -10,6 +10,7 @@ import {
   getProviderRegions,
 } from "@/templates";
 import { generateWrapperScriptSafe } from "@/wrapper";
+import { TUNABLE_ENV_VARS } from "@/constants/env";
 
 export type TemplateMismatchStatus = "match" | "mismatch" | "unknown";
 export type WrapperMismatchStatus = "match" | "mismatch" | "missing" | "unknown";
@@ -22,21 +23,6 @@ export interface TemplateDiagnostic {
 export interface WrapperDiagnostic {
   status: WrapperMismatchStatus;
 }
-
-/**
- * Env vars that the user may have intentionally customized.
- * These are excluded from template mismatch comparison — they are
- * preserved during template sync but don't indicate staleness.
- */
-const TUNABLE_ENV_VARS = new Set([
-  "MAX_OUTPUT_TOKENS",
-  "MAX_THINKING_TOKENS",
-  "REASONING_EFFORT",
-  "ENABLE_THINKING",
-  "ENABLE_STREAMING",
-  "API_TIMEOUT_MS",
-  "CLAUDE_CODE_EFFORT_LEVEL",
-]);
 
 /**
  * Safely resolve a regional template. Returns null if the region is invalid

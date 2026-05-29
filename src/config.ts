@@ -16,6 +16,7 @@ import {
 import { writeJsonFileAtomic } from "@/util/json-file";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { MigrationStatus, PluginCategory, McpServerType, PluginAction } from "@/constants";
+import { TUNABLE_ENV_VARS } from "@/constants/env";
 import chalk from "chalk";
 
 export interface McpServer {
@@ -773,11 +774,6 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
   }
 
   // Preserve user-tunable env vars that differ from the template default
-  const TUNABLE_ENV_VARS = new Set([
-    "MAX_OUTPUT_TOKENS", "MAX_THINKING_TOKENS", "REASONING_EFFORT",
-    "ENABLE_THINKING", "ENABLE_STREAMING", "API_TIMEOUT_MS",
-    "CLAUDE_CODE_EFFORT_LEVEL",
-  ]);
   for (const key of TUNABLE_ENV_VARS) {
     if (key in existingEnv && existingEnv[key] !== (templateSettings.env as Record<string, string>)[key]) {
       newEnv[key] = existingEnv[key]!;

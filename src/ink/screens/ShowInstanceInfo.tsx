@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Box, Text, useInput } from "ink";
+import { Box, Text, useInput, useApp } from "ink";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { StatusBar } from "@/ink/components/StatusBar";
@@ -71,6 +71,7 @@ function wrapperStatusLabel(status: WrapperMismatchStatus): string {
 }
 
 export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const { exit } = useApp();
   const { instances, listInstancePlugins, getInstanceMcpServers, syncTemplateEnv, regenerateWrapper } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);
@@ -111,9 +112,15 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     }
   }, [listInstancePlugins, getInstanceMcpServers]);
 
-  useInput((_input, key) => {
+  useInput((input, key) => {
     // Block ALL input while an action is executing
     if (executing) return;
+
+    // q to quit — consistent with useNavigation used by all other screens
+    if (input === "q") {
+      exit();
+      return;
+    }
 
     if (key.escape) {
       if (step === "info") {
@@ -199,16 +206,21 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   };
 
   const buildActionOptions = (): Array<{ label: string; value: string }> => {
-    const options: Array<{ label: string; value: string }> = [
-      {
+    const options: Array<{ label: string; value: string }> = [];
+
+    // Only show template sync when a provider is detected — it will always
+    // fail for instances without a provider template
+    if (providerName) {
+      options.push({
         label: `🔄 Update settings template  [${templateStatusLabel(templateStatus)}]`,
         value: ACTION_VALUES.SyncTemplate,
-      },
-      {
-        label: `🔧 Update alias wrapper  [${wrapperStatusLabel(wrapperStatus)}]`,
-        value: ACTION_VALUES.UpdateWrapper,
-      },
-    ];
+      });
+    }
+
+    options.push({
+      label: `🔧 Update alias wrapper  [${wrapperStatusLabel(wrapperStatus)}]`,
+      value: ACTION_VALUES.UpdateWrapper,
+    });
 
     // Show override option only when wrapper is mismatched or missing
     if (wrapperStatus === "mismatch" || wrapperStatus === "missing") {
@@ -345,18 +357,20 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
           <Box gap={2}>
             <Text dimColor>Enter for actions</Text>
             <Text dimColor>ESC to go back</Text>
+            <Text dimColor>q quit</Text>
           </Box>
         )}
         {step === "actions" && (
-          <Text dimColor>↑↓ navigate │ Enter select │ ESC back</Text>
+          <Text dimColor>↑↓ navigate │ Enter select │ ESC back │ q quit</Text>
         )}
         {step === "result" && (
           <Box gap={2}>
             <Text dimColor>Enter/ESC to return</Text>
+            <Text dimColor>q quit</Text>
           </Box>
         )}
         {step === "select" && (
-          <Text dimColor>ESC to go back</Text>
+          <Text dimColor>ESC to go back │ q quit</Text>
         )}
       </Box>
     </Box>
