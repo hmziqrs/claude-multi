@@ -5,6 +5,7 @@ import { useNavigation } from "@/ink/hooks/useNavigation";
 import { useConfig } from "@/ink/hooks/useConfig";
 import { InstanceSelectMenu } from "@/ink/components/InstanceSelectMenu";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
+import { LEGACY_INSTANCE_VERSION } from "@/migration";
 
 type Step = "select" | "info";
 
@@ -101,10 +102,10 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
             />
             <DetailRow
               label="Version"
-              value={selected.createdWithVersion === "0.5"
+              value={selected.createdWithVersion === LEGACY_INSTANCE_VERSION
                 ? "before version tracking"
                 : selected.createdWithVersion}
-              color={selected.createdWithVersion === "0.5" ? "yellow" : undefined}
+              color={selected.createdWithVersion === LEGACY_INSTANCE_VERSION ? "yellow" : undefined}
               delay={250}
             />
             {pluginCount !== null && (

@@ -17,16 +17,12 @@ export interface InstanceMigration {
 }
 
 const INSTANCE_MIGRATIONS: InstanceMigration[] = [
-  {
-    version: "0.6.1",
-    description: "Backfill createdWithVersion on instances created before version tracking",
-    migrate: async (instance) => {
-      if (!instance.createdWithVersion) {
-        return { ...instance, createdWithVersion: LEGACY_INSTANCE_VERSION };
-      }
-      return instance;
-    },
-  },
+  // Future migrations go here. Example:
+  // {
+  //   version: "0.7.0",
+  //   description: "Update .claude.json migrationVersion for new Claude Code versions",
+  //   migrate: async (instance) => { ... },
+  // },
 ];
 
 export function needsInstanceMigration(config: Config): boolean {

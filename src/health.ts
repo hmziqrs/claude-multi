@@ -5,6 +5,7 @@ import type { Instance } from "@/config";
 import { getBaseDir, PINNED_CLAUDE_BIN } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
+import { LEGACY_INSTANCE_VERSION } from "@/migration";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings" | "version";
@@ -183,7 +184,7 @@ export function runHealthChecks(
     }
 
     // Instance on older version
-    if (inst.createdWithVersion && inst.createdWithVersion !== "0.5" && inst.createdWithVersion !== currentVersion) {
+    if (inst.createdWithVersion && inst.createdWithVersion !== LEGACY_INSTANCE_VERSION && inst.createdWithVersion !== currentVersion) {
       issues.push({
         id: `instance-outdated-${inst.name}`,
         severity: "info",

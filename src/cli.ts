@@ -47,6 +47,7 @@ import {
   getClaudeMultiVersion,
 } from "@/version";
 import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate } from "@/templates";
+import { LEGACY_INSTANCE_VERSION } from "@/migration";
 import { toMessage } from "@/errors";
 import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType } from "@/constants";
 import type { ProviderTemplate } from "@/templates";
@@ -56,7 +57,7 @@ function exitWithCode(code: 0 | 1): never {
 }
 
 function formatVersionLabel(ver: string): string {
-  return ver === "0.5" ? `${ver} (before version tracking)` : ver;
+  return ver === LEGACY_INSTANCE_VERSION ? `${ver} (before version tracking)` : ver;
 }
 
 async function requireInstance(name: string): Promise<Instance> {

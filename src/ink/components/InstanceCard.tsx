@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Text } from "ink";
 import { useFadeIn, usePulse } from "@/ink/hooks/useAnimations";
 import type { Instance } from "@/config";
+import { LEGACY_INSTANCE_VERSION } from "@/migration";
 
 export const InstanceCard: React.FC<{ instance: Instance; index?: number }> = ({
   instance,
@@ -13,7 +14,7 @@ export const InstanceCard: React.FC<{ instance: Instance; index?: number }> = ({
 
   if (!visible) return null;
 
-  const verLabel = instance.createdWithVersion === "0.5"
+  const verLabel = instance.createdWithVersion === LEGACY_INSTANCE_VERSION
     ? "before version tracking"
     : instance.createdWithVersion;
 

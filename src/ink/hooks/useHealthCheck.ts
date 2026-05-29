@@ -44,7 +44,7 @@ export function useHealthCheck(
     } finally {
       setChecking(false);
     }
-  }, [instances, migrationStatus]);
+  }, [instances, migrationStatus, instanceMigrationVersion]);
 
   useEffect(() => {
     runChecks();
