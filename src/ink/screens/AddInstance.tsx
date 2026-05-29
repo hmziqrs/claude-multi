@@ -169,6 +169,10 @@ function reducer(state: AddInstanceState, action: AddInstanceAction): AddInstanc
     case "SET_ERROR":
       return { ...state, error: action.error };
     case "SELECT_PROVIDER":
+      // Clear stale region when switching away from a regional provider
+      if (!action.provider || !providerHasRegions(action.provider)) {
+        return { ...state, selectedProvider: action.provider, useProvider: action.useProvider, selectedRegion: null };
+      }
       return { ...state, selectedProvider: action.provider, useProvider: action.useProvider };
     case "SET_REGION":
       return { ...state, selectedRegion: action.region };
@@ -422,6 +426,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         createdAt: new Date().toISOString(),
         autoSync: sync,
         createdWithVersion: getClaudeMultiVersion(),
+        ...(state.useProvider && state.selectedProvider ? { providerTemplate: state.selectedProvider } : {}),
         ...(state.selectedRegion && state.useProvider && state.selectedProvider && providerHasRegions(state.selectedProvider)
           ? { providerRegion: state.selectedRegion }
           : {}),

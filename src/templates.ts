@@ -240,7 +240,7 @@ export function providerHasRegions(providerName: string): boolean {
  * Returns null if the URL doesn't match a known region pattern.
  */
 export function detectRegionFromBaseUrl(baseUrl: string): string | null {
-  const match = baseUrl.match(/^https:\/\/token-plan-([a-z]+)\.xiaomimimo\.com\/anthropic$/);
+  const match = baseUrl.match(/^https:\/\/token-plan-([a-z]+)\.xiaomimimo\.com\/anthropic\/?$/);
   if (match?.[1] && match[1] in MIMO_TOKEN_REGIONS) {
     return match[1];
   }

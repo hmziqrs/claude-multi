@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { getProviderByBaseUrl, detectProvider } from "@/templates";
+import { getProviderByBaseUrl, detectProvider, detectRegionFromBaseUrl } from "@/templates";
 
 let testDir: string;
 
@@ -115,6 +115,40 @@ describe("Provider detection", () => {
       writeFileSync(join(testDir, "settings.json"), "not json");
 
       expect(detectProvider(testDir)).toBeNull();
+    });
+  });
+
+  describe("detectRegionFromBaseUrl", () => {
+    test("detects cn region", () => {
+      expect(detectRegionFromBaseUrl("https://token-plan-cn.xiaomimimo.com/anthropic")).toBe("cn");
+    });
+
+    test("detects sgp region", () => {
+      expect(detectRegionFromBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic")).toBe("sgp");
+    });
+
+    test("detects ams region", () => {
+      expect(detectRegionFromBaseUrl("https://token-plan-ams.xiaomimimo.com/anthropic")).toBe("ams");
+    });
+
+    test("handles trailing slash", () => {
+      expect(detectRegionFromBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic/")).toBe("sgp");
+    });
+
+    test("returns null for unknown region code", () => {
+      expect(detectRegionFromBaseUrl("https://token-plan-evil.xiaomimimo.com/anthropic")).toBeNull();
+    });
+
+    test("returns null for non-mimo-token URL", () => {
+      expect(detectRegionFromBaseUrl("https://api.xiaomimimo.com/anthropic")).toBeNull();
+    });
+
+    test("returns null for empty string", () => {
+      expect(detectRegionFromBaseUrl("")).toBeNull();
+    });
+
+    test("returns null for similar but wrong domain", () => {
+      expect(detectRegionFromBaseUrl("https://token-plan-sgp.other.com/anthropic")).toBeNull();
     });
   });
 });

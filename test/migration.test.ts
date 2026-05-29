@@ -1030,5 +1030,156 @@ describe("Migration", () => {
       // providerRegion should remain unchanged
       expect(result.instances[0]!.providerRegion).toBe("sgp");
     });
+
+    test("detects region from URL over stale stored providerRegion (V03)", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-url-priority");
+      mkdirSync(instDir, { recursive: true });
+
+      // URL says ams, but stored providerRegion says sgp (stale)
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-ams.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "url-priority",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "url-priority"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+          providerTemplate: "mimo-token",
+          providerRegion: "sgp", // stale — user manually changed URL to ams
+        }],
+      });
+
+      const result = await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // URL (ams) should win over stale stored region (sgp)
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-ams.xiaomimimo.com/anthropic");
+      // providerRegion should be updated to match the actual URL
+      expect(result.instances[0]!.providerRegion).toBe("ams");
+    });
+
+    test("handles trailing slash in base URL (V01)", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-trailing-slash");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic/",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "trailing-slash",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "trailing-slash"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // Should detect sgp from URL with trailing slash
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic/");
+    });
+
+    test("preserves base URL when region is unrecognizable (V02/V04)", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-unknown-region");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-custom.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "unknown-region",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "unknown-region"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // Custom URL should be preserved — NOT overwritten with cn default
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-custom.xiaomimimo.com/anthropic");
+      // Other template vars should still update
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+    });
+
+    test("handles invalid stored providerRegion gracefully (V04)", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-invalid-region");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "invalid-region",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "invalid-region"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+          providerTemplate: "mimo-token",
+          providerRegion: "us", // invalid — not in MIMO_TOKEN_REGIONS
+        }],
+      });
+
+      const result = await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // Should detect sgp from actual URL (which is valid), ignore invalid stored region
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      // providerRegion should be corrected to sgp
+      expect(result.instances[0]!.providerRegion).toBe("sgp");
+    });
   });
 });

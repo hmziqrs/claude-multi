@@ -46,7 +46,7 @@ import {
   upgradeClaudeMulti,
   getClaudeMultiVersion,
 } from "@/version";
-import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate } from "@/templates";
+import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS } from "@/templates";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
 import { toMessage } from "@/errors";
 import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType } from "@/constants";
@@ -162,6 +162,9 @@ program
 
           if (providerHasRegions(providerTemplate.name)) {
             const region = options.region || "cn";
+            if (!options.region) {
+              console.log(chalk.yellow(`⚠ No --region specified, defaulting to cn. Available: ${Object.keys(MIMO_TOKEN_REGIONS).join(", ")}`));
+            }
             providerRegion = region;
             try {
               providerTemplate = resolveRegionTemplate(providerTemplate, region);
@@ -169,6 +172,8 @@ program
               console.error(chalk.red(`✗ ${toMessage(err)}`));
               exitWithCode(1);
             }
+          } else if (options.region) {
+            console.log(chalk.yellow(`⚠ --region is ignored for non-regional provider '${providerTemplate.name}'`));
           }
         }
 
@@ -247,6 +252,7 @@ program
           createdAt: new Date().toISOString(),
           autoSync,
           createdWithVersion: getClaudeMultiVersion(),
+          ...(useProviderTemplate && providerTemplate ? { providerTemplate: providerTemplate.name } : {}),
           ...(providerRegion ? { providerRegion } : {}),
         };
 

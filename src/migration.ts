@@ -6,7 +6,7 @@ import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
-import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl } from "@/templates";
+import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl, MIMO_TOKEN_REGIONS } from "@/templates";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -76,16 +76,17 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
         const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
 
-        // For regional providers, resolve the correct regional template
-        // so the migration uses the right base URL instead of the default (cn)
-        if (providerHasRegions(providerName) && existingBaseUrl) {
-          const detectedRegion = instance.providerRegion ?? detectRegionFromBaseUrl(existingBaseUrl);
-          if (detectedRegion) {
+        // For regional providers, resolve the correct regional template.
+        // Priority: detect from actual URL first, fall back to stored region.
+        // This ensures manually-edited URLs take precedence over stale metadata.
+        let resolvedRegional = false;
+        if (providerHasRegions(providerName)) {
+          const detectedRegion = detectRegionFromBaseUrl(existingBaseUrl ?? "") ?? instance.providerRegion;
+          if (detectedRegion && detectedRegion in MIMO_TOKEN_REGIONS) {
             template = resolveRegionTemplate(template, detectedRegion);
             // Backfill providerRegion for future migrations
-            if (!instance.providerRegion) {
-              instance.providerRegion = detectedRegion;
-            }
+            instance.providerRegion = detectedRegion;
+            resolvedRegional = true;
           }
         }
 
@@ -93,14 +94,21 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         const templateSettings = structuredClone(template.settings);
         const newEnv = { ...templateSettings.env, ANTHROPIC_AUTH_TOKEN: apiKey };
 
+        // For regional providers where we couldn't resolve a valid region,
+        // preserve the existing base URL to avoid silently overwriting with cn default
+        if (providerHasRegions(providerName) && !resolvedRegional && existingBaseUrl) {
+          newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
+        }
+
         // Merge: template vars overwrite existing, user-only vars survive
         existing.env = { ...existingEnv, ...newEnv };
         existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
         existing.alwaysThinkingEnabled = template.settings.alwaysThinkingEnabled;
 
         writeFileSync(settingsFile, JSON.stringify(existing, null, 2), "utf-8");
-      } catch {
-        // Skip if settings read/write fails
+      } catch (err: unknown) {
+        // Log warning instead of silently swallowing
+        console.warn(`[migration] Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
       }
 
       // Backfill providerTemplate for future migrations
