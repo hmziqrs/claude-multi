@@ -24,6 +24,7 @@ import {
   listMcpServers,
   initializeInstanceState,
   mergeProviderEnv,
+  syncProviderTemplateForInstance,
   listDefaultPlugins,
   listInstancePlugins,
   copySelectedPlugins,
@@ -96,6 +97,20 @@ export function useConfig() {
     await reload();
   }, [reload]);
 
+  const syncTemplateEnv = useCallback(async (instance: Instance) => {
+    await syncProviderTemplateForInstance(instance);
+    await reload();
+  }, [reload]);
+
+  const regenerateWrapper = useCallback(async (instance: Instance) => {
+    await createWrapper({
+      name: instance.name,
+      configDir: instance.configDir,
+      binaryPath: instance.binaryPath,
+    });
+    await reload();
+  }, [reload]);
+
   const migrationStatus = config ? getMigrationStatus(config) : null;
 
   return {
@@ -107,6 +122,8 @@ export function useConfig() {
     addInstance,
     removeInstance,
     toggleAutoSync,
+    syncTemplateEnv,
+    regenerateWrapper,
     migrationStatus,
     instanceMigrationVersion: config?.instanceMigrationVersion,
     getInstance: getInstanceFromConfig,

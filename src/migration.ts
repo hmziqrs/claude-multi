@@ -99,7 +99,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
 
         // Build new env from template, preserve API key
         const templateSettings = structuredClone(template.settings);
-        const newEnv = { ...templateSettings.env, ANTHROPIC_AUTH_TOKEN: apiKey };
+        const newEnv: Record<string, string> = { ...templateSettings.env, ANTHROPIC_AUTH_TOKEN: apiKey };
 
         // For regional providers where we couldn't resolve a valid region,
         // preserve the existing base URL to avoid silently overwriting with cn default
@@ -116,8 +116,8 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
           "CLAUDE_CODE_EFFORT_LEVEL",
         ]);
         for (const key of TUNABLE_ENV_VARS) {
-          if (key in existingEnv && existingEnv[key] !== templateSettings.env[key]) {
-            newEnv[key] = existingEnv[key];
+          if (key in existingEnv && existingEnv[key] !== (templateSettings.env as Record<string, string>)[key]) {
+            newEnv[key] = existingEnv[key]!;
           }
         }
 
