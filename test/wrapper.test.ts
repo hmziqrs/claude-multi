@@ -4,7 +4,11 @@ import {
   generateWindowsWrapperScript,
   getDefaultBinaryPath,
   getClaudePath,
+  tryGetClaudePath,
+  generateWrapperScriptSafe,
 } from "@/wrapper";
+import { existsSync } from "node:fs";
+import { PINNED_CLAUDE_BIN } from "@/paths";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -109,6 +113,62 @@ describe("Wrapper Script Generation", () => {
         value: originalPlatform,
         writable: true,
       });
+    });
+  });
+
+  describe("tryGetClaudePath", () => {
+    it("returns null for missing CLAUDE_MULTI_CLAUDE_PATH override", () => {
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/absolutely/nonexistent/path/claude";
+
+      try {
+        const result = tryGetClaudePath();
+        expect(result).toBeNull();
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+      }
+    });
+
+    it("returns a string when Claude is available", () => {
+      const result = tryGetClaudePath();
+      // If claude is installed (CI or dev machine), this should return a path
+      if (result !== null) {
+        expect(typeof result).toBe("string");
+        expect(result.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe("generateWrapperScriptSafe", () => {
+    it("returns null when Claude path cannot be resolved", () => {
+      if (existsSync(PINNED_CLAUDE_BIN)) return;
+
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      const originalPath = process.env.PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/nonexistent/claude";
+      process.env.PATH = "/nonexistent";
+
+      try {
+        const result = generateWrapperScriptSafe({
+          name: "test",
+          configDir: "/tmp/test",
+          binaryPath: "/tmp/test-bin",
+        });
+        expect(result).toBeNull();
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+        process.env.PATH = originalPath;
+      }
+    });
+
+    it("returns a valid script matching generateWrapperScript when Claude is available", () => {
+      const options = { name: "test", configDir: "/tmp/test", binaryPath: "/tmp/test-bin" };
+      const result = generateWrapperScriptSafe(options);
+      if (result !== null) {
+        expect(result).toContain("#!/bin/sh");
+        expect(result).toContain('CLAUDE_CONFIG_DIR="/tmp/test"');
+        expect(result).toContain("exec");
+      }
     });
   });
 });

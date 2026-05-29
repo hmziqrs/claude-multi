@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2026-05-29
+
+### Added
+- Instances track the claude-multi version they were created with (`createdWithVersion`). New instances get the current version. Instances created before this field existed get `0.5` and show "before version tracking" in the UI.
+- `doctor` and the TUI health screen report when instance migrations are pending or when an instance is running an older version.
+- `doctor fix` shows which instances need migration and asks for confirmation before running.
+- Version column added to `list`, `info`, and the Ink TUI instance cards and detail screens.
+
+### Changed
+- `instanceMigrationVersion` in config now stores the actual package version rather than a separate numbering scheme.
+- The legacy sentinel (`"0.5"`) is defined once as `LEGACY_INSTANCE_VERSION` and imported everywhere, instead of being hardcoded in multiple files.
+
+### Fixed
+- Removed broken `compareVersions` references from `version.test.ts`.
+
 ## [0.6.1] - 2026-05-29
 
 ### Changed

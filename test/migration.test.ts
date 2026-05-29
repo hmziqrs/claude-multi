@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Config } from "@/config";
@@ -263,16 +263,16 @@ describe("Migration", () => {
 
   describe("Instance-level migrations", () => {
     describe("needsInstanceMigration", () => {
-      test("returns false when no migrations are defined", async () => {
-        const { needsInstanceMigration } = await import("@/migration");
-        const config = makeConfig();
-        expect(needsInstanceMigration(config)).toBe(false);
-      });
-
-      test("returns false when instanceMigrationVersion is behind but no migrations defined", async () => {
+      test("returns true when instanceMigrationVersion is behind and migrations exist", async () => {
         const { needsInstanceMigration } = await import("@/migration");
         const config = makeConfig({ instanceMigrationVersion: "0.1.0" });
-        expect(needsInstanceMigration(config)).toBe(false);
+        expect(needsInstanceMigration(config)).toBe(true);
+      });
+
+      test("returns true when instanceMigrationVersion is undefined", async () => {
+        const { needsInstanceMigration } = await import("@/migration");
+        const config = makeConfig();
+        expect(needsInstanceMigration(config)).toBe(true);
       });
 
       test("returns false when instanceMigrationVersion is current", async () => {
@@ -283,24 +283,194 @@ describe("Migration", () => {
     });
 
     describe("runInstanceMigrations", () => {
-      test("is a no-op when no migrations are defined", async () => {
+      test("skips wrapper regeneration for instances at current version", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+        mkdirSync(join(testDir, "bin"), { recursive: true });
+
+        const instDir = join(testDir, ".claude-skip-test");
+        mkdirSync(instDir, { recursive: true });
+        const binaryPath = join(testDir, "bin", "skip-test");
+
+        // Write a wrapper that would NOT match generateWrapperScript
+        writeFileSync(binaryPath, "#!/bin/sh\n# old wrapper\nexec /old/claude \"$@\"\n", { mode: 0o755 });
+
+        const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
+          instances: [{
+            name: "skip-test",
+            configDir: instDir,
+            binaryPath,
+            createdAt: new Date().toISOString(),
+            createdWithVersion: getClaudeMultiVersion(),
+          }],
+        });
+
+        const result = await runInstanceMigrations(config);
+        expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
+
+        // Wrapper should NOT have been rewritten — instance is at current version
+        const content = readFileSync(binaryPath, "utf-8");
+        expect(content).toContain("/old/claude");
+      });
+    });
+
+    describe("0.6.2 instance migration", () => {
+      test("regenerates wrapper when content differs", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+        mkdirSync(join(testDir, "bin"), { recursive: true });
+
+        const instDir = join(testDir, ".claude-old");
+        mkdirSync(instDir, { recursive: true });
+        const binaryPath = join(testDir, "bin", "old");
+
+        // Write a stale wrapper
+        writeFileSync(binaryPath, `#!/bin/sh\nexport CLAUDE_CONFIG_DIR="/stale/path"\nexec "/stale/claude" "$@"\n`, { mode: 0o755 });
+
+        const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
+          instances: [{
+            name: "old",
+            configDir: instDir,
+            binaryPath,
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          }],
+        });
+
+        const result = await runInstanceMigrations(config);
+        expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
+
+        const content = readFileSync(binaryPath, "utf-8");
+        expect(content).toContain(`CLAUDE_CONFIG_DIR="${instDir}"`);
+        expect(content).not.toContain("/stale/path");
+      });
+
+      test("does not regenerate wrapper when content is identical", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+        const { generateWrapperScript } = await import("@/wrapper");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+        mkdirSync(join(testDir, "bin"), { recursive: true });
+
+        const instDir = join(testDir, ".claude-same");
+        mkdirSync(instDir, { recursive: true });
+        const binaryPath = join(testDir, "bin", "same");
+
+        // Write the exact content generateWrapperScript would produce
+        const expectedContent = generateWrapperScript({ name: "same", configDir: instDir, binaryPath });
+        writeFileSync(binaryPath, expectedContent, { mode: 0o755 });
+        const mtimeBefore = statSync(binaryPath).mtimeMs;
+
+        const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
+          instances: [{
+            name: "same",
+            configDir: instDir,
+            binaryPath,
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          }],
+        });
+
+        await runInstanceMigrations(config);
+
+        // File should NOT have been rewritten
+        const mtimeAfter = statSync(binaryPath).mtimeMs;
+        expect(mtimeAfter).toBe(mtimeBefore);
+        expect(readFileSync(binaryPath, "utf-8")).toBe(expectedContent);
+      });
+
+      test("handles missing wrapper file gracefully", async () => {
         const { runInstanceMigrations } = await import("@/migration");
 
         const cmDir = join(testDir, ".claude-multi");
         mkdirSync(cmDir, { recursive: true });
 
+        const instDir = join(testDir, ".claude-nowrapper");
+        mkdirSync(instDir, { recursive: true });
+
         const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
           instances: [{
-            name: "old-inst",
-            configDir: join(testDir, ".claude-old"),
-            binaryPath: join(testDir, "bin", "old"),
+            name: "nowrapper",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "nowrapper"),
             createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
           }],
         });
 
         const result = await runInstanceMigrations(config);
-        // No migrations ran — instanceMigrationVersion stays unchanged
-        expect(result.instanceMigrationVersion).toBeUndefined();
+        expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
+      });
+
+      test("updates stale migrationVersion in .claude.json", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+        mkdirSync(join(testDir, "bin"), { recursive: true });
+
+        const instDir = join(testDir, ".claude-stale-json");
+        mkdirSync(instDir, { recursive: true });
+        writeFileSync(join(instDir, ".claude.json"), JSON.stringify({ migrationVersion: 10 }));
+
+        const binaryPath = join(testDir, "bin", "stale-json");
+        writeFileSync(binaryPath, "#!/bin/sh\nexec /claude \"$@\"\n", { mode: 0o755 });
+
+        const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
+          instances: [{
+            name: "stale-json",
+            configDir: instDir,
+            binaryPath,
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          }],
+        });
+
+        await runInstanceMigrations(config);
+
+        const claudeJson = JSON.parse(readFileSync(join(instDir, ".claude.json"), "utf-8"));
+        expect(claudeJson.migrationVersion).toBe(13);
+      });
+
+      test("does not rewrite .claude.json when already at latest migrationVersion", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+        mkdirSync(join(testDir, "bin"), { recursive: true });
+
+        const instDir = join(testDir, ".claude-ok-json");
+        mkdirSync(instDir, { recursive: true });
+        writeFileSync(join(instDir, ".claude.json"), JSON.stringify({ migrationVersion: 13 }));
+
+        const binaryPath = join(testDir, "bin", "ok-json");
+        writeFileSync(binaryPath, "#!/bin/sh\nexec /claude \"$@\"\n", { mode: 0o755 });
+
+        const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
+          instances: [{
+            name: "ok-json",
+            configDir: instDir,
+            binaryPath,
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          }],
+        });
+
+        await runInstanceMigrations(config);
+
+        const content = readFileSync(join(instDir, ".claude.json"), "utf-8");
+        expect(JSON.parse(content).migrationVersion).toBe(13);
       });
     });
   });

@@ -1,10 +1,11 @@
-import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync, chmodSync } from "node:fs";
 import { join, dirname } from "node:path";
 import semver from "semver";
 import type { Config, Instance, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
+import { generateWrapperScriptSafe } from "@/wrapper";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -17,13 +18,67 @@ export interface InstanceMigration {
 }
 
 const INSTANCE_MIGRATIONS: InstanceMigration[] = [
-  // Future migrations go here. Example:
-  // {
-  //   version: "0.7.0",
-  //   description: "Update .claude.json migrationVersion for new Claude Code versions",
-  //   migrate: async (instance) => { ... },
-  // },
+  {
+    version: "0.6.2",
+    description: "Regenerate wrappers and update stale .claude.json for current claude-multi behavior",
+    migrate: async (instance) => {
+      const currentVersion = getClaudeMultiVersion();
+
+      // Fast path: instance already at current version, no migration needed
+      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+        return instance;
+      }
+
+      // Only regenerate wrapper if the file exists and content differs
+      if (existsSync(instance.binaryPath)) {
+        const expected = generateWrapperScriptSafe({
+          name: instance.name,
+          configDir: instance.configDir,
+          binaryPath: instance.binaryPath,
+        });
+        if (expected !== null) {
+          try {
+            const current = readFileSync(instance.binaryPath, "utf-8");
+            if (current !== expected) {
+              writeFileSync(instance.binaryPath, expected, { mode: 0o755 });
+              chmodSync(instance.binaryPath, 0o755);
+            }
+          } catch {
+            // Skip unreadable wrapper
+          }
+        }
+      }
+
+      // Update stale .claude.json values
+      updateClaudeJson(instance.configDir);
+
+      return instance;
+    },
+  },
 ];
+
+function updateClaudeJson(configDir: string): void {
+  const stateFile = join(configDir, ".claude.json");
+  if (!existsSync(stateFile)) return;
+
+  try {
+    const raw = JSON.parse(readFileSync(stateFile, "utf-8")) as Record<string, unknown>;
+
+    let changed = false;
+
+    // migrationVersion tracks Claude Code's internal schema. Current latest is 13.
+    if (typeof raw.migrationVersion === "number" && raw.migrationVersion < 13) {
+      raw.migrationVersion = 13;
+      changed = true;
+    }
+
+    if (changed) {
+      writeFileSync(stateFile, JSON.stringify(raw, null, 2), "utf-8");
+    }
+  } catch {
+    // Corrupted .claude.json - skip
+  }
+}
 
 export function needsInstanceMigration(config: Config): boolean {
   const current = getClaudeMultiVersion();

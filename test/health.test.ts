@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import type { Instance } from "@/config";
 import { PINNED_CLAUDE_BIN } from "@/paths";
 import { getClaudeMultiVersion } from "@/version";
+import { generateWrapperScript } from "@/wrapper";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -308,6 +309,21 @@ describe("Health Check", () => {
       expect(fixed).toContain("a");
       expect(fixed).toContain("b");
       expect(fixed.length).toBe(2);
+    });
+
+    test("output matches generateWrapperScript exactly", async () => {
+      if (!HAS_PINNED) return;
+      const { fixWrapperVersions } = await import("@/health");
+      const inst = makeInstance();
+      mkdirSync(inst.configDir, { recursive: true });
+      mkdirSync(join(testDir, "bin"), { recursive: true });
+      writeNodeWrapper(inst.binaryPath, "/usr/local/bin/claude");
+
+      fixWrapperVersions([inst]);
+
+      const content = readFileSync(inst.binaryPath, "utf-8");
+      const expected = generateWrapperScript({ name: inst.name, configDir: inst.configDir, binaryPath: inst.binaryPath });
+      expect(content).toBe(expected);
     });
   });
 
