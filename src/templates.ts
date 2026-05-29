@@ -10,14 +10,12 @@ export interface ProviderTemplate {
 }
 
 /**
- * Env vars injected into every provider template.
- * These prevent Claude Code from auto-updating to a version
- * that breaks 3rd-party provider compatibility.
+ * [SAFE PARK] Env vars injected into every provider template.
+ * To reactivate: add DISABLE_AUTOUPDATER: "1" and DISABLE_UPDATES: "1"
+ * if a future Claude Code version breaks 3rd-party provider compatibility.
+ * See: src/version.ts → isThirdPartyApiBroken()
  */
-const PROVIDER_COMMON_ENV: Record<string, string> = {
-  DISABLE_AUTOUPDATER: "1",
-  DISABLE_UPDATES: "1",
-};
+const PROVIDER_COMMON_ENV: Record<string, string> = {};
 
 export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   glm: {

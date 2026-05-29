@@ -543,7 +543,7 @@ program
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
 
-        // Ensure pinned binary is installed and up-to-date
+        // [SAFE PARK] Ensure pinned binary is installed and up-to-date
         if (!existsSync(PINNED_CLAUDE_BIN)) {
           console.log(chalk.cyan(`Installing compatible Claude v${COMPATIBLE_CLAUDE_VERSION}...`));
           installPinnedClaude();
@@ -559,7 +559,7 @@ program
           }
         }
 
-        // Fix wrapper versions
+        // [SAFE PARK] Fix wrapper versions
         const fixed = fixWrapperVersions(instances);
         if (fixed.length > 0) {
           console.log(chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use pinned Claude version:`));

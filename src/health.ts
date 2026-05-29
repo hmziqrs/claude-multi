@@ -130,7 +130,7 @@ export function runHealthChecks(
       });
     }
 
-    // Wrapper points to wrong Claude binary (3rd-party provider compatibility)
+    // [SAFE PARK] Wrapper points to wrong Claude binary (3rd-party provider compatibility)
     if (existsSync(inst.binaryPath) && existsSync(PINNED_CLAUDE_BIN)) {
       try {
         const wrapperContent = readFileSync(inst.binaryPath, "utf-8");
@@ -201,7 +201,7 @@ export function dismissAllIssues(): void {
 }
 
 /**
- * Fix wrappers that point to the wrong Claude binary.
+ * [SAFE PARK] Fix wrappers that point to the wrong Claude binary.
  * Regenerates them as shell scripts pointing to the pinned binary.
  * Returns the list of instance names that were fixed.
  */

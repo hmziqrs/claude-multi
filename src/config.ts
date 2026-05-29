@@ -692,7 +692,7 @@ export async function initializeInstanceState(
   const state = {
     numStartups: 1,
     installMethod: "global",
-    autoUpdates: false,
+    autoUpdates: true, // [SAFE PARK] set to false if a future Claude Code version breaks 3rd-party providers
     hasSeenTasksHint: true,
     hasCompletedOnboarding: true,
     lastOnboardingVersion: "2.0.31",

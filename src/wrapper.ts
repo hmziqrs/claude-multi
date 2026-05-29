@@ -17,7 +17,7 @@ export interface WrapperOptions {
  *
  * Priority:
  *  1. CLAUDE_MULTI_CLAUDE_PATH env var (explicit override)
- *  2. Pinned install at ~/.claude-multi/bin (managed by claude-multi)
+ *  2. [SAFE PARK] Pinned install at ~/.claude-multi/bin (managed by claude-multi)
  *  3. Global install in PATH
  */
 export function getClaudePath(): string {

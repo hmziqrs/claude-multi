@@ -48,7 +48,7 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
       onDismissAll();
     } else if (input === "r") {
       onRetry();
-    } else if (input === "f") {
+    } else if (input === "f") { // [SAFE PARK] fix wrappers
       onFix();
       setFixMessage("Wrappers updated to pinned Claude version!");
       setTimeout(() => setFixMessage(null), 3000);
@@ -75,7 +75,7 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
   }
 
   const showActions = useFadeIn(100);
-  const hasVersionIssues = issues.some(i => i.category === "version");
+  const hasVersionIssues = issues.some(i => i.category === "version"); // [SAFE PARK]
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>

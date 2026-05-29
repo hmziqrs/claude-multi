@@ -99,17 +99,19 @@ export function getCurrentVersion(): string | null {
 }
 
 /**
- * Check if a Claude Code version has broken 3rd party API compatibility.
+ * [SAFE PARK] Check if a Claude Code version has broken 3rd party API compatibility.
  * v2.1.154–v2.1.155 broke non-Anthropic API endpoints. Fixed in v2.1.156.
+ * To reactivate: update the range below and update COMPATIBLE_CLAUDE_VERSION.
  */
 export function isThirdPartyApiBroken(version: string): boolean {
   return semver.gte(version, "2.1.154") && semver.lt(version, "2.1.156");
 }
 
+/** [SAFE PARK] Pinned Claude Code version for 3rd-party provider compatibility. */
 export const COMPATIBLE_CLAUDE_VERSION = "2.1.156";
 
 /**
- * Reads the version of the pinned Claude binary installed at ~/.claude-multi/bin/
+ * [SAFE PARK] Reads the version of the pinned Claude binary installed at ~/.claude-multi/bin/
  */
 export function getPinnedBinaryVersion(): string | null {
   const pkgJsonPath = join(
@@ -129,7 +131,7 @@ export function getPinnedBinaryVersion(): string | null {
 }
 
 /**
- * Installs a compatible version of Claude Code to ~/.claude-multi/bin/
+ * [SAFE PARK] Installs a compatible version of Claude Code to ~/.claude-multi/bin/
  */
 export function installPinnedClaude(): void {
   const pm = detectPackageManager();

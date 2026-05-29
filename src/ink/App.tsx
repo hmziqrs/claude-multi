@@ -46,6 +46,7 @@ const GoodbyeScreen: React.FC = () => {
   );
 };
 
+// [SAFE PARK] Doctor result screen for pinned binary fix flow
 const DoctorResultScreen: React.FC<{ fixedCount: number; onBack: () => void }> = ({ fixedCount, onBack }) => {
   useNavigation(onBack);
   return (
@@ -132,7 +133,7 @@ export const App: React.FC = () => {
         onDismissAll={dismissAll}
         onRetry={retry}
         onFix={() => {
-          // Ensure pinned binary is installed before fixing
+          // [SAFE PARK] Ensure pinned binary is installed before fixing
           if (!existsSync(PINNED_CLAUDE_BIN)) {
             try { installPinnedClaude(); } catch { /* show result */ }
           } else {
@@ -165,7 +166,7 @@ export const App: React.FC = () => {
 
   const errorCount = issues.filter(i => i.severity === "error").length;
   const warningCount = issues.filter(i => i.severity === "warning").length;
-  const versionIssues = issues.filter(i => i.category === "version");
+  const versionIssues = issues.filter(i => i.category === "version"); // [SAFE PARK]
   const hasVersionIssues = versionIssues.length > 0;
 
   const goToHealth = () => {
@@ -186,6 +187,7 @@ export const App: React.FC = () => {
         ]
       : []),
     { label: "🩺 Doctor check", value: "doctor-check" },
+    // [SAFE PARK] Show fix wrappers option when version issues detected
     ...(hasVersionIssues
       ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
       : []),
@@ -203,6 +205,7 @@ export const App: React.FC = () => {
         hasVersionIssues={hasVersionIssues}
       />
 
+      {/* [SAFE PARK] Version warning banner for broken 3rd-party API compat */}
       {ccVersion && isThirdPartyApiBroken(ccVersion) && (
         <Box marginBottom={1}>
           <Text color="red" bold>⚠ Claude Code v{ccVersion} does not work with 3rd party APIs. </Text>
@@ -223,7 +226,7 @@ export const App: React.FC = () => {
           } else if (value === "doctor-check") {
             setScreen("health");
           } else if (value === "doctor-fix") {
-            // Ensure pinned binary is installed before fixing
+            // [SAFE PARK] Ensure pinned binary is installed before fixing
             if (!existsSync(PINNED_CLAUDE_BIN)) {
               try { installPinnedClaude(); } catch { /* show result */ }
             } else {
