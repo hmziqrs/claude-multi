@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { execa } from "execa";
-import { mkdtemp, rm, mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdtemp, rm, mkdir, writeFile, readFile } from "node:fs/promises";
+import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
 
 describe("CLI Integration", () => {
   let testHome: string;
@@ -28,8 +29,10 @@ describe("CLI Integration", () => {
     })`bun run src/cli.ts ${args}`;
 
   it("shows version", async () => {
+    const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "package.json");
+    const pkg = JSON.parse(await readFile(pkgPath, "utf-8")) as { version: string };
     const { stdout } = await runCli(["--version"]);
-    expect(stdout).toContain("0.6.0");
+    expect(stdout).toContain(pkg.version);
   });
 
   it("shows help", async () => {

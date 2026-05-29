@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-05-29
+
+### Changed
+- Pinned Claude version updated from `2.1.153` to `2.1.156`. `isThirdPartyApiBroken()` now covers v2.1.154 through v2.1.155.
+- Auto-updates re-enabled. `PROVIDER_COMMON_ENV` no longer injects `DISABLE_AUTOUPDATER`/`DISABLE_UPDATES`. `autoUpdates` set to `true` in instance state.
+- `doctor fix` now reinstalls the pinned binary when its version differs from `COMPATIBLE_CLAUDE_VERSION`, not just when broken. Covers the upgrade path from the old v2.1.153 pin.
+- Unknown CLI subcommands exit with an error instead of falling through to the Ink TUI.
+- All version pinning and compatibility code tagged with `[SAFE PARK]` comments for easy discovery and reactivation.
+
+### Added
+- Blog post: "Claude Code v2.1.156 fixes the third-party provider breakage"
+
 ## [0.6.0] - 2026-05-29
 
 ### Added
