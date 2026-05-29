@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import type { Instance } from "@/config";
 import { PINNED_CLAUDE_BIN } from "@/paths";
 import { getClaudeMultiVersion } from "@/version";
-import { generateWrapperScript } from "@/wrapper";
+import { buildWrapperScript } from "@/wrapper";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -322,7 +322,7 @@ describe("Health Check", () => {
       fixWrapperVersions([inst]);
 
       const content = readFileSync(inst.binaryPath, "utf-8");
-      const expected = generateWrapperScript({ name: inst.name, configDir: inst.configDir, binaryPath: inst.binaryPath });
+      const expected = buildWrapperScript(inst, PINNED_CLAUDE_BIN);
       expect(content).toBe(expected);
     });
   });
