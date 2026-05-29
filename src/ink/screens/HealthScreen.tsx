@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Box, Text, useInput } from "ink";
+import { Select } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { StatusBar } from "@/ink/components/StatusBar";
-import { IssueCard } from "@/ink/components/IssueCard";
 import { useNavigation } from "@/ink/hooks/useNavigation";
-import { useFadeIn } from "@/ink/hooks/useAnimations";
 import type { HealthIssue } from "@/health";
 
 interface HealthScreenProps {
@@ -18,6 +17,12 @@ interface HealthScreenProps {
 
 type Step = "list" | "detail";
 
+const SEVERITY_ICONS: Record<string, string> = {
+  error: "❌",
+  warning: "⚠",
+  info: "ℹ️",
+};
+
 export const HealthScreen: React.FC<HealthScreenProps> = ({
   issues,
   onDismiss,
@@ -28,7 +33,6 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
 }) => {
   const [step, setStep] = useState<Step>("list");
   const [selectedIssue, setSelectedIssue] = useState<HealthIssue | null>(null);
-  const showActions = useFadeIn(100);
 
   useNavigation(() => {
     if (step === "detail") {
@@ -40,18 +44,20 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
   });
 
   useInput((input) => {
-    if (step !== "list") return;
-    if (input === "d" && selectedIssue) {
-      onDismiss(selectedIssue.id);
-      setSelectedIssue(null);
-    } else if (input === "D") {
-      onDismissAll();
-    } else if (input === "r") {
-      onRetry();
-    } else if (input === "f") { // [SAFE PARK] fix wrappers
-      onFix();
-    } else if (input === " " && selectedIssue) {
-      setStep("detail");
+    if (step === "list") {
+      if (input === "D") {
+        onDismissAll();
+      } else if (input === "r") {
+        onRetry();
+      } else if (input === "f") {
+        onFix();
+      }
+    } else if (step === "detail" && selectedIssue) {
+      if (input === "d") {
+        onDismiss(selectedIssue.id);
+        setSelectedIssue(null);
+        setStep("list");
+      }
     }
   });
 
@@ -66,7 +72,21 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
       </Box>
     );
   }
-  const hasVersionIssues = issues.some(i => i.category === "version"); // [SAFE PARK]
+
+  const hasVersionIssues = issues.some(i => i.category === "version");
+
+  const handleIssueSelect = (value: string) => {
+    const issue = issues.find(i => i.id === value);
+    if (issue) {
+      setSelectedIssue(issue);
+      setStep("detail");
+    }
+  };
+
+  const issueOptions = issues.map((issue) => ({
+    label: `${SEVERITY_ICONS[issue.severity] ?? "•"} ${issue.title}`,
+    value: issue.id,
+  }));
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
@@ -74,22 +94,22 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
 
       {step === "list" && (
         <Box flexDirection="column" gap={1}>
-          <Text bold>{issues.length} issue(s) found:</Text>
-          {issues.map((issue, i) => (
-            <IssueCard key={issue.id} issue={issue} index={i} />
-          ))}
-          {showActions && (
-            <Box marginTop={1} flexDirection="column">
-              {hasVersionIssues && (
-                <Box marginBottom={1}>
-                  <Text color="cyan" bold>f</Text>
-                  <Text color="cyan"> fix wrappers </Text>
-                  <Text dimColor>│</Text>
-                </Box>
-              )}
-              <Text dimColor>Space view detail │ d dismiss │ D dismiss all │ r retry │ ESC back</Text>
-            </Box>
-          )}
+          <Text bold>{issues.length} issue(s) found — select one to view:</Text>
+          <Select
+            options={issueOptions}
+            visibleOptionCount={issueOptions.length}
+            onChange={handleIssueSelect}
+          />
+          <Box marginTop={1} flexDirection="column">
+            {hasVersionIssues && (
+              <Box marginBottom={1}>
+                <Text color="cyan" bold>f</Text>
+                <Text color="cyan"> fix wrappers </Text>
+                <Text dimColor>│</Text>
+              </Box>
+            )}
+            <Text dimColor>D dismiss all │ r retry │ ESC back</Text>
+          </Box>
         </Box>
       )}
 
@@ -116,6 +136,13 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
               <Text dimColor bold>Detail:</Text>
               <Text>{selectedIssue.message}</Text>
             </Box>
+            {selectedIssue.detail && (
+              <Box gap={1}>
+                <Text dimColor>├─</Text>
+                <Text dimColor bold>Info:</Text>
+                <Text dimColor>{selectedIssue.detail}</Text>
+              </Box>
+            )}
             {selectedIssue.resolutionHint && (
               <Box gap={1}>
                 <Text dimColor>└─</Text>

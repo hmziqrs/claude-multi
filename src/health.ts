@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import { detectBrokenSymlinks } from "@/config";
 import type { Instance } from "@/config";
@@ -244,10 +245,25 @@ export function loadHealthStatus(): HealthStatus {
   }
 }
 
+/**
+ * Atomically write the health status file using write-to-temp + rename.
+ * Prevents corruption if the process crashes mid-write or if two
+ * claude-multi instances write concurrently.
+ */
 export function saveHealthStatus(status: HealthStatus): void {
   const dir = join(getBaseDir(), ".claude-multi");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(getHealthFile(), JSON.stringify(status, null, 2), "utf-8");
+  const healthFile = getHealthFile();
+  const tmpPath = `${healthFile}.tmp.${randomBytes(4).toString("hex")}`;
+  try {
+    writeFileSync(tmpPath, JSON.stringify(status, null, 2), "utf-8");
+    // Verify the temp file is valid JSON before committing
+    JSON.parse(readFileSync(tmpPath, "utf-8"));
+    renameSync(tmpPath, healthFile);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch {}
+    throw err;
+  }
 }
 
 export function dismissIssue(id: string): void {

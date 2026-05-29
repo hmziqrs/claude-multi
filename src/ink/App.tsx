@@ -105,7 +105,7 @@ const InstanceLine: React.FC<{ instances: { name: string }[] }> = ({ instances }
 
 export const App: React.FC = () => {
   const { exit } = useApp();
-  const { instances, loading, migrationStatus, instanceMigrationVersion } = useConfig();
+  const { instances, loading, migrationStatus, instanceMigrationVersion, reload } = useConfig();
   const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus, instanceMigrationVersion);
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
@@ -120,6 +120,7 @@ export const App: React.FC = () => {
     migratedCount: 0,
     installFailed: false,
   });
+  const [doctorRunning, setDoctorRunning] = useState(false);
 
   useInput((input, key) => {
     if (screen !== "menu") return;
@@ -145,6 +146,9 @@ export const App: React.FC = () => {
   };
 
   const handleDoctorFix = async () => {
+    if (doctorRunning) return;
+    setDoctorRunning(true);
+    try {
     let installFailed = false;
     if (!existsSync(PINNED_CLAUDE_BIN)) {
       try { installPinnedClaude(); } catch { installFailed = true; }
@@ -170,8 +174,13 @@ export const App: React.FC = () => {
     } catch {}
 
     setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated, installFailed });
-    retry();
+    // reload() triggers useHealthCheck's effect via changed dependencies —
+    // no need to call retry() separately (would cause a double health check)
+    await reload();
     setScreen("doctor-result");
+    } finally {
+      setDoctorRunning(false);
+    }
   };
 
   if (screen === "goodbye") {

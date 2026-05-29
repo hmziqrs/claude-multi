@@ -224,11 +224,18 @@ function createLock(): boolean {
       const raw = JSON.parse(readFileSync(lockFile, "utf-8")) as unknown;
       if (typeof raw === "object" && raw !== null && "pid" in raw && typeof (raw as { pid: unknown }).pid === "number") {
         const lock = raw as { pid: number; startedAt: string };
-        try {
-          process.kill(lock.pid, 0);
-          return false;
-        } catch {
+        // Staleness check: if lock is older than 30 minutes, it's almost certainly
+        // from a dead process (even if PID was recycled). Remove it.
+        const lockAge = Date.now() - new Date(lock.startedAt).getTime();
+        if (lockAge > 30 * 60 * 1000) {
           rmSync(lockFile, { force: true });
+        } else {
+          try {
+            process.kill(lock.pid, 0);
+            return false;
+          } catch {
+            rmSync(lockFile, { force: true });
+          }
         }
       } else {
         rmSync(lockFile, { force: true });
