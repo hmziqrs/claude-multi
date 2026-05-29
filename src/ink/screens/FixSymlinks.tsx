@@ -71,25 +71,25 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setStep("fixing");
     setError("");
 
-    const fixResults: typeof results = [];
-    for (const name of selectedNames) {
-      const instance = instances.find((i) => i.name === name);
-      if (!instance) continue;
+    const instanceMap = new Map(instances.map(i => [i.name, i]));
+    const fixResults = await Promise.all(selectedNames.map(async (name) => {
+      const instance = instanceMap.get(name);
+      if (!instance) return null;
       const diagnosis = detectBrokenSymlinks(instance.configDir);
       const hasBroken = diagnosis.broken.length > 0;
 
       if (hasBroken && instance.autoSync !== false) {
         try {
           await syncPluginsAndSkills(instance.configDir);
-          fixResults.push({ name, broken: diagnosis.broken, all: diagnosis.all, fixed: true });
+          return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: true };
         } catch {
-          fixResults.push({ name, broken: diagnosis.broken, all: diagnosis.all, fixed: false });
+          return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: false };
         }
       } else {
-        fixResults.push({ name, broken: diagnosis.broken, all: diagnosis.all, fixed: !hasBroken });
+        return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: !hasBroken };
       }
-    }
-    setResults(fixResults);
+    }));
+    setResults(fixResults.filter(Boolean) as typeof results);
     setStep("done");
   };
 

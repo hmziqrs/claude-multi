@@ -84,7 +84,8 @@ async function copyDirRecursive(source: string, target: string): Promise<void> {
   if (!existsSync(target)) {
     await mkdir(target, { recursive: true });
   }
-  for (const entry of readdirSync(source)) {
+  const entries = readdirSync(source);
+  await Promise.all(entries.map(async (entry) => {
     const src = join(source, entry);
     const tgt = join(target, entry);
     const s = statSync(src);
@@ -93,7 +94,7 @@ async function copyDirRecursive(source: string, target: string): Promise<void> {
     } else {
       await copyFile(src, tgt);
     }
-  }
+  }));
 }
 
 function lstatSafe(path: string): Stats | null {
@@ -407,6 +408,9 @@ export async function copyAllFromDefault(
     ".mcp-temp",
   ];
 
+  const excludeSet = new Set(excludeFiles);
+  const syncDirSet = new Set(SYNC_DIRS as readonly string[]);
+
   const copyRecursive = async (source: string, target: string) => {
     const entries = readdirSync(source);
 
@@ -416,13 +420,13 @@ export async function copyAllFromDefault(
       const stat = statSync(sourcePath);
 
       // Skip excluded files/directories
-      if (excludeFiles.includes(entry)) {
+      if (excludeSet.has(entry)) {
         continue;
       }
 
       if (stat.isDirectory()) {
         // Use symlink for plugins and skills when autoSync is enabled
-        if (autoSync && SYNC_DIRS.includes(entry as (typeof SYNC_DIRS)[number])) {
+        if (autoSync && syncDirSet.has(entry)) {
           // Use lstatSync to detect broken symlinks (existsSync returns false for those)
           try {
             const targetStat = lstatSync(targetPath);
@@ -489,6 +493,7 @@ export async function detectMcpConfigurations(
     const mcpFilePath = join(configDir, mcpFile);
     if (existsSync(mcpFilePath)) {
       try {
+        // eslint-disable-next-line @react-doctor/async-await-in-loop -- short-circuit return on first valid config
         const mcpContent = await readFile(mcpFilePath, "utf-8");
         const mcpConfig = JSON.parse(mcpContent);
 
@@ -584,8 +589,10 @@ export async function copyMcpServersBetweenInstances(
   sourceInstanceName: string,
   targetInstanceName: string,
 ): Promise<void> {
-  const sourceInstance = await getInstance(sourceInstanceName);
-  const targetInstance = await getInstance(targetInstanceName);
+  const [sourceInstance, targetInstance] = await Promise.all([
+    getInstance(sourceInstanceName),
+    getInstance(targetInstanceName),
+  ]);
 
   if (!sourceInstance) {
     throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Source instance '${sourceInstanceName}' not found`);
@@ -711,13 +718,13 @@ export async function syncPluginsAndSkills(
     throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
   }
 
-  for (const dir of SYNC_DIRS) {
+  await Promise.all(SYNC_DIRS.map(async (dir) => {
     const targetPath = join(configDir, dir);
     const sourcePath = join(defaultDir, dir);
 
     if (!existsSync(sourcePath)) {
       console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
-      continue;
+      return;
     }
 
     if (existsSync(targetPath)) {
@@ -725,7 +732,7 @@ export async function syncPluginsAndSkills(
         const linkTarget = readlinkSync(targetPath);
         if (linkTarget === sourcePath || linkTarget === join("..", "..", ".claude", dir)) {
           console.log(chalk.gray(`  ✓ ${dir} already synced`));
-          continue;
+          return;
         }
         rmSync(targetPath, { force: true });
       } catch {
@@ -736,12 +743,12 @@ export async function syncPluginsAndSkills(
     const relativePath = relative(dirname(targetPath), sourcePath);
     await symlink(relativePath, targetPath, "dir");
     console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ${sourcePath}`));
-  }
+  }));
 }
 
 async function copyFilesRecursive(source: string, target: string): Promise<void> {
   const entries = readdirSync(source);
-  for (const entry of entries) {
+  await Promise.all(entries.map(async (entry) => {
     const sourceEntry = join(source, entry);
     const targetEntry = join(target, entry);
     const stat = statSync(sourceEntry);
@@ -752,7 +759,7 @@ async function copyFilesRecursive(source: string, target: string): Promise<void>
     } else {
       await copyFile(sourceEntry, targetEntry);
     }
-  }
+  }));
 }
 
 /**
@@ -767,14 +774,14 @@ export async function unsyncPluginsAndSkills(
     throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
   }
 
-  for (const dir of SYNC_DIRS) {
+  await Promise.all(SYNC_DIRS.map(async (dir) => {
     const targetPath = join(configDir, dir);
     const sourcePath = join(defaultDir, dir);
 
     // Skip if source doesn't exist
     if (!existsSync(sourcePath)) {
       console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
-      continue;
+      return;
     }
 
     // Check if it's currently a symlink
@@ -794,14 +801,14 @@ export async function unsyncPluginsAndSkills(
       // Neither symlink nor directory exists
     } else {
       console.log(chalk.yellow(`  ⚠ ${dir} is already a regular directory, skipping`));
-      continue;
+      return;
     }
 
     // Copy files from source
     await mkdir(targetPath, { recursive: true });
     await copyFilesRecursive(sourcePath, targetPath);
     console.log(chalk.green(`  ✓ Copied files for ${dir}`));
-  }
+  }));
 }
 
 /**
@@ -1278,12 +1285,14 @@ export async function copySelectedPlugins(
 
   try {
     for (const sel of selections) {
+      // eslint-disable-next-line @react-doctor/async-await-in-loop -- rollback needs ordered completion tracking
       await copySinglePlugin(targetConfigDir, sel.id, sel.category);
       completed.push(sel);
     }
   } catch (err: unknown) {
     // Rollback completed copies
     for (const done of completed) {
+      // eslint-disable-next-line @react-doctor/async-await-in-loop -- rollback needs ordered completion tracking
       try {
         const subDir = done.category === PluginCategory.Internal ? "plugins" : "external_plugins";
         const targetPath = join(targetConfigDir, MARKETPLACE_REL, subDir, done.id);

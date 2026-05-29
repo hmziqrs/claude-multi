@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useReducer } from "react";
 import { Box, Text } from "ink";
 import { Select, TextInput } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
@@ -82,21 +82,63 @@ const McpSourceDetails: React.FC<{
   );
 };
 
+type McpState = {
+  step: Step;
+  action: string | null;
+  selectedInstance: string | null;
+  sourceInstance: string | null;
+  mcpSources: McpSource[];
+  customName: string;
+};
+
+type McpReducerAction =
+  | { type: "SET_STEP"; step: Step }
+  | { type: "SET_ACTION"; action: string | null }
+  | { type: "SELECT_INSTANCE"; instance: string | null }
+  | { type: "SELECT_SOURCE"; source: string | null }
+  | { type: "SET_MCP_SOURCES"; sources: McpSource[] }
+  | { type: "SET_CUSTOM_NAME"; name: string }
+  | { type: "RESET" };
+
+const initialMcpState: McpState = {
+  step: "action",
+  action: null,
+  selectedInstance: null,
+  sourceInstance: null,
+  mcpSources: [],
+  customName: "",
+};
+
+function mcpReducer(state: McpState, action: McpReducerAction): McpState {
+  switch (action.type) {
+    case "SET_STEP":
+      return { ...state, step: action.step };
+    case "SET_ACTION":
+      return { ...state, action: action.action };
+    case "SELECT_INSTANCE":
+      return { ...state, selectedInstance: action.instance };
+    case "SELECT_SOURCE":
+      return { ...state, sourceInstance: action.source };
+    case "SET_MCP_SOURCES":
+      return { ...state, mcpSources: action.sources };
+    case "SET_CUSTOM_NAME":
+      return { ...state, customName: action.name };
+    case "RESET":
+      return initialMcpState;
+  }
+}
+
 export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, copyMcpServersBetweenInstances, getInstanceMcpServers, listInstancePlugins, setCustomMcpServer, removeCustomMcpServer } = useConfig();
-  const [step, setStep] = useState<Step>("action");
-  const [action, setAction] = useState<string | null>(null);
-  const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
-  const [sourceInstance, setSourceInstance] = useState<string | null>(null);
-  const [mcpSources, setMcpSources] = useState<McpSource[]>([]);
+  const [state, dispatch] = useReducer(mcpReducer, initialMcpState);
+  const { step, action, selectedInstance, sourceInstance, mcpSources, customName } = state;
   const { error, setError, success, setSuccess } = useMessage();
-  const [customName, setCustomName] = useState("");
 
   useNavigation(() => {
     if (step === "details" || step === "select" || step === "remove-select" || step === "add-name" || step === "add-config") {
-      setStep("action");
+      dispatch({ type: "SET_STEP", step: "action" });
     } else if (step === "select-target") {
-      setStep("select-source");
+      dispatch({ type: "SET_STEP", step: "select-source" });
     } else if (step === "done") {
       onBack();
     } else {
@@ -116,15 +158,15 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const handleAction = (value: string) => {
     if (value === "cancel") { onBack(); return; }
-    setAction(value);
+    dispatch({ type: "SET_ACTION", action: value });
     if (value === McpAction.Copy) {
       if (instances.length < 2) {
         setError("Need at least 2 instances to copy");
         return;
       }
-      setStep("select-source");
+      dispatch({ type: "SET_STEP", step: "select-source" });
     } else {
-      setStep("select");
+      dispatch({ type: "SET_STEP", step: "select" });
     }
   };
 
@@ -133,8 +175,8 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       setError("Server name cannot be empty");
       return;
     }
-    setCustomName(value.trim());
-    setStep("add-config");
+    dispatch({ type: "SET_CUSTOM_NAME", name: value.trim() });
+    dispatch({ type: "SET_STEP", step: "add-config" });
   };
 
   const handleAddConfigSubmit = async (value: string) => {
@@ -149,10 +191,10 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       if (!inst) return;
       await setCustomMcpServer(inst.configDir, customName, config);
       setSuccess(`Added custom MCP server '${customName}' to '${selectedInstance}'`);
-      setStep("done");
+      dispatch({ type: "SET_STEP", step: "done" });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-      setStep("add-config");
+      dispatch({ type: "SET_STEP", step: "add-config" });
     }
   };
 
@@ -163,10 +205,10 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       if (!inst) return;
       await removeCustomMcpServer(inst.configDir, serverName);
       setSuccess(`Removed custom MCP server '${serverName}' from '${selectedInstance}'`);
-      setStep("done");
+      dispatch({ type: "SET_STEP", step: "done" });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-      setStep("action");
+      dispatch({ type: "SET_STEP", step: "action" });
     }
   };
 
@@ -219,10 +261,10 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   };
 
   const handleInstanceSelect = async (value: string) => {
-    setSelectedInstance(value);
+    dispatch({ type: "SELECT_INSTANCE", instance: value });
     try {
       if (action === "add") {
-        setStep("add-name");
+        dispatch({ type: "SET_STEP", step: "add-name" });
         return;
       }
       if (action === "remove-custom") {
@@ -230,37 +272,37 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         const customs = sources.filter(s => s.source === "custom");
         if (customs.length === 0) {
           setError("No custom MCP servers found in this instance");
-          setStep("action");
+          dispatch({ type: "SET_STEP", step: "action" });
           return;
         }
-        setMcpSources(customs);
-        setStep("remove-select");
+        dispatch({ type: "SET_MCP_SOURCES", sources: customs });
+        dispatch({ type: "SET_STEP", step: "remove-select" });
         return;
       }
       const sources = await buildMcpSources(value);
-      setMcpSources(sources);
-      setStep("details");
+      dispatch({ type: "SET_MCP_SOURCES", sources });
+      dispatch({ type: "SET_STEP", step: "details" });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-      setStep("action");
+      dispatch({ type: "SET_STEP", step: "action" });
     }
   };
 
   const handleSourceSelect = (value: string) => {
-    setSourceInstance(value);
-    setStep("select-target");
+    dispatch({ type: "SELECT_SOURCE", source: value });
+    dispatch({ type: "SET_STEP", step: "select-target" });
   };
 
   const handleTargetSelect = async (value: string) => {
     if (!sourceInstance) return;
-    setStep("copying");
+    dispatch({ type: "SET_STEP", step: "copying" });
     try {
       await copyMcpServersBetweenInstances(sourceInstance, value);
       setSuccess(`Copied MCP servers from '${sourceInstance}' to '${value}'`);
-      setStep("done");
+      dispatch({ type: "SET_STEP", step: "done" });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
-      setStep("action");
+      dispatch({ type: "SET_STEP", step: "action" });
     }
   };
 
@@ -305,8 +347,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text>Target instance:</Text>
           <Select
             options={instances
-              .filter((i) => i.name !== sourceInstance)
-              .map((i) => ({ label: i.name, value: i.name }))}
+              .flatMap((i) => i.name !== sourceInstance ? [{ label: i.name, value: i.name }] : [])}
             visibleOptionCount={instances.length - 1}
             onChange={handleTargetSelect}
           />

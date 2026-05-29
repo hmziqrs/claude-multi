@@ -109,8 +109,10 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
     try {
       setRemovedConfig(selected.configDir);
-      const { removeInstance } = await import("@/config");
-      const { removeWrapper } = await import("@/wrapper");
+      const [{ removeInstance }, { removeWrapper }] = await Promise.all([
+        import("@/config"),
+        import("@/wrapper"),
+      ]);
       const instance = await removeInstance(selected.name);
       if (instance) removeWrapper(instance.binaryPath);
       await reload();

@@ -9,6 +9,14 @@ import { LEGACY_INSTANCE_VERSION } from "@/migration";
 
 type Step = "select" | "info";
 
+type InfoData = {
+  pluginCount: number | null;
+  enabledCount: number | null;
+  mcpCount: number | null;
+  mcpPluginCount: number | null;
+  mcpCustomCount: number | null;
+};
+
 const DetailRow: React.FC<{ label: string; value: string; color?: string; last?: boolean; delay?: number }> = ({
   label, value, color, last, delay = 0,
 }) => {
@@ -23,15 +31,19 @@ const DetailRow: React.FC<{ label: string; value: string; color?: string; last?:
   );
 };
 
+const EMPTY_INFO: InfoData = {
+  pluginCount: null,
+  enabledCount: null,
+  mcpCount: null,
+  mcpPluginCount: null,
+  mcpCustomCount: null,
+};
+
 export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, listInstancePlugins, getInstanceMcpServers } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);
-  const [pluginCount, setPluginCount] = useState<number | null>(null);
-  const [enabledCount, setEnabledCount] = useState<number | null>(null);
-  const [mcpCount, setMcpCount] = useState<number | null>(null);
-  const [mcpPluginCount, setMcpPluginCount] = useState<number | null>(null);
-  const [mcpCustomCount, setMcpCustomCount] = useState<number | null>(null);
+  const [infoData, setInfoData] = useState<InfoData>(EMPTY_INFO);
 
   useNavigation(() => {
     if (step === "info") {
@@ -63,16 +75,16 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     // Load plugin/MCP data async
     try {
       const plugins = listInstancePlugins(inst.configDir);
-      setPluginCount(plugins.length);
-      setEnabledCount(plugins.filter(p => p.enabled).length);
-
       const mcpData = await getInstanceMcpServers(inst.configDir);
-      setMcpPluginCount(Object.keys(mcpData.fromPlugins).length);
-      setMcpCustomCount(Object.keys(mcpData.fromSettings).length);
-      setMcpCount(Object.keys(mcpData.all).length);
+      setInfoData({
+        pluginCount: plugins.length,
+        enabledCount: plugins.filter(p => p.enabled).length,
+        mcpPluginCount: Object.keys(mcpData.fromPlugins).length,
+        mcpCustomCount: Object.keys(mcpData.fromSettings).length,
+        mcpCount: Object.keys(mcpData.all).length,
+      });
     } catch {
-      setPluginCount(null);
-      setMcpCount(null);
+      setInfoData(EMPTY_INFO);
     }
   };
 
@@ -108,17 +120,17 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
               color={selected.createdWithVersion === LEGACY_INSTANCE_VERSION ? "yellow" : undefined}
               delay={250}
             />
-            {pluginCount !== null && (
+            {infoData.pluginCount !== null && (
               <DetailRow
                 label="Plugins"
-                value={`${pluginCount} installed, ${enabledCount} enabled`}
+                value={`${infoData.pluginCount} installed, ${infoData.enabledCount} enabled`}
                 delay={300}
               />
             )}
-            {mcpCount !== null && (
+            {infoData.mcpCount !== null && (
               <DetailRow
                 label="MCP Servers"
-                value={`${mcpCount} total (${mcpPluginCount} from plugins, ${mcpCustomCount} custom)`}
+                value={`${infoData.mcpCount} total (${infoData.mcpPluginCount} from plugins, ${infoData.mcpCustomCount} custom)`}
                 last
                 delay={350}
               />

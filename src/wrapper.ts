@@ -67,6 +67,50 @@ export function tryGetClaudePath(): string | null {
 }
 
 /**
+ * Resolves the global Claude path from PATH (skips pinned binary).
+ * Used by migrations that should point to the globally installed claude.
+ */
+export function getGlobalClaudePath(): string {
+  // 1. Allow explicit override via env var
+  const override = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+  if (override) {
+    const resolved = resolve(override);
+    if (!existsSync(resolved)) {
+      throw new ClaudeMultiError(
+        ErrorCode.CLAUDE_NOT_FOUND,
+        `CLAUDE_MULTI_CLAUDE_PATH points to ${resolved} but that file does not exist`,
+      );
+    }
+    return resolved;
+  }
+
+  // 2. Global PATH (no pinned binary)
+  try {
+    const command = process.platform === "win32" ? "where claude" : "which claude";
+    const claudePath = execSync(command, { encoding: "utf-8" }).trim();
+    const firstPath = claudePath.split("\n")[0];
+    if (!firstPath) {
+      throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Could not determine Claude path");
+    }
+    return firstPath.trim();
+  } catch (err) {
+    if (err instanceof ClaudeMultiError) throw err;
+    throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Claude Code is not installed. Please install @anthropic-ai/claude-code first.", { cause: err });
+  }
+}
+
+/**
+ * Safe variant of getGlobalClaudePath() that returns null instead of throwing.
+ */
+export function tryGetGlobalClaudePath(): string | null {
+  try {
+    return getGlobalClaudePath();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Generates the expected wrapper content for an instance (non-throwing).
  * Returns null if the Claude binary cannot be resolved.
  */

@@ -5,7 +5,7 @@ import type { Config, Instance, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
-import { generateWrapperScriptSafe } from "@/wrapper";
+import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -21,6 +21,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   {
     version: "0.6.2",
     description: "Regenerate wrappers and update stale .claude.json for current claude-multi behavior",
+    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
 
@@ -29,14 +30,11 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         return Promise.resolve(instance);
       }
 
-      // Only regenerate wrapper if the file exists and content differs
+      // Regenerate wrapper pointing to the globally installed claude (not pinned binary)
       if (existsSync(instance.binaryPath)) {
-        const expected = generateWrapperScriptSafe({
-          name: instance.name,
-          configDir: instance.configDir,
-          binaryPath: instance.binaryPath,
-        });
-        if (expected !== null) {
+        const claudePath = tryGetGlobalClaudePath();
+        if (claudePath !== null) {
+          const expected = buildWrapperScript(instance, claudePath);
           try {
             const current = readFileSync(instance.binaryPath, "utf-8");
             if (current !== expected) {
@@ -95,7 +93,7 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
   if (!createLock()) return config;
 
   try {
-    await createBackup(config);
+    createBackup(config);
 
     const currentVersion = getClaudeMultiVersion();
     const stored = semver.coerce(config.instanceMigrationVersion || "0.0.0");
@@ -104,7 +102,9 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
       .toSorted((a, b) => semver.compare(a.version, b.version));
 
     for (const migration of applicable) {
+      // eslint-disable-next-line @react-doctor/async-await-in-loop -- migrations must run sequentially per version order
       for (let i = 0; i < config.instances.length; i++) {
+        // eslint-disable-next-line @react-doctor/async-await-in-loop -- migrations must run sequentially per version order
         const migrated = await migration.migrate({ ...config.instances[i] } as Instance, config);
         config.instances[i] = migrated;
       }
@@ -213,7 +213,7 @@ export function createBackup(config: Config): string {
   return backupPath;
 }
 
-export async function runMigration(config: Config): Promise<Config> {
+export function runMigration(config: Config): Config {
   if (!needsMigration(config)) return config;
 
   if (!createLock()) {
@@ -225,7 +225,7 @@ export async function runMigration(config: Config): Promise<Config> {
 
   try {
     // Step 1: Create backup
-    await createBackup(config);
+    createBackup(config);
 
     // Step 2: Validate instances
     for (const inst of config.instances) {

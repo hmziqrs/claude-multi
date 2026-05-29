@@ -194,9 +194,11 @@ program
           const useInk = process.env.CLAUDE_MULTI_INK !== "false";
           if (useInk) {
             try {
-              const { render } = await import("ink");
-              const React = await import("react");
-              const { AddInstance } = await import("./ink/screens/AddInstance.js");
+              const [{ render }, React, { AddInstance }] = await Promise.all([
+                import("ink"),
+                import("react"),
+                import("./ink/screens/AddInstance.js"),
+              ]);
               const { waitUntilExit } = render(
                 React.createElement(AddInstance, { onBack: () => process.exit(0), initialName: name }),
               );
@@ -538,13 +540,23 @@ program
   .argument("[action]", "Action to perform (fix, check)", "check")
   .action(async (action = "check") => {
     try {
-      const instances = await listInstances();
-      const { runHealthChecks, fixWrapperVersions } = await import("@/health");
-      const { existsSync } = await import("node:fs");
-      const { PINNED_CLAUDE_BIN } = await import("@/paths");
-      const { installPinnedClaude, getPinnedBinaryVersion, isThirdPartyApiBroken, COMPATIBLE_CLAUDE_VERSION } = await import("@/version");
-      const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
-      const { loadConfig, saveConfigAtomic } = await import("@/config");
+      const [
+        instances,
+        { runHealthChecks, fixWrapperVersions },
+        { existsSync },
+        { PINNED_CLAUDE_BIN },
+        { installPinnedClaude, getPinnedBinaryVersion, isThirdPartyApiBroken, COMPATIBLE_CLAUDE_VERSION },
+        { needsInstanceMigration, runInstanceMigrations },
+        { loadConfig, saveConfigAtomic },
+      ] = await Promise.all([
+        listInstances(),
+        import("@/health"),
+        import("node:fs"),
+        import("@/paths"),
+        import("@/version"),
+        import("@/migration"),
+        import("@/config"),
+      ]);
 
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
@@ -701,8 +713,12 @@ async function handlePluginsList(instanceName: string): Promise<void> {
       return;
     }
 
-    for (const instance of instances) {
+    const results = await Promise.all(instances.map(async (instance) => {
       const plugins = await getEnabledPlugins(instance.configDir);
+      return { instance, plugins };
+    }));
+
+    for (const { instance, plugins } of results) {
       console.log(chalk.cyan(`${instance.name}:`));
 
       if (plugins) {
@@ -745,6 +761,7 @@ async function handlePluginsSetEnabled(instanceName: string, plugins: string[], 
   const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
   let updated = false;
 
+  // eslint-disable-next-line @react-doctor/async-await-in-loop -- mutates shared currentPlugins state in place
   for (const pluginId of plugins) {
     if (currentPlugins[pluginId] === enable) {
       console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already ${enable ? "enabled" : "disabled"}`));
@@ -774,9 +791,10 @@ function handlePluginsDisable(instanceName: string, plugins: string[]): Promise<
 }
 
 async function handlePluginsCopy(instanceName: string): Promise<void> {
-  const instance = await requireInstance(instanceName);
-
-  const defaultPlugins = await listAvailablePlugins();
+  const [instance, defaultPlugins] = await Promise.all([
+    requireInstance(instanceName),
+    listAvailablePlugins(),
+  ]);
   if (!defaultPlugins) {
     console.log(chalk.yellow("No plugins found in default Claude settings"));
     return;
@@ -845,8 +863,10 @@ async function handlePluginsRemove(instanceName: string, pluginIds: string[]): P
   requireNonEmptyArgs(pluginIds, "✗ No plugins specified", "Usage: claude-multi plugins remove <instance> <plugin-id>...");
 
   const installed = listInstancePlugins(instance.configDir);
+  const installedMap = new Map(installed.map(ip => [ip.id, ip]));
+  // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared installed_plugins.json manifest requires sequential writes
   for (const id of pluginIds) {
-    const p = installed.find(ip => ip.id === id);
+    const p = installedMap.get(id);
     if (!p) {
       console.error(chalk.red(`✗ Plugin '${id}' not installed in '${instanceName}'`));
       continue;
@@ -962,7 +982,10 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
   if (fixAll) {
     instancesToFix = instances;
   } else if (names.length > 0) {
-    instancesToFix = names.map(name => instances.find(i => i.name === name)).filter(Boolean) as Instance[];
+    instancesToFix = names.flatMap(name => {
+      const found = instances.find(i => i.name === name);
+      return found ? [found] : [];
+    });
   } else {
     // Interactive selection
     const { selected } = await prompts({
@@ -974,13 +997,26 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
         value: i.name,
       })),
     });
-    instancesToFix = selected.map((name: string) => instances.find(i => i.name === name)).filter(Boolean) as Instance[];
+    instancesToFix = selected.flatMap((name: string) => {
+      const found = instances.find(i => i.name === name);
+      return found ? [found] : [];
+    });
   }
 
-  for (const instance of instancesToFix) {
+  const fixResults = await Promise.all(instancesToFix.map(async (instance) => {
     const diagnosis = detectBrokenSymlinks(instance.configDir);
     const needsFix = diagnosis.broken.length > 0;
 
+    let fixed = false;
+    if (needsFix && instance.autoSync) {
+      await syncPluginsAndSkills(instance.configDir);
+      fixed = true;
+    }
+
+    return { instance, diagnosis, needsFix, fixed };
+  }));
+
+  for (const { instance, diagnosis, needsFix } of fixResults) {
     console.log(chalk.bold(`\n🔍 ${instance.name}`));
     console.log(`  Config: ${instance.configDir}`);
     console.log(`  Auto-sync: ${instance.autoSync ? "enabled" : "disabled"}`);
@@ -994,8 +1030,6 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
       console.log(chalk.red(`  ❌ Broken: ${diagnosis.broken.join(", ")}`));
 
       if (instance.autoSync) {
-        // Auto-fix without prompting (user chose auto-fix behavior)
-        await syncPluginsAndSkills(instance.configDir);
         console.log(chalk.green(`  ✅ Fixed: ${diagnosis.broken.join(", ")}`));
       } else {
         console.log(chalk.yellow("  ⚠ Auto-sync is disabled. Enable it first."));
@@ -1054,8 +1088,12 @@ async function handleMcpList(instanceName: string): Promise<void> {
     // Show all instances with MCP status
     console.log(chalk.bold("\n📋 MCP Servers by Instance\n"));
 
-    for (const instance of instances) {
+    const mcpResults = await Promise.all(instances.map(async (instance) => {
       const mcpServers = await listMcpServers(instance.name);
+      return { instance, mcpServers };
+    }));
+
+    for (const { instance, mcpServers } of mcpResults) {
       const hasMcp = mcpServers && Object.keys(mcpServers).length > 0;
 
       console.log(chalk.cyan(`● ${instance.name}`));
@@ -1247,9 +1285,11 @@ program.action(async () => {
   }
 
   try {
-    const { render } = await import("ink");
-    const React = await import("react");
-    const { App } = await import("./ink/App.js");
+    const [{ render }, React, { App }] = await Promise.all([
+      import("ink"),
+      import("react"),
+      import("./ink/App.js"),
+    ]);
     const { waitUntilExit } = render(React.createElement(App));
     await waitUntilExit();
   } catch (error: unknown) {

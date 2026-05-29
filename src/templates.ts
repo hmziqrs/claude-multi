@@ -17,7 +17,7 @@ export interface ProviderTemplate {
  */
 const PROVIDER_COMMON_ENV: Record<string, string> = {};
 
-export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
+const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   glm: {
     name: "glm",
     displayName: "GLM Coding Plan",
@@ -180,7 +180,7 @@ export const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   },
 };
 
-export const API_KEY_PREFIXES: Record<string, string> = {
+const API_KEY_PREFIXES: Record<string, string> = {
   "mimo-token": "tp_",
 };
 
@@ -258,9 +258,3 @@ export function applyProviderTemplate(
   return settings;
 }
 
-/**
- * Check if a provider template exists
- */
-export function hasProviderTemplate(name: string): boolean {
-  return name.toLowerCase() in PROVIDER_TEMPLATES;
-}

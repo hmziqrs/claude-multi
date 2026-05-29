@@ -25,9 +25,10 @@ export function useHealthCheck(
       const previous = loadHealthStatus();
 
       // Merge: carry forward dismissed state
-      const dismissedMap = new Map(
-        previous.issues.filter(i => i.dismissed).map(i => [i.id, true]),
-      );
+      const dismissedMap = new Map<string, boolean>();
+      for (const i of previous.issues) {
+        if (i.dismissed) dismissedMap.set(i.id, true);
+      }
       const merged = found.map(issue => ({
         ...issue,
         dismissed: dismissedMap.has(issue.id) ? true : issue.dismissed,

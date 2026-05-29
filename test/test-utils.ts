@@ -279,31 +279,3 @@ export class AutoSyncTestHelper {
     return this.instanceConfigDir;
   }
 }
-
-/**
- * Create a symlink for testing (handles platform differences)
- */
-export async function createSymlink(target: string, path: string): Promise<void> {
-  const { symlink } = await import("node:fs/promises");
-  await symlink(target, path, "dir");
-}
-
-/**
- * Check if a path is a symlink
- */
-export function isSymlink(path: string): boolean {
-  try {
-    readlinkSync(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Get relative path from source to target
- */
-export async function getRelativePath(from: string, to: string): Promise<string> {
-  const { relative } = await import("node:path");
-  return relative(from, to);
-}

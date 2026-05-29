@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useReducer, useCallback, useMemo } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { TextInput, Select, ConfirmInput, PasswordInput, MultiSelect } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
@@ -131,115 +131,292 @@ function getVisibleStepCount(state: WizardState): number {
   ).length;
 }
 
+// --- Reducer state and actions ---
+
+type AddInstanceState = {
+  step: Step;
+  name: string;
+  error: string;
+  useProvider: boolean;
+  selectedProvider: string | null;
+  selectedRegion: string | null;
+  apiKey: string;
+  autoSync: boolean;
+  copyOption: string;
+  selectedPluginIds: string[];
+  result: { configDir: string; binaryPath: string } | null;
+};
+
+type AddInstanceAction =
+  | { type: "SET_STEP"; step: Step }
+  | { type: "SET_NAME"; name: string }
+  | { type: "SET_ERROR"; error: string }
+  | { type: "SELECT_PROVIDER"; provider: string | null; useProvider: boolean }
+  | { type: "SET_REGION"; region: string | null }
+  | { type: "SET_API_KEY"; key: string }
+  | { type: "SET_AUTO_SYNC"; value: boolean }
+  | { type: "SET_COPY_OPTION"; value: string }
+  | { type: "SET_PLUGIN_IDS"; ids: string[] }
+  | { type: "SET_RESULT"; result: { configDir: string; binaryPath: string } | null }
+  | { type: "RESET" };
+
+function reducer(state: AddInstanceState, action: AddInstanceAction): AddInstanceState {
+  switch (action.type) {
+    case "SET_STEP":
+      return { ...state, step: action.step, error: "" };
+    case "SET_NAME":
+      return { ...state, name: action.name };
+    case "SET_ERROR":
+      return { ...state, error: action.error };
+    case "SELECT_PROVIDER":
+      return { ...state, selectedProvider: action.provider, useProvider: action.useProvider };
+    case "SET_REGION":
+      return { ...state, selectedRegion: action.region };
+    case "SET_API_KEY":
+      return { ...state, apiKey: action.key };
+    case "SET_AUTO_SYNC":
+      return { ...state, autoSync: action.value };
+    case "SET_COPY_OPTION":
+      return { ...state, copyOption: action.value };
+    case "SET_PLUGIN_IDS":
+      return { ...state, selectedPluginIds: action.ids };
+    case "SET_RESULT":
+      return { ...state, result: action.result };
+    case "RESET":
+      return { ...state, error: "" };
+    default:
+      return state;
+  }
+}
+
+function initialState(initialName?: string): AddInstanceState {
+  return {
+    step: initialName ? Step.ProviderSelect : Step.Name,
+    name: initialName ?? "",
+    error: "",
+    useProvider: false,
+    selectedProvider: null,
+    selectedRegion: null,
+    apiKey: "",
+    autoSync: false,
+    copyOption: CopyOption.None,
+    selectedPluginIds: [],
+    result: null,
+  };
+}
+
+// --- Sub-components for each wizard step ---
+
+const NameStep: React.FC<{
+  state: AddInstanceState;
+  dispatch: React.Dispatch<AddInstanceAction>;
+  onSubmit: (value: string) => void;
+}> = ({ state, onSubmit }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Instance name:</Text>
+    <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
+    <TextInput
+      placeholder="my-instance"
+      defaultValue={state.name}
+      onSubmit={onSubmit}
+    />
+  </Box>
+);
+
+const ProviderSelectStep: React.FC<{
+  state: AddInstanceState;
+  dispatch: React.Dispatch<AddInstanceAction>;
+  providerOptions: { label: string; value: string }[];
+  onSelect: (value: string) => void;
+}> = ({ state, providerOptions, onSelect }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Select a provider:</Text>
+    <Select
+      options={providerOptions}
+      visibleOptionCount={providerOptions.length}
+      defaultValue={state.selectedProvider ?? undefined}
+      onChange={onSelect}
+    />
+  </Box>
+);
+
+const ProviderRegionStep: React.FC<{
+  state: AddInstanceState;
+  dispatch: React.Dispatch<AddInstanceAction>;
+  onSelect: (value: string) => void;
+}> = ({ state, onSelect }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Select your subscription region:</Text>
+    <Box borderStyle="round" borderColor="yellow" paddingX={1}>
+      <Text bold color="yellow">
+        Check your Xiaomi account console to confirm the correct region for your subscription.
+      </Text>
+    </Box>
+    <Select
+      options={Object.entries(MIMO_TOKEN_REGIONS).map(([key, val]) => ({
+        label: `${val.label} — ${val.baseUrl}`,
+        value: key,
+      }))}
+      visibleOptionCount={3}
+      defaultValue={state.selectedRegion ?? undefined}
+      onChange={onSelect}
+    />
+  </Box>
+);
+
+const ProviderApiKeyStep: React.FC<{
+  state: AddInstanceState;
+  dispatch: React.Dispatch<AddInstanceAction>;
+  onSubmit: (value: string) => void;
+}> = ({ state, onSubmit }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Enter {state.selectedProvider} API key:</Text>
+    <PasswordInput
+      placeholder={state.selectedProvider ? getApiKeyPlaceholder(state.selectedProvider) : "sk-..."}
+      onSubmit={onSubmit}
+    />
+  </Box>
+);
+
+const PathsConfirmStep: React.FC<{
+  state: AddInstanceState;
+  cfg: ReturnType<typeof useConfig>;
+  onConfirm: (confirmed: boolean) => void;
+}> = ({ state, cfg, onConfirm }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Use default paths?</Text>
+    <Text dimColor>Config: {join(homedir(), `.claude-${state.name}`)}</Text>
+    <Text dimColor>Binary: {cfg.getDefaultBinaryPath(state.name)}</Text>
+    <ConfirmInput
+      onConfirm={() => onConfirm(true)}
+      onCancel={() => onConfirm(false)}
+    />
+  </Box>
+);
+
+const SelectPluginsStep: React.FC<{
+  pluginSelectOptions: { label: string; value: string }[];
+  defaultPluginsLength: number;
+  onSubmit: (ids: string[]) => void;
+}> = ({ pluginSelectOptions, defaultPluginsLength, onSubmit }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Select plugins to install:</Text>
+    <Text dimColor>{defaultPluginsLength} available · space to toggle · enter to confirm</Text>
+    <MultiSelect
+      options={pluginSelectOptions}
+      visibleOptionCount={Math.min(pluginSelectOptions.length, 10)}
+      onSubmit={onSubmit}
+    />
+  </Box>
+);
+
+const AutosyncStep: React.FC<{
+  onConfirm: (confirmed: boolean) => void;
+}> = ({ onConfirm }) => (
+  <Box flexDirection="column" gap={1}>
+    <Text>Auto-sync plugins and skills via symlinks?</Text>
+    <Text dimColor>Shares plugins/skills from ~/.claude across instances</Text>
+    <ConfirmInput
+      onConfirm={() => onConfirm(true)}
+      onCancel={() => onConfirm(false)}
+    />
+  </Box>
+);
+
 export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }> = ({ onBack, initialName }) => {
   const { exit } = useApp();
   const cfg = useConfig();
 
-  const [step, setStep] = useState<Step>(initialName ? Step.ProviderSelect : Step.Name);
-  const [name, setName] = useState(initialName ?? "");
-  const [error, setError] = useState("");
-  const [useProvider, setUseProvider] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState("");
-  const [autoSync, setAutoSync] = useState(false);
-  const [copyOption, setCopyOption] = useState<string>(CopyOption.None);
-  const [selectedPluginIds, setSelectedPluginIds] = useState<string[]>([]);
-  const [result, setResult] = useState<{ configDir: string; binaryPath: string } | null>(null);
+  const [state, dispatch] = useReducer(reducer, initialName, initialState);
 
   const defaultPlugins = useMemo(() => cfg.listDefaultPlugins(), [cfg]);
 
   const wizardState = useMemo<WizardState>(() => ({
-    useProvider,
-    selectedProvider,
-    copyOption,
-  }), [useProvider, selectedProvider, copyOption]);
+    useProvider: state.useProvider,
+    selectedProvider: state.selectedProvider,
+    copyOption: state.copyOption,
+  }), [state.useProvider, state.selectedProvider, state.copyOption]);
 
   const navTo = useCallback((target: Step | null) => {
     if (target) {
-      setStep(target);
-      setError("");
+      dispatch({ type: "SET_STEP", step: target });
     } else {
       onBack();
     }
   }, [onBack]);
 
   const goBack = useCallback(() => {
-    navTo(getPrevStep(step, wizardState));
-  }, [step, wizardState, navTo]);
+    navTo(getPrevStep(state.step, wizardState));
+  }, [state.step, wizardState, navTo]);
 
   const goForward = useCallback(() => {
-    const next = getNextStep(step, wizardState);
+    const next = getNextStep(state.step, wizardState);
     if (next && next !== Step.Creating && next !== Step.Done) {
       navTo(next);
     }
-  }, [step, wizardState, navTo]);
+  }, [state.step, wizardState, navTo]);
 
   useNavigation(() => {
     onBack();
   });
 
   useInput((input, key) => {
-    if (input === "q" && step === Step.Done) exit();
+    if (input === "q" && state.step === Step.Done) exit();
 
-    if (key.shift && key.leftArrow && step !== Step.Creating && step !== Step.Done) {
+    if (key.shift && key.leftArrow && state.step !== Step.Creating && state.step !== Step.Done) {
       goBack();
     }
 
-    if (key.shift && key.rightArrow && step !== Step.Creating && step !== Step.Done) {
+    if (key.shift && key.rightArrow && state.step !== Step.Creating && state.step !== Step.Done) {
       goForward();
     }
   });
 
   const handleNameSubmit = useCallback((value: string) => {
-    if (!value.trim()) { setError("Name is required"); return; }
+    if (!value.trim()) { dispatch({ type: "SET_ERROR", error: "Name is required" }); return; }
     if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
-      setError("Only letters, numbers, hyphens, underscores allowed");
+      dispatch({ type: "SET_ERROR", error: "Only letters, numbers, hyphens, underscores allowed" });
       return;
     }
-    setError("");
-    setName(value);
-    setStep(Step.ProviderSelect);
+    dispatch({ type: "SET_NAME", name: value });
+    dispatch({ type: "SET_STEP", step: Step.ProviderSelect });
   }, []);
 
   const handleProviderSelect = useCallback((value: string) => {
     if (value === CopyOption.None) {
-      setUseProvider(false);
-      setSelectedProvider(null);
-      setStep(Step.PathsConfirm);
+      dispatch({ type: "SELECT_PROVIDER", provider: null, useProvider: false });
+      dispatch({ type: "SET_STEP", step: Step.PathsConfirm });
       return;
     }
-    setUseProvider(true);
-    setSelectedProvider(value);
-    setStep(providerHasRegions(value) ? Step.ProviderRegion : Step.ProviderApiKey);
+    dispatch({ type: "SELECT_PROVIDER", provider: value, useProvider: true });
+    dispatch({ type: "SET_STEP", step: providerHasRegions(value) ? Step.ProviderRegion : Step.ProviderApiKey });
   }, []);
 
   const handleRegionSelect = useCallback((value: string) => {
-    setSelectedRegion(value);
-    setStep(Step.ProviderApiKey);
+    dispatch({ type: "SET_REGION", region: value });
+    dispatch({ type: "SET_STEP", step: Step.ProviderApiKey });
   }, []);
 
   const handleApiKeySubmit = useCallback((value: string) => {
-    if (!value.trim()) { setError("API key is required"); return; }
-    setError("");
-    setApiKey(value);
-    setStep(Step.PathsConfirm);
+    if (!value.trim()) { dispatch({ type: "SET_ERROR", error: "API key is required" }); return; }
+    dispatch({ type: "SET_API_KEY", key: value });
+    dispatch({ type: "SET_STEP", step: Step.PathsConfirm });
   }, []);
 
   const handleDefaultsConfirm = useCallback((_confirmed: boolean) => {
-    setStep(Step.CopyOptions);
+    dispatch({ type: "SET_STEP", step: Step.CopyOptions });
   }, []);
 
   const doCreate = useCallback(async (copyOpt: string, sync: boolean) => {
-    setStep(Step.Creating);
-    setError("");
+    dispatch({ type: "SET_STEP", step: Step.Creating });
+    dispatch({ type: "SET_ERROR", error: "" });
 
     try {
-      const cDir = join(homedir(), `.claude-${name}`);
-      const bPath = cfg.getDefaultBinaryPath(name);
+      const cDir = join(homedir(), `.claude-${state.name}`);
+      const bPath = cfg.getDefaultBinaryPath(state.name);
 
       const instance: Instance = {
-        name,
+        name: state.name,
         configDir: cDir,
         binaryPath: bPath,
         createdAt: new Date().toISOString(),
@@ -248,12 +425,14 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       };
 
       await cfg.addInstance(instance);
-      await cfg.createWrapper(instance);
-      await cfg.initializeInstanceState(cDir);
+      await Promise.all([
+        cfg.createWrapper(instance),
+        cfg.initializeInstanceState(cDir),
+      ]);
 
       if (copyOpt === CopyOption.SelectPlugins) {
         await cfg.copySettingsFromDefault(cDir);
-        const selections = selectedPluginIds.map(id => {
+        const selections = state.selectedPluginIds.map(id => {
           const plugin = defaultPlugins.find(p => p.id === id);
           return { id, category: plugin?.category ?? PluginCategory.External };
         });
@@ -266,30 +445,30 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         await cfg.copySettingsFromDefault(cDir);
       }
 
-      if (useProvider && selectedProvider) {
-        let template = cfg.getProviderTemplate(selectedProvider);
-        if (template && selectedRegion && providerHasRegions(selectedProvider)) {
-          template = resolveRegionTemplate(template, selectedRegion);
+      if (state.useProvider && state.selectedProvider) {
+        let template = cfg.getProviderTemplate(state.selectedProvider);
+        if (template && state.selectedRegion && providerHasRegions(state.selectedProvider)) {
+          template = resolveRegionTemplate(template, state.selectedRegion);
         }
-        if (template) await cfg.mergeProviderEnv(cDir, template, apiKey);
+        if (template) await cfg.mergeProviderEnv(cDir, template, state.apiKey);
       }
 
-      setResult({ configDir: cDir, binaryPath: bPath });
-      setStep(Step.Done);
+      dispatch({ type: "SET_RESULT", result: { configDir: cDir, binaryPath: bPath } });
+      dispatch({ type: "SET_STEP", step: Step.Done });
     } catch (err: unknown) {
-      await removeInstanceFromConfig(name).catch(() => {});
-      removeWrapper(cfg.getDefaultBinaryPath(name));
-      setError(err instanceof Error ? err.message : String(err));
-      setStep(Step.Name);
+      await removeInstanceFromConfig(state.name).catch(() => {});
+      removeWrapper(cfg.getDefaultBinaryPath(state.name));
+      dispatch({ type: "SET_ERROR", error: err instanceof Error ? err.message : String(err) });
+      dispatch({ type: "SET_STEP", step: Step.Name });
     }
-  }, [name, apiKey, selectedProvider, selectedRegion, selectedPluginIds, useProvider, defaultPlugins, cfg]);
+  }, [state.name, state.apiKey, state.selectedProvider, state.selectedRegion, state.selectedPluginIds, state.useProvider, defaultPlugins, cfg]);
 
   const handleCopyOption = useCallback((value: string) => {
-    setCopyOption(value);
+    dispatch({ type: "SET_COPY_OPTION", value });
     if (value === CopyOption.SelectPlugins) {
-      setStep(Step.SelectPlugins);
+      dispatch({ type: "SET_STEP", step: Step.SelectPlugins });
     } else if (value === CopyOption.All) {
-      setStep(Step.Autosync);
+      dispatch({ type: "SET_STEP", step: Step.Autosync });
     } else {
       doCreate(value, false);
     }
@@ -297,18 +476,17 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const handlePluginSelection = useCallback((ids: string[]) => {
     if (ids.length === 0) {
-      setError("Select at least one plugin, or go back and choose a different option.");
+      dispatch({ type: "SET_ERROR", error: "Select at least one plugin, or go back and choose a different option." });
       return;
     }
-    setSelectedPluginIds(ids);
-    setError("");
-    setStep(Step.Autosync);
+    dispatch({ type: "SET_PLUGIN_IDS", ids });
+    dispatch({ type: "SET_STEP", step: Step.Autosync });
   }, []);
 
   const handleAutoSyncConfirm = useCallback((confirmed: boolean) => {
-    setAutoSync(confirmed);
-    doCreate(copyOption, confirmed);
-  }, [copyOption, doCreate]);
+    dispatch({ type: "SET_AUTO_SYNC", value: confirmed });
+    doCreate(state.copyOption, confirmed);
+  }, [state.copyOption, doCreate]);
 
   const hasDefaultConfig = cfg.hasDefaultConfig();
 
@@ -335,83 +513,41 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={stepNumber(step)} total={getVisibleStepCount(wizardState)} label={STEP_TITLES[step]} />
+      <StepIndicator current={stepNumber(state.step)} total={getVisibleStepCount(wizardState)} label={STEP_TITLES[state.step]} />
 
-      {error && <StatusBar message={error} type="error" />}
+      {state.error && <StatusBar message={state.error} type="error" />}
 
-      {step === Step.Name && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Instance name:</Text>
-          <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
-          <TextInput placeholder="my-instance" defaultValue={name} onSubmit={handleNameSubmit} />
-        </Box>
+      {state.step === Step.Name && (
+        <NameStep state={state} dispatch={dispatch} onSubmit={handleNameSubmit} />
       )}
 
-      {step === Step.ProviderSelect && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Select a provider:</Text>
-          <Select
-            options={providerOptions}
-            visibleOptionCount={providerOptions.length}
-            defaultValue={selectedProvider ?? undefined}
-            onChange={handleProviderSelect}
-          />
-        </Box>
+      {state.step === Step.ProviderSelect && (
+        <ProviderSelectStep state={state} dispatch={dispatch} providerOptions={providerOptions} onSelect={handleProviderSelect} />
       )}
 
-      {step === Step.ProviderRegion && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Select your subscription region:</Text>
-          <Box borderStyle="round" borderColor="yellow" paddingX={1}>
-            <Text bold color="yellow">
-              Check your Xiaomi account console to confirm the correct region for your subscription.
-            </Text>
-          </Box>
-          <Select
-            options={Object.entries(MIMO_TOKEN_REGIONS).map(([key, val]) => ({
-              label: `${val.label} — ${val.baseUrl}`,
-              value: key,
-            }))}
-            visibleOptionCount={3}
-            defaultValue={selectedRegion ?? undefined}
-            onChange={handleRegionSelect}
-          />
-        </Box>
+      {state.step === Step.ProviderRegion && (
+        <ProviderRegionStep state={state} dispatch={dispatch} onSelect={handleRegionSelect} />
       )}
 
-      {step === Step.ProviderApiKey && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Enter {selectedProvider} API key:</Text>
-          <PasswordInput
-            placeholder={selectedProvider ? getApiKeyPlaceholder(selectedProvider) : "sk-..."}
-            onSubmit={handleApiKeySubmit}
-          />
-        </Box>
+      {state.step === Step.ProviderApiKey && (
+        <ProviderApiKeyStep state={state} dispatch={dispatch} onSubmit={handleApiKeySubmit} />
       )}
 
-      {step === Step.PathsConfirm && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Use default paths?</Text>
-          <Text dimColor>Config: {join(homedir(), `.claude-${name}`)}</Text>
-          <Text dimColor>Binary: {cfg.getDefaultBinaryPath(name)}</Text>
-          <ConfirmInput
-            onConfirm={() => handleDefaultsConfirm(true)}
-            onCancel={() => handleDefaultsConfirm(false)}
-          />
-        </Box>
+      {state.step === Step.PathsConfirm && (
+        <PathsConfirmStep state={state} cfg={cfg} onConfirm={handleDefaultsConfirm} />
       )}
 
-      {step === Step.CopyOptions && !hasDefaultConfig && (
+      {state.step === Step.CopyOptions && !hasDefaultConfig && (
         <Box flexDirection="column" gap={1}>
           <Text dimColor>No default Claude config found. Starting fresh.</Text>
           <ConfirmInput
-            onConfirm={() => doCreate(CopyOption.None, autoSync)}
+            onConfirm={() => doCreate(CopyOption.None, state.autoSync)}
             onCancel={onBack}
           />
         </Box>
       )}
 
-      {step === Step.CopyOptions && hasDefaultConfig && (
+      {state.step === Step.CopyOptions && hasDefaultConfig && (
         <Box flexDirection="column" gap={1}>
           <Text>Found existing Claude config at ~/.claude</Text>
           <Text>What to copy?</Text>
@@ -423,35 +559,24 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         </Box>
       )}
 
-      {step === Step.SelectPlugins && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Select plugins to install:</Text>
-          <Text dimColor>{defaultPlugins.length} available · space to toggle · enter to confirm</Text>
-          <MultiSelect
-            options={pluginSelectOptions}
-            visibleOptionCount={Math.min(pluginSelectOptions.length, 10)}
-            onSubmit={handlePluginSelection}
-          />
-        </Box>
+      {state.step === Step.SelectPlugins && (
+        <SelectPluginsStep
+          pluginSelectOptions={pluginSelectOptions}
+          defaultPluginsLength={defaultPlugins.length}
+          onSubmit={handlePluginSelection}
+        />
       )}
 
-      {step === Step.Autosync && (
-        <Box flexDirection="column" gap={1}>
-          <Text>Auto-sync plugins and skills via symlinks?</Text>
-          <Text dimColor>Shares plugins/skills from ~/.claude across instances</Text>
-          <ConfirmInput
-            onConfirm={() => handleAutoSyncConfirm(true)}
-            onCancel={() => handleAutoSyncConfirm(false)}
-          />
-        </Box>
+      {state.step === Step.Autosync && (
+        <AutosyncStep onConfirm={handleAutoSyncConfirm} />
       )}
 
-      {step === Step.Creating && (
+      {state.step === Step.Creating && (
         <Text dimColor>Creating instance…</Text>
       )}
 
-      {step === Step.Done && result && (
-        <AddResult name={name} binaryPath={result.binaryPath} configDir={result.configDir} />
+      {state.step === Step.Done && state.result && (
+        <AddResult name={state.name} binaryPath={state.result.binaryPath} configDir={state.result.configDir} />
       )}
 
       <Box marginTop={1}>

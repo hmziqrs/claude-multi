@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Config } from "@/config";
 import { getClaudeMultiVersion } from "@/version";
+import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -351,9 +352,40 @@ describe("Migration", () => {
         expect(content).not.toContain("/stale/path");
       });
 
+      test("uses global claude path, not pinned binary", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const claudePath = tryGetGlobalClaudePath();
+        if (!claudePath) return; // Skip if claude not installed
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+        mkdirSync(join(testDir, "bin"), { recursive: true });
+
+        const instDir = join(testDir, ".claude-global");
+        mkdirSync(instDir, { recursive: true });
+        const binaryPath = join(testDir, "bin", "global");
+        writeFileSync(binaryPath, "#!/bin/sh\nexec /old/claude \"$@\"\n", { mode: 0o755 });
+
+        const config = makeConfig({
+          instanceMigrationVersion: "0.1.0",
+          instances: [{
+            name: "global",
+            configDir: instDir,
+            binaryPath,
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          }],
+        });
+
+        await runInstanceMigrations(config);
+
+        const content = readFileSync(binaryPath, "utf-8");
+        expect(content).toContain(`exec "${claudePath}"`);
+      });
+
       test("does not regenerate wrapper when content is identical", async () => {
         const { runInstanceMigrations } = await import("@/migration");
-        const { generateWrapperScript } = await import("@/wrapper");
 
         const cmDir = join(testDir, ".claude-multi");
         mkdirSync(cmDir, { recursive: true });
@@ -363,8 +395,11 @@ describe("Migration", () => {
         mkdirSync(instDir, { recursive: true });
         const binaryPath = join(testDir, "bin", "same");
 
-        // Write the exact content generateWrapperScript would produce
-        const expectedContent = generateWrapperScript({ name: "same", configDir: instDir, binaryPath });
+        // Write the exact content the migration would produce (global claude path)
+        const claudePath = tryGetGlobalClaudePath();
+        if (!claudePath) return; // Skip if claude not installed
+        const inst = { name: "same", configDir: instDir, binaryPath };
+        const expectedContent = buildWrapperScript(inst, claudePath);
         writeFileSync(binaryPath, expectedContent, { mode: 0o755 });
         const mtimeBefore = statSync(binaryPath).mtimeMs;
 

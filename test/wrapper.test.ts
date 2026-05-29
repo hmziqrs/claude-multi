@@ -5,6 +5,7 @@ import {
   getDefaultBinaryPath,
   getClaudePath,
   tryGetClaudePath,
+  tryGetGlobalClaudePath,
   generateWrapperScriptSafe,
 } from "@/wrapper";
 import { existsSync } from "node:fs";
@@ -168,6 +169,29 @@ describe("Wrapper Script Generation", () => {
         expect(result).toContain("#!/bin/sh");
         expect(result).toContain('CLAUDE_CONFIG_DIR="/tmp/test"');
         expect(result).toContain("exec");
+      }
+    });
+  });
+
+  describe("tryGetGlobalClaudePath", () => {
+    it("returns null when Claude is not in PATH", () => {
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      const originalPath = process.env.PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/nonexistent/claude";
+      process.env.PATH = "/nonexistent";
+
+      try {
+        expect(tryGetGlobalClaudePath()).toBeNull();
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+        process.env.PATH = originalPath;
+      }
+    });
+
+    it("returns global claude path, not pinned binary", () => {
+      const result = tryGetGlobalClaudePath();
+      if (result !== null) {
+        expect(result).not.toContain(".claude-multi/bin");
       }
     });
   });

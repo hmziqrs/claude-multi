@@ -115,9 +115,11 @@ export const App: React.FC = () => {
       return output.split(" ")[0] || null;
     } catch { return null; }
   });
-  const [doctorFixedCount, setDoctorFixedCount] = useState(0);
-  const [doctorMigratedCount, setDoctorMigratedCount] = useState(0);
-  const [doctorInstallFailed, setDoctorInstallFailed] = useState(false);
+  const [doctorResult, setDoctorResult] = useState({
+    fixedCount: 0,
+    migratedCount: 0,
+    installFailed: false,
+  });
 
   useInput((input, key) => {
     if (screen !== "menu") return;
@@ -167,9 +169,7 @@ export const App: React.FC = () => {
       }
     } catch {}
 
-    setDoctorFixedCount(fixed.length);
-    setDoctorMigratedCount(migrated);
-    setDoctorInstallFailed(installFailed);
+    setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated, installFailed });
     retry();
     setScreen("doctor-result");
   };
@@ -192,7 +192,7 @@ export const App: React.FC = () => {
   }
 
   if (screen === "doctor-result") {
-    return <DoctorResultScreen fixedCount={doctorFixedCount} migratedCount={doctorMigratedCount} installFailed={doctorInstallFailed} onBack={goToMenu} />;
+    return <DoctorResultScreen fixedCount={doctorResult.fixedCount} migratedCount={doctorResult.migratedCount} installFailed={doctorResult.installFailed} onBack={goToMenu} />;
   }
 
   if (screen !== "menu") {

@@ -1,27 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const isCapture = () =>
   process.env.CAPTURE_MODE === "1" || process.env.NODE_ENV === "test";
 
 export function useTypewriter(text: string, speed = 25) {
-  const [displayed, setDisplayed] = useState(() => isCapture() ? text : "");
+  const [charCount, setCharCount] = useState(() => isCapture() ? text.length : 0);
 
   useEffect(() => {
     if (isCapture() || text.length === 0) {
-      setDisplayed(text);
+      setCharCount(text.length);
       return;
     }
-    setDisplayed("");
+    setCharCount(0);
     let i = 0;
     const timer = setInterval(() => {
       i++;
-      setDisplayed(text.slice(0, i));
+      setCharCount(i);
       if (i >= text.length) clearInterval(timer);
     }, speed);
     return () => clearInterval(timer);
   }, [text, speed]);
 
-  return displayed;
+  return text.slice(0, charCount);
 }
 
 export function useDrawLine(length: number, delay = 0, speed = 2) {
@@ -68,10 +68,17 @@ export function useStaggeredReveal(count: number, delay = 40) {
 
 export function useFadeIn(delay = 0) {
   const [visible, setVisible] = useState(() => isCapture());
+  const visibleRef = useRef(isCapture());
 
   useEffect(() => {
-    if (isCapture()) { setVisible(true); return; }
-    const timer = setTimeout(() => setVisible(true), delay);
+    if (isCapture() || visibleRef.current) {
+      if (!visibleRef.current) { setVisible(true); visibleRef.current = true; }
+      return;
+    }
+    const timer = setTimeout(() => {
+      setVisible(true);
+      visibleRef.current = true;
+    }, delay);
     return () => clearTimeout(timer);
   }, [delay]);
 
