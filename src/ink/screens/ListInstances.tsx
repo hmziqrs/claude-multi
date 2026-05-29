@@ -1,31 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Box, Text } from "ink";
 import { Header } from "@/ink/components/Header";
 import { InstanceCard } from "@/ink/components/InstanceCard";
 import { useNavigation } from "@/ink/hooks/useNavigation";
+import { useConfig } from "@/ink/hooks/useConfig";
 import { useStaggeredReveal, useCounter, useFadeIn } from "@/ink/hooks/useAnimations";
-import type { Instance } from "@/config";
-import { listInstances } from "@/config";
 
 export const ListInstances: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [instances, setInstances] = useState<Instance[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { instances, loading } = useConfig();
 
   useNavigation(onBack);
-
-  useEffect(() => {
-    listInstances().then((insts) => {
-      setInstances(insts);
-      setLoading(false);
-    });
-  }, []);
 
   const visibleCount = useStaggeredReveal(instances.length, 60);
   const countDisplay = useCounter(instances.length, 400);
   const showHint = useFadeIn(300);
 
   if (loading) {
-    return <Text dimColor>Loading...</Text>;
+    return <Text dimColor>Loading…</Text>;
   }
 
   return (

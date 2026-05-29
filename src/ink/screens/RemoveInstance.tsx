@@ -146,7 +146,7 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         />
       )}
 
-      {step === "removing" && <Text dimColor>Removing...</Text>}
+      {step === "removing" && <Text dimColor>Removing…</Text>}
 
       {step === "done" && selected && (
         <Box flexDirection="column" gap={1}>

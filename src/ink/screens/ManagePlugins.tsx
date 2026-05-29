@@ -102,7 +102,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     await loadInstancePluginData(value, inst.configDir);
   };
 
-  const loadInstancePluginData = async (instName: string, configDir: string) => {
+  const loadInstancePluginData = (instName: string, configDir: string) => {
     try {
       if (action === PluginAction.Install) {
         // Show default plugins for selection

@@ -16,7 +16,7 @@ export const Header: React.FC<{ title: string; subtitle?: string }> = ({
       <Box>
         <Text bold color="cyan">{typedTitle}</Text>
         {subtitle && typedTitle.length === title.length && (
-          <Text dimColor> — {subtitle}</Text>
+          <Text dimColor>: {subtitle}</Text>
         )}
       </Box>
       {lineProgress > 0 && (

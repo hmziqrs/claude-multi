@@ -30,16 +30,19 @@ export function useDrawLine(length: number, delay = 0, speed = 2) {
   useEffect(() => {
     if (isCapture()) { setDrawn(length); return; }
     setDrawn(0);
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     const start = setTimeout(() => {
       let current = 0;
-      const timer = setInterval(() => {
+      intervalId = setInterval(() => {
         current = Math.min(current + speed, length);
         setDrawn(current);
-        if (current >= length) clearInterval(timer);
+        if (current >= length) clearInterval(intervalId!);
       }, 8);
-      return () => clearInterval(timer);
     }, delay);
-    return () => clearTimeout(start);
+    return () => {
+      clearTimeout(start);
+      if (intervalId !== undefined) clearInterval(intervalId);
+    };
   }, [length, delay, speed]);
 
   return drawn;
@@ -77,6 +80,7 @@ export function useFadeIn(delay = 0) {
 
 export function usePulse(frames = ["●", "○", "●"], speed = 500) {
   const [frame, setFrame] = useState(0);
+  const framesKey = frames.join("");
 
   useEffect(() => {
     if (isCapture()) return;
@@ -84,7 +88,7 @@ export function usePulse(frames = ["●", "○", "●"], speed = 500) {
       setFrame((f) => (f + 1) % frames.length);
     }, speed);
     return () => clearInterval(timer);
-  }, [frames.length, speed]);
+  }, [framesKey, frames.length, speed]);
 
   return frames[frame];
 }

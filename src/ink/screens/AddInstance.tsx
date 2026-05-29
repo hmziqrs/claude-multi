@@ -447,7 +447,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       )}
 
       {step === Step.Creating && (
-        <Text dimColor>Creating instance...</Text>
+        <Text dimColor>Creating instance…</Text>
       )}
 
       {step === Step.Done && result && (

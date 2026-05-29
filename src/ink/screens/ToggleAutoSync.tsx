@@ -142,7 +142,7 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         />
       )}
 
-      {step === "syncing" && <Text dimColor>Syncing...</Text>}
+      {step === "syncing" && <Text dimColor>Syncing…</Text>}
 
       {step === "done" && selected && (
         <StatusBar

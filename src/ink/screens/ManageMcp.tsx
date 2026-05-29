@@ -215,7 +215,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       }
     }
 
-    return sources.sort((a, b) => a.name.localeCompare(b.name));
+    return sources.toSorted((a, b) => a.name.localeCompare(b.name));
   };
 
   const handleInstanceSelect = async (value: string) => {
@@ -342,7 +342,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </Box>
       )}
 
-      {step === "copying" && <Text dimColor>Copying...</Text>}
+      {step === "copying" && <Text dimColor>Copying…</Text>}
 
       {step === "done" && success && <StatusBar message={success} type="success" />}
 

@@ -210,7 +210,7 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Spinner label={`Updating ${updatingTarget === "multi" ? "claude-multi" : "@anthropic-ai/claude-code"}...`} />
         </Box>
         <Box marginTop={1}>
-          <Text dimColor>Do not press ESC — update in progress</Text>
+          <Text dimColor>Do not press ESC: update in progress</Text>
         </Box>
       </Box>
     );

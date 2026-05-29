@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { isThirdPartyApiBroken, installPinnedClaude, getPinnedBinaryVersion, COMPATIBLE_CLAUDE_VERSION } from "@/version";
+import { isThirdPartyApiBroken, installPinnedClaude, getPinnedBinaryVersion, COMPATIBLE_CLAUDE_VERSION, getClaudeMultiVersion } from "@/version";
 import { PINNED_CLAUDE_BIN } from "@/paths";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
@@ -14,6 +14,8 @@ import { useHealthCheck } from "@/ink/hooks/useHealthCheck";
 import { useFadeIn, useTypewriter } from "@/ink/hooks/useAnimations";
 import { useNavigation } from "@/ink/hooks/useNavigation";
 import { fixWrapperVersions } from "@/health";
+import { needsInstanceMigration, runInstanceMigrations } from "@/migration";
+import { loadConfig, saveConfigAtomic } from "@/config";
 import { AddInstance } from "@/ink/screens/AddInstance";
 import { ListInstances } from "@/ink/screens/ListInstances";
 import { ShowInstanceInfo } from "@/ink/screens/ShowInstanceInfo";
@@ -50,7 +52,7 @@ const GoodbyeScreen: React.FC = () => {
 };
 
 // [SAFE PARK] Doctor result screen for pinned binary fix flow
-const DoctorResultScreen: React.FC<{ fixedCount: number; installFailed: boolean; onBack: () => void }> = ({ fixedCount, installFailed, onBack }) => {
+const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; installFailed: boolean; onBack: () => void }> = ({ fixedCount, migratedCount, installFailed, onBack }) => {
   useNavigation(onBack);
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
@@ -62,12 +64,21 @@ const DoctorResultScreen: React.FC<{ fixedCount: number; installFailed: boolean;
             <Text dimColor>Check your network connection and try again.</Text>
           </Box>
         </>
-      ) : fixedCount > 0 ? (
+      ) : fixedCount > 0 || migratedCount > 0 ? (
         <>
-          <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude v${COMPATIBLE_CLAUDE_VERSION}!`} type="success" />
-          <Box marginTop={1}>
-            <Text dimColor>All 3rd-party API instances now use the correct Claude binary.</Text>
-          </Box>
+          {fixedCount > 0 && (
+            <>
+              <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude v${COMPATIBLE_CLAUDE_VERSION}!`} type="success" />
+              <Box marginTop={1}>
+                <Text dimColor>All 3rd-party API instances now use the correct Claude binary.</Text>
+              </Box>
+            </>
+          )}
+          {migratedCount > 0 && (
+            <Box marginTop={fixedCount > 0 ? 1 : 0}>
+              <StatusBar message={`Migrated ${migratedCount} instance(s) to v${getClaudeMultiVersion()}`} type="success" />
+            </Box>
+          )}
         </>
       ) : (
         <StatusBar message="All wrappers already use the correct Claude version" type="info" />
@@ -98,16 +109,15 @@ export const App: React.FC = () => {
   const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus, instanceMigrationVersion);
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
-  const [ccVersion, setCcVersion] = useState<string | null>(null);
-  const [doctorFixedCount, setDoctorFixedCount] = useState(0);
-  const [doctorInstallFailed, setDoctorInstallFailed] = useState(false);
-
-  useEffect(() => {
+  const [ccVersion] = useState(() => {
     try {
       const output = execSync("claude --version 2>/dev/null", { encoding: "utf-8", timeout: 5000 }).trim();
-      setCcVersion(output.split(" ")[0] || null);
-    } catch { /* not found */ }
-  }, []);
+      return output.split(" ")[0] || null;
+    } catch { return null; }
+  });
+  const [doctorFixedCount, setDoctorFixedCount] = useState(0);
+  const [doctorMigratedCount, setDoctorMigratedCount] = useState(0);
+  const [doctorInstallFailed, setDoctorInstallFailed] = useState(false);
 
   useInput((input, key) => {
     if (screen !== "menu") return;
@@ -132,6 +142,38 @@ export const App: React.FC = () => {
     setMenuKey((k) => k + 1);
   };
 
+  const handleDoctorFix = async () => {
+    let installFailed = false;
+    if (!existsSync(PINNED_CLAUDE_BIN)) {
+      try { installPinnedClaude(); } catch { installFailed = true; }
+    } else {
+      const pinnedVer = getPinnedBinaryVersion();
+      if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
+        try { installPinnedClaude(); } catch { installFailed = true; }
+      }
+    }
+    const fixed = installFailed ? [] : fixWrapperVersions(instances);
+
+    let migrated = 0;
+    try {
+      const fullConfig = await loadConfig();
+      if (needsInstanceMigration(fullConfig)) {
+        const before = fullConfig.instanceMigrationVersion;
+        const migratedConfig = await runInstanceMigrations(fullConfig);
+        if (migratedConfig.instanceMigrationVersion !== before) {
+          await saveConfigAtomic(migratedConfig);
+          migrated = fullConfig.instances.length;
+        }
+      }
+    } catch {}
+
+    setDoctorFixedCount(fixed.length);
+    setDoctorMigratedCount(migrated);
+    setDoctorInstallFailed(installFailed);
+    retry();
+    setScreen("doctor-result");
+  };
+
   if (screen === "goodbye") {
     return <GoodbyeScreen />;
   }
@@ -143,32 +185,14 @@ export const App: React.FC = () => {
         onDismiss={dismiss}
         onDismissAll={dismissAll}
         onRetry={retry}
-        onFix={() => {
-          // [SAFE PARK] Ensure pinned binary is installed before fixing
-          let installFailed = false;
-          if (!existsSync(PINNED_CLAUDE_BIN)) {
-            try { installPinnedClaude(); } catch { installFailed = true; }
-          } else {
-            const pinnedVer = getPinnedBinaryVersion();
-            if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
-              try { installPinnedClaude(); } catch { installFailed = true; }
-            }
-          }
-          const fixed = installFailed ? [] : fixWrapperVersions(instances);
-          setDoctorFixedCount(fixed.length);
-          setDoctorInstallFailed(installFailed);
-          if (fixed.length > 0) {
-            retry();
-          }
-          setScreen("doctor-result");
-        }}
+        onFix={handleDoctorFix}
         onBack={goToMenu}
       />
     );
   }
 
   if (screen === "doctor-result") {
-    return <DoctorResultScreen fixedCount={doctorFixedCount} installFailed={doctorInstallFailed} onBack={goToMenu} />;
+    return <DoctorResultScreen fixedCount={doctorFixedCount} migratedCount={doctorMigratedCount} installFailed={doctorInstallFailed} onBack={goToMenu} />;
   }
 
   if (screen !== "menu") {
@@ -207,6 +231,9 @@ export const App: React.FC = () => {
     ...(hasVersionIssues
       ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
       : []),
+    ...(instanceMigrationVersion && instanceMigrationVersion !== getClaudeMultiVersion()
+      ? [{ label: "⬆️  Run instance migrations", value: "doctor-fix" }]
+      : []),
     { label: "📦 Check for updates", value: "update" },
     { label: "🚪 Exit", value: "exit" },
   ];
@@ -225,7 +252,7 @@ export const App: React.FC = () => {
       {/* [SAFE PARK] Version warning banner for broken 3rd-party API compat */}
       {ccVersion && isThirdPartyApiBroken(ccVersion) && (
         <Box marginBottom={1}>
-          <Text color="red" bold>⚠ Claude Code v{ccVersion} does not work with 3rd party APIs. </Text>
+          <Text color="red" bold>⚠ Claude Code v{ccVersion} does not work with 3rd-party APIs. </Text>
           <Text color="red">Run 'claude-multi doctor fix' to install a compatible version.</Text>
         </Box>
       )}
@@ -236,30 +263,14 @@ export const App: React.FC = () => {
         key={menuKey}
         options={menuOptions}
         visibleOptionCount={menuOptions.length}
-        onChange={(value) => {
+        onChange={async (value) => {
           if (value === "exit") {
             setScreen("goodbye");
             setTimeout(() => exit(), 300);
           } else if (value === "doctor-check") {
             setScreen("health");
           } else if (value === "doctor-fix") {
-            // [SAFE PARK] Ensure pinned binary is installed before fixing
-            let installFailed = false;
-            if (!existsSync(PINNED_CLAUDE_BIN)) {
-              try { installPinnedClaude(); } catch { installFailed = true; }
-            } else {
-              const pinnedVer = getPinnedBinaryVersion();
-              if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
-                try { installPinnedClaude(); } catch { installFailed = true; }
-              }
-            }
-            const fixed = installFailed ? [] : fixWrapperVersions(instances);
-            setDoctorFixedCount(fixed.length);
-            setDoctorInstallFailed(installFailed);
-            if (fixed.length > 0) {
-              retry();
-            }
-            setScreen("doctor-result");
+            await handleDoctorFix();
           } else {
             setScreen(value as Screen);
           }

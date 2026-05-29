@@ -28,7 +28,7 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
 }) => {
   const [step, setStep] = useState<Step>("list");
   const [selectedIssue, setSelectedIssue] = useState<HealthIssue | null>(null);
-  const [fixMessage, setFixMessage] = useState<string | null>(null);
+  const showActions = useFadeIn(100);
 
   useNavigation(() => {
     if (step === "detail") {
@@ -50,8 +50,6 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
       onRetry();
     } else if (input === "f") { // [SAFE PARK] fix wrappers
       onFix();
-      setFixMessage("Wrappers updated to pinned Claude version!");
-      setTimeout(() => setFixMessage(null), 3000);
     } else if (input === " " && selectedIssue) {
       setStep("detail");
     }
@@ -62,30 +60,17 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="💚 System Health" />
         <StatusBar message="All systems healthy!" type="success" />
-        {fixMessage && (
-          <Box marginTop={1}>
-            <Text color="green">✓ {fixMessage}</Text>
-          </Box>
-        )}
         <Box marginTop={1}>
           <Text dimColor>ESC to go back</Text>
         </Box>
       </Box>
     );
   }
-
-  const showActions = useFadeIn(100);
   const hasVersionIssues = issues.some(i => i.category === "version"); // [SAFE PARK]
 
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="⚠ System Health" />
-
-      {fixMessage && (
-        <Box marginBottom={1}>
-          <Text color="green">✓ {fixMessage}</Text>
-        </Box>
-      )}
 
       {step === "list" && (
         <Box flexDirection="column" gap={1}>

@@ -50,18 +50,18 @@ export function useHealthCheck(
     runChecks();
   }, [runChecks]);
 
-  const dismiss = useCallback(async (id: string) => {
+  const dismiss = useCallback((id: string) => {
     dismissIssueAction(id);
     setIssues(prev => prev.filter(i => i.id !== id));
   }, []);
 
-  const dismissAll = useCallback(async () => {
+  const dismissAll = useCallback(() => {
     dismissAllIssuesAction();
     setIssues([]);
   }, []);
 
-  const retry = useCallback(async () => {
-    await runChecks();
+  const retry = useCallback(() => {
+    runChecks();
   }, [runChecks]);
 
   return { issues, checking, runChecks, dismiss, dismissAll, retry };

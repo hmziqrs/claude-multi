@@ -110,7 +110,7 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </Box>
       )}
 
-      {step === "fixing" && <Text dimColor>Fixing symlinks...</Text>}
+      {step === "fixing" && <Text dimColor>Fixing symlinks…</Text>}
 
       {step === "done" && (
         <SymlinkResults results={results} />

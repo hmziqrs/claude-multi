@@ -29,7 +29,7 @@ export const WarningBanner: React.FC<WarningBannerProps> = ({
       <Box>
         <Text color="yellow">{icon} </Text>
         <Text color="yellow" bold>{parts.join(", ")}</Text>
-        <Text color="yellow"> — press </Text>
+        <Text color="yellow">, press </Text>
         <Text color="yellow" bold>!</Text>
         <Text color="yellow"> to review</Text>
       </Box>
