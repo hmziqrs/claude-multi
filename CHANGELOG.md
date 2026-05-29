@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.0] - 2026-05-29
 
 ### Added
-- **`doctor fix` auto-installs pinned Claude binary**: when the compatible binary at `~/.claude-multi/bin` is missing or running an incompatible version, `doctor fix` now installs Claude Code v2.1.153 (the last version before 3rd-party API breakage) before fixing wrappers. Works from both CLI and TUI.
-- **Version verification on pinned binary**: `getPinnedBinaryVersion()` reads the installed version and triggers a reinstall if it's v2.1.154+.
-- **`COMPATIBLE_CLAUDE_VERSION` constant** (`src/version.ts`): single source of truth for the pinned version (`2.1.153`).
+- **`doctor fix` auto-installs pinned Claude binary**: when the compatible binary at `~/.claude-multi/bin` is missing or running an incompatible version, `doctor fix` now installs Claude Code v2.1.156 (the version that fixed the 3rd-party API breakage from v2.1.154–v2.1.155) before fixing wrappers. Works from both CLI and TUI.
+- **Version verification on pinned binary**: `getPinnedBinaryVersion()` reads the installed version and triggers a reinstall if it's v2.1.154–v2.1.155.
+- **`COMPATIBLE_CLAUDE_VERSION` constant** (`src/version.ts`): single source of truth for the pinned version (`2.1.156`).
 - **`PINNED_CLAUDE_BIN` in `src/paths.ts`**: shared path constant (previously duplicated in `wrapper.ts` and `health.ts`).
 
 ### Changed

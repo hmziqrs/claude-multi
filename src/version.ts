@@ -100,13 +100,13 @@ export function getCurrentVersion(): string | null {
 
 /**
  * Check if a Claude Code version has broken 3rd party API compatibility.
- * v2.1.154+ dropped support for non-Anthropic API endpoints.
+ * v2.1.154–v2.1.155 broke non-Anthropic API endpoints. Fixed in v2.1.156.
  */
 export function isThirdPartyApiBroken(version: string): boolean {
-  return semver.gte(version, "2.1.154");
+  return semver.gte(version, "2.1.154") && semver.lt(version, "2.1.156");
 }
 
-export const COMPATIBLE_CLAUDE_VERSION = "2.1.153";
+export const COMPATIBLE_CLAUDE_VERSION = "2.1.156";
 
 /**
  * Reads the version of the pinned Claude binary installed at ~/.claude-multi/bin/

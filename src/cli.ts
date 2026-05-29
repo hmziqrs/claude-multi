@@ -543,15 +543,17 @@ program
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
 
-        // Ensure pinned binary is installed
+        // Ensure pinned binary is installed and up-to-date
         if (!existsSync(PINNED_CLAUDE_BIN)) {
           console.log(chalk.cyan(`Installing compatible Claude v${COMPATIBLE_CLAUDE_VERSION}...`));
           installPinnedClaude();
           console.log(chalk.green(`✓ Installed pinned Claude v${COMPATIBLE_CLAUDE_VERSION}`));
         } else {
           const pinnedVer = getPinnedBinaryVersion();
-          if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
-            console.log(chalk.yellow(`Pinned binary is v${pinnedVer} (incompatible). Reinstalling v${COMPATIBLE_CLAUDE_VERSION}...`));
+          const needsReinstall = !pinnedVer || isThirdPartyApiBroken(pinnedVer) || pinnedVer !== COMPATIBLE_CLAUDE_VERSION;
+          if (needsReinstall) {
+            const reason = !pinnedVer ? "version unknown" : isThirdPartyApiBroken(pinnedVer) ? "incompatible" : "outdated";
+            console.log(chalk.yellow(`Pinned binary is ${pinnedVer ? `v${pinnedVer}` : reason}. Reinstalling v${COMPATIBLE_CLAUDE_VERSION}...`));
             installPinnedClaude();
             console.log(chalk.green(`✓ Reinstalled pinned Claude v${COMPATIBLE_CLAUDE_VERSION}`));
           }
@@ -1868,6 +1870,15 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
 // Default action: launch interactive mode when no subcommand is given
 program.action(async () => {
   skipGlobalUpdateCheck = true;
+
+  // Reject unknown subcommands that fell through to the default action
+  const unknownArgs = program.args.filter(a => !a.startsWith("-"));
+  if (unknownArgs.length > 0) {
+    console.error(chalk.red(`✗ Unknown command: ${unknownArgs[0]}`));
+    console.log(chalk.gray("Run 'claude-multi --help' for available commands."));
+    exitWithCode(1);
+  }
+
   try {
     const { render } = await import("ink");
     const React = await import("react");

@@ -50,22 +50,23 @@ describe("isThirdPartyApiBroken", () => {
     expect(isThirdPartyApiBroken("0.5.7")).toBe(false);
   });
 
-  test("2.1.154 is broken", () => {
+  test("2.1.154 and 2.1.155 are broken", () => {
     expect(isThirdPartyApiBroken("2.1.154")).toBe(true);
+    expect(isThirdPartyApiBroken("2.1.155")).toBe(true);
   });
 
-  test("versions after 2.1.154 are broken", () => {
-    expect(isThirdPartyApiBroken("2.1.155")).toBe(true);
-    expect(isThirdPartyApiBroken("2.2.0")).toBe(true);
-    expect(isThirdPartyApiBroken("2.2.1")).toBe(true);
-    expect(isThirdPartyApiBroken("3.0.0")).toBe(true);
-    expect(isThirdPartyApiBroken("10.0.0")).toBe(true);
+  test("2.1.156+ are fixed", () => {
+    expect(isThirdPartyApiBroken("2.1.156")).toBe(false);
+    expect(isThirdPartyApiBroken("2.1.157")).toBe(false);
+    expect(isThirdPartyApiBroken("2.2.0")).toBe(false);
+    expect(isThirdPartyApiBroken("3.0.0")).toBe(false);
+    expect(isThirdPartyApiBroken("10.0.0")).toBe(false);
   });
 });
 
 describe("COMPATIBLE_CLAUDE_VERSION", () => {
-  test("is the last safe version before the breakage", () => {
-    expect(COMPATIBLE_CLAUDE_VERSION).toBe("2.1.153");
+  test("is the first version with the 3rd-party provider fix", () => {
+    expect(COMPATIBLE_CLAUDE_VERSION).toBe("2.1.156");
     expect(isThirdPartyApiBroken(COMPATIBLE_CLAUDE_VERSION)).toBe(false);
   });
 });
