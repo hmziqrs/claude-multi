@@ -23,6 +23,7 @@ import { ManagePlugins } from "@/ink/screens/ManagePlugins";
 import { FixSymlinks } from "@/ink/screens/FixSymlinks";
 import { ManageMcp } from "@/ink/screens/ManageMcp";
 import { HealthScreen } from "@/ink/screens/HealthScreen";
+import { UpdateScreen } from "@/ink/screens/UpdateScreen";
 
 type Screen =
   | "menu"
@@ -35,6 +36,7 @@ type Screen =
   | "plugins"
   | "mcp"
   | "health"
+  | "update"
   | "doctor-result"
   | "goodbye";
 
@@ -192,6 +194,7 @@ export const App: React.FC = () => {
     ...(hasVersionIssues
       ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
       : []),
+    { label: "📦 Check for updates", value: "update" },
     { label: "🚪 Exit", value: "exit" },
   ];
 
@@ -262,4 +265,5 @@ const SCREEN_MAP: Record<string, React.FC<{ onBack: () => void }>> = {
   resync: FixSymlinks,
   plugins: ManagePlugins,
   mcp: ManageMcp,
+  update: UpdateScreen,
 };

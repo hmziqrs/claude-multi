@@ -102,16 +102,6 @@ function lstatSafe(path: string): Stats | null {
   }
 }
 
-function resolveSymlinkTarget(symlinkPath: string): string | null {
-  try {
-    const link = readlinkSync(symlinkPath);
-    if (isAbsolute(link)) return link;
-    return resolve(dirname(symlinkPath), link);
-  } catch {
-    return null;
-  }
-}
-
 export function ensureConfigDir(): void {
   if (!existsSync(getConfigDir())) {
     mkdirSync(getConfigDir(), { recursive: true });

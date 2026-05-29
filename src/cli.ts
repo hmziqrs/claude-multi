@@ -1917,7 +1917,7 @@ async function runUpdateCheck() {
 
       if (shouldUpdate) {
         console.log(chalk.cyan("\nUpdating claude-multi...\n"));
-        upgradeClaudeMulti();
+        await upgradeClaudeMulti();
         console.log(chalk.green("\nUpdate complete! Please run your command again.\n"));
         exitWithCode(0);
       }

@@ -61,7 +61,7 @@ export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInf
 /**
  * Upgrades claude-multi to the latest version
  */
-export function upgradeClaudeMulti(): void {
+export async function upgradeClaudeMulti(): Promise<void> {
   const pm = detectPackageManager();
   const commands: Record<typeof pm, string> = {
     bun: "bun upgrade -g claude-multi",
@@ -69,7 +69,15 @@ export function upgradeClaudeMulti(): void {
     pnpm: "pnpm update -g claude-multi",
     deno: "deno install --reload -g npm:claude-multi",
   };
-  execSync(commands[pm], { stdio: "inherit" });
+  try {
+    execSync(commands[pm], { stdio: "inherit" });
+  } catch (err: unknown) {
+    throw new ClaudeMultiError(
+      ErrorCode.UPDATE_FAILED,
+      `Failed to update claude-multi: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
+  }
 }
 
 /**
