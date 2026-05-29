@@ -13,6 +13,10 @@ export const InstanceCard: React.FC<{ instance: Instance; index?: number }> = ({
 
   if (!visible) return null;
 
+  const verLabel = instance.createdWithVersion === "0.5"
+    ? "before version tracking"
+    : instance.createdWithVersion;
+
   return (
     <Box flexDirection="column" marginTop={0} marginBottom={0}>
       <Box gap={1}>
@@ -27,9 +31,14 @@ export const InstanceCard: React.FC<{ instance: Instance; index?: number }> = ({
           <Text dimColor>{instance.binaryPath}</Text>
         </Box>
         <Box gap={1}>
-          <Text dimColor>└─</Text>
+          <Text dimColor>├─</Text>
           <Text dimColor bold>cfg</Text>
           <Text dimColor>{instance.configDir}</Text>
+        </Box>
+        <Box gap={1}>
+          <Text dimColor>└─</Text>
+          <Text dimColor bold>ver</Text>
+          <Text dimColor>{verLabel}</Text>
         </Box>
       </Box>
     </Box>

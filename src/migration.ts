@@ -1,10 +1,64 @@
 import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
-import type { Config, MigrationMeta } from "@/config";
+import type { Config, Instance, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 
 export const CONFIG_VERSION = "2.0.0";
+
+export const INSTANCE_MIGRATION_VERSION = "1";
+export const LEGACY_INSTANCE_VERSION = "0.5";
+
+export interface InstanceMigration {
+  version: string;
+  description: string;
+  migrate: (instance: Instance, config: Config) => Promise<Instance>;
+}
+
+const INSTANCE_MIGRATIONS: InstanceMigration[] = [
+  {
+    version: "1",
+    description: "Backfill createdWithVersion on instances created before version tracking",
+    migrate: async (instance) => {
+      if (!instance.createdWithVersion) {
+        return { ...instance, createdWithVersion: LEGACY_INSTANCE_VERSION };
+      }
+      return instance;
+    },
+  },
+];
+
+export function needsInstanceMigration(config: Config): boolean {
+  const current = config.instanceMigrationVersion || "0";
+  return INSTANCE_MIGRATIONS.some(m => m.version > current);
+}
+
+export async function runInstanceMigrations(config: Config): Promise<Config> {
+  if (!needsInstanceMigration(config)) return config;
+
+  if (!createLock()) return config;
+
+  try {
+    await createBackup(config);
+
+    const currentVersion = config.instanceMigrationVersion || "0";
+    const applicable = INSTANCE_MIGRATIONS
+      .filter(m => m.version > currentVersion)
+      .sort((a, b) => a.version.localeCompare(b.version));
+
+    for (const migration of applicable) {
+      for (let i = 0; i < config.instances.length; i++) {
+        const migrated = await migration.migrate({ ...config.instances[i] }, config);
+        config.instances[i] = migrated;
+      }
+    }
+
+    config.instanceMigrationVersion = applicable[applicable.length - 1]?.version ?? currentVersion;
+    return config;
+  } finally {
+    releaseLock();
+  }
+}
 
 function getBackupDir() { return join(getBaseDir(), ".claude-multi", "backups"); }
 function getLockFile() { return join(getBaseDir(), ".claude-multi", ".migration.lock"); }

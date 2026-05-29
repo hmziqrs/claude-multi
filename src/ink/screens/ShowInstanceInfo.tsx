@@ -99,11 +99,19 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
               color={selected.autoSync !== false ? "green" : "red"}
               delay={200}
             />
+            <DetailRow
+              label="Version"
+              value={selected.createdWithVersion === "0.5"
+                ? "before version tracking"
+                : selected.createdWithVersion}
+              color={selected.createdWithVersion === "0.5" ? "yellow" : undefined}
+              delay={250}
+            />
             {pluginCount !== null && (
               <DetailRow
                 label="Plugins"
                 value={`${pluginCount} installed, ${enabledCount} enabled`}
-                delay={250}
+                delay={300}
               />
             )}
             {mcpCount !== null && (
@@ -111,7 +119,7 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
                 label="MCP Servers"
                 value={`${mcpCount} total (${mcpPluginCount} from plugins, ${mcpCustomCount} custom)`}
                 last
-                delay={300}
+                delay={350}
               />
             )}
           </Box>

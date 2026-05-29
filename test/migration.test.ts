@@ -259,4 +259,139 @@ describe("Migration", () => {
       expect(result.version).toBe("1.0.0"); // Not migrated
     });
   });
+
+  describe("Instance-level migrations", () => {
+    describe("needsInstanceMigration", () => {
+      test("returns true when no instanceMigrationVersion", async () => {
+        const { needsInstanceMigration } = await import("@/migration");
+        const config = makeConfig();
+        expect(needsInstanceMigration(config)).toBe(true);
+      });
+
+      test("returns true when instanceMigrationVersion is behind", async () => {
+        const { needsInstanceMigration } = await import("@/migration");
+        const config = makeConfig({ instanceMigrationVersion: "0" });
+        expect(needsInstanceMigration(config)).toBe(true);
+      });
+
+      test("returns false when instanceMigrationVersion is current", async () => {
+        const { needsInstanceMigration, INSTANCE_MIGRATION_VERSION } = await import("@/migration");
+        const config = makeConfig({ instanceMigrationVersion: INSTANCE_MIGRATION_VERSION });
+        expect(needsInstanceMigration(config)).toBe(false);
+      });
+    });
+
+    describe("runInstanceMigrations", () => {
+      test("backfills createdWithVersion on instances without it", async () => {
+        const { runInstanceMigrations, LEGACY_INSTANCE_VERSION } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+
+        const config = makeConfig({
+          instances: [{
+            name: "old-inst",
+            configDir: join(testDir, ".claude-old"),
+            binaryPath: join(testDir, "bin", "old"),
+            createdAt: new Date().toISOString(),
+          }],
+        });
+
+        const result = await runInstanceMigrations(config);
+        expect(result.instances[0]!.createdWithVersion).toBe(LEGACY_INSTANCE_VERSION);
+      });
+
+      test("preserves existing createdWithVersion values", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+
+        const config = makeConfig({
+          instances: [{
+            name: "new-inst",
+            configDir: join(testDir, ".claude-new"),
+            binaryPath: join(testDir, "bin", "new"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.6.1",
+          }],
+        });
+
+        const result = await runInstanceMigrations(config);
+        expect(result.instances[0]!.createdWithVersion).toBe("0.6.1");
+      });
+
+      test("updates instanceMigrationVersion on success", async () => {
+        const { runInstanceMigrations, INSTANCE_MIGRATION_VERSION } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+
+        const config = makeConfig();
+        const result = await runInstanceMigrations(config);
+        expect(result.instanceMigrationVersion).toBe(INSTANCE_MIGRATION_VERSION);
+      });
+
+      test("is idempotent", async () => {
+        const { runInstanceMigrations, INSTANCE_MIGRATION_VERSION, LEGACY_INSTANCE_VERSION } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+
+        const config = makeConfig({
+          instances: [{
+            name: "inst",
+            configDir: join(testDir, ".claude-inst"),
+            binaryPath: join(testDir, "bin", "inst"),
+            createdAt: new Date().toISOString(),
+          }],
+        });
+
+        const first = await runInstanceMigrations(config);
+        const second = await runInstanceMigrations(first);
+        expect(second.instanceMigrationVersion).toBe(INSTANCE_MIGRATION_VERSION);
+        expect(second.instances[0]!.createdWithVersion).toBe(LEGACY_INSTANCE_VERSION);
+      });
+
+      test("handles empty instances array", async () => {
+        const { runInstanceMigrations, INSTANCE_MIGRATION_VERSION } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+
+        const config = makeConfig({ instances: [] });
+        const result = await runInstanceMigrations(config);
+        expect(result.instanceMigrationVersion).toBe(INSTANCE_MIGRATION_VERSION);
+        expect(result.instances).toHaveLength(0);
+      });
+
+      test("skips when lock is held", async () => {
+        const { runInstanceMigrations } = await import("@/migration");
+
+        const cmDir = join(testDir, ".claude-multi");
+        mkdirSync(cmDir, { recursive: true });
+
+        // Create a lock file with current PID
+        const lockFile = join(cmDir, ".migration.lock");
+        writeFileSync(lockFile, JSON.stringify({
+          pid: process.pid,
+          startedAt: new Date().toISOString(),
+        }));
+
+        const config = makeConfig({
+          instances: [{
+            name: "locked-inst",
+            configDir: join(testDir, ".claude-locked"),
+            binaryPath: join(testDir, "bin", "locked"),
+            createdAt: new Date().toISOString(),
+          }],
+        });
+
+        const result = await runInstanceMigrations(config);
+        // Should return unchanged (lock active)
+        expect(result.instanceMigrationVersion).toBeUndefined();
+        expect(result.instances[0]!.createdWithVersion).toBeUndefined();
+      });
+    });
+  });
 });

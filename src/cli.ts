@@ -56,6 +56,10 @@ function exitWithCode(code: 0 | 1): never {
   process.exit(code);
 }
 
+function formatVersionLabel(ver: string): string {
+  return ver === "0.5" ? `${ver} (before version tracking)` : ver;
+}
+
 async function requireInstance(name: string): Promise<Instance> {
   const instance = await getInstance(name);
   if (!instance) {
@@ -238,6 +242,7 @@ program
           binaryPath,
           createdAt: new Date().toISOString(),
           autoSync,
+          createdWithVersion: getClaudeMultiVersion(),
         };
 
         await addInstance(instance);
@@ -390,6 +395,7 @@ program
         );
         const autoSyncStatus = instance.autoSync !== false ? chalk.green("on") : chalk.yellow("off");
         console.log(chalk.gray(`  Auto-sync: ${autoSyncStatus}`));
+        console.log(chalk.gray(`  Version:  ${formatVersionLabel(instance.createdWithVersion)}`));
         console.log();
       }
     } catch (error: unknown) {
@@ -414,6 +420,7 @@ program
       );
       const autoSyncStatus = instance.autoSync !== false ? chalk.green("✓ Enabled") : chalk.yellow("✗ Disabled");
       console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
+      console.log(`${chalk.gray("Version:")}  ${formatVersionLabel(instance.createdWithVersion)}`);
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       exitWithCode(1);
@@ -1276,6 +1283,7 @@ async function handleAddInstance(): Promise<void> {
     binaryPath,
     createdAt: new Date().toISOString(),
     autoSync,
+    createdWithVersion: getClaudeMultiVersion(),
   };
 
   await addInstance(instance);

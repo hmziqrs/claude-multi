@@ -34,12 +34,14 @@ export interface Instance {
   binaryPath: string;
   createdAt: string;
   autoSync?: boolean; // Auto-sync plugins/skills via symlinks (default: true)
+  createdWithVersion: string; // claude-multi version that created this instance
 }
 
 export interface Config {
   instances: Instance[];
   version: string;
   migrationMeta?: MigrationMeta;
+  instanceMigrationVersion?: string;
 }
 
 export interface MigrationMeta {
@@ -142,9 +144,15 @@ export async function loadConfig(): Promise<Config> {
   }
 
   // Run migration if needed
-  const { needsMigration, runMigration } = await import("./migration.js");
+  const { needsMigration, runMigration, needsInstanceMigration, runInstanceMigrations } = await import("./migration.js");
   if (needsMigration(config)) {
     config = await runMigration(config);
+    await saveConfigAtomic(config);
+  }
+
+  // Run instance-level migrations if needed
+  if (needsInstanceMigration(config)) {
+    config = await runInstanceMigrations(config);
     await saveConfigAtomic(config);
   }
 

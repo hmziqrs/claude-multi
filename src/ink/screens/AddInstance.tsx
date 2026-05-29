@@ -11,6 +11,7 @@ import {
 } from "@/ink/hooks/useConfig";
 import { removeInstance as removeInstanceFromConfig } from "@/config";
 import { removeWrapper } from "@/wrapper";
+import { getClaudeMultiVersion } from "@/version";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
 import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
@@ -269,6 +270,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         binaryPath: bPath,
         createdAt: new Date().toISOString(),
         autoSync: sync,
+        createdWithVersion: getClaudeMultiVersion(),
       };
 
       await cfg.addInstance(instance);
