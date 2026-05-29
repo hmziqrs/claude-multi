@@ -5,7 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.2] - 2026-05-29
+## [0.6.3] - 2026-05-29
+
+### Changed
+- Instance migrations regenerate wrappers pointing to the globally installed `claude` binary (via `which claude`), not the pinned binary at `~/.claude-multi/bin`. Wrappers that already match the expected content are left untouched.
+- `runMigration` and `createBackup` are synchronous now (had no `await` expressions).
+- MiMo (pay-per-token and Token Plan) models bumped to `mimo-v2.5-pro[1m]` and `mimo-v2.5[1m]` (1M context window variants).
+- Kimi opus model changed from `kimi-k2.6` to `kimi-k2.5`.
+- Provider templates now include explicit thinking and output token limits:
+  - MiniMax: 32K thinking, 64K output
+  - DeepSeek: 32K thinking, 128K output
+  - MiMo (both plans): 128K output
+  - Kimi: 16K thinking, 64K output
+  - Qwen and Qwen Coding Plan: 16K thinking, 64K output
+
+### Added
+- `getGlobalClaudePath()` and `tryGetGlobalClaudePath()` in `wrapper.ts` resolve the claude binary from the env override or PATH, skipping the pinned binary.
+- Instance migration tests: fast-path skip on current-version instances, mixed instances (some current, some old), `.claude.json` updates when the wrapper file is missing, and a verification that regenerated wrappers contain the global claude path.
+
+### Fixed
+- Health test compared `fixWrapperVersions` output against `generateWrapperScript()` (resolves via env override) instead of `buildWrapperScript(inst, PINNED_CLAUDE_BIN)` (what the function actually uses). Would break if `CLAUDE_MULTI_CLAUDE_PATH` was set.
+
+### Blog
+- Blog post: [v0.6.3: Drop the Pinned Binary, Update Every Provider Template](https://claude-multi.hmziq.xyz/blog/v063-migration-and-provider-updates/)
 
 ### Added
 - Instances track the claude-multi version they were created with (`createdWithVersion`). New instances get the current version. Instances created before this field existed get `0.5` and show "before version tracking" in the UI.
@@ -350,6 +372,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.6.3]: https://github.com/hmziqrs/claude-multi/compare/v0.6.2...v0.6.3
 [0.5.5]: https://github.com/hmziqrs/claude-multi/compare/v0.5.1...v0.5.5
 [0.5.1]: https://github.com/hmziqrs/claude-multi/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/hmziqrs/claude-multi/compare/v0.4.4...v0.5.0
