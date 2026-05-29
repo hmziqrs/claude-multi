@@ -1,0 +1,120 @@
+import { describe, test, expect, beforeEach, afterEach } from "bun:test";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { getProviderByBaseUrl, detectProvider } from "@/templates";
+
+let testDir: string;
+
+describe("Provider detection", () => {
+  beforeEach(() => {
+    testDir = mkdtempSync(join(tmpdir(), "provider-detect-"));
+  });
+
+  afterEach(() => {
+    try { rmSync(testDir, { recursive: true, force: true }); } catch {}
+  });
+
+  describe("getProviderByBaseUrl", () => {
+    test("detects GLM by base URL", () => {
+      expect(getProviderByBaseUrl("https://api.z.ai/api/anthropic")).toBe("glm");
+    });
+
+    test("detects MiniMax by base URL", () => {
+      expect(getProviderByBaseUrl("https://api.minimax.io/anthropic")).toBe("minimax");
+    });
+
+    test("detects DeepSeek by base URL", () => {
+      expect(getProviderByBaseUrl("https://api.deepseek.com/anthropic")).toBe("deepseek");
+    });
+
+    test("detects MiMo by base URL", () => {
+      expect(getProviderByBaseUrl("https://api.xiaomimimo.com/anthropic")).toBe("mimo");
+    });
+
+    test("detects MiMo Token Plan CN region", () => {
+      expect(getProviderByBaseUrl("https://token-plan-cn.xiaomimimo.com/anthropic")).toBe("mimo-token");
+    });
+
+    test("detects MiMo Token Plan SGP region", () => {
+      expect(getProviderByBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic")).toBe("mimo-token");
+    });
+
+    test("detects MiMo Token Plan AMS region", () => {
+      expect(getProviderByBaseUrl("https://token-plan-ams.xiaomimimo.com/anthropic")).toBe("mimo-token");
+    });
+
+    test("detects Kimi by base URL", () => {
+      expect(getProviderByBaseUrl("https://api.moonshot.ai/anthropic")).toBe("kimi");
+    });
+
+    test("detects Qwen by base URL", () => {
+      expect(getProviderByBaseUrl("https://dashscope-intl.aliyuncs.com/apps/anthropic")).toBe("qwen");
+    });
+
+    test("detects Qwen Coding Plan by base URL", () => {
+      expect(getProviderByBaseUrl("https://coding-intl.dashscope.aliyuncs.com/apps/anthropic")).toBe("qwen-coding");
+    });
+
+    test("returns null for unrecognized URL", () => {
+      expect(getProviderByBaseUrl("https://api.unknown.com/anthropic")).toBeNull();
+    });
+
+    test("returns null for empty string", () => {
+      expect(getProviderByBaseUrl("")).toBeNull();
+    });
+  });
+
+  describe("detectProvider", () => {
+    test("detects provider from instance settings.json", () => {
+      mkdirSync(testDir, { recursive: true });
+      writeFileSync(join(testDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "sk-test",
+          ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+        },
+      }));
+
+      expect(detectProvider(testDir)).toBe("mimo");
+    });
+
+    test("returns null when settings.json does not exist", () => {
+      expect(detectProvider(join(testDir, "nonexistent"))).toBeNull();
+    });
+
+    test("returns null when settings.json has no env", () => {
+      mkdirSync(testDir, { recursive: true });
+      writeFileSync(join(testDir, "settings.json"), JSON.stringify({}));
+
+      expect(detectProvider(testDir)).toBeNull();
+    });
+
+    test("returns null when env has no ANTHROPIC_BASE_URL", () => {
+      mkdirSync(testDir, { recursive: true });
+      writeFileSync(join(testDir, "settings.json"), JSON.stringify({
+        env: { ANTHROPIC_AUTH_TOKEN: "sk-test" },
+      }));
+
+      expect(detectProvider(testDir)).toBeNull();
+    });
+
+    test("returns null for unrecognized base URL", () => {
+      mkdirSync(testDir, { recursive: true });
+      writeFileSync(join(testDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_BASE_URL: "https://custom.api.com/anthropic",
+        },
+      }));
+
+      expect(detectProvider(testDir)).toBeNull();
+    });
+
+    test("returns null for corrupted settings.json", () => {
+      mkdirSync(testDir, { recursive: true });
+      writeFileSync(join(testDir, "settings.json"), "not json");
+
+      expect(detectProvider(testDir)).toBeNull();
+    });
+  });
+});

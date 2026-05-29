@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 export interface ProviderTemplate {
   name: string;
   displayName: string;
@@ -280,5 +283,48 @@ export function applyProviderTemplate(
   settings.env = { ...PROVIDER_COMMON_ENV, ...settings.env };
   settings.env.ANTHROPIC_AUTH_TOKEN = apiKey;
   return settings;
+}
+
+/**
+ * Match a base URL against the provider template registry.
+ * Returns the provider template name, or null if unrecognized.
+ */
+export function getProviderByBaseUrl(baseUrl: string): string | null {
+  for (const [name, template] of Object.entries(PROVIDER_TEMPLATES)) {
+    const templateUrl = template.settings.env.ANTHROPIC_BASE_URL;
+    if (!templateUrl) continue;
+
+    // mimo-token has region-dependent URLs
+    if (name === "mimo-token") {
+      if (baseUrl.startsWith("https://token-plan-")) continue;
+      // won't match mimo-token by exact URL since regions vary
+    }
+
+    if (baseUrl === templateUrl) return name;
+  }
+
+  // Check mimo-token region variants separately
+  if (baseUrl.startsWith("https://token-plan-") && baseUrl.endsWith(".xiaomimimo.com/anthropic")) {
+    return "mimo-token";
+  }
+
+  return null;
+}
+
+/**
+ * Detect which provider template an instance uses by reading its settings.json.
+ * Returns the provider name (e.g. "mimo", "kimi") or null.
+ */
+export function detectProvider(configDir: string): string | null {
+  try {
+    const settingsFile = join(configDir, "settings.json");
+    if (!existsSync(settingsFile)) return null;
+    const raw = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
+    const env = raw.env as Record<string, string> | undefined;
+    if (!env?.ANTHROPIC_BASE_URL) return null;
+    return getProviderByBaseUrl(env.ANTHROPIC_BASE_URL);
+  } catch {
+    return null;
+  }
 }
 

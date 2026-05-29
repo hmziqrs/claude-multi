@@ -35,6 +35,7 @@ export interface Instance {
   createdAt: string;
   autoSync?: boolean; // Auto-sync plugins/skills via symlinks (default: true)
   createdWithVersion: string; // claude-multi version that created this instance
+  providerTemplate?: string; // e.g. "mimo", "kimi", "qwen-coding"
 }
 
 export interface Config {

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2026-05-29
+
+### Added
+- Instance migration (0.6.3) syncs provider template env vars to existing instances. Detects the provider from `ANTHROPIC_BASE_URL` in `settings.json` and re-applies the latest template (model names, thinking tokens, output limits). Preserves API keys and user-added env vars.
+- `detectProvider()` and `getProviderByBaseUrl()` in `templates.ts` match a base URL to a provider template name.
+- `providerTemplate` field on the `Instance` type. New instances store it; migration backfills it for existing instances.
+
+### Blog
+- Blog post: [v0.6.4: Existing Instances Now Auto-Sync Provider Template Updates](https://claude-multi.hmziq.xyz/blog/v064-provider-template-sync/)
+
 ## [0.6.3] - 2026-05-29
 
 ### Changed
@@ -372,6 +382,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.6.4]: https://github.com/hmziqrs/claude-multi/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/hmziqrs/claude-multi/compare/v0.6.2...v0.6.3
 [0.5.5]: https://github.com/hmziqrs/claude-multi/compare/v0.5.1...v0.5.5
 [0.5.1]: https://github.com/hmziqrs/claude-multi/compare/v0.5.0...v0.5.1

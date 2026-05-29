@@ -680,4 +680,172 @@ describe("Migration", () => {
       }
     });
   });
+
+  describe("0.6.3 instance migration — provider template sync", () => {
+    test("updates MiMo model names to [1m] variants", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-mimo-sync");
+      mkdirSync(instDir, { recursive: true });
+
+      // Write settings with OLD MiMo config (no [1m], no thinking/output limits)
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "sk-test-key-123",
+          ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          ANTHROPIC_SMALL_FAST_MODEL: "mimo-v2.5",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "mimo-sync",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "mimo-sync"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("mimo-v2.5[1m]");
+      expect(settings.env.ENABLE_THINKING).toBe("true");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+    });
+
+    test("preserves existing API key", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-key-preserve");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "sk-my-secret-key",
+          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+          ANTHROPIC_MODEL: "deepseek-v4-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "key-preserve",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "key-preserve"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("sk-my-secret-key");
+    });
+
+    test("skips instance with unrecognized provider", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-custom");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "sk-test",
+          ANTHROPIC_BASE_URL: "https://custom.api.com/anthropic",
+          ANTHROPIC_MODEL: "custom-model",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "custom",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "custom"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      // Should NOT be modified
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_MODEL).toBe("custom-model");
+    });
+
+    test("backfills providerTemplate field on detected instance", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-backfill");
+      mkdirSync(instDir, { recursive: true });
+
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "sk-test",
+          ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
+          ANTHROPIC_MODEL: "kimi-k2.5",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "backfill",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "backfill"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      const result = await runInstanceMigrations(config);
+      expect(result.instances[0]!.providerTemplate).toBe("kimi");
+    });
+
+    test("skips instance without settings.json", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-no-settings");
+      mkdirSync(instDir, { recursive: true });
+      // No settings.json written
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "no-settings",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "no-settings"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      // Should not throw
+      const result = await runInstanceMigrations(config);
+      expect(result.instances[0]!.providerTemplate).toBeUndefined();
+    });
+  });
 });

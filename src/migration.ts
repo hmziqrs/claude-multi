@@ -6,6 +6,7 @@ import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
+import { detectProvider, getProviderTemplate } from "@/templates";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -49,6 +50,49 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
 
       // Update stale .claude.json values
       updateClaudeJson(instance.configDir);
+
+      return Promise.resolve(instance);
+    },
+  },
+  {
+    version: "0.6.3",
+    description: "Sync provider template env vars (model names, thinking/output limits) to latest",
+    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    migrate: (instance) => {
+      // Detect provider from settings.json (or use stored providerTemplate)
+      const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
+      if (!providerName) return Promise.resolve(instance);
+
+      const template = getProviderTemplate(providerName);
+      if (!template) return Promise.resolve(instance);
+
+      // Read existing API key and settings before re-applying template
+      const settingsFile = join(instance.configDir, "settings.json");
+      try {
+        if (!existsSync(settingsFile)) return Promise.resolve(instance);
+
+        const existing = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
+        const existingEnv = (existing.env as Record<string, string>) ?? {};
+        const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
+
+        // Build new env from template, preserve API key
+        const templateSettings = structuredClone(template.settings);
+        const newEnv = { ...templateSettings.env, ANTHROPIC_AUTH_TOKEN: apiKey };
+
+        // Merge: template vars overwrite existing, user-only vars survive
+        existing.env = { ...existingEnv, ...newEnv };
+        existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
+        existing.alwaysThinkingEnabled = template.settings.alwaysThinkingEnabled;
+
+        writeFileSync(settingsFile, JSON.stringify(existing, null, 2), "utf-8");
+      } catch {
+        // Skip if settings read/write fails
+      }
+
+      // Backfill providerTemplate for future migrations
+      if (!instance.providerTemplate) {
+        instance.providerTemplate = providerName;
+      }
 
       return Promise.resolve(instance);
     },
