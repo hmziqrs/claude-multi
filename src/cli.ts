@@ -46,7 +46,7 @@ import {
   upgradeClaudeMulti,
   getClaudeMultiVersion,
 } from "@/version";
-import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS } from "@/templates";
+import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, getProviderRegions } from "@/templates";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
 import { toMessage } from "@/errors";
 import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType } from "@/constants";
@@ -163,7 +163,8 @@ program
           if (providerHasRegions(providerTemplate.name)) {
             const region = options.region || "cn";
             if (!options.region) {
-              console.log(chalk.yellow(`⚠ No --region specified, defaulting to cn. Available: ${Object.keys(MIMO_TOKEN_REGIONS).join(", ")}`));
+              const regions = getProviderRegions(providerTemplate.name);
+              console.log(chalk.yellow(`⚠ No --region specified, defaulting to cn. Available: ${regions ? Object.keys(regions).join(", ") : "cn"}`));
             }
             providerRegion = region;
             try {
@@ -404,6 +405,10 @@ program
             `  Created: ${new Date(instance.createdAt).toLocaleString()}`,
           ),
         );
+        if (instance.providerTemplate) {
+          const region = instance.providerRegion ? ` (${instance.providerRegion})` : "";
+          console.log(chalk.gray(`  Provider: ${instance.providerTemplate}${region}`));
+        }
         const autoSyncStatus = instance.autoSync !== false ? chalk.green("on") : chalk.yellow("off");
         console.log(chalk.gray(`  Auto-sync: ${autoSyncStatus}`));
         console.log(chalk.gray(`  Version:  ${formatVersionLabel(instance.createdWithVersion)}`));
@@ -432,6 +437,10 @@ program
       const autoSyncStatus = instance.autoSync !== false ? chalk.green("✓ Enabled") : chalk.yellow("✗ Disabled");
       console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
       console.log(`${chalk.gray("Version:")}  ${formatVersionLabel(instance.createdWithVersion)}`);
+      if (instance.providerTemplate) {
+        const region = instance.providerRegion ? ` (${instance.providerRegion})` : "";
+        console.log(`${chalk.gray("Provider:")} ${instance.providerTemplate}${region}`);
+      }
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       exitWithCode(1);

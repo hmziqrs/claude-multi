@@ -231,18 +231,41 @@ export const MIMO_TOKEN_REGIONS: Record<string, { label: string; baseUrl: string
   },
 };
 
+/**
+ * Registry mapping provider names to their region configurations.
+ * Add new entries here when a provider gains regional support —
+ * all region-aware code (migration, health, UI) picks it up automatically.
+ */
+const PROVIDER_REGION_MAPS: Record<string, Record<string, { label: string; baseUrl: string }>> = {
+  "mimo-token": MIMO_TOKEN_REGIONS,
+};
+
 export function providerHasRegions(providerName: string): boolean {
-  return providerName === "mimo-token";
+  return providerName in PROVIDER_REGION_MAPS;
+}
+
+/**
+ * Get the region map for a provider. Returns undefined if the provider has no regions.
+ */
+export function getProviderRegions(providerName: string): Record<string, { label: string; baseUrl: string }> | undefined {
+  return PROVIDER_REGION_MAPS[providerName];
 }
 
 /**
  * Detect the region code from a regional provider's base URL.
- * Returns null if the URL doesn't match a known region pattern.
+ * Checks all registered provider region maps for a match.
+ * Returns null if the URL doesn't match any known region pattern.
  */
 export function detectRegionFromBaseUrl(baseUrl: string): string | null {
-  const match = baseUrl.match(/^https:\/\/token-plan-([a-z]+)\.xiaomimimo\.com\/anthropic\/?$/);
-  if (match?.[1] && match[1] in MIMO_TOKEN_REGIONS) {
-    return match[1];
+  for (const regionMap of Object.values(PROVIDER_REGION_MAPS)) {
+    for (const [regionCode, config] of Object.entries(regionMap)) {
+      // Match with optional trailing slash
+      const escaped = config.baseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`^${escaped}/?$`);
+      if (regex.test(baseUrl)) {
+        return regionCode;
+      }
+    }
   }
   return null;
 }
@@ -255,10 +278,11 @@ export function resolveRegionTemplate(
     return template;
   }
 
-  const regionConfig = MIMO_TOKEN_REGIONS[region];
+  const regionMap = PROVIDER_REGION_MAPS[template.name];
+  const regionConfig = regionMap?.[region];
   if (!regionConfig) {
     throw new Error(
-      `Unknown region '${region}' for ${template.name}. Available: ${Object.keys(MIMO_TOKEN_REGIONS).join(", ")}`,
+      `Unknown region '${region}' for ${template.name}. Available: ${regionMap ? Object.keys(regionMap).join(", ") : "none"}`,
     );
   }
 
@@ -315,8 +339,9 @@ export function getProviderByBaseUrl(baseUrl: string): string | null {
     if (baseUrl === templateUrl) return name;
   }
 
-  // Check mimo-token region variants separately
-  if (baseUrl.startsWith("https://token-plan-") && baseUrl.endsWith(".xiaomimimo.com/anthropic")) {
+  // Check mimo-token region variants — validate the region code is known
+  const regionCode = detectRegionFromBaseUrl(baseUrl);
+  if (regionCode) {
     return "mimo-token";
   }
 

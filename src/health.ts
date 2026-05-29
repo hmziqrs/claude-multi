@@ -7,6 +7,7 @@ import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
 import { buildWrapperScript } from "@/wrapper";
+import { providerHasRegions, detectRegionFromBaseUrl, getProviderRegions } from "@/templates";
 
 export type HealthSeverity = "error" | "warning" | "info";
 export type HealthCategory = "migration" | "config" | "symlink" | "binary" | "settings" | "version";
@@ -116,8 +117,9 @@ export function runHealthChecks(
     // Settings.json parseable
     const settingsFile = join(inst.configDir, "settings.json");
     if (existsSync(settingsFile)) {
+      let parsed: Record<string, unknown> | null = null;
       try {
-        JSON.parse(readFileSync(settingsFile, "utf-8"));
+        parsed = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
       } catch {
         issues.push({
           id: `settings-corrupt-${inst.name}`,
@@ -132,6 +134,31 @@ export function runHealthChecks(
           resolved: false,
           resolutionHint: "Fix or delete the corrupted settings.json",
         });
+      }
+
+      // Region consistency check for regional providers
+      if (parsed && inst.providerTemplate && providerHasRegions(inst.providerTemplate)) {
+        const env = parsed.env as Record<string, string> | undefined;
+        const actualUrl = env?.ANTHROPIC_BASE_URL;
+        const actualRegion = actualUrl ? detectRegionFromBaseUrl(actualUrl) : null;
+
+        if (inst.providerRegion && actualRegion && inst.providerRegion !== actualRegion) {
+          const providerRegions = getProviderRegions(inst.providerTemplate);
+          const expectedUrl = providerRegions?.[inst.providerRegion]?.baseUrl;
+          issues.push({
+            id: `region-mismatch-${inst.name}`,
+            severity: "warning",
+            category: "settings",
+            title: "Region URL mismatch",
+            message: `Instance '${inst.name}' stored region is ${inst.providerRegion} but base URL points to ${actualRegion}`,
+            detail: `Stored region: ${inst.providerRegion} (${expectedUrl})\nActual URL: ${actualUrl}`,
+            instanceName: inst.name,
+            timestamp: now,
+            dismissed: false,
+            resolved: false,
+            resolutionHint: `Edit settings.json to set ANTHROPIC_BASE_URL to ${expectedUrl}, or run 'claude-multi doctor fix'`,
+          });
+        }
       }
     }
 

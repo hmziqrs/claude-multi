@@ -6,7 +6,7 @@ import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
-import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl, MIMO_TOKEN_REGIONS } from "@/templates";
+import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl, getProviderRegions } from "@/templates";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -59,6 +59,12 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     description: "Sync provider template env vars (model names, thinking/output limits) to latest",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
+      // Fast path: skip if instance is already at current version
+      const currentVersion = getClaudeMultiVersion();
+      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+        return Promise.resolve(instance);
+      }
+
       // Detect provider from settings.json (or use stored providerTemplate)
       const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
       if (!providerName) return Promise.resolve(instance);
@@ -81,8 +87,9 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         // This ensures manually-edited URLs take precedence over stale metadata.
         let resolvedRegional = false;
         if (providerHasRegions(providerName)) {
+          const providerRegions = getProviderRegions(providerName);
           const detectedRegion = detectRegionFromBaseUrl(existingBaseUrl ?? "") ?? instance.providerRegion;
-          if (detectedRegion && detectedRegion in MIMO_TOKEN_REGIONS) {
+          if (detectedRegion && providerRegions && detectedRegion in providerRegions) {
             template = resolveRegionTemplate(template, detectedRegion);
             // Backfill providerRegion for future migrations
             instance.providerRegion = detectedRegion;
@@ -100,20 +107,34 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
           newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
         }
 
+        // Preserve user-tunable env vars that the user has explicitly customized.
+        // Model names and structural vars are always synced from the template,
+        // but preference vars like MAX_OUTPUT_TOKENS are kept if the user set them.
+        const TUNABLE_ENV_VARS = new Set([
+          "MAX_OUTPUT_TOKENS", "MAX_THINKING_TOKENS", "REASONING_EFFORT",
+          "ENABLE_THINKING", "ENABLE_STREAMING", "API_TIMEOUT_MS",
+          "CLAUDE_CODE_EFFORT_LEVEL",
+        ]);
+        for (const key of TUNABLE_ENV_VARS) {
+          if (key in existingEnv && existingEnv[key] !== templateSettings.env[key]) {
+            newEnv[key] = existingEnv[key];
+          }
+        }
+
         // Merge: template vars overwrite existing, user-only vars survive
         existing.env = { ...existingEnv, ...newEnv };
         existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
         existing.alwaysThinkingEnabled = template.settings.alwaysThinkingEnabled;
 
         writeFileSync(settingsFile, JSON.stringify(existing, null, 2), "utf-8");
+
+        // Backfill providerTemplate for future migrations (inside try for atomicity)
+        if (!instance.providerTemplate) {
+          instance.providerTemplate = providerName;
+        }
       } catch (err: unknown) {
         // Log warning instead of silently swallowing
         console.warn(`[migration] Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
-      }
-
-      // Backfill providerTemplate for future migrations
-      if (!instance.providerTemplate) {
-        instance.providerTemplate = providerName;
       }
 
       return Promise.resolve(instance);

@@ -1102,8 +1102,8 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // Should detect sgp from URL with trailing slash
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic/");
+      // Should detect sgp from URL with trailing slash (URL gets normalized to canonical form)
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
     });
 
     test("preserves base URL when region is unrecognizable (V02/V04)", async () => {
@@ -1131,6 +1131,7 @@ describe("Migration", () => {
           binaryPath: join(testDir, "bin", "unknown-region"),
           createdAt: new Date().toISOString(),
           createdWithVersion: "0.5.0",
+          providerTemplate: "mimo-token", // stored provider so detectProvider is bypassed
         }],
       });
 
@@ -1138,6 +1139,8 @@ describe("Migration", () => {
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       // Custom URL should be preserved — NOT overwritten with cn default
+      // (providerTemplate is set so the migration runs, but region detection fails,
+      // triggering the fallback that preserves the existing base URL)
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-custom.xiaomimimo.com/anthropic");
       // Other template vars should still update
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
@@ -1180,6 +1183,91 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
       // providerRegion should be corrected to sgp
       expect(result.instances[0]!.providerRegion).toBe("sgp");
+    });
+
+    test("preserves user-customized tunable env vars (V05)", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-tunable");
+      mkdirSync(instDir, { recursive: true });
+
+      // User has customized MAX_OUTPUT_TOKENS and REASONING_EFFORT
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+          ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          MAX_OUTPUT_TOKENS: "32000",
+          REASONING_EFFORT: "low",
+          ENABLE_THINKING: "false",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "tunable",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "tunable"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.5.0",
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // User-customized tunable vars should be preserved
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
+      expect(settings.env.REASONING_EFFORT).toBe("low");
+      expect(settings.env.ENABLE_THINKING).toBe("false");
+      // Model names should still be synced from template
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+    });
+
+    test("v0.6.3 fast-path skips current-version instances (V11)", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-fastpath-063");
+      mkdirSync(instDir, { recursive: true });
+
+      // Settings with old model name — should NOT be updated
+      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
+        env: {
+          ANTHROPIC_AUTH_TOKEN: "sk-test",
+          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+          ANTHROPIC_MODEL: "deepseek-v4-pro",
+        },
+      }));
+
+      const config = makeConfig({
+        instanceMigrationVersion: "0.1.0",
+        instances: [{
+          name: "fastpath-063",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "fastpath-063"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: getClaudeMultiVersion(),
+        }],
+      });
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      // Should NOT be updated — instance is at current version, fast path applies
+      expect(settings.env.ANTHROPIC_MODEL).toBe("deepseek-v4-pro");
+    });
+
+    test("getProviderByBaseUrl rejects unknown mimo-token region (V13)", async () => {
+      const { getProviderByBaseUrl } = await import("@/templates");
+      // URL with unknown region code should NOT match mimo-token
+      expect(getProviderByBaseUrl("https://token-plan-evil.xiaomimimo.com/anthropic")).toBeNull();
     });
   });
 });

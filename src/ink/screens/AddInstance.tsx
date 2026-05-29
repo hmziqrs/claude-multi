@@ -17,7 +17,7 @@ import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { CopyOption, PluginCategory } from "@/constants";
-import { providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS, getApiKeyPlaceholder } from "@/templates";
+import { providerHasRegions, resolveRegionTemplate, getProviderRegions, getApiKeyPlaceholder } from "@/templates";
 
 const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string }> = ({
   name, binaryPath, configDir,
@@ -248,25 +248,28 @@ const ProviderRegionStep: React.FC<{
   state: AddInstanceState;
   dispatch: React.Dispatch<AddInstanceAction>;
   onSelect: (value: string) => void;
-}> = ({ state, onSelect }) => (
-  <Box flexDirection="column" gap={1}>
-    <Text>Select your subscription region:</Text>
-    <Box borderStyle="round" borderColor="yellow" paddingX={1}>
-      <Text bold color="yellow">
-        Check your Xiaomi account console to confirm the correct region for your subscription.
-      </Text>
+}> = ({ state, onSelect }) => {
+  const regions = state.selectedProvider ? getProviderRegions(state.selectedProvider) : undefined;
+  return (
+    <Box flexDirection="column" gap={1}>
+      <Text>Select your subscription region:</Text>
+      <Box borderStyle="round" borderColor="yellow" paddingX={1}>
+        <Text bold color="yellow">
+          Check your account console to confirm the correct region for your subscription.
+        </Text>
+      </Box>
+      <Select
+        options={regions ? Object.entries(regions).map(([key, val]) => ({
+          label: `${val.label} — ${val.baseUrl}`,
+          value: key,
+        })) : []}
+        visibleOptionCount={3}
+        defaultValue={state.selectedRegion ?? undefined}
+        onChange={onSelect}
+      />
     </Box>
-    <Select
-      options={Object.entries(MIMO_TOKEN_REGIONS).map(([key, val]) => ({
-        label: `${val.label} — ${val.baseUrl}`,
-        value: key,
-      }))}
-      visibleOptionCount={3}
-      defaultValue={state.selectedRegion ?? undefined}
-      onChange={onSelect}
-    />
-  </Box>
-);
+  );
+};
 
 const ProviderApiKeyStep: React.FC<{
   state: AddInstanceState;
