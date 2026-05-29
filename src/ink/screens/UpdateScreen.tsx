@@ -109,25 +109,40 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleUpdate = async (target: "multi" | "claude") => {
     setUpdatingTarget(target);
     setStep("updating");
+    const label = target === "multi" ? "claude-multi" : "@anthropic-ai/claude-code";
     try {
       if (target === "multi") {
         await upgradeClaudeMulti();
-        const updated = await checkForClaudeMultiUpdates();
-        setMultiInfo(updated);
-        setSuccess(updated.latest
-          ? `claude-multi updated to v${updated.latest}`
-          : "claude-multi updated successfully");
       } else {
         await updateClaudeCode();
-        const updated = await checkForUpdates();
-        setClaudeInfo(updated);
-        setSuccess(updated.latest
-          ? `@anthropic-ai/claude-code updated to v${updated.latest}`
-          : "@anthropic-ai/claude-code updated successfully");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Update failed");
+      setError(`${label}: ${err instanceof Error ? err.message : "Update failed"}`);
+      setUpdatingTarget(null);
+      setStep("result");
+      return;
     }
+
+    setSuccess(`${label} updated successfully`);
+
+    try {
+      if (target === "multi") {
+        const updated = await checkForClaudeMultiUpdates();
+        setMultiInfo(updated);
+        if (updated.latest) {
+          setSuccess(`claude-multi updated to v${updated.latest}`);
+        }
+      } else {
+        const updated = await checkForUpdates();
+        setClaudeInfo(updated);
+        if (updated.latest) {
+          setSuccess(`@anthropic-ai/claude-code updated to v${updated.latest}`);
+        }
+      }
+    } catch {
+      // Recheck failed — update succeeded, just couldn't verify version
+    }
+
     setUpdatingTarget(null);
     setStep("result");
   };
