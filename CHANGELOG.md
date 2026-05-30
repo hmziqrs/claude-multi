@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.5] - 2026-05-30
+
+### Added
+- **Instance details actions**: The instance details screen now has action buttons. Press Enter on any instance to access: Update settings template, Update alias wrapper, and Override alias to standard. Each action shows a live mismatch indicator (✓ up to date, ⚠ mismatch detected, ✗ wrapper missing).
+- `syncProviderTemplateForInstance()` in `config.ts` — on-demand provider template sync for a single instance. Re-applies the latest template env vars while preserving API keys and user-customized tunable vars.
+- `detectTemplateMismatch()` and `detectWrapperMismatch()` in `instance-diagnostics.ts` — compare an instance's current settings/wrapper against the expected provider template.
+- `TUNABLE_ENV_VARS` shared constant in `constants/env.ts` — single source of truth for env vars that are preserved during template sync and excluded from staleness checks.
+
+### Changed
+- **Health screen rewrite**: Replaced static `IssueCard` list with a Select-based issue picker. Issues can now be selected, viewed in detail, and dismissed. Press Enter to view an issue, `d` to dismiss, `D` to dismiss all.
+- **Post-migration stale state fixed**: After running `doctor fix`, the health check warning no longer persists. The config is now reloaded before health checks re-run.
+- **Migration lock staleness**: Added a 30-minute staleness check to the migration lock file. Prevents stale locks from blocking migrations after crashes or PID reuse.
+- **Atomic health status writes**: `saveHealthStatus()` now uses write-to-temp + rename to prevent file corruption on crash or concurrent access.
+- **Doctor fix guard**: `handleDoctorFix` is now guarded against double-invocation from rapid keypresses.
+- Removed pre-existing TypeScript type errors in `migration.ts` v0.6.3 migration body (narrow `Record` type inference on `newEnv`).
+
+### Blog
+- Blog post: [v0.6.5: Action Buttons, Health Screen Fix, Hardened Migrations](https://claude-multi.hmziq.xyz/blog/v065-instance-actions-health-fix/)
+
 ## [0.6.4] - 2026-05-29
 
 ### Added

@@ -40,6 +40,11 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         MAX_THINKING_TOKENS: "8000",
         ENABLE_STREAMING: "true",
         MAX_OUTPUT_TOKENS: "64000",
+        // Claude Code doesn't recognize glm-5.1 as a known model, so it assumes
+        // a 200K context window by default. GLM-5.1's actual context is 128K.
+        // Without these, auto-compaction never triggers → context fills to 100% → API crash.
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -64,6 +69,10 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_OUTPUT_TOKENS: "64000",
         MAX_THINKING_TOKENS: "32000",
+        // MiniMax-M2.7 has a 128K context window. Claude Code assumes 200K for
+        // unrecognized models, so auto-compaction never fires without these.
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: true,
@@ -154,6 +163,10 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
+        // Kimi K2.5 has a 128K context window. Claude Code assumes 200K for
+        // unrecognized models, so auto-compaction never fires without these.
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -177,6 +190,10 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
+        // Qwen3-Coder-Next has a 128K context window. Claude Code assumes 200K
+        // for unrecognized models, so auto-compaction never fires without these.
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -200,6 +217,10 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
+        // Qwen3-Coder-Next has a 128K context window. Claude Code assumes 200K
+        // for unrecognized models, so auto-compaction never fires without these.
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
