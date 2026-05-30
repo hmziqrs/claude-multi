@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
-import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { isThirdPartyApiBroken, installPinnedClaude, getPinnedBinaryVersion, COMPATIBLE_CLAUDE_VERSION, getClaudeMultiVersion } from "@/version";
-import { PINNED_CLAUDE_BIN } from "@/paths";
+import { getClaudeMultiVersion } from "@/version";
 import { Select, Spinner } from "@inkjs/ui";
 import { Header } from "@/ink/components/Header";
 import { Footer } from "@/ink/components/Footer";
@@ -51,26 +48,19 @@ const GoodbyeScreen: React.FC = () => {
   );
 };
 
-// [SAFE PARK] Doctor result screen for pinned binary fix flow
-const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; installFailed: boolean; onBack: () => void }> = ({ fixedCount, migratedCount, installFailed, onBack }) => {
+// Doctor result screen for wrapper fix flow
+const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; onBack: () => void }> = ({ fixedCount, migratedCount, onBack }) => {
   useNavigation(onBack);
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
-      <Header title="🔧 Doctor Fix" />
-      {installFailed ? (
-        <>
-          <StatusBar message="Failed to install pinned Claude binary" type="error" />
-          <Box marginTop={1}>
-            <Text dimColor>Check your network connection and try again.</Text>
-          </Box>
-        </>
-      ) : fixedCount > 0 || migratedCount > 0 ? (
+      <Header title="Doctor Fix" />
+      {fixedCount > 0 || migratedCount > 0 ? (
         <>
           {fixedCount > 0 && (
             <>
-              <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use pinned Claude v${COMPATIBLE_CLAUDE_VERSION}!`} type="success" />
+              <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use global Claude binary`} type="success" />
               <Box marginTop={1}>
-                <Text dimColor>All 3rd-party API instances now use the correct Claude binary.</Text>
+                <Text dimColor>All instances now use the globally installed Claude binary.</Text>
               </Box>
             </>
           )}
@@ -109,16 +99,9 @@ export const App: React.FC = () => {
   const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus, instanceMigrationVersion);
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
-  const [ccVersion] = useState(() => {
-    try {
-      const output = execSync("claude --version 2>/dev/null", { encoding: "utf-8", timeout: 5000 }).trim();
-      return output.split(" ")[0] || null;
-    } catch { return null; }
-  });
   const [doctorResult, setDoctorResult] = useState({
     fixedCount: 0,
     migratedCount: 0,
-    installFailed: false,
   });
   const [doctorRunning, setDoctorRunning] = useState(false);
 
@@ -149,16 +132,7 @@ export const App: React.FC = () => {
     if (doctorRunning) return;
     setDoctorRunning(true);
     try {
-    let installFailed = false;
-    if (!existsSync(PINNED_CLAUDE_BIN)) {
-      try { installPinnedClaude(); } catch { installFailed = true; }
-    } else {
-      const pinnedVer = getPinnedBinaryVersion();
-      if (pinnedVer && isThirdPartyApiBroken(pinnedVer)) {
-        try { installPinnedClaude(); } catch { installFailed = true; }
-      }
-    }
-    const fixed = installFailed ? [] : fixWrapperVersions(instances);
+    const fixed = fixWrapperVersions(instances);
 
     let migrated = 0;
     try {
@@ -173,7 +147,7 @@ export const App: React.FC = () => {
       }
     } catch {}
 
-    setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated, installFailed });
+    setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated });
     // reload() triggers useHealthCheck's effect via changed dependencies —
     // no need to call retry() separately (would cause a double health check)
     await reload();
@@ -201,7 +175,7 @@ export const App: React.FC = () => {
   }
 
   if (screen === "doctor-result") {
-    return <DoctorResultScreen fixedCount={doctorResult.fixedCount} migratedCount={doctorResult.migratedCount} installFailed={doctorResult.installFailed} onBack={goToMenu} />;
+    return <DoctorResultScreen fixedCount={doctorResult.fixedCount} migratedCount={doctorResult.migratedCount} onBack={goToMenu} />;
   }
 
   if (screen !== "menu") {
@@ -215,7 +189,7 @@ export const App: React.FC = () => {
 
   const errorCount = issues.filter(i => i.severity === "error").length;
   const warningCount = issues.filter(i => i.severity === "warning").length;
-  const versionIssues = issues.filter(i => i.category === "version"); // [SAFE PARK]
+  const versionIssues = issues.filter(i => i.category === "version");
   const hasVersionIssues = versionIssues.length > 0;
 
   const goToHealth = () => {
@@ -236,7 +210,7 @@ export const App: React.FC = () => {
         ]
       : []),
     { label: "🩺 Doctor check", value: "doctor-check" },
-    // [SAFE PARK] Show fix wrappers option when version issues detected
+    // Show fix wrappers option when version issues detected
     ...(hasVersionIssues
       ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
       : []),
@@ -257,14 +231,6 @@ export const App: React.FC = () => {
         warningCount={warningCount}
         hasVersionIssues={hasVersionIssues}
       />
-
-      {/* [SAFE PARK] Version warning banner for broken 3rd-party API compat */}
-      {ccVersion && isThirdPartyApiBroken(ccVersion) && (
-        <Box marginBottom={1}>
-          <Text color="red" bold>⚠ Claude Code v{ccVersion} does not work with 3rd-party APIs. </Text>
-          <Text color="red">Run 'claude-multi doctor fix' to install a compatible version.</Text>
-        </Box>
-      )}
 
       <InstanceLine instances={instances} />
 

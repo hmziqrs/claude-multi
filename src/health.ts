@@ -3,11 +3,11 @@ import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import { detectBrokenSymlinks } from "@/config";
 import type { Instance } from "@/config";
-import { getBaseDir, PINNED_CLAUDE_BIN } from "@/paths";
+import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
-import { buildWrapperScript } from "@/wrapper";
+import { buildWrapperScript, tryGetClaudePath } from "@/wrapper";
 import { providerHasRegions, detectRegionFromBaseUrl, getProviderRegions } from "@/templates";
 
 export type HealthSeverity = "error" | "warning" | "info";
@@ -181,25 +181,28 @@ export function runHealthChecks(
       });
     }
 
-    // [SAFE PARK] Wrapper points to wrong Claude binary (3rd-party provider compatibility)
-    if (existsSync(inst.binaryPath) && existsSync(PINNED_CLAUDE_BIN)) {
+    // Wrapper points to wrong Claude binary
+    const expectedClaudePath = tryGetClaudePath();
+    if (existsSync(inst.binaryPath) && expectedClaudePath) {
       try {
         const wrapperContent = readFileSync(inst.binaryPath, "utf-8");
 
         // Check shell format: exec "/path/to/claude"
         const shellMatch = wrapperContent.match(/exec\s+"([^"]+)"/);
+        // Check Windows .cmd format: "/path/to/claude" %*
+        const cmdMatch = wrapperContent.match(/"([^"]+)"\s+%\*/);
         // Check Node.js format: spawn("/path/to/claude"
         const nodeMatch = wrapperContent.match(/spawn\("([^"]+)"/);
 
-        const currentBin = shellMatch?.[1] ?? nodeMatch?.[1];
-        if (currentBin && currentBin !== PINNED_CLAUDE_BIN) {
+        const currentBin = shellMatch?.[1] ?? cmdMatch?.[1] ?? nodeMatch?.[1];
+        if (currentBin && currentBin !== expectedClaudePath) {
           issues.push({
             id: `wrong-claude-version-${inst.name}`,
             severity: "error",
             category: "version",
             title: "Wrong Claude binary",
             message: `Instance '${inst.name}' uses a Claude version that may break 3rd-party providers`,
-            detail: `Current: ${currentBin}\nExpected: ${PINNED_CLAUDE_BIN}`,
+            detail: `Current: ${currentBin}\nExpected: ${expectedClaudePath}`,
             instanceName: inst.name,
             timestamp: now,
             dismissed: false,
@@ -284,12 +287,13 @@ export function dismissAllIssues(): void {
 }
 
 /**
- * [SAFE PARK] Fix wrappers that point to the wrong Claude binary.
- * Regenerates them as shell scripts pointing to the pinned binary.
+ * Fix wrappers that point to the wrong Claude binary.
+ * Regenerates them as shell scripts pointing to the resolved global Claude binary.
  * Returns the list of instance names that were fixed.
  */
 export function fixWrapperVersions(instances: Instance[]): string[] {
-  if (!existsSync(PINNED_CLAUDE_BIN)) return [];
+  const expectedClaudePath = tryGetClaudePath();
+  if (!expectedClaudePath) return [];
 
   const fixed: string[] = [];
   for (const inst of instances) {
@@ -300,14 +304,16 @@ export function fixWrapperVersions(instances: Instance[]): string[] {
 
       // Check shell format
       const shellMatch = content.match(/exec\s+"([^"]+)"/);
+      // Check Windows .cmd format
+      const cmdMatch = content.match(/"([^"]+)"\s+%\*/);
       // Check Node.js format
       const nodeMatch = content.match(/spawn\("([^"]+)"/);
 
-      const currentBin = shellMatch?.[1] ?? nodeMatch?.[1];
-      if (!currentBin || currentBin === PINNED_CLAUDE_BIN) continue;
+      const currentBin = shellMatch?.[1] ?? cmdMatch?.[1] ?? nodeMatch?.[1];
+      if (!currentBin || currentBin === expectedClaudePath) continue;
 
-      // Regenerate using canonical template, explicitly targeting pinned binary
-      const newContent = buildWrapperScript(inst, PINNED_CLAUDE_BIN);
+      // Regenerate using canonical template, targeting resolved global binary
+      const newContent = buildWrapperScript(inst, expectedClaudePath);
 
       // Only write if content actually differs
       if (content !== newContent) {

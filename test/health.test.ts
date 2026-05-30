@@ -1,16 +1,15 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Instance } from "@/config";
-import { PINNED_CLAUDE_BIN } from "@/paths";
 import { getClaudeMultiVersion } from "@/version";
 import { buildWrapperScript } from "@/wrapper";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
+const originalClaudePath = process.env.CLAUDE_MULTI_CLAUDE_PATH;
 let testDir: string;
-
-const HAS_PINNED = existsSync(PINNED_CLAUDE_BIN);
+let fakeClaudeBin: string;
 
 function makeInstance(overrides: Partial<Instance> = {}): Instance {
   return {
@@ -43,10 +42,17 @@ describe("Health Check", () => {
   beforeEach(() => {
     testDir = mkdtempSync(join(tmpdir(), "health-test-"));
     process.env.CLAUDE_MULTI_HOME = testDir;
+
+    // Create a fake claude binary and point the env var at it,
+    // so getClaudePath() / tryGetClaudePath() resolve deterministically.
+    fakeClaudeBin = join(testDir, "fake-claude-bin");
+    writeFileSync(fakeClaudeBin, "#!/bin/sh", { mode: 0o755 });
+    process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;
   });
 
   afterEach(() => {
     process.env.CLAUDE_MULTI_HOME = originalEnv;
+    process.env.CLAUDE_MULTI_CLAUDE_PATH = originalClaudePath;
     try { rmSync(testDir, { recursive: true, force: true }); } catch {}
   });
 
@@ -150,7 +156,6 @@ describe("Health Check", () => {
 
   describe("version detection", () => {
     test("detects shell wrapper pointing to wrong binary", async () => {
-      if (!HAS_PINNED) return; // Skip if pinned bin not installed
       const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -166,7 +171,6 @@ describe("Health Check", () => {
     });
 
     test("detects Node.js spawn wrapper pointing to wrong binary", async () => {
-      if (!HAS_PINNED) return;
       const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -181,22 +185,22 @@ describe("Health Check", () => {
       expect(versionIssue!.detail).toContain("/usr/local/bin/claude");
     });
 
-    test("no version issue when wrapper points to pinned binary", async () => {
-      if (!HAS_PINNED) return;
+    test("no version issue when wrapper points to resolved claude path", async () => {
       const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
       mkdirSync(join(testDir, "bin"), { recursive: true });
-      writeShellWrapper(inst.binaryPath, PINNED_CLAUDE_BIN);
+      writeShellWrapper(inst.binaryPath, fakeClaudeBin);
 
       const issues = runHealthChecks([inst]);
       const versionIssue = issues.find(i => i.category === "version");
       expect(versionIssue).toBeUndefined();
     });
 
-    test("no version issue when pinned binary does not exist", async () => {
-      // This test only runs when the pinned bin does NOT exist
-      if (HAS_PINNED) return;
+    test("no version issue when claude binary cannot be resolved", async () => {
+      // Point the override at a nonexistent file so getClaudePath throws
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/absolutely/nonexistent/path/claude";
+
       const { runHealthChecks } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -206,12 +210,14 @@ describe("Health Check", () => {
       const issues = runHealthChecks([inst]);
       const versionIssue = issues.find(i => i.category === "version");
       expect(versionIssue).toBeUndefined();
+
+      // Restore for subsequent tests
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;
     });
   });
 
   describe("fixWrapperVersions", () => {
     test("fixes shell wrapper pointing to wrong binary", async () => {
-      if (!HAS_PINNED) return;
       const { fixWrapperVersions } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -222,13 +228,12 @@ describe("Health Check", () => {
       expect(fixed).toEqual(["test-inst"]);
 
       const content = readFileSync(inst.binaryPath, "utf-8");
-      expect(content).toContain(`exec "${PINNED_CLAUDE_BIN}"`);
+      expect(content).toContain(`exec "${fakeClaudeBin}"`);
       expect(content).toContain('CLAUDE_CONFIG_DIR="');
       expect(content).not.toContain("/usr/local/bin/claude");
     });
 
     test("fixes Node.js spawn wrapper by regenerating as shell", async () => {
-      if (!HAS_PINNED) return;
       const { fixWrapperVersions } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -240,13 +245,12 @@ describe("Health Check", () => {
 
       const content = readFileSync(inst.binaryPath, "utf-8");
       expect(content).toContain("#!/bin/sh");
-      expect(content).toContain(`exec "${PINNED_CLAUDE_BIN}"`);
+      expect(content).toContain(`exec "${fakeClaudeBin}"`);
       expect(content).not.toContain("spawn");
       expect(content).not.toContain("child_process");
     });
 
     test("preserves configDir in regenerated wrapper", async () => {
-      if (!HAS_PINNED) return;
       const { fixWrapperVersions } = await import("@/health");
       const customConfigDir = join(testDir, ".claude-mycustom");
       const inst = makeInstance({ configDir: customConfigDir });
@@ -261,20 +265,18 @@ describe("Health Check", () => {
       expect(content).toContain(`CLAUDE_CONFIG_DIR="${customConfigDir}"`);
     });
 
-    test("skips wrapper already pointing to pinned binary", async () => {
-      if (!HAS_PINNED) return;
+    test("skips wrapper already pointing to resolved claude path", async () => {
       const { fixWrapperVersions } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
       mkdirSync(join(testDir, "bin"), { recursive: true });
-      writeShellWrapper(inst.binaryPath, PINNED_CLAUDE_BIN);
+      writeShellWrapper(inst.binaryPath, fakeClaudeBin);
 
       const fixed = fixWrapperVersions([inst]);
       expect(fixed).toEqual([]);
     });
 
     test("skips missing wrapper file", async () => {
-      if (!HAS_PINNED) return;
       const { fixWrapperVersions } = await import("@/health");
       const inst = makeInstance();
 
@@ -282,8 +284,10 @@ describe("Health Check", () => {
       expect(fixed).toEqual([]);
     });
 
-    test("returns empty when pinned binary does not exist", async () => {
-      if (HAS_PINNED) return; // Only run when pinned bin doesn't exist
+    test("returns empty when claude binary cannot be resolved", async () => {
+      // Point the override at a nonexistent file so getClaudePath throws
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/absolutely/nonexistent/path/claude";
+
       const { fixWrapperVersions } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -292,10 +296,12 @@ describe("Health Check", () => {
 
       const fixed = fixWrapperVersions([inst]);
       expect(fixed).toEqual([]);
+
+      // Restore for subsequent tests
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;
     });
 
     test("fixes multiple instances", async () => {
-      if (!HAS_PINNED) return;
       const { fixWrapperVersions } = await import("@/health");
       const inst1 = makeInstance({ name: "a", binaryPath: join(testDir, "bin", "a") });
       const inst2 = makeInstance({ name: "b", binaryPath: join(testDir, "bin", "b") });
@@ -311,8 +317,7 @@ describe("Health Check", () => {
       expect(fixed.length).toBe(2);
     });
 
-    test("output matches generateWrapperScript exactly", async () => {
-      if (!HAS_PINNED) return;
+    test("output matches buildWrapperScript exactly", async () => {
       const { fixWrapperVersions } = await import("@/health");
       const inst = makeInstance();
       mkdirSync(inst.configDir, { recursive: true });
@@ -322,7 +327,7 @@ describe("Health Check", () => {
       fixWrapperVersions([inst]);
 
       const content = readFileSync(inst.binaryPath, "utf-8");
-      const expected = buildWrapperScript(inst, PINNED_CLAUDE_BIN);
+      const expected = buildWrapperScript(inst, fakeClaudeBin);
       expect(content).toBe(expected);
     });
   });

@@ -33,11 +33,10 @@ export const WarningBanner: React.FC<WarningBannerProps> = ({
         <Text color="yellow" bold>!</Text>
         <Text color="yellow"> to review</Text>
       </Box>
-      {/* [SAFE PARK] 3rd-party API version warning */}
       {hasVersionIssues && (
         <Box>
-          <Text color="red">  ⚠ Some instances use a Claude version incompatible with 3rd-party APIs. </Text>
-          <Text color="red" bold>Press ! to auto-fix.</Text>
+          <Text color="red">  ⚠ Some instances have version issues. </Text>
+          <Text color="red" bold>Press ! to review and fix.</Text>
         </Box>
       )}
     </Box>

@@ -2,7 +2,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import prompts from "prompts";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, dirname, delimiter, sep } from "node:path";
 import {
   addInstance,
   removeInstance,
@@ -309,9 +309,9 @@ program
         console.log();
 
         // Check if binary directory is in PATH
-        const binDir = binaryPath.substring(0, binaryPath.lastIndexOf("/"));
+        const binDir = dirname(binaryPath);
         const pathEnv = process.env.PATH || "";
-        const isInPath = pathEnv.split(":").some((p) => p === binDir);
+        const isInPath = pathEnv.split(delimiter).some((p) => p === binDir);
 
         if (!isInPath) {
           console.log(
@@ -561,17 +561,13 @@ program
       const [
         instances,
         { runHealthChecks, fixWrapperVersions },
-        { existsSync },
-        { PINNED_CLAUDE_BIN },
-        { installPinnedClaude, getPinnedBinaryVersion, isThirdPartyApiBroken, COMPATIBLE_CLAUDE_VERSION },
+        { tryGetClaudePath },
         { needsInstanceMigration, runInstanceMigrations },
         { loadConfig, saveConfigAtomic },
       ] = await Promise.all([
         listInstances(),
         import("@/health"),
-        import("node:fs"),
-        import("@/paths"),
-        import("@/version"),
+        import("@/wrapper"),
         import("@/migration"),
         import("@/config"),
       ]);
@@ -579,26 +575,18 @@ program
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
 
-        // [SAFE PARK] Ensure pinned binary is installed and up-to-date
-        if (!existsSync(PINNED_CLAUDE_BIN)) {
-          console.log(chalk.cyan(`Installing compatible Claude v${COMPATIBLE_CLAUDE_VERSION}...`));
-          installPinnedClaude();
-          console.log(chalk.green(`✓ Installed pinned Claude v${COMPATIBLE_CLAUDE_VERSION}`));
-        } else {
-          const pinnedVer = getPinnedBinaryVersion();
-          const needsReinstall = !pinnedVer || isThirdPartyApiBroken(pinnedVer) || pinnedVer !== COMPATIBLE_CLAUDE_VERSION;
-          if (needsReinstall) {
-            const reason = !pinnedVer ? "version unknown" : isThirdPartyApiBroken(pinnedVer) ? "incompatible" : "outdated";
-            console.log(chalk.yellow(`Pinned binary is ${pinnedVer ? `v${pinnedVer}` : reason}. Reinstalling v${COMPATIBLE_CLAUDE_VERSION}...`));
-            installPinnedClaude();
-            console.log(chalk.green(`✓ Reinstalled pinned Claude v${COMPATIBLE_CLAUDE_VERSION}`));
-          }
+        // Verify claude is available
+        const claudePath = tryGetClaudePath();
+        if (!claudePath) {
+          console.error(chalk.red("Claude Code not found in PATH. Please install it first."));
+          process.exit(1);
         }
+        console.log(chalk.gray(`Using claude at: ${claudePath}`));
 
-        // [SAFE PARK] Fix wrapper versions
+        // Fix wrapper versions to point to resolved claude binary
         const fixed = fixWrapperVersions(instances);
         if (fixed.length > 0) {
-          console.log(chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use pinned Claude version:`));
+          console.log(chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use resolved Claude version:`));
           for (const name of fixed) {
             console.log(chalk.gray(`  • ${name}`));
           }

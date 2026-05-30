@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Config } from "@/config";
 import { getClaudeMultiVersion } from "@/version";
-import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
+import { tryGetClaudePath, buildWrapperScript } from "@/wrapper";
 
 const originalEnv = process.env.CLAUDE_MULTI_HOME;
 let testDir: string;
@@ -355,7 +355,7 @@ describe("Migration", () => {
       test("uses global claude path, not pinned binary", async () => {
         const { runInstanceMigrations } = await import("@/migration");
 
-        const claudePath = tryGetGlobalClaudePath();
+        const claudePath = tryGetClaudePath();
         if (!claudePath) return; // Skip if claude not installed
 
         const cmDir = join(testDir, ".claude-multi");
@@ -396,7 +396,7 @@ describe("Migration", () => {
         const binaryPath = join(testDir, "bin", "same");
 
         // Write the exact content the migration would produce (global claude path)
-        const claudePath = tryGetGlobalClaudePath();
+        const claudePath = tryGetClaudePath();
         if (!claudePath) return; // Skip if claude not installed
         const inst = { name: "same", configDir: instDir, binaryPath };
         const expectedContent = buildWrapperScript(inst, claudePath);

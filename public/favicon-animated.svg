@@ -36,6 +36,7 @@
     </radialGradient>
 
     <style>
+      /* ── stack-in keyframes (original 3-layer fan) ── */
       @keyframes stack-back {
         0%   { transform: translate(8px, 10px) rotate(6deg); opacity: 0; }
         15%  { transform: translate(0, 0) rotate(0deg); opacity: 1; }
@@ -57,6 +58,7 @@
         100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
       }
 
+      /* ── float keyframes ── */
       @keyframes float-back {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-1.6px); }
@@ -70,9 +72,21 @@
         50% { transform: translateY(-0.5px); }
       }
 
-      @keyframes pulse-green  { 0%, 100% { stroke-opacity: .5; } 50% { stroke-opacity: 1; } }
-      @keyframes pulse-purple { 0%, 100% { stroke-opacity: .6; } 50% { stroke-opacity: 1; } }
-      @keyframes pulse-blue   { 0%, 100% { stroke-opacity: .7; } 50% { stroke-opacity: 1; } }
+      /* ── provider color cycle (6 providers, 12s total, 2s each) ── */
+      @keyframes provider-cycle {
+        0%        { stroke: #6dd9a1; } /* GLM       */
+        16.6667%  { stroke: #00d4aa; } /* Qwen      */
+        33.3333%  { stroke: #e040fb; } /* Kimi      */
+        50%       { stroke: #ff8c42; } /* MiniMax   */
+        66.6667%  { stroke: #ff6900; } /* MiMo      */
+        83.3333%  { stroke: #4f8ef7; } /* DeepSeek  */
+        100%      { stroke: #4f8ef7; } /* DeepSeek (hold for wrap) */
+      }
+
+      /* ── opacity pulse keyframes ── */
+      @keyframes pulse-back  { 0%, 100% { stroke-opacity: .5; } 50% { stroke-opacity: 1; } }
+      @keyframes pulse-mid   { 0%, 100% { stroke-opacity: .6; } 50% { stroke-opacity: 1; } }
+      @keyframes pulse-front { 0%, 100% { stroke-opacity: .7; } 50% { stroke-opacity: 1; } }
 
       @keyframes glow-pulse {
         0%, 100% { opacity: .3; transform: scale(1); }
@@ -84,24 +98,34 @@
         50% { opacity: 0; }
       }
 
+      /* ── layer classes ── */
       .layer-back {
         animation:
           stack-back 5s ease-out infinite,
           float-back 3s ease-in-out infinite 5s,
-          pulse-green 3s ease-in-out infinite;
+          pulse-back 3s ease-in-out infinite;
       }
       .layer-mid {
         animation:
           stack-mid 5s ease-out infinite,
           float-mid 3s ease-in-out infinite 5.3s,
-          pulse-purple 3s ease-in-out infinite .3s;
+          pulse-mid 3s ease-in-out infinite .3s;
       }
       .layer-front {
         animation:
           stack-front 5s ease-out infinite,
           float-front 3s ease-in-out infinite 5.6s,
-          pulse-blue 3s ease-in-out infinite .6s;
+          pulse-front 3s ease-in-out infinite .6s;
       }
+
+      /* provider color cycling on the <rect> strokes */
+      .provider-cycle {
+        animation: provider-cycle 12s steps(6) infinite;
+      }
+      .layer-back .provider-cycle  { animation-delay: 0s;   } /* starts on GLM     */
+      .layer-mid .provider-cycle   { animation-delay: -4s;  } /* starts on Kimi    */
+      .layer-front .provider-cycle { animation-delay: -10s; } /* starts on DeepSeek */
+
       .ambient {
         animation: glow-pulse 3s ease-in-out infinite;
         transform-origin: center;
@@ -115,15 +139,15 @@
   <!-- ambient glow -->
   <ellipse cx="34" cy="30" rx="24" ry="18" fill="url(#ambientGlow)" class="ambient"/>
 
-  <!-- card layers -->
+  <!-- card layers (3 physical layers, colors cycle through providers) -->
   <g class="layer-back">
-    <rect x="10" y="22" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#6dd9a1" stroke-opacity=".6"/>
+    <rect class="provider-cycle" x="10" y="22" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#6dd9a1" stroke-opacity=".6"/>
   </g>
   <g class="layer-mid">
-    <rect x="14" y="18" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#c79bff" stroke-opacity=".7"/>
+    <rect class="provider-cycle" x="14" y="18" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#e040fb" stroke-opacity=".7"/>
   </g>
   <g class="layer-front" filter="url(#shadow)">
-    <rect x="18" y="14" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#7aa7ff" stroke-opacity=".8"/>
+    <rect class="provider-cycle" x="18" y="14" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#4f8ef7" stroke-opacity=".8"/>
   </g>
 
   <!-- brand card -->

@@ -14,9 +14,10 @@ export interface ProviderTemplate {
 
 /**
  * [SAFE PARK] Env vars injected into every provider template.
+ * claude-multi no longer bundles claude-code and does not pin versions;
+ * the user's installed claude-code binary is used as-is.
  * To reactivate: add DISABLE_AUTOUPDATER: "1" and DISABLE_UPDATES: "1"
- * if a future Claude Code version breaks 3rd-party provider compatibility.
- * See: src/version.ts → isThirdPartyApiBroken()
+ * if a future Claude Code release breaks 3rd-party provider compatibility.
  */
 const PROVIDER_COMMON_ENV: Record<string, string> = {};
 

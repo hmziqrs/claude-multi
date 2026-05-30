@@ -5,7 +5,8 @@ import type { Config, Instance, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
-import { tryGetGlobalClaudePath, buildWrapperScript } from "@/wrapper";
+import { TUNABLE_ENV_VARS } from "@/constants/env";
+import { tryGetClaudePath, buildWrapperScript } from "@/wrapper";
 import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl, getProviderRegions } from "@/templates";
 
 export const CONFIG_VERSION = "2.0.0";
@@ -33,7 +34,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
 
       // Regenerate wrapper pointing to the globally installed claude (not pinned binary)
       if (existsSync(instance.binaryPath)) {
-        const claudePath = tryGetGlobalClaudePath();
+        const claudePath = tryGetClaudePath();
         if (claudePath !== null) {
           const expected = buildWrapperScript(instance, claudePath);
           try {
@@ -45,6 +46,8 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
           } catch {
             // Skip unreadable wrapper
           }
+        } else {
+          console.warn(`[migration] Could not find claude binary, skipping wrapper regeneration for instance: ${instance.name}`);
         }
       }
 
@@ -110,11 +113,6 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         // Preserve user-tunable env vars that the user has explicitly customized.
         // Model names and structural vars are always synced from the template,
         // but preference vars like MAX_OUTPUT_TOKENS are kept if the user set them.
-        const TUNABLE_ENV_VARS = new Set([
-          "MAX_OUTPUT_TOKENS", "MAX_THINKING_TOKENS", "REASONING_EFFORT",
-          "ENABLE_THINKING", "ENABLE_STREAMING", "API_TIMEOUT_MS",
-          "CLAUDE_CODE_EFFORT_LEVEL",
-        ]);
         for (const key of TUNABLE_ENV_VARS) {
           if (key in existingEnv && existingEnv[key] !== (templateSettings.env as Record<string, string>)[key]) {
             newEnv[key] = existingEnv[key]!;

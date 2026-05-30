@@ -5,12 +5,9 @@ import {
   getDefaultBinaryPath,
   getClaudePath,
   tryGetClaudePath,
-  tryGetGlobalClaudePath,
   generateWrapperScriptSafe,
 } from "@/wrapper";
-import { existsSync } from "node:fs";
-import { PINNED_CLAUDE_BIN } from "@/paths";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -120,13 +117,16 @@ describe("Wrapper Script Generation", () => {
   describe("tryGetClaudePath", () => {
     it("returns null for missing CLAUDE_MULTI_CLAUDE_PATH override", () => {
       const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      const originalPath = process.env.PATH;
       process.env.CLAUDE_MULTI_CLAUDE_PATH = "/absolutely/nonexistent/path/claude";
+      process.env.PATH = "/nonexistent";
 
       try {
         const result = tryGetClaudePath();
         expect(result).toBeNull();
       } finally {
         process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+        process.env.PATH = originalPath;
       }
     });
 
@@ -142,8 +142,6 @@ describe("Wrapper Script Generation", () => {
 
   describe("generateWrapperScriptSafe", () => {
     it("returns null when Claude path cannot be resolved", () => {
-      if (existsSync(PINNED_CLAUDE_BIN)) return;
-
       const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
       const originalPath = process.env.PATH;
       process.env.CLAUDE_MULTI_CLAUDE_PATH = "/nonexistent/claude";
@@ -169,29 +167,6 @@ describe("Wrapper Script Generation", () => {
         expect(result).toContain("#!/bin/sh");
         expect(result).toContain('CLAUDE_CONFIG_DIR="/tmp/test"');
         expect(result).toContain("exec");
-      }
-    });
-  });
-
-  describe("tryGetGlobalClaudePath", () => {
-    it("returns null when Claude is not in PATH", () => {
-      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
-      const originalPath = process.env.PATH;
-      process.env.CLAUDE_MULTI_CLAUDE_PATH = "/nonexistent/claude";
-      process.env.PATH = "/nonexistent";
-
-      try {
-        expect(tryGetGlobalClaudePath()).toBeNull();
-      } finally {
-        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
-        process.env.PATH = originalPath;
-      }
-    });
-
-    it("returns global claude path, not pinned binary", () => {
-      const result = tryGetGlobalClaudePath();
-      if (result !== null) {
-        expect(result).not.toContain(".claude-multi/bin");
       }
     });
   });
