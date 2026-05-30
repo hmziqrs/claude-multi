@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-05-30
+
+### Changed
+- **Removed pinned Claude Code binary**: claude-multi no longer installs its own copy of `@anthropic-ai/claude-code` into `~/.claude-multi/bin/`. All instance wrappers now resolve to the user's globally installed `claude` binary via `which claude`/`where claude`. This means instances auto-update together with the global `claude` binary.
+- `getClaudePath()` in `wrapper.ts` simplified to two priorities: `CLAUDE_MULTI_CLAUDE_PATH` env override, then global PATH. The pinned binary check was removed.
+- `doctor fix` no longer installs a pinned Claude binary. It verifies `claude` is available in PATH and regenerates stale wrappers.
+- Health check for wrapper binary paths now compares against the resolved global `claude` path instead of `PINNED_CLAUDE_BIN`. Also gained a Windows `.cmd` regex pattern.
+- `fixWrapperVersions()` in `health.ts` rewritten to use `tryGetClaudePath()` instead of `PINNED_CLAUDE_BIN`.
+- Instance migration (v0.6.2) updated to use `tryGetClaudePath()` instead of the deleted `tryGetGlobalClaudePath()`. Added `console.warn` when claude binary is not found during wrapper regeneration.
+- `TUNABLE_ENV_VARS` local duplicate removed from `migration.ts` v0.6.3. Now imports the canonical set from `constants/env.ts` (was missing `CLAUDE_CODE_AUTO_COMPACT_WINDOW` and `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`).
+- PATH membership check in the `add` command uses `path.dirname()` and `path.delimiter` instead of Unix-specific `lastIndexOf('/')` and `split(':')`.
+- `where claude` output split fixed to handle Windows `\r\n` line endings.
+- Version warning banner and `isThirdPartyApiBroken` check removed from the TUI (the affected versions are ancient).
+
+### Removed
+- `PINNED_BIN_DIR` and `PINNED_CLAUDE_BIN` constants from `paths.ts`.
+- `COMPATIBLE_CLAUDE_VERSION`, `isThirdPartyApiBroken()`, `getPinnedBinaryVersion()`, `installPinnedClaude()` from `version.ts`.
+- `getGlobalClaudePath()` and `tryGetGlobalClaudePath()` from `wrapper.ts` (became identical to `getClaudePath()` and `tryGetClaudePath()` after pinning removal).
+- `ccVersion` state, `installFailed` doctor result, and version warning banner from `App.tsx`.
+
+### Fixed
+- v0.6.3 migration `TUNABLE_ENV_VARS` local duplicate was missing two entries (`CLAUDE_CODE_AUTO_COMPACT_WINDOW`, `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`), causing auto-compaction settings to be overwritten with template defaults during migration.
+- Health check and `doctor fix` were fighting the v0.6.2 migration: migration set wrappers to global path, doctor overwrote them back to pinned binary. Both now use the same global path resolution.
+- `where claude` output on Windows was split on `\n` only, missing `\r\n` carriage returns.
+- `add` command PATH check was Unix-only (`lastIndexOf('/')` and `split(':')`).
+- Health check had no regex for Windows `.cmd` wrapper format.
+
+### Blog
+- Blog post: [v0.7.0: No More Pinned Claude Binary](https://claude-multi.hmziq.xyz/blog/v070-no-more-pinned-claude/)
+
 ## [0.6.5] - 2026-05-30
 
 ### Added
