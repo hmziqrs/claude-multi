@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 import { readFileSync } from 'fs';
@@ -45,6 +46,7 @@ export default defineConfig({
         lucide: ['globe'],
       },
     }),
+    sitemap(),
     starlight({
       title: 'claude-multi',
       description:
@@ -57,7 +59,7 @@ export default defineConfig({
         },
       ],
       editLink: {
-        baseUrl: 'https://github.com/hmziqrs/claude-multi/edit/main/',
+        baseUrl: 'https://github.com/hmziqrs/claude-multi/edit/master/',
       },
       sidebar: [
         {
@@ -94,6 +96,12 @@ export default defineConfig({
       customCss: ['/src/web/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',
+      head: [
+        {
+          tag: 'meta',
+          attrs: { name: 'theme-color', content: '#0c0c0f' },
+        },
+      ],
     }),
   ],
 });

@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Layout from '@/web/layouts/MarketingLayout.astro';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('faq');
+  const entries = await getCollection('glossary');
   return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
@@ -13,38 +13,28 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: {
-    '@type': 'Question',
-    name: entry.data.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: entry.data.description,
-    },
-  },
-};
-
-const allEntries = (await getCollection('faq')).toSorted(
-  (a, b) => a.data.order - b.data.order
+const allEntries = (await getCollection('glossary')).toSorted((a, b) =>
+  a.data.term.localeCompare(b.data.term)
 );
 const currentIndex = allEntries.findIndex((e) => e.id === entry.id);
 const prev = currentIndex > 0 ? allEntries[currentIndex - 1] : null;
 const next =
   currentIndex < allEntries.length - 1 ? allEntries[currentIndex + 1] : null;
+
+const relatedEntries = entry.data.related
+  .map((slug) => allEntries.find((e) => e.id === slug))
+  .filter(Boolean);
 ---
 
 <Layout
-  title={`${entry.data.question} - claude-multi FAQ`}
+  title={`${entry.data.term} - claude-multi Glossary`}
   description={entry.data.description}
   ogType="article"
-  jsonLd={faqSchema}
 >
   <article class="relative z-10 pt-36 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <a
-        href="/faq/"
+        href="/glossary/"
         class="text-sm text-text-mute no-underline hover:text-lime inline-flex items-center gap-1.5 mb-8"
       >
         <svg
@@ -61,7 +51,7 @@ const next =
           <path d="m12 19-7-7 7-7"></path>
           <path d="M19 12H5"></path>
         </svg>
-        Back to FAQ
+        Back to Glossary
       </a>
 
       <div class="flex items-center gap-3 text-xs text-text-mute mb-5 font-mono">
@@ -71,26 +61,53 @@ const next =
       <h1
         class="text-3xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05] mb-10"
       >
-        {entry.data.question}
+        {entry.data.term}
       </h1>
 
-      <div class="prose-faq">
+      <div class="prose-glossary">
         <Content />
       </div>
+
+      {
+        relatedEntries.length > 0 && (
+          <div class="mt-12 pt-8 border-t border-edge">
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-5">
+              Related terms
+            </h2>
+            <ul class="list-none p-0 m-0 grid sm:grid-cols-2 gap-3">
+              {relatedEntries.map((rel) => (
+                <li>
+                  <a
+                    href={`/glossary/${rel.id}/`}
+                    class="block glass rounded-xl p-5 no-underline transition-colors hover:border-edge-hover group"
+                  >
+                    <span class="text-sm font-semibold text-text group-hover:text-lime transition-colors">
+                      {rel.data.term}
+                    </span>
+                    <p class="text-xs text-text-dim mt-1 leading-relaxed line-clamp-2">
+                      {rel.data.description}
+                    </p>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
 
       <nav class="mt-16 pt-10 border-t border-edge">
         <div class="grid sm:grid-cols-2 gap-4">
           {
             prev && (
               <a
-                href={`/faq/${prev.id}/`}
+                href={`/glossary/${prev.id}/`}
                 class="glass rounded-2xl p-6 no-underline transition-colors hover:border-edge-hover group"
               >
                 <span class="text-xs text-text-mute font-mono block mb-2">
                   ← Previous
                 </span>
                 <span class="text-sm font-semibold text-text-dim group-hover:text-lime transition-colors">
-                  {prev.data.question}
+                  {prev.data.term}
                 </span>
               </a>
             )
@@ -98,7 +115,7 @@ const next =
           {
             next && (
               <a
-                href={`/faq/${next.id}/`}
+                href={`/glossary/${next.id}/`}
                 class:list={[
                   'glass rounded-2xl p-6 no-underline transition-colors hover:border-edge-hover group text-right',
                   { 'sm:col-start-2': !prev },
@@ -108,7 +125,7 @@ const next =
                   Next →
                 </span>
                 <span class="text-sm font-semibold text-text-dim group-hover:text-lime transition-colors">
-                  {next.data.question}
+                  {next.data.term}
                 </span>
               </a>
             )
@@ -120,12 +137,12 @@ const next =
 </Layout>
 
 <style is:global>
-  .prose-faq {
+  .prose-glossary {
     color: var(--color-text-dim);
     font-size: 1.05rem;
     line-height: 1.75;
   }
-  .prose-faq h2 {
+  .prose-glossary h2 {
     color: var(--color-text);
     font-size: 1.75rem;
     font-weight: 700;
@@ -133,26 +150,26 @@ const next =
     margin-top: 3rem;
     margin-bottom: 1rem;
   }
-  .prose-faq h3 {
+  .prose-glossary h3 {
     color: var(--color-text);
     font-size: 1.3rem;
     font-weight: 600;
     margin-top: 2.25rem;
     margin-bottom: 0.85rem;
   }
-  .prose-faq p {
+  .prose-glossary p {
     margin-bottom: 1.25rem;
   }
-  .prose-faq a {
+  .prose-glossary a {
     color: var(--color-lime);
     text-decoration: none;
     border-bottom: 1px solid rgba(163, 230, 53, 0.3);
     transition: border-color 0.15s;
   }
-  .prose-faq a:hover {
+  .prose-glossary a:hover {
     border-bottom-color: var(--color-lime);
   }
-  .prose-faq code {
+  .prose-glossary code {
     font-family: var(--font-mono);
     font-size: 0.92em;
     color: var(--color-lime);
@@ -160,7 +177,7 @@ const next =
     padding: 0.12rem 0.4rem;
     border-radius: 0.3rem;
   }
-  .prose-faq pre {
+  .prose-glossary pre {
     background: rgba(10, 10, 14, 0.85);
     border: 1px solid var(--color-edge);
     border-radius: 0.85rem;
@@ -170,31 +187,31 @@ const next =
     font-size: 0.88rem;
     line-height: 1.6;
   }
-  .prose-faq pre code {
+  .prose-glossary pre code {
     background: none;
     padding: 0;
     color: inherit;
     font-size: inherit;
   }
-  .prose-faq ul,
-  .prose-faq ol {
+  .prose-glossary ul,
+  .prose-glossary ol {
     padding-left: 1.5rem;
     margin-bottom: 1.25rem;
   }
-  .prose-faq li {
+  .prose-glossary li {
     margin-bottom: 0.4rem;
   }
-  .prose-faq strong {
+  .prose-glossary strong {
     color: var(--color-text);
     font-weight: 600;
   }
-  .prose-faq table {
+  .prose-glossary table {
     width: 100%;
     border-collapse: collapse;
     margin: 1.5rem 0;
     font-size: 0.92rem;
   }
-  .prose-faq th {
+  .prose-glossary th {
     color: var(--color-text);
     font-weight: 600;
     text-align: left;
@@ -204,22 +221,22 @@ const next =
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .prose-faq td {
+  .prose-glossary td {
     padding: 0.55rem 0.85rem;
     border-bottom: 1px solid var(--color-edge);
     vertical-align: top;
   }
-  .prose-faq tr:last-child td {
+  .prose-glossary tr:last-child td {
     border-bottom: none;
   }
-  .prose-faq blockquote {
+  .prose-glossary blockquote {
     border-left: 3px solid var(--color-lime);
     padding-left: 1rem;
     margin: 1.5rem 0;
     color: var(--color-text-mute);
     font-style: italic;
   }
-  .prose-faq hr {
+  .prose-glossary hr {
     border: none;
     border-top: 1px solid var(--color-edge);
     margin: 2.5rem 0;

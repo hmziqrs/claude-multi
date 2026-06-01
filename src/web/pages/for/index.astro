@@ -1,0 +1,119 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@/web/layouts/MarketingLayout.astro';
+
+const entries = (await getCollection('personas')).toSorted(
+  (a, b) => a.data.order - b.data.order
+);
+
+const pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'claude-multi for every developer',
+  description:
+    'Find out how claude-multi fits your workflow — whether you are an indie developer, part of a team, a researcher, a freelancer, or a student.',
+  mainEntity: entries.map((entry) => ({
+    '@type': 'WebPage',
+    name: entry.data.title,
+    description: entry.data.description,
+  })),
+};
+---
+
+<Layout
+  title="Who is claude-multi for? | Use Cases"
+  description="Whether you ship side projects, manage a team, run experiments, freelance, or are learning to code — claude-multi fits."
+  jsonLd={pageSchema}
+>
+  <section class="relative z-10 pt-36 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <span class="eyebrow">// Built for</span>
+      <h1
+        class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
+      >
+        One tool. <span class="gradient-text">Every developer.</span>
+      </h1>
+      <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
+        Different people use claude-multi for different reasons. Pick the one
+        that sounds like you.
+      </p>
+    </div>
+  </section>
+
+  <section class="relative z-10 pb-32 px-6">
+    <div class="max-w-4xl mx-auto space-y-5">
+      {
+        entries.map((entry) => (
+          <a
+            href={`/for/${entry.data.slug}/`}
+            class="reveal glass rounded-2xl p-7 no-underline block transition-colors hover:border-edge-hover group"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
+              <div class="flex-1">
+                <h2 class="text-xl font-bold tracking-tight mb-2 group-hover:text-lime transition-colors">
+                  {entry.data.title}
+                </h2>
+                <p class="text-text-dim leading-relaxed text-[0.95rem]">
+                  {entry.data.description}
+                </p>
+                <ul class="mt-4 flex flex-wrap gap-2 list-none p-0 m-0">
+                  {entry.data.recommendedProviders.map((provider) => (
+                    <li class="text-xs font-mono px-2.5 py-1 rounded-md border border-edge text-text-mute">
+                      {provider}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div class="flex-shrink-0 self-center">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-text-mute group-hover:text-lime transition-colors"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14"></path>
+                  <path d="m12 5 7 7-7 7"></path>
+                </svg>
+              </div>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="relative z-10 px-6 pb-20">
+    <div class="max-w-2xl mx-auto reveal text-center">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        Not sure where you fit?
+      </h2>
+      <p class="mt-4 text-text-dim text-lg">
+        Read the docs. It takes two minutes to set up and you'll know right away.
+      </p>
+      <div class="mt-7 flex gap-3 justify-center flex-wrap">
+        <a href="/docs/getting-started/" class="btn-primary">
+          Get Started
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+          >
+        </a>
+        <a href="/docs/providers/" class="btn-secondary">See providers</a>
+      </div>
+    </div>
+  </section>
+</Layout>

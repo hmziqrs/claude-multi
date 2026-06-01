@@ -1,6 +1,6 @@
 ---
 title: Usage
-description: Full CLI command reference
+description: "Full CLI command reference for claude-multi: add, remove, list, sync, health-check, and TUI navigation for managing multi-provider Claude Code instances."
 ---
 
 ## Default action

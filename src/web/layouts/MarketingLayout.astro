@@ -47,7 +47,8 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c0c0f" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -83,7 +84,6 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={title} />
-    <meta name="pinterest:media" content={ogImage} />
     {ogType === 'article' && articlePublishedTime && (
       <meta property="article:published_time" content={articlePublishedTime.toISOString()} />
     )}
@@ -109,7 +109,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
           operatingSystem: 'macOS, Linux, Windows',
           offers: {
             '@type': 'Offer',
-            price: '0',
+            price: '0.00',
             priceCurrency: 'USD',
           },
           author: {
@@ -123,38 +123,21 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
           installUrl: 'https://www.npmjs.com/package/claude-multi',
         },
         ...(jsonLd ? [jsonLd] : []),
-        {
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: breadcrumbs.map((crumb, i) => ({
-            '@type': 'ListItem',
-            position: i + 1,
-            name: crumb.name,
-            item: crumb.url,
-          })),
-        },
+        ...(pathSegments.length > 0 && pathSegments[0] !== '' ? [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbs.map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, name: crumb.name, item: crumb.url })) }] : []),
       ])}
     />
     <style is:global>
       @import '../styles/globals.css';
     </style>
 
-    <script is:inline type="module">
-      import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
-      import { getAnalytics } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js';
-
-      const firebaseConfig = {
-        apiKey: 'AIzaSyDAdEgdNAke2wl0q4mBixEDMgQ21J7J71w',
-        authDomain: 'claude-multi.firebaseapp.com',
-        projectId: 'claude-multi',
-        storageBucket: 'claude-multi.firebasestorage.app',
-        messagingSenderId: '961698441477',
-        appId: '1:961698441477:web:2b9cfbd3d9a88149ee6f6c',
-        measurementId: 'G-0VRZJQKZT8',
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
+    <script is:inline>
+      requestIdleCallback(() => {
+        import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js').then(({ initializeApp }) => {
+          const firebaseConfig = { apiKey: 'AIzaSyDAdEgdNAke2wl0q4mBixEDMgQ21J7J71w', authDomain: 'claude-multi.firebaseapp.com', projectId: 'claude-multi', storageBucket: 'claude-multi.firebasestorage.app', messagingSenderId: '961698441477', appId: '1:961698441477:web:2b9cfbd3d9a88149ee6f6c', measurementId: 'G-0VRZJQKZT8' };
+          const app = initializeApp(firebaseConfig);
+          import('https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js').then(({ getAnalytics }) => { getAnalytics(app); });
+        });
+      });
     </script>
   </head>
   <body class="bg-bg text-text">
@@ -307,7 +290,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
               <span class="text-base font-bold">claude-multi</span>
             </div>
             <p class="text-sm text-text-mute max-w-xs leading-relaxed">
-              Run Claude Code against Anthropic, GLM, MiniMax, and DeepSeek from
+              Run Claude Code against 8+ AI providers from
               the same machine. Each instance is isolated. Plugins sync
               automatically.
             </p>
@@ -506,6 +489,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
 
       // ---------- Three.js scenes ----------
       async function initThree() {
+        if (!document.querySelector('[data-three]')) return;
         const THREE = await import('three');
         const LIME = 0xa3e635;
         const SOFT = 0xbef264;

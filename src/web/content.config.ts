@@ -29,4 +29,74 @@ export const collections = {
       order: z.number().default(0),
     }),
   }),
+  alternatives: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/web/content/alternatives' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      tool: z.string(),
+      url: z.string().url(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+      useWhen: z.string(),
+      order: z.number().default(0),
+    }),
+  }),
+  personas: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/web/content/personas' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      slug: z.string(),
+      audience: z.string(),
+      painPoints: z.array(z.string()),
+      benefits: z.array(z.string()),
+      recommendedProviders: z.array(z.string()),
+      order: z.number().default(0),
+    }),
+  }),
+  providers: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/web/content/providers' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      provider: z.string(),
+      tagline: z.string(),
+      setupCommand: z.string(),
+      useCases: z.array(z.string()),
+      pricing: z.string(),
+      order: z.number().default(0),
+    }),
+  }),
+  usecases: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/web/content/usecases' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      slug: z.string(),
+      persona: z.string(),
+      painPoint: z.string(),
+      solution: z.string(),
+      steps: z
+        .array(
+          z.object({
+            title: z.string(),
+            code: z.string(),
+          }),
+        )
+        .default([]),
+      providers: z.array(z.string()).default([]),
+      order: z.number().default(0),
+    }),
+  }),
+  glossary: defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/web/content/glossary' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      term: z.string(),
+      category: z.string(),
+      related: z.array(z.string()).default([]),
+    }),
+  }),
 };

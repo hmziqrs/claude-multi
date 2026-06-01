@@ -3,9 +3,9 @@ import { getCollection, render } from 'astro:content';
 import Layout from '@/web/layouts/MarketingLayout.astro';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('faq');
+  const entries = await getCollection('usecases');
   return entries.map((entry) => ({
-    params: { slug: entry.id },
+    params: { slug: entry.data.slug },
     props: { entry },
   }));
 }
@@ -13,38 +13,37 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: {
-    '@type': 'Question',
-    name: entry.data.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: entry.data.description,
-    },
-  },
-};
-
-const allEntries = (await getCollection('faq')).toSorted(
+const allEntries = (await getCollection('usecases')).toSorted(
   (a, b) => a.data.order - b.data.order
 );
-const currentIndex = allEntries.findIndex((e) => e.id === entry.id);
+const currentIndex = allEntries.findIndex((e) => e.data.slug === entry.data.slug);
 const prev = currentIndex > 0 ? allEntries[currentIndex - 1] : null;
 const next =
   currentIndex < allEntries.length - 1 ? allEntries[currentIndex + 1] : null;
+
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: entry.data.title,
+  description: entry.data.description,
+  step: entry.data.steps.map((s: { title: string; code: string }) => ({
+    '@type': 'HowToStep',
+    name: s.title,
+    text: s.code,
+  })),
+};
 ---
 
 <Layout
-  title={`${entry.data.question} - claude-multi FAQ`}
+  title={`${entry.data.title} - claude-multi Use Cases`}
   description={entry.data.description}
   ogType="article"
-  jsonLd={faqSchema}
+  jsonLd={howToSchema}
 >
   <article class="relative z-10 pt-36 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <a
-        href="/faq/"
+        href="/use-cases/"
         class="text-sm text-text-mute no-underline hover:text-lime inline-flex items-center gap-1.5 mb-8"
       >
         <svg
@@ -61,20 +60,45 @@ const next =
           <path d="m12 19-7-7 7-7"></path>
           <path d="M19 12H5"></path>
         </svg>
-        Back to FAQ
+        Back to use cases
       </a>
 
-      <div class="flex items-center gap-3 text-xs text-text-mute mb-5 font-mono">
-        <span class="text-lime">{entry.data.category}</span>
+      <div class="flex flex-wrap items-center gap-3 text-xs text-text-mute mb-5 font-mono">
+        <span class="text-lime">{entry.data.persona}</span>
+        {entry.data.providers.length > 0 && (
+          <>
+            <span class="opacity-40">&middot;</span>
+            <span class="flex gap-2">
+              {entry.data.providers.map((p: string) => (
+                <span>{p}</span>
+              ))}
+            </span>
+          </>
+        )}
       </div>
 
       <h1
-        class="text-3xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05] mb-10"
+        class="text-3xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05] mb-6"
       >
-        {entry.data.question}
+        {entry.data.title}
       </h1>
 
-      <div class="prose-faq">
+      <div class="space-y-6 mb-12">
+        <div class="glass rounded-2xl p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-2">
+            The problem
+          </h2>
+          <p class="text-text-dim leading-relaxed">{entry.data.painPoint}</p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-2">
+            The fix
+          </h2>
+          <p class="text-text-dim leading-relaxed">{entry.data.solution}</p>
+        </div>
+      </div>
+
+      <div class="prose-usecase">
         <Content />
       </div>
 
@@ -83,14 +107,14 @@ const next =
           {
             prev && (
               <a
-                href={`/faq/${prev.id}/`}
+                href={`/use-cases/${prev.data.slug}/`}
                 class="glass rounded-2xl p-6 no-underline transition-colors hover:border-edge-hover group"
               >
                 <span class="text-xs text-text-mute font-mono block mb-2">
-                  ← Previous
+                  &larr; Previous
                 </span>
                 <span class="text-sm font-semibold text-text-dim group-hover:text-lime transition-colors">
-                  {prev.data.question}
+                  {prev.data.title}
                 </span>
               </a>
             )
@@ -98,17 +122,17 @@ const next =
           {
             next && (
               <a
-                href={`/faq/${next.id}/`}
+                href={`/use-cases/${next.data.slug}/`}
                 class:list={[
                   'glass rounded-2xl p-6 no-underline transition-colors hover:border-edge-hover group text-right',
                   { 'sm:col-start-2': !prev },
                 ]}
               >
                 <span class="text-xs text-text-mute font-mono block mb-2">
-                  Next →
+                  Next &rarr;
                 </span>
                 <span class="text-sm font-semibold text-text-dim group-hover:text-lime transition-colors">
-                  {next.data.question}
+                  {next.data.title}
                 </span>
               </a>
             )
@@ -120,12 +144,12 @@ const next =
 </Layout>
 
 <style is:global>
-  .prose-faq {
+  .prose-usecase {
     color: var(--color-text-dim);
     font-size: 1.05rem;
     line-height: 1.75;
   }
-  .prose-faq h2 {
+  .prose-usecase h2 {
     color: var(--color-text);
     font-size: 1.75rem;
     font-weight: 700;
@@ -133,26 +157,26 @@ const next =
     margin-top: 3rem;
     margin-bottom: 1rem;
   }
-  .prose-faq h3 {
+  .prose-usecase h3 {
     color: var(--color-text);
     font-size: 1.3rem;
     font-weight: 600;
     margin-top: 2.25rem;
     margin-bottom: 0.85rem;
   }
-  .prose-faq p {
+  .prose-usecase p {
     margin-bottom: 1.25rem;
   }
-  .prose-faq a {
+  .prose-usecase a {
     color: var(--color-lime);
     text-decoration: none;
     border-bottom: 1px solid rgba(163, 230, 53, 0.3);
     transition: border-color 0.15s;
   }
-  .prose-faq a:hover {
+  .prose-usecase a:hover {
     border-bottom-color: var(--color-lime);
   }
-  .prose-faq code {
+  .prose-usecase code {
     font-family: var(--font-mono);
     font-size: 0.92em;
     color: var(--color-lime);
@@ -160,7 +184,7 @@ const next =
     padding: 0.12rem 0.4rem;
     border-radius: 0.3rem;
   }
-  .prose-faq pre {
+  .prose-usecase pre {
     background: rgba(10, 10, 14, 0.85);
     border: 1px solid var(--color-edge);
     border-radius: 0.85rem;
@@ -170,31 +194,43 @@ const next =
     font-size: 0.88rem;
     line-height: 1.6;
   }
-  .prose-faq pre code {
+  .prose-usecase pre code {
     background: none;
     padding: 0;
     color: inherit;
     font-size: inherit;
   }
-  .prose-faq ul,
-  .prose-faq ol {
+  .prose-usecase ul,
+  .prose-usecase ol {
     padding-left: 1.5rem;
     margin-bottom: 1.25rem;
   }
-  .prose-faq li {
+  .prose-usecase li {
     margin-bottom: 0.4rem;
   }
-  .prose-faq strong {
+  .prose-usecase strong {
     color: var(--color-text);
     font-weight: 600;
   }
-  .prose-faq table {
+  .prose-usecase blockquote {
+    border-left: 3px solid var(--color-lime);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: var(--color-text-mute);
+    font-style: italic;
+  }
+  .prose-usecase hr {
+    border: none;
+    border-top: 1px solid var(--color-edge);
+    margin: 2.5rem 0;
+  }
+  .prose-usecase table {
     width: 100%;
     border-collapse: collapse;
     margin: 1.5rem 0;
     font-size: 0.92rem;
   }
-  .prose-faq th {
+  .prose-usecase th {
     color: var(--color-text);
     font-weight: 600;
     text-align: left;
@@ -204,24 +240,12 @@ const next =
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .prose-faq td {
+  .prose-usecase td {
     padding: 0.55rem 0.85rem;
     border-bottom: 1px solid var(--color-edge);
     vertical-align: top;
   }
-  .prose-faq tr:last-child td {
+  .prose-usecase tr:last-child td {
     border-bottom: none;
-  }
-  .prose-faq blockquote {
-    border-left: 3px solid var(--color-lime);
-    padding-left: 1rem;
-    margin: 1.5rem 0;
-    color: var(--color-text-mute);
-    font-style: italic;
-  }
-  .prose-faq hr {
-    border: none;
-    border-top: 1px solid var(--color-edge);
-    margin: 2.5rem 0;
   }
 </style>

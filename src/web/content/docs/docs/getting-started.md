@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Install and configure claude-multi
+description: Install claude-multi, add your first provider instance, and launch an isolated Claude Code session in under two minutes. Covers macOS, Linux, and Windows.
 ---
 
 ## Prerequisites

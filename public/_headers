@@ -1,0 +1,24 @@
+/_astro/*
+  Cache-Control: public, immutable, max-age=31536000
+
+/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/*.xml
+  Cache-Control: public, max-age=3600
+
+/*.txt
+  Cache-Control: public, max-age=14400
+
+/*.woff2
+  Cache-Control: public, immutable, max-age=31536000
+  Access-Control-Allow-Origin: *
+
+/*.jpg
+  Cache-Control: public, max-age=86400
+
+/*.png
+  Cache-Control: public, max-age=86400
+
+/*.svg
+  Cache-Control: public, max-age=86400

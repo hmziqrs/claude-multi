@@ -1,6 +1,6 @@
 ---
 title: Providers
-description: AI provider templates and configuration
+description: "Supported AI provider templates in claude-multi: GLM Coding Plan, MiniMax M3, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen with model details and API endpoints."
 ---
 
 claude-multi ships ready-to-use templates for these providers. Each template pre-fills `ANTHROPIC_BASE_URL`, model mappings, and related env vars into your instance's `settings.json`. You only need to supply your API key.

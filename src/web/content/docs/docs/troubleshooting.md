@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: Common issues and how to fix them
+description: "Fix common claude-multi issues: instance not starting, provider connection errors, plugin sync failures, config directory problems, and wrapper script troubleshooting."
 ---
 
 ## `claude-<name>` command not found

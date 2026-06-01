@@ -1,6 +1,6 @@
 ---
 title: How It Works
-description: Architecture and design overview
+description: How claude-multi isolates Claude Code instances using config directories, environment variable injection, plugin symlinks, and wrapper scripts. Architecture overview.
 ---
 
 ## The wrapper approach
