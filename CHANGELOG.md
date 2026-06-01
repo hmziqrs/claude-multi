@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-06-01
+
+### Changed
+- **MiniMax template updated from M2.7 to M3**: All model slots now point to `MiniMax-M3` (opus, sonnet, haiku, small/fast). M3 brings a 1M-token context window, frontier-level coding and agentic scores, native image/video input, and toggleable thinking.
+- Removed auto-compaction override from the MiniMax template. M3's 1M context window makes the 128K override unnecessary.
+- MiniMax template `MAX_OUTPUT_TOKENS` raised from 64K to 512K.
+- MiniMax template `CLAUDE_CODE_EFFORT_LEVEL` set to `max`.
+- MiniMax template description updated to reflect M3 capabilities.
+
+### Blog
+- Blog post: [MiniMax M3 for Claude Code: 1M Context, Benchmarks, Pricing](https://claude-multi.hmziq.xyz/blog/minimax-m3-one-million-context-frontier-coding/)
+
 ## [0.7.0] - 2026-05-30
 
 ### Changed

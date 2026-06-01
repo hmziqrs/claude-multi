@@ -54,29 +54,26 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   minimax: {
     name: "minimax",
     displayName: "MiniMax",
-    description: "MiniMax-M2.7 model via minimax.io",
+    description: "MiniMax-M3 — 1M context, frontier coding/agentic, native multimodal — via minimax.io",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
         API_TIMEOUT_MS: "3000000",
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
-        ANTHROPIC_MODEL: "MiniMax-M2.7",
-        ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2.7",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M2.7",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M2.7",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M2.7",
+        ANTHROPIC_MODEL: "MiniMax-M3",
+        ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M3",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M3",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M3",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M3",
         ENABLE_THINKING: "true",
         REASONING_EFFORT: "high",
-        MAX_OUTPUT_TOKENS: "64000",
+        MAX_OUTPUT_TOKENS: "512000",
         MAX_THINKING_TOKENS: "32000",
-        // MiniMax-M2.7 has a 128K context window. Claude Code assumes 200K for
-        // unrecognized models, so auto-compaction never fires without these.
-        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
-        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
+        CLAUDE_CODE_EFFORT_LEVEL: "max",
       },
       includeCoAuthoredBy: false,
-      alwaysThinkingEnabled: true,
+      alwaysThinkingEnabled: false,
     },
   },
   deepseek: {

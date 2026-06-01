@@ -85,13 +85,13 @@ Each provider template sets these variables with provider-specific values. Here'
 ```json
 {
   "ANTHROPIC_BASE_URL": "https://api.minimax.io/anthropic",
-  "ANTHROPIC_MODEL": "MiniMax-M2.7",
-  "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M2.7",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M2.7",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M2.7",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M2.7",
-  "CLAUDE_CODE_SUBAGENT_MODEL": "MiniMax-M2.7",
-  "CLAUDE_CODE_EFFORT_LEVEL": "medium"
+  "ANTHROPIC_MODEL": "MiniMax-M3",
+  "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M3",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M3",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M3",
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M3",
+  "CLAUDE_CODE_SUBAGENT_MODEL": "MiniMax-M3",
+  "CLAUDE_CODE_EFFORT_LEVEL": "max"
 }
 ```
 

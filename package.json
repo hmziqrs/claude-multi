@@ -1,6 +1,6 @@
 {
   "name": "claude-multi",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Manage multiple Claude Code instances with different aliases and configurations",
   "type": "module",
   "bin": {

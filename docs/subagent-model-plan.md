@@ -43,8 +43,8 @@ CLAUDE_CODE_EFFORT_LEVEL: "high",
 
 **MiniMax — add env vars (lines 51-52 of env block):**
 ```typescript
-CLAUDE_CODE_SUBAGENT_MODEL: "MiniMax-M2.7",
-CLAUDE_CODE_EFFORT_LEVEL: "medium",
+CLAUDE_CODE_SUBAGENT_MODEL: "MiniMax-M3",
+CLAUDE_CODE_EFFORT_LEVEL: "max",
 ```
 
 **DeepSeek — already has env vars. Add `availableModels` at root (line ~57 area, as sibling of `settings`):**
@@ -55,7 +55,7 @@ availableModels: [
 ],
 ```
 
-No `availableModels` for GLM (only one candidate: `glm-5-turbo`) and MiniMax (only one candidate: `MiniMax-M2.7`).
+No `availableModels` for GLM (only one candidate: `glm-5-turbo`) and MiniMax (only one candidate: `MiniMax-M3`).
 
 **Function — `applyProviderTemplate()` accept overrides:**
 ```typescript
@@ -321,7 +321,7 @@ if (useProvider && selectedProvider) {
 | Provider | Subagent Model        | Effort Level |
 |----------|-----------------------|--------------|
 | GLM      | `glm-5-turbo`         | `high`       |
-| MiniMax  | `MiniMax-M2.7`        | `medium`     |
+| MiniMax  | `MiniMax-M3`          | `max`        |
 | DeepSeek | `deepseek-v4-flash`   | `max`        |
 
 ---
