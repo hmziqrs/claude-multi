@@ -12,7 +12,6 @@ device = "mps" if len(sys.argv) < 2 else sys.argv[1]
 print(f"Loading Kokoro on {device}...")
 from kokoro import KPipeline
 pipeline = KPipeline(lang_code="a", device=device)
-print("Ready. Listening on http://localhost:8880")
 
 
 def wav_to_mp3(pcm: np.ndarray, sr: int) -> bytes:
@@ -37,6 +36,20 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"ok")
+        elif self.path == "/shutdown":
+            import threading
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"shutting down")
+            print("Unloading model...")
+            global pipeline
+            del pipeline
+            import gc, torch
+            gc.collect()
+            if torch.backends.mps.is_available():
+                torch.mps.empty_cache()
+            print("Model unloaded. Stopping server.")
+            threading.Thread(target=httpd.shutdown, daemon=True).start()
 
     def do_POST(self):
         if self.path != "/v1/audio/speech":
@@ -62,4 +75,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(mp3)
 
 
-HTTPServer(("localhost", 8880), Handler).serve_forever()
+httpd = HTTPServer(("localhost", 8880), Handler)
+print("Ready. Listening on http://localhost:8880")
+httpd.serve_forever()
+httpd.server_close()
+print("Server stopped.")
