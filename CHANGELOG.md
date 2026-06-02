@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `bin/claude-multi.js` to resolve `../build/cli.js` instead of `../dist/cli.js`.
 - Updated CI workflows (`ci.yml`, `publish.yml`) to verify `build/cli.js` instead of `dist/cli.js`.
 
+### Blog
+- Blog post: [v0.8.1: Fixing the Broken npm Package](https://claude-multi.hmziq.xyz/blog/v081-fixing-the-broken-npm-package/)
+
 ## [0.8.0] - 2026-06-01
 
 ### Changed
