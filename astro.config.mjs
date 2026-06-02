@@ -4,7 +4,44 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname, basename } from 'path';
+import { getSiteFooterHtml } from './src/web/util/site-footer-html';
+import { latestVersion } from './src/web/util/changelog';
+import { readdir, readFile, writeFile } from 'fs/promises';
+
+const FOOTER_HTML = getSiteFooterHtml(latestVersion);
+
+/**
+ * Astro integration: injects the site footer at body level for docs pages.
+ * - Dev mode: handled by src/web/middleware.ts
+ * - Static build: this integration's buildDone hook transforms HTML files
+ */
+function injectSiteFooterIntegration() {
+  return {
+    name: 'inject-site-footer',
+    hooks: {
+      'astro:build:done': async ({ dir }) => {
+        const distDir = dirname(dir.pathname || dir);
+        await injectFooterInDir(distDir);
+      },
+    },
+  };
+}
+
+async function injectFooterInDir(dir) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      await injectFooterInDir(fullPath);
+    } else if (entry.name.endsWith('.html')) {
+      const html = await readFile(fullPath, 'utf-8');
+      if (!html.includes('class="page') || html.includes('class="site-footer')) continue;
+      const injected = html.replace('</body>', `${FOOTER_HTML}\n</body>`);
+      await writeFile(fullPath, injected);
+    }
+  }
+}
 
 function serveLocalAudio() {
   return {
@@ -40,6 +77,7 @@ export default defineConfig({
     },
   },
   integrations: [
+    injectSiteFooterIntegration(),
     icon({
       include: {
         'simple-icons': ['x', 'github', 'linkedin', 'telegram', 'reddit'],

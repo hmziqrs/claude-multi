@@ -594,7 +594,7 @@ starlight-toc nav a[aria-current="true"] {
 }
 
 /* ===========================================================
-   FOOTER (last-updated + edit-link + full-width site footer)
+   FOOTER (last-updated + edit-link)
    =========================================================== */
 
 footer .meta {
@@ -610,22 +610,126 @@ footer .meta a:hover {
   color: var(--sl-color-accent);
 }
 
-/* Break site-footer out of Starlight's narrow content panel.
-   Uses negative margins + 100vw to span the full viewport.
-   overflow-x: clip on .page hides the scrollbar-width overshoot. */
-.page {
-  overflow-x: clip;
+/* Site footer — injected at body level by Vite plugin (SSR),
+   so it naturally spans full viewport width with no sidebar overlap. */
+footer.site-footer {
+  position: relative;
+  z-index: 10;
+  margin-top: 4rem;
+  padding: 4rem 1.5rem 2.5rem;
+  border-top: 1px solid var(--color-edge, rgba(163, 230, 53, 0.08));
+  background: linear-gradient(to bottom, transparent, rgba(163, 230, 53, 0.025));
 }
 
-footer.site-footer {
-  width: 100vw;
-  position: relative;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  margin-top: 4rem !important;
-  padding-left: max(1.5rem, env(safe-area-inset-left, 0px), calc((100vw - 72rem) / 2 + 1.5rem)) !important;
-  padding-right: max(1.5rem, env(safe-area-inset-right, 0px), calc((100vw - 72rem) / 2 + 1.5rem)) !important;
-  box-sizing: border-box;
+footer.site-footer .site-footer-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+footer.site-footer .footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 48rem) {
+  footer.site-footer .footer-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+    gap: 3rem;
+  }
+}
+
+footer.site-footer .footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+footer.site-footer .footer-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-lime, #a3e635);
+}
+
+footer.site-footer .footer-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+footer.site-footer .footer-desc {
+  font-size: 0.875rem;
+  color: var(--color-text-mute, #6b6b7d);
+  max-width: 20rem;
+  line-height: 1.625;
+}
+
+footer.site-footer .footer-heading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+footer.site-footer .footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+footer.site-footer .footer-list li {
+  margin-bottom: 0.5rem;
+}
+
+footer.site-footer .footer-list a {
+  font-size: 0.875rem;
+  color: var(--color-text-mute, #6b6b7d);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+footer.site-footer .footer-list a:hover {
+  color: var(--color-lime, #a3e635);
+}
+
+footer.site-footer .footer-divider {
+  border: none;
+  height: 1px;
+  margin: 3rem 0 1.5rem;
+  background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.35), transparent);
+}
+
+footer.site-footer .footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-mute, #6b6b7d);
+}
+
+footer.site-footer .footer-bottom a {
+  color: var(--color-text-mute, #6b6b7d);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+footer.site-footer .footer-bottom a:hover {
+  color: var(--color-lime, #a3e635);
+}
+
+footer.site-footer .footer-version {
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+footer.site-footer .footer-bottom-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 /* ===========================================================
