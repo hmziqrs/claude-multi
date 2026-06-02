@@ -125,13 +125,26 @@ body::after {
 
 /* Make sure real content sits above background layers */
 .page,
-header.header,
 nav.sidebar,
 .content-panel,
-.right-sidebar,
 footer {
   position: relative;
   z-index: 1;
+}
+
+/* Header must stay sticky at top */
+header.header {
+  position: sticky !important;
+  top: 0;
+  z-index: 20;
+  overflow: visible !important;
+}
+
+/* Right sidebar (TOC) must stay sticky */
+.right-sidebar,
+.right-sidebar-container {
+  position: sticky !important;
+  top: var(--sl-nav-height, 4rem);
 }
 
 /* ===========================================================
@@ -181,6 +194,18 @@ site-search button:hover,
    SIDEBAR — glass + glowing active state
    =========================================================== */
 
+/*
+  On desktop (≥ 72rem), restructure .page as a CSS grid.
+  nav.sidebar and .main-frame share the SAME grid cell — they overlap
+  (sidebar on top), but .sidebar-pane uses position:sticky so it:
+    - Stays visible while scrolling (like fixed)
+    - Stops at .page's bottom edge (never overlaps the site footer)
+
+  On mobile/tablet (< 72rem), Starlight's default flex-column layout
+  and responsive sidebar hiding are preserved untouched.
+*/
+
+/* Default: Starlight's original flex-column (mobile + tablet) */
 nav.sidebar {
   background: transparent !important;
   border-right: 1px solid var(--sl-color-hairline) !important;
@@ -190,6 +215,39 @@ nav.sidebar {
   background: rgba(8, 8, 13, 0.5) !important;
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+/* Desktop: grid overlay with sticky sidebar */
+@media (min-width: 72rem) {
+  .page {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .page > header.header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .page > nav.sidebar {
+    grid-row: 2;
+    grid-column: 1;
+    z-index: 2;
+  }
+
+  .page > .main-frame {
+    grid-row: 2;
+    grid-column: 1;
+    z-index: 1;
+  }
+
+  .sidebar-pane {
+    position: sticky !important;
+    top: var(--sl-nav-height, 4rem) !important;
+    max-height: calc(100vh - var(--sl-nav-height, 4rem)) !important;
+    overflow-y: auto !important;
+  }
 }
 
 /* Section group titles */

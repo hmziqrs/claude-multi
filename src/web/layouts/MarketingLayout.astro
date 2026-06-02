@@ -143,10 +143,38 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
 
     <header class="nav-bar fixed top-0 left-0 right-0 z-50">
       <div
-        class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between"
+        class="nav-bar-inner max-w-6xl mx-auto px-6 h-16 flex items-center justify-between"
       >
         <NavBrand />
-        <NavLinks />
+        <div class="nav-bar-right">
+          <NavLinks />
+          <nav-dropdown>
+            <button type="button" aria-label="Navigation menu" aria-expanded="false">
+              <svg class="nd-icon open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="4" x2="20" y1="12" y2="12"></line>
+                <line x1="4" x2="20" y1="6" y2="6"></line>
+                <line x1="4" x2="20" y1="18" y2="18"></line>
+              </svg>
+              <svg class="nd-icon close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" x2="6" y1="6" y2="18"></line>
+                <line x1="6" x2="18" y1="6" y2="18"></line>
+              </svg>
+            </button>
+            <div class="nd-panel" role="menu">
+              <a href="/docs/" role="menuitem">Docs</a>
+              <a href="/blog/" role="menuitem">Blog</a>
+              <a href="/faq/" role="menuitem">FAQ</a>
+              <a href="/guides/" role="menuitem">Guides</a>
+              <a href="/docs/providers/" role="menuitem">Providers</a>
+              <a href="/changelog/" role="menuitem">Changelog</a>
+              <a href="/about/" role="menuitem">About</a>
+              <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" role="menuitem" class="nd-gh">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2A11.5 11.5 0 0 1 12 5.8c1 0 2 .1 3 .4 2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.7-5.5 6 .5.4.9 1.1.9 2.3v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"></path></svg>
+                GitHub
+              </a>
+            </div>
+          </nav-dropdown>
+        </div>
       </div>
     </header>
 
@@ -155,6 +183,52 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
     </main>
 
     <SiteFooter />
+
+    <script>
+      class NavDropdown extends HTMLElement {
+        constructor() {
+          super();
+          const btn = this.querySelector('button');
+          const panel = this.querySelector('.nd-panel');
+          if (!btn || !panel) return;
+
+          const open = () => {
+            btn.setAttribute('aria-expanded', 'true');
+            panel.setAttribute('data-open', '');
+            document.addEventListener('keydown', onEscape);
+            requestAnimationFrame(() => document.addEventListener('click', onOutsideClick));
+          };
+
+          const close = () => {
+            btn.setAttribute('aria-expanded', 'false');
+            panel.removeAttribute('data-open');
+            document.removeEventListener('keydown', onEscape);
+            document.removeEventListener('click', onOutsideClick);
+          };
+
+          const onEscape = (e) => {
+            if (e.key === 'Escape') { close(); btn.focus(); }
+          };
+
+          const onOutsideClick = (e) => {
+            if (!this.contains(e.target)) close();
+          };
+
+          btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+
+          const toggle = () => {
+            btn.getAttribute('aria-expanded') === 'true' ? close() : open();
+          };
+
+          panel.querySelectorAll('a').forEach((a) => {
+            a.addEventListener('click', () => close());
+          });
+        }
+      }
+      if (!customElements.get('nav-dropdown')) {
+        customElements.define('nav-dropdown', NavDropdown);
+      }
+    </script>
 
     <script>
       // ---------- Scroll progress ----------
