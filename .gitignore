@@ -46,3 +46,5 @@ screenshots
 # Video production (HyperFrames / Kokoro TTS)
 recordings/
 .claude/worktrees/
+
+build/

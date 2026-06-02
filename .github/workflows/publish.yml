@@ -54,9 +54,9 @@ jobs:
 
       - name: Verify build
         run: |
-          test -f dist/cli.js || { echo "::error::dist/cli.js missing"; exit 1; }
+          test -f build/cli.js || { echo "::error::build/cli.js missing"; exit 1; }
           test -f bin/claude-multi.js || { echo "::error::bin/claude-multi.js missing"; exit 1; }
-          node dist/cli.js --version
+          node build/cli.js --version
           sh bin/claude-multi.js --version
 
       - name: Verify package contents

@@ -8,7 +8,7 @@ while [ -L "$SCRIPT" ]; do
   esac
 done
 DIR=$(cd "$(dirname "$SCRIPT")" && pwd)
-CLI="$DIR/../dist/cli.js"
+CLI="$DIR/../build/cli.js"
 
 if command -v bun >/dev/null 2>&1; then
   exec bun "$CLI" "$@"

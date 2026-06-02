@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-06-03
+
+### Fixed
+- **CLI build output moved from `dist/` to `build/`**: The CLI and Astro docs builds both output to `dist/`, causing the published npm package to contain the docs site HTML instead of `cli.js`. Global installs would fail with `Module not found ... dist/cli.js`. The CLI now builds to `build/cli.js`, eliminating the collision.
+- Updated `bin/claude-multi.js` to resolve `../build/cli.js` instead of `../dist/cli.js`.
+- Updated CI workflows (`ci.yml`, `publish.yml`) to verify `build/cli.js` instead of `dist/cli.js`.
+
 ## [0.8.0] - 2026-06-01
 
 ### Changed

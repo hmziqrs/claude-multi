@@ -1,6 +1,6 @@
 {
   "name": "claude-multi",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Manage multiple Claude Code instances with different aliases and configurations",
   "type": "module",
   "bin": {
@@ -8,11 +8,11 @@
   },
   "files": [
     "bin/",
-    "dist/cli.js",
+    "build/cli.js",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "bun build src/cli.ts --outdir dist --target node --format esm && chmod +x bin/claude-multi.js",
+    "build": "bun build src/cli.ts --outdir build --target node --format esm && chmod +x bin/claude-multi.js",
     "dev": "bun run src/cli.ts",
     "test": "bun test",
     "prepublishOnly": "bun run build",
