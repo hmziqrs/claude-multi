@@ -47,6 +47,8 @@ const posts = (await getCollection('blog'))
                     <time datetime={post.data.date.toISOString()}>
                       {formatDate(post.data.date)}
                     </time>
+                    <span class="opacity-40">·</span>
+                    <span>by hmziqrs</span>
                     {post.data.tags.length > 0 && (
                       <>
                         <span class="opacity-40">·</span>

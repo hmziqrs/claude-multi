@@ -10,10 +10,10 @@ export async function GET(context: APIContext) {
     description: 'Build notes from working on claude-multi, posts on running multiple Claude Code instances side by side, and the occasional rant about provider plumbing.',
     site: context.site,
     items: posts.toSorted((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => b.data.date.valueOf() - a.data.date.valueOf()).map((post: CollectionEntry<'blog'>) => {
-      const item: Record<string, unknown> = { title: post.data.title, pubDate: post.data.date, description: post.data.description, link: '/blog/' + post.id + '/', categories: post.data.tags, author: 'hmziqrs' };
+      const item: Record<string, unknown> = { title: post.data.title, pubDate: post.data.date, description: post.data.description, link: '/blog/' + post.id + '/', categories: post.data.tags, author: 'hmziqrs', content: post.body || post.data.description };
       if (post.data.audio) { item.enclosure = { url: 'https://claude-multi.hmziq.xyz/audio/' + post.data.audio, length: 0, type: 'audio/mpeg' }; }
       return item;
     }),
-    customData: '<language>en-us</language><lastBuildDate>' + 'undefined' + '</lastBuildDate><atom:link href="' + context.site + 'feed.xml" rel="self" type="application/rss+xml" xmlns:atom="http://www.w3.org/2005/Atom"/>',
+    customData: '<language>en-us</language><lastBuildDate>' + new Date(posts[0]?.data.date || '2026-06-02').toUTCString() + '</lastBuildDate><atom:link href="' + context.site + 'feed.xml" rel="self" type="application/rss+xml" xmlns:atom="http://www.w3.org/2005/Atom"/>',
   });
 }

@@ -93,6 +93,9 @@ export default defineConfig({
           ],
         },
       ],
+      components: {
+        Default: './src/web/layouts/StarlightLayout.astro',
+      },
       customCss: ['/src/web/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',

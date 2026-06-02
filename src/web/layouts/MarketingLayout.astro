@@ -1,4 +1,5 @@
 ---
+import '../styles/globals.css';
 import { latestVersion } from '../util/changelog';
 
 interface Props {
@@ -60,12 +61,8 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="yandex-verification" content="15140c3de9502141" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/InterVariable.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/JetBrainsMonoVariable.woff2" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
@@ -126,10 +123,6 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
         ...(pathSegments.length > 0 && pathSegments[0] !== '' ? [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbs.map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, name: crumb.name, item: crumb.url })) }] : []),
       ])}
     />
-    <style is:global>
-      @import '../styles/globals.css';
-    </style>
-
     <script is:inline>
       requestIdleCallback(() => {
         import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js').then(({ initializeApp }) => {
@@ -235,6 +228,11 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
             href="/faq/"
             class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors"
             >FAQ</a
+          >
+          <a
+            href="/guides/"
+            class="px-3 py-2 text-sm text-text-dim no-underline hover:text-lime rounded-md transition-colors"
+            >Guides</a
           >
           <a
             href="/docs/providers/"
@@ -365,6 +363,12 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
                   class="text-text-mute no-underline hover:text-lime">FAQ</a
                 >
               </li>
+              <li>
+                <a href="/glossary/" class="text-text-mute no-underline hover:text-lime">Glossary</a>
+              </li>
+              <li>
+                <a href="/guides/" class="text-text-mute no-underline hover:text-lime">Guides</a>
+              </li>
             </ul>
           </div>
           <div>
@@ -401,6 +405,12 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
                   rel="noopener"
                   class="text-text-mute no-underline hover:text-lime">Issues</a
                 >
+              </li>
+              <li>
+                <a href="/docs/troubleshooting/" class="text-text-mute no-underline hover:text-lime">Troubleshooting</a>
+              </li>
+              <li>
+                <a href="/docs/contributing/" class="text-text-mute no-underline hover:text-lime">Contributing</a>
               </li>
               <li>
                 <a

@@ -20,11 +20,13 @@ const { Content } = await render(post);
 const minutes = readingTime(post.body ?? '');
 const localAudioPath = join(process.cwd(), 'audio', `${post.id}.mp3`);
 const audioSrc = post.data.audio ?? (existsSync(localAudioPath) ? `/audio/${post.id}.mp3` : null);
+const ogImageUrl = 'https://claude-multi.hmziq.xyz/og/blog.png?title=' + encodeURIComponent(post.data.title) + '&desc=' + encodeURIComponent(post.data.description);
 ---
 
 <Layout
   title={`${post.data.title} - claude-multi | AI Assistant & Multi-Agent Workflows Blog`}
   description={post.data.description}
+  ogImage={ogImageUrl}
   ogType="article"
   articlePublishedTime={post.data.date}
   articleTags={post.data.tags}
