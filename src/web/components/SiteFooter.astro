@@ -1,0 +1,182 @@
+---
+import { latestVersion } from '../util/changelog';
+---
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-row">
+          <span class="footer-dot"></span>
+          <span class="footer-brand-name">claude-multi</span>
+        </div>
+        <p class="footer-desc">Run Claude Code against 8+ AI providers from the same machine. Each instance is isolated. Plugins sync automatically.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Product</h4>
+        <ul class="footer-list">
+          <li><a href="/docs/getting-started/">Get started</a></li>
+          <li><a href="/docs/usage/">Usage</a></li>
+          <li><a href="/docs/configuration/">Configuration</a></li>
+          <li><a href="/changelog/">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Resources</h4>
+        <ul class="footer-list">
+          <li><a href="/docs/providers/">Providers</a></li>
+          <li><a href="/docs/how-it-works/">How it works</a></li>
+          <li><a href="/docs/plugins-mcp/">Plugins &amp; MCP</a></li>
+          <li><a href="/faq/">FAQ</a></li>
+          <li><a href="/glossary/">Glossary</a></li>
+          <li><a href="/guides/">Guides</a></li>
+          <li><a href="/providers/">Provider pages</a></li>
+          <li><a href="/use-cases/">Use cases</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Community</h4>
+        <ul class="footer-list">
+          <li><a href="/about/">About</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener">Issues</a></li>
+          <li><a href="/docs/troubleshooting/">Troubleshooting</a></li>
+          <li><a href="/docs/contributing/">Contributing</a></li>
+          <li><a href="/compare/">Compare tools</a></li>
+          <li><a href="/alternatives/">Alternatives</a></li>
+          <li><a href="/for/">For you</a></li>
+          <li><a href="https://hmziq.rs" target="_blank" rel="noopener">hmziq.rs</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal</h4>
+        <ul class="footer-list">
+          <li><a href="/privacy/">Privacy policy</a></li>
+          <li><a href="/terms/">Terms of use</a></li>
+          <li><a href="https://github.com/hmziqrs/claude-multi/blob/master/LICENSE" target="_blank" rel="noopener">MIT license</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="footer-divider" />
+
+    <div class="footer-bottom">
+      <span>MIT licensed &copy; 2026 hmziqrs</span>
+      <div class="footer-bottom-links">
+        <a href="/sitemap-index.xml">Sitemap</a>
+        <span class="footer-version">v{latestVersion}</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 10;
+    margin-top: 8rem;
+    padding: 4rem 1.5rem 2.5rem;
+    border-top: 1px solid var(--color-edge, rgba(163, 230, 53, 0.08));
+    background: linear-gradient(to bottom, transparent, rgba(163, 230, 53, 0.025));
+  }
+  .site-footer-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+  @media (min-width: 48rem) {
+    .footer-grid {
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+    .footer-brand {
+      grid-column: 1;
+    }
+  }
+  .footer-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .footer-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--color-lime, #a3e635);
+  }
+  .footer-brand-name {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .footer-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-mute, #6b6b7d);
+    max-width: 20rem;
+    line-height: 1.625;
+  }
+  .footer-heading {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+  .footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .footer-list li {
+    margin-bottom: 0.5rem;
+  }
+  .footer-list a {
+    font-size: 0.875rem;
+    color: var(--color-text-mute, #6b6b7d);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .footer-list a:hover {
+    color: var(--color-lime, #a3e635);
+  }
+  .footer-divider {
+    border: none;
+    height: 1px;
+    margin: 3rem 0 1.5rem;
+    background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.35), transparent);
+  }
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-text-mute, #6b6b7d);
+  }
+  .footer-bottom a {
+    color: var(--color-text-mute, #6b6b7d);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .footer-bottom a:hover {
+    color: var(--color-lime, #a3e635);
+  }
+  .footer-version {
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+  .footer-bottom-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+</style>

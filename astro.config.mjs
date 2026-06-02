@@ -95,6 +95,8 @@ export default defineConfig({
       ],
       components: {
         Default: './src/web/layouts/StarlightLayout.astro',
+        Header: './src/web/components/StarlightHeader.astro',
+        Footer: './src/web/components/StarlightFooter.astro',
       },
       customCss: ['/src/web/styles/starlight.css'],
       lastUpdated: true,
@@ -103,6 +105,18 @@ export default defineConfig({
         {
           tag: 'meta',
           attrs: { name: 'theme-color', content: '#0c0c0f' },
+        },
+        {
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: '/fonts/InterVariable.woff2' },
+        },
+        {
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: '/fonts/JetBrainsMonoVariable.woff2' },
+        },
+        {
+          tag: 'script',
+          content: `requestIdleCallback(()=>{import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js').then(({initializeApp})=>{const c={apiKey:'AIzaSyDAdEgdNAke2wl0q4mBixEDMgQ21J7J71w',authDomain:'claude-multi.firebaseapp.com',projectId:'claude-multi',storageBucket:'claude-multi.firebasestorage.app',messagingSenderId:'961698441477',appId:'1:961698441477:web:2b9cfbd3d9a88149ee6f6c',measurementId:'G-0VRZJQKZT8'};const a=initializeApp(c);import('https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js').then(({getAnalytics})=>{getAnalytics(a)})})});`,
         },
       ],
     }),

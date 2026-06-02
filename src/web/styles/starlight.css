@@ -4,8 +4,6 @@
    Safe to edit — single source for all docs styling.
    =========================================================== */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
-
 :root,
 [data-theme="dark"] {
   /* ---------- Brand ---------- */
@@ -53,8 +51,33 @@
   --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --sl-font-system-mono: var(--sl-font-mono);
 
+  /* ---------- Nav height (match marketing h-16) ---------- */
+  --sl-nav-height: 4rem;
+
   /* ---------- Custom (used in selectors below) ---------- */
   --doc-glow: 0 0 32px -8px rgba(163, 230, 53, 0.35);
+
+  /* =========================================================
+     Tailwind @theme tokens (needed by shared components)
+     These mirror globals.css @theme so NavLinks, SiteFooter,
+     etc. resolve correctly in Starlight pages.
+     ========================================================= */
+  --color-lime: #a3e635;
+  --color-lime-bright: #bef264;
+  --color-lime-deep: #65a30d;
+  --color-lime-soft: #d9f99d;
+  --color-bg: #06060a;
+  --color-bg-2: #0a0a12;
+  --color-surface: rgba(0, 0, 0, 0.4);
+  --color-surface-hover: rgba(0, 0, 0, 0.55);
+  --color-surface-deep: rgba(0, 0, 0, 0.85);
+  --color-edge: rgba(163, 230, 53, 0.08);
+  --color-edge-hover: rgba(163, 230, 53, 0.28);
+  --color-text: #f1f1f6;
+  --color-text-dim: #a1a1b5;
+  --color-text-mute: #6b6b7d;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 /* ===========================================================
@@ -571,7 +594,7 @@ starlight-toc nav a[aria-current="true"] {
 }
 
 /* ===========================================================
-   FOOTER (last-updated + edit-link)
+   FOOTER (last-updated + edit-link + full-width site footer)
    =========================================================== */
 
 footer .meta {
@@ -585,6 +608,24 @@ footer .meta a {
 }
 footer .meta a:hover {
   color: var(--sl-color-accent);
+}
+
+/* Break site-footer out of Starlight's narrow content panel.
+   Uses negative margins + 100vw to span the full viewport.
+   overflow-x: clip on .page hides the scrollbar-width overshoot. */
+.page {
+  overflow-x: clip;
+}
+
+footer.site-footer {
+  width: 100vw;
+  position: relative;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: 4rem !important;
+  padding-left: max(1.5rem, env(safe-area-inset-left, 0px), calc((100vw - 72rem) / 2 + 1.5rem)) !important;
+  padding-right: max(1.5rem, env(safe-area-inset-right, 0px), calc((100vw - 72rem) / 2 + 1.5rem)) !important;
+  box-sizing: border-box;
 }
 
 /* ===========================================================
