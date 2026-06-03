@@ -291,24 +291,24 @@ describe("unsyncPluginsAndSkills", () => {
   });
 
   describe("already regular directories", () => {
-    it("should skip if directory is already a regular directory", async () => {
+    it("should fill in missing items from source when directory is already a regular directory", async () => {
       await helper.createDirectory(instanceConfigDir);
 
       // Create regular directories manually
       await helper.createDirectory(`${instanceConfigDir}/plugins`);
       await helper.createDirectory(`${instanceConfigDir}/skills`);
 
-      // Unsync should skip these
+      // Unsync should fill in missing items from source (half-manual → full-manual)
       await unsyncPluginsAndSkills(instanceConfigDir);
 
       // Should still be regular directories
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
       helper.assertRegularDirectory(`${instanceConfigDir}/skills`);
 
-      // Should be empty (no files copied since they were already regular dirs)
+      // Should now have files copied from source
       const { readdirSync } = await import("node:fs");
       const plugins = readdirSync(`${instanceConfigDir}/plugins`);
-      expect(plugins.length).toBe(0);
+      expect(plugins.length).toBeGreaterThan(0);
     });
   });
 

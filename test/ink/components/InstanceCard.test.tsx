@@ -12,6 +12,8 @@ describe("InstanceCard", () => {
     binaryPath: "/home/.local/bin/claude-test",
     createdAt: new Date().toISOString(),
     autoSync: true,
+    syncMode: "auto" as const,
+    createdWithVersion: "0.8.1",
   };
 
   it("renders instance name", () => {
@@ -19,15 +21,21 @@ describe("InstanceCard", () => {
     expect(lastFrame()).toContain("test-instance");
   });
 
-  it("shows auto-sync enabled", () => {
+  it("shows auto-sync mode", () => {
     const { lastFrame } = render(<InstanceCard instance={baseInstance} />);
-    expect(lastFrame()).toContain("synced");
+    expect(lastFrame()).toContain("auto");
   });
 
-  it("shows auto-sync disabled", () => {
-    const inst = { ...baseInstance, autoSync: false };
+  it("shows half-manual mode", () => {
+    const inst = { ...baseInstance, autoSync: false, syncMode: "half-manual" as const };
     const { lastFrame } = render(<InstanceCard instance={inst} />);
-    expect(lastFrame()).toContain("manual");
+    expect(lastFrame()).toContain("half-manual");
+  });
+
+  it("shows full-manual mode", () => {
+    const inst = { ...baseInstance, autoSync: false, syncMode: "full-manual" as const };
+    const { lastFrame } = render(<InstanceCard instance={inst} />);
+    expect(lastFrame()).toContain("full-manual");
   });
 
   it("renders binary path", () => {

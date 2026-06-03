@@ -15,7 +15,7 @@ import {
 } from "@/templates";
 import { writeJsonFileAtomic } from "@/util/json-file";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
-import { MigrationStatus, PluginCategory, McpServerType, PluginAction } from "@/constants";
+import { MigrationStatus, PluginCategory, McpServerType, PluginAction, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
 import { TUNABLE_ENV_VARS } from "@/constants/env";
 import chalk from "chalk";
 
@@ -42,7 +42,10 @@ export interface Instance {
   configDir: string;
   binaryPath: string;
   createdAt: string;
-  autoSync?: boolean; // Auto-sync plugins/skills via symlinks (default: true)
+  /** @deprecated Use syncMode instead. Kept for backward compat — resolved via getSyncMode(). */
+  autoSync?: boolean;
+  /** Sync mode: "auto" | "half-manual" | "full-manual". Defaults to "auto" if unset and autoSync is not explicitly false. */
+  syncMode?: SyncModeType;
   createdWithVersion: string; // claude-multi version that created this instance
   providerTemplate?: string; // e.g. "mimo", "kimi", "qwen-coding"
   providerRegion?: string;   // e.g. "sgp", "ams", "cn" for regional providers
@@ -90,6 +93,29 @@ function getConfigDir(): string { return _testConfigDir ?? join(homedir(), ".cla
 function getConfigFile(): string { return join(getConfigDir(), "config.json"); }
 
 const SYNC_DIRS = ["plugins", "skills"] as const;
+
+const VALID_SYNC_MODES = new Set<string>(Object.values(SyncMode));
+
+/**
+ * Resolve the effective sync mode for an instance.
+ * Priority: syncMode field > autoSync field > default "auto"
+ */
+export function getSyncMode(instance: Instance): SyncModeType {
+  if (instance.syncMode && VALID_SYNC_MODES.has(instance.syncMode)) return instance.syncMode;
+  // Backward compat: explicit autoSync=false means full-manual
+  if (instance.autoSync === false) return SyncMode.FullManual;
+  // autoSync=true or undefined defaults to auto
+  return SyncMode.Auto;
+}
+
+/** Human-readable label for a sync mode */
+export function syncModeLabel(mode: SyncModeType): string {
+  switch (mode) {
+    case SyncMode.Auto: return "Auto-sync (symlink dirs)";
+    case SyncMode.HalfManual: return "Half-manual (symlink items)";
+    case SyncMode.FullManual: return "Full-manual (independent copy)";
+  }
+}
 
 async function copyDirRecursive(source: string, target: string): Promise<void> {
   if (!existsSync(target)) {
@@ -238,6 +264,53 @@ export async function updateInstanceAutoSync(
 
   const inst = config.instances[index]!;
   inst.autoSync = autoSync;
+  // Also set syncMode for forward compat
+  inst.syncMode = autoSync ? SyncMode.Auto : SyncMode.FullManual;
+  await saveConfig(config);
+  return inst;
+}
+
+/**
+ * Update the sync mode for an instance and apply the filesystem changes.
+ * Only allows downgrades (auto → half-manual → full-manual).
+ */
+export async function updateInstanceSyncMode(
+  name: string,
+  newMode: SyncModeType,
+): Promise<Instance | null> {
+  const config = await loadConfig();
+  const index = config.instances.findIndex((i) => i.name === name);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const inst = config.instances[index]!;
+  const currentMode = getSyncMode(inst);
+
+  // Validate downgrade-only rule
+  if (currentMode === newMode) return inst;
+  if (!canConvertSyncMode(currentMode, newMode)) {
+    throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, `Cannot convert from ${syncModeLabel(currentMode)} to ${syncModeLabel(newMode)}. Only downgrades are allowed.`);
+  }
+
+  // Apply filesystem changes
+  if (newMode === SyncMode.Auto) {
+    await syncPluginsAndSkills(inst.configDir);
+  } else if (newMode === SyncMode.HalfManual) {
+    // If coming from auto (whole-dir symlinks), convert to individual symlinks
+    if (currentMode === SyncMode.Auto) {
+      await halfSyncPluginsAndSkills(inst.configDir);
+    }
+  } else if (newMode === SyncMode.FullManual) {
+    // If coming from auto or half-manual, replace all symlinks with copies
+    await unsyncPluginsAndSkills(inst.configDir);
+  }
+
+  // Persist
+  inst.syncMode = newMode;
+  // Update autoSync for backward compat
+  inst.autoSync = newMode === SyncMode.Auto ? true : false;
   await saveConfig(config);
   return inst;
 }
@@ -302,7 +375,9 @@ function isBrokenSymlink(path: string): boolean {
 }
 
 /**
- * Detect broken symlinks in an instance
+ * Detect broken symlinks in an instance.
+ * Checks both whole-directory symlinks (auto-sync) and
+ * individual item symlinks inside real directories (half-manual).
  */
 export function detectBrokenSymlinks(configDir: string): {
   broken: string[];
@@ -312,15 +387,29 @@ export function detectBrokenSymlinks(configDir: string): {
 
   for (const dir of SYNC_DIRS) {
     const targetPath = join(configDir, dir);
-    // Use lstatSync instead of existsSync to detect broken symlinks
     try {
       const stats = lstatSync(targetPath);
       result.all.push(dir);
-      if (stats.isSymbolicLink() && isBrokenSymlink(targetPath)) {
-        result.broken.push(dir);
+
+      if (stats.isSymbolicLink()) {
+        // Whole-directory symlink (auto-sync mode)
+        if (isBrokenSymlink(targetPath)) {
+          result.broken.push(dir);
+        }
+      } else if (stats.isDirectory()) {
+        // Real directory — check for broken individual symlinks (half-manual mode)
+        try {
+          const entries = readdirSync(targetPath, { withFileTypes: true });
+          for (const entry of entries) {
+            const entryPath = join(targetPath, entry.name);
+            if (isBrokenSymlink(entryPath)) {
+              result.broken.push(`${dir}/${entry.name}`);
+            }
+          }
+        } catch { /* permission error, skip */ }
       }
     } catch {
-      // Path doesn't exist at all (not even as a broken symlink)
+      // Path doesn't exist at all
     }
   }
 
@@ -390,7 +479,7 @@ export async function copySettingsFromDefault(
  */
 export async function copyAllFromDefault(
   targetConfigDir: string,
-  autoSync = false,
+  syncModeOrAutoSync: SyncModeType | boolean = false,
 ): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
@@ -401,6 +490,11 @@ export async function copyAllFromDefault(
   if (!existsSync(targetConfigDir)) {
     await mkdir(targetConfigDir, { recursive: true });
   }
+
+  // Resolve legacy boolean to SyncMode
+  const effectiveMode: SyncModeType = typeof syncModeOrAutoSync === "boolean"
+    ? (syncModeOrAutoSync ? SyncMode.Auto : SyncMode.FullManual)
+    : syncModeOrAutoSync;
 
   const excludeFiles = [
     "config.json",
@@ -436,27 +530,50 @@ export async function copyAllFromDefault(
       }
 
       if (stat.isDirectory()) {
-        // Use symlink for plugins and skills when autoSync is enabled
-        if (autoSync && syncDirSet.has(entry)) {
-          // Use lstatSync to detect broken symlinks (existsSync returns false for those)
-          try {
-            const targetStat = lstatSync(targetPath);
-            if (targetStat.isSymbolicLink()) {
-              const currentTarget = readlinkSync(targetPath);
-              if (currentTarget === sourcePath) {
-                console.log(`  ✓ Already symlinked: ${entry}`);
-                continue;
+        if (syncDirSet.has(entry)) {
+          if (effectiveMode === SyncMode.Auto) {
+            // Auto mode: symlink the entire directory
+            try {
+              const targetStat = lstatSync(targetPath);
+              if (targetStat.isSymbolicLink()) {
+                const currentTarget = readlinkSync(targetPath);
+                if (currentTarget === sourcePath) {
+                  console.log(`  ✓ Already symlinked: ${entry}`);
+                  continue;
+                }
+                console.log(chalk.yellow(`  ⚠ Replacing incorrect symlink: ${entry}`));
+              } else {
+                console.log(chalk.yellow(`  ⚠ Removing existing directory: ${entry}`));
               }
-              console.log(chalk.yellow(`  ⚠ Replacing incorrect symlink: ${entry}`));
-            } else {
-              console.log(chalk.yellow(`  ⚠ Removing existing directory: ${entry}`));
+              rmSync(targetPath, { force: true, recursive: true });
+            } catch {
+              // Path doesn't exist — nothing to clean up
             }
-            rmSync(targetPath, { force: true, recursive: true });
-          } catch {
-            // Path doesn't exist — nothing to clean up
+            await symlink(sourcePath, targetPath, "dir");
+            console.log(`  Symlinked: ${entry} -> ${sourcePath}`);
+          } else if (effectiveMode === SyncMode.HalfManual) {
+            // Half-manual mode: create real dir, symlink individual items
+            if (!existsSync(targetPath)) {
+              await mkdir(targetPath, { recursive: true });
+            }
+            const subEntries = readdirSync(sourcePath, { withFileTypes: true });
+            let linked = 0;
+            for (const sub of subEntries) {
+              const subSource = join(sourcePath, sub.name);
+              const subTarget = join(targetPath, sub.name);
+              if (lstatSafe(subTarget)) continue; // don't overwrite existing
+              const rel = relative(dirname(subTarget), subSource);
+              await symlink(rel, subTarget, sub.isDirectory() ? "dir" : "file");
+              linked++;
+            }
+            console.log(`  Half-synced: ${entry} (${linked} items individually symlinked)`);
+          } else {
+            // Full-manual: just copy
+            if (!existsSync(targetPath)) {
+              await mkdir(targetPath, { recursive: true });
+            }
+            await copyRecursive(sourcePath, targetPath);
           }
-          await symlink(sourcePath, targetPath, "dir");
-          console.log(`  Symlinked: ${entry} -> ${sourcePath}`);
         } else {
           if (!existsSync(targetPath)) {
             await mkdir(targetPath, { recursive: true });
@@ -863,7 +980,87 @@ async function copyFilesRecursive(source: string, target: string): Promise<void>
 }
 
 /**
- * Unsync plugins and skills by copying actual files and removing symlinks
+ * Half-manual sync: replace whole-directory symlinks with real directories
+ * containing individual symlinks for each existing plugin/skill.
+ * New items installed in ~/.claude won't appear here automatically.
+ */
+export async function halfSyncPluginsAndSkills(
+  configDir: string,
+): Promise<void> {
+  const defaultDir = getDefaultClaudeDir();
+
+  if (!existsSync(configDir)) {
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
+  }
+
+  await Promise.all(SYNC_DIRS.map(async (dir) => {
+    const targetPath = join(configDir, dir);
+    const sourcePath = join(defaultDir, dir);
+
+    if (!existsSync(sourcePath)) {
+      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
+      return;
+    }
+
+    // If target is a whole-dir symlink (auto-sync mode), convert it
+    let wasWholeDirSymlink = false;
+    try {
+      const stat = lstatSync(targetPath);
+      if (stat.isSymbolicLink()) {
+        rmSync(targetPath, { force: true });
+        wasWholeDirSymlink = true;
+        console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
+      }
+    } catch { /* not a symlink, good */ }
+
+    // Ensure the real directory exists
+    if (!existsSync(targetPath)) {
+      await mkdir(targetPath, { recursive: true });
+    }
+
+    // Create individual symlinks for each item in the source directory
+    const entries = readdirSync(sourcePath, { withFileTypes: true });
+    let linked = 0;
+    for (const entry of entries) {
+      const sourceEntry = join(sourcePath, entry.name);
+      const targetEntry = join(targetPath, entry.name);
+
+      // Skip if target already exists (as symlink or real file/dir)
+      const existingStat = lstatSafe(targetEntry);
+      if (existingStat) {
+        // If it's already a symlink pointing to the right place, skip
+        if (existingStat.isSymbolicLink()) {
+          try {
+            const currentTarget = readlinkSync(targetEntry);
+            const resolvedTarget = isAbsolute(currentTarget)
+              ? currentTarget
+              : resolve(dirname(targetEntry), currentTarget);
+            if (resolvedTarget === sourceEntry) {
+              linked++;
+              continue;
+            }
+          } catch { /* broken symlink, replace it */ }
+          // Points elsewhere — remove and re-link
+          rmSync(targetEntry, { force: true });
+        } else {
+          // Real file/dir exists — don't overwrite user's own content
+          continue;
+        }
+      }
+
+      // Create relative symlink for this individual item
+      const relativePath = relative(dirname(targetEntry), sourceEntry);
+      await symlink(relativePath, targetEntry, entry.isDirectory() ? "dir" : "file");
+      linked++;
+    }
+
+    console.log(chalk.green(`  ✓ Half-synced ${dir}: ${linked} item(s) individually symlinked`));
+  }));
+}
+
+/**
+ * Unsync plugins and skills by copying actual files and removing symlinks.
+ * Handles both auto-sync (whole-dir symlinks) and half-manual (individual symlinks).
  */
 export async function unsyncPluginsAndSkills(
   configDir: string,
@@ -884,30 +1081,80 @@ export async function unsyncPluginsAndSkills(
       return;
     }
 
-    // Check if it's currently a symlink
-    let isSymlink = false;
+    // Check if it's a whole-directory symlink (auto-sync mode)
+    let isWholeDirSymlink = false;
     try {
       readlinkSync(targetPath);
-      isSymlink = true;
+      isWholeDirSymlink = true;
     } catch {
       // Not a symlink
     }
 
-    if (isSymlink) {
-      // Remove symlink
+    if (isWholeDirSymlink) {
+      // Remove the whole-directory symlink
       rmSync(targetPath, { force: true });
-      console.log(chalk.gray(`  ✓ Removed symlink for ${dir}`));
+      console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
+      // Copy files from source
+      await mkdir(targetPath, { recursive: true });
+      await copyFilesRecursive(sourcePath, targetPath);
+      console.log(chalk.green(`  ✓ Copied files for ${dir}`));
     } else if (!existsSync(targetPath)) {
-      // Neither symlink nor directory exists
+      // Neither symlink nor directory exists — just copy
+      await mkdir(targetPath, { recursive: true });
+      await copyFilesRecursive(sourcePath, targetPath);
+      console.log(chalk.green(`  ✓ Copied files for ${dir}`));
     } else {
-      console.log(chalk.yellow(`  ⚠ ${dir} is already a regular directory, skipping`));
-      return;
-    }
+      // Real directory — may be half-manual with individual symlinks inside
+      // Replace individual symlinks with real copies
+      let replaced = 0;
+      const entries = readdirSync(targetPath, { withFileTypes: true });
+      for (const entry of entries) {
+        const entryPath = join(targetPath, entry.name);
+        const entryStat = lstatSafe(entryPath);
+        if (entryStat?.isSymbolicLink()) {
+          // Resolve symlink target to get the real content
+          const linkTarget = readlinkSync(entryPath);
+          const resolvedTarget = isAbsolute(linkTarget)
+            ? linkTarget
+            : resolve(dirname(entryPath), linkTarget);
 
-    // Copy files from source
-    await mkdir(targetPath, { recursive: true });
-    await copyFilesRecursive(sourcePath, targetPath);
-    console.log(chalk.green(`  ✓ Copied files for ${dir}`));
+          // Remove symlink and copy the real content
+          rmSync(entryPath, { force: true });
+          if (existsSync(resolvedTarget)) {
+            const realStat = statSync(resolvedTarget);
+            if (realStat.isDirectory()) {
+              await mkdir(entryPath, { recursive: true });
+              await copyDirRecursive(resolvedTarget, entryPath);
+            } else {
+              await copyFile(resolvedTarget, entryPath);
+            }
+            replaced++;
+          }
+        }
+      }
+
+      // Also copy any items from source that don't exist in target yet
+      const sourceEntries = readdirSync(sourcePath, { withFileTypes: true });
+      for (const entry of sourceEntries) {
+        const targetEntry = join(targetPath, entry.name);
+        if (!existsSync(targetEntry)) {
+          const sourceEntry = join(sourcePath, entry.name);
+          if (entry.isDirectory()) {
+            await mkdir(targetEntry, { recursive: true });
+            await copyDirRecursive(sourceEntry, targetEntry);
+          } else {
+            await copyFile(sourceEntry, targetEntry);
+          }
+          replaced++;
+        }
+      }
+
+      if (replaced > 0) {
+        console.log(chalk.green(`  ✓ ${dir}: replaced ${replaced} symlink(s) with copies`));
+      } else {
+        console.log(chalk.gray(`  ✓ ${dir}: already fully independent`));
+      }
+    }
   }));
 }
 
@@ -1118,6 +1365,30 @@ export function isPluginsSymlinked(configDir: string): boolean {
   return st?.isSymbolicLink() ?? false;
 }
 
+/**
+ * Check if an instance is in half-manual mode (directory exists as real dir,
+ * but individual items inside may be symlinks).
+ */
+export function isHalfManualSync(configDir: string): boolean {
+  for (const dir of SYNC_DIRS) {
+    const dirPath = join(configDir, dir);
+    if (!existsSync(dirPath)) continue;
+    const st = lstatSafe(dirPath);
+    if (st?.isDirectory() && !st.isSymbolicLink()) {
+      // Check if any child is a symlink
+      try {
+        const entries = readdirSync(dirPath, { withFileTypes: true });
+        for (const entry of entries) {
+          const entryPath = join(dirPath, entry.name);
+          const entryStat = lstatSafe(entryPath);
+          if (entryStat?.isSymbolicLink()) return true;
+        }
+      } catch { /* ignore */ }
+    }
+  }
+  return false;
+}
+
 // ── Process Detection ─────────────────────────────────────────────
 
 export function isClaudeCodeRunning(configDir: string): boolean {
@@ -1274,6 +1545,10 @@ export function validatePluginOperation(
 
   if (existsSync(configDir) && isPluginsSymlinked(configDir)) {
     errors.push("Plugins directory is symlinked (auto-sync). Disable auto-sync first.");
+  }
+
+  if (existsSync(configDir) && !isPluginsSymlinked(configDir) && isHalfManualSync(configDir)) {
+    errors.push("Plugins are individually symlinked (half-manual). Switch to full-manual first to manage individual plugins.");
   }
 
   if (operation === PluginAction.Install && pluginId) {

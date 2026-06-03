@@ -7,6 +7,8 @@ import { useNavigation } from "@/ink/hooks/useNavigation";
 import { useConfig } from "@/ink/hooks/useConfig";
 import { useMessage } from "@/ink/hooks/useMessage";
 import { useStaggeredReveal, useFadeIn } from "@/ink/hooks/useAnimations";
+import { SyncMode } from "@/constants";
+import { getSyncMode } from "@/config";
 
 type Step = "select" | "fixing" | "done";
 
@@ -40,7 +42,7 @@ const SymlinkResults: React.FC<{
 };
 
 export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, detectBrokenSymlinks, syncPluginsAndSkills } = useConfig();
+  const { instances, detectBrokenSymlinks, syncPluginsAndSkills, halfSyncPluginsAndSkills } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [results, setResults] = useState<
     { name: string; broken: string[]; all: string[]; fixed: boolean }[]
@@ -62,10 +64,13 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     );
   }
 
-  const instanceOptions = instances.map((i) => ({
-    label: `${i.name} ${i.autoSync !== false ? "(auto-sync)" : "(manual)"}`,
-    value: i.name,
-  }));
+  const instanceOptions = instances.map((i) => {
+    const mode = getSyncMode(i);
+    return {
+      label: `${i.name} (${mode})`,
+      value: i.name,
+    };
+  });
 
   const handleSelect = async (selectedNames: string[]) => {
     setStep("fixing");
@@ -77,16 +82,21 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       if (!instance) return null;
       const diagnosis = detectBrokenSymlinks(instance.configDir);
       const hasBroken = diagnosis.broken.length > 0;
+      const mode = getSyncMode(instance);
 
-      if (hasBroken && instance.autoSync !== false) {
+      if (hasBroken) {
         try {
-          await syncPluginsAndSkills(instance.configDir);
+          if (mode === SyncMode.Auto) {
+            await syncPluginsAndSkills(instance.configDir);
+          } else if (mode === SyncMode.HalfManual) {
+            await halfSyncPluginsAndSkills(instance.configDir);
+          }
           return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: true };
         } catch {
           return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: false };
         }
       } else {
-        return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: !hasBroken };
+        return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: true };
       }
     }));
     setResults(fixResults.filter(Boolean) as typeof results);

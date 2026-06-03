@@ -7,6 +7,8 @@ import { useConfig } from "@/ink/hooks/useConfig";
 import { InstanceSelectMenu } from "@/ink/components/InstanceSelectMenu";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
+import { SyncMode, type SyncMode as SyncModeType, availableSyncModeConversions } from "@/constants";
+import { getSyncMode, syncModeLabel } from "@/config";
 import {
   detectTemplateMismatch,
   detectWrapperMismatch,
@@ -50,8 +52,17 @@ const ACTION_VALUES = {
   SyncTemplate: "sync-template",
   UpdateWrapper: "update-wrapper",
   OverrideWrapper: "override-wrapper",
+  ConvertSyncMode: "convert-sync-mode",
   Back: "back",
 } as const;
+
+function syncModeColor(mode: SyncModeType): string {
+  switch (mode) {
+    case SyncMode.Auto: return "green";
+    case SyncMode.HalfManual: return "cyan";
+    case SyncMode.FullManual: return "yellow";
+  }
+}
 
 function templateStatusLabel(status: TemplateMismatchStatus): string {
   switch (status) {
@@ -72,7 +83,7 @@ function wrapperStatusLabel(status: WrapperMismatchStatus): string {
 
 export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { exit } = useApp();
-  const { instances, listInstancePlugins, getInstanceMcpServers, syncTemplateEnv, regenerateWrapper } = useConfig();
+  const { instances, listInstancePlugins, getInstanceMcpServers, syncTemplateEnv, regenerateWrapper, toggleSyncMode } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);
   const [infoData, setInfoData] = useState<InfoData>(EMPTY_INFO);
@@ -81,6 +92,7 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const [providerName, setProviderName] = useState<string | null>(null);
   const [actionResult, setActionResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [executing, setExecuting] = useState(false);
+  const [pendingSyncConvert, setPendingSyncConvert] = useState<SyncModeType | null>(null);
 
   // Resolve the current instance from the live instances array so that
   // after reload() the selected reference stays fresh.
@@ -174,9 +186,36 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     await loadInstanceInfo(inst);
   };
 
+  const VALID_SYNC_MODES = new Set<string>(Object.values(SyncMode));
+
   const handleAction = async (value: string) => {
     // Guard against double-fire from rapid Enter presses
     if (executing) return;
+
+    // Handle sync mode conversion — it uses a sub-value
+    if (value.startsWith("convert:")) {
+      const rawMode = value.replace("convert:", "");
+      // Validate before casting
+      if (!VALID_SYNC_MODES.has(rawMode)) {
+        setActionResult({ message: `Invalid sync mode: ${rawMode}`, type: "error" });
+        setStep("result");
+        return;
+      }
+      const targetMode = rawMode as SyncModeType;
+      setPendingSyncConvert(targetMode);
+      setStep("executing");
+      setExecuting(true);
+      try {
+        await toggleSyncMode(selected!.name, targetMode);
+        setActionResult({ message: `Sync mode set to ${syncModeLabel(targetMode)} for '${selected!.name}'`, type: "success" });
+      } catch (err: unknown) {
+        setActionResult({ message: err instanceof Error ? err.message : String(err), type: "error" });
+      }
+      setExecuting(false);
+      setStep("result");
+      return;
+    }
+
     if (value === ACTION_VALUES.Back || !selected) {
       setStep("info");
       return;
@@ -230,6 +269,19 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
       });
     }
 
+    // Sync mode conversion options (downgrade only)
+    const syncTarget = liveSelected ?? selected;
+    if (syncTarget) {
+      const currentMode = getSyncMode(syncTarget);
+      const downgrades = availableSyncModeConversions(currentMode);
+      for (const mode of downgrades) {
+        options.push({
+          label: `🔄 Convert to ${syncModeLabel(mode)}`,
+          value: `convert:${mode}`,
+        });
+      }
+    }
+
     options.push({ label: "← Back", value: ACTION_VALUES.Back });
     return options;
   };
@@ -263,9 +315,9 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
             <DetailRow label="Config" value={displayInstance.configDir} delay={100} />
             <DetailRow label="Created" value={new Date(displayInstance.createdAt).toLocaleString()} delay={150} />
             <DetailRow
-              label="Auto-sync"
-              value={displayInstance.autoSync !== false ? "✓ Enabled" : "✗ Disabled"}
-              color={displayInstance.autoSync !== false ? "green" : "red"}
+              label="Sync mode"
+              value={syncModeLabel(getSyncMode(displayInstance))}
+              color={syncModeColor(getSyncMode(displayInstance))}
               delay={200}
             />
             <DetailRow

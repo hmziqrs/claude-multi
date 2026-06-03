@@ -16,7 +16,7 @@ import { useFadeIn } from "@/ink/hooks/useAnimations";
 import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { CopyOption, PluginCategory } from "@/constants";
+import { CopyOption, PluginCategory, SyncMode, type SyncMode as SyncModeType } from "@/constants";
 import { providerHasRegions, resolveRegionTemplate, getProviderRegions, getApiKeyPlaceholder } from "@/templates";
 
 const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string }> = ({
@@ -66,7 +66,7 @@ const STEP_TITLES: Record<Step, string> = {
   [Step.PathsConfirm]: "Paths",
   [Step.CopyOptions]: "Copy Options",
   [Step.SelectPlugins]: "Select Plugins",
-  [Step.Autosync]: "Auto-Sync",
+  [Step.Autosync]: "Sync Mode",
   [Step.Creating]: "Creating...",
   [Step.Done]: "Complete",
 };
@@ -141,7 +141,7 @@ type AddInstanceState = {
   selectedProvider: string | null;
   selectedRegion: string | null;
   apiKey: string;
-  autoSync: boolean;
+  syncMode: SyncModeType;
   copyOption: string;
   selectedPluginIds: string[];
   result: { configDir: string; binaryPath: string } | null;
@@ -154,7 +154,7 @@ type AddInstanceAction =
   | { type: "SELECT_PROVIDER"; provider: string | null; useProvider: boolean }
   | { type: "SET_REGION"; region: string | null }
   | { type: "SET_API_KEY"; key: string }
-  | { type: "SET_AUTO_SYNC"; value: boolean }
+  | { type: "SET_SYNC_MODE"; value: SyncModeType }
   | { type: "SET_COPY_OPTION"; value: string }
   | { type: "SET_PLUGIN_IDS"; ids: string[] }
   | { type: "SET_RESULT"; result: { configDir: string; binaryPath: string } | null }
@@ -178,8 +178,8 @@ function reducer(state: AddInstanceState, action: AddInstanceAction): AddInstanc
       return { ...state, selectedRegion: action.region };
     case "SET_API_KEY":
       return { ...state, apiKey: action.key };
-    case "SET_AUTO_SYNC":
-      return { ...state, autoSync: action.value };
+    case "SET_SYNC_MODE":
+      return { ...state, syncMode: action.value };
     case "SET_COPY_OPTION":
       return { ...state, copyOption: action.value };
     case "SET_PLUGIN_IDS":
@@ -202,7 +202,7 @@ function initialState(initialName?: string): AddInstanceState {
     selectedProvider: null,
     selectedRegion: null,
     apiKey: "",
-    autoSync: false,
+    syncMode: SyncMode.Auto,
     copyOption: CopyOption.None,
     selectedPluginIds: [],
     result: null,
@@ -317,18 +317,35 @@ const SelectPluginsStep: React.FC<{
   </Box>
 );
 
-const AutosyncStep: React.FC<{
-  onConfirm: (confirmed: boolean) => void;
-}> = ({ onConfirm }) => (
-  <Box flexDirection="column" gap={1}>
-    <Text>Auto-sync plugins and skills via symlinks?</Text>
-    <Text dimColor>Shares plugins/skills from ~/.claude across instances</Text>
-    <ConfirmInput
-      onConfirm={() => onConfirm(true)}
-      onCancel={() => onConfirm(false)}
-    />
-  </Box>
-);
+const SyncModeStep: React.FC<{
+  onSelect: (mode: SyncModeType) => void;
+}> = ({ onSelect }) => {
+  const syncModeOptions = [
+    {
+      label: "Auto-sync — symlink entire plugins/skills dirs (instant sync)",
+      value: SyncMode.Auto,
+    },
+    {
+      label: "Half-manual — symlink individual items (new installs stay isolated)",
+      value: SyncMode.HalfManual,
+    },
+    {
+      label: "Full-manual — copy everything (completely independent)",
+      value: SyncMode.FullManual,
+    },
+  ];
+  return (
+    <Box flexDirection="column" gap={1}>
+      <Text>Choose how to sync plugins and skills:</Text>
+      <Text dimColor>Controls how ~/.claude content is shared with this instance</Text>
+      <Select
+        options={syncModeOptions}
+        visibleOptionCount={syncModeOptions.length}
+        onChange={(value) => onSelect(value as SyncModeType)}
+      />
+    </Box>
+  );
+};
 
 export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }> = ({ onBack, initialName }) => {
   const { exit } = useApp();
@@ -414,7 +431,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     dispatch({ type: "SET_STEP", step: Step.CopyOptions });
   }, []);
 
-  const doCreate = useCallback(async (copyOpt: string, sync: boolean) => {
+  const doCreate = useCallback(async (copyOpt: string, sync: SyncModeType) => {
     dispatch({ type: "SET_STEP", step: Step.Creating });
     dispatch({ type: "SET_ERROR", error: "" });
 
@@ -427,7 +444,8 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         configDir: cDir,
         binaryPath: bPath,
         createdAt: new Date().toISOString(),
-        autoSync: sync,
+        autoSync: sync === SyncMode.Auto,
+        syncMode: sync,
         createdWithVersion: getClaudeMultiVersion(),
         ...(state.useProvider && state.selectedProvider ? { providerTemplate: state.selectedProvider } : {}),
         ...(state.selectedRegion && state.useProvider && state.selectedProvider && providerHasRegions(state.selectedProvider)
@@ -450,8 +468,13 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         if (selections.length > 0) {
           await cfg.copySelectedPlugins(cDir, selections);
         }
+        // Apply sync mode for the selected plugins dir
+        if (sync === SyncMode.HalfManual) {
+          // Half-manual: symlink individual items after copy
+          // Already copied above, no additional action needed for select-plugins
+        }
       } else if (copyOpt === CopyOption.All) {
-        await cfg.copyAllFromDefault(cDir);
+        await cfg.copyAllFromDefault(cDir, sync);
       } else if (copyOpt === CopyOption.Settings) {
         await cfg.copySettingsFromDefault(cDir);
       }
@@ -481,7 +504,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     } else if (value === CopyOption.All) {
       dispatch({ type: "SET_STEP", step: Step.Autosync });
     } else {
-      doCreate(value, false);
+      doCreate(value, SyncMode.FullManual);
     }
   }, [doCreate]);
 
@@ -494,9 +517,9 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     dispatch({ type: "SET_STEP", step: Step.Autosync });
   }, []);
 
-  const handleAutoSyncConfirm = useCallback((confirmed: boolean) => {
-    dispatch({ type: "SET_AUTO_SYNC", value: confirmed });
-    doCreate(state.copyOption, confirmed);
+  const handleSyncModeSelect = useCallback((mode: SyncModeType) => {
+    dispatch({ type: "SET_SYNC_MODE", value: mode });
+    doCreate(state.copyOption, mode);
   }, [state.copyOption, doCreate]);
 
   const hasDefaultConfig = cfg.hasDefaultConfig();
@@ -552,7 +575,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         <Box flexDirection="column" gap={1}>
           <Text dimColor>No default Claude config found. Starting fresh.</Text>
           <ConfirmInput
-            onConfirm={() => doCreate(CopyOption.None, state.autoSync)}
+            onConfirm={() => doCreate(CopyOption.None, SyncMode.FullManual)}
             onCancel={onBack}
           />
         </Box>
@@ -579,7 +602,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       )}
 
       {state.step === Step.Autosync && (
-        <AutosyncStep onConfirm={handleAutoSyncConfirm} />
+        <SyncModeStep onSelect={handleSyncModeSelect} />
       )}
 
       {state.step === Step.Creating && (

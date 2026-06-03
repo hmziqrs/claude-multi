@@ -6,10 +6,14 @@ import {
   getInstance as getInstanceFromConfig,
   listInstances as listInstancesFromConfig,
   updateInstanceAutoSync,
+  updateInstanceSyncMode,
+  getSyncMode,
+  syncModeLabel,
   hasDefaultClaudeConfig,
   hasDefaultMcpConfig,
   syncPluginsAndSkills,
   unsyncPluginsAndSkills,
+  halfSyncPluginsAndSkills,
   getEnabledPlugins,
   setEnabledPlugins,
   enablePlugin,
@@ -31,6 +35,7 @@ import {
   copySinglePlugin,
   removeSinglePlugin,
   isPluginsSymlinked,
+  isHalfManualSync,
   getMcpServersFromPlugins,
   getInstanceMcpServers,
   setCustomMcpServer,
@@ -46,6 +51,7 @@ import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
 import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS, getApiKeyPlaceholder } from "@/templates";
 import { getMigrationStatus, clearMigrationFailure } from "@/migration";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
+import { SyncMode, type SyncMode as SyncModeType } from "@/constants";
 
 export { type Instance, type PluginInfo };
 
@@ -85,15 +91,13 @@ export function useConfig() {
     return instance;
   }, [reload]);
 
+  /** @deprecated Use toggleSyncMode instead */
   const toggleAutoSync = useCallback(async (name: string, enable: boolean) => {
-    const instance = await getInstanceFromConfig(name);
-    if (!instance) throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Instance '${name}' not found`);
-    await updateInstanceAutoSync(name, enable);
-    if (enable) {
-      await syncPluginsAndSkills(instance.configDir);
-    } else {
-      await unsyncPluginsAndSkills(instance.configDir);
-    }
+    await toggleSyncMode(name, enable ? SyncMode.Auto : SyncMode.FullManual);
+  }, [reload]);
+
+  const toggleSyncMode = useCallback(async (name: string, newMode: SyncModeType) => {
+    await updateInstanceSyncMode(name, newMode);
     await reload();
   }, [reload]);
 
@@ -122,11 +126,14 @@ export function useConfig() {
     addInstance,
     removeInstance,
     toggleAutoSync,
+    toggleSyncMode,
     syncTemplateEnv,
     regenerateWrapper,
     migrationStatus,
     instanceMigrationVersion: config?.instanceMigrationVersion,
     getInstance: getInstanceFromConfig,
+    getSyncMode,
+    syncModeLabel,
     listInstances: listInstancesFromConfig,
     hasDefaultConfig: hasDefaultClaudeConfig,
     hasDefaultMcpConfig,
@@ -153,6 +160,7 @@ export function useConfig() {
     getApiKeyPlaceholder,
     updateInstanceAutoSync,
     syncPluginsAndSkills,
+    halfSyncPluginsAndSkills,
     initializeInstanceState,
     mergeProviderEnv,
     listDefaultPlugins,
@@ -161,6 +169,7 @@ export function useConfig() {
     copySinglePlugin,
     removeSinglePlugin,
     isPluginsSymlinked,
+    isHalfManualSync,
     getMcpServersFromPlugins,
     getInstanceMcpServers,
     setCustomMcpServer,

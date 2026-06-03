@@ -39,7 +39,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     instances, reload,
     listDefaultPlugins, listInstancePlugins,
     copySelectedPlugins, removeSinglePlugin,
-    enablePlugin, disablePlugin, isPluginsSymlinked,
+    enablePlugin, disablePlugin, isPluginsSymlinked, isHalfManualSync,
   } = useConfig();
 
   const [step, setStep] = useState<Step>("action");
@@ -93,7 +93,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     // Check symlink state for operations that modify plugins
     const modifiesPlugins = action === PluginAction.Install || action === PluginAction.Remove || action === PluginAction.Enable || action === PluginAction.Disable;
     if (modifiesPlugins) {
-      if (isPluginsSymlinked(inst.configDir)) {
+      if (isPluginsSymlinked(inst.configDir) || isHalfManualSync(inst.configDir)) {
         setStep("symlink-warning");
         return;
       }
@@ -209,11 +209,11 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       {step === "symlink-warning" && (
         <Box flexDirection="column" gap={1}>
           <StatusBar
-            message={`Instance '${selectedInstance}' has auto-sync enabled (symlinked plugins).`}
+            message={`Instance '${selectedInstance}' has symlinked plugins (sync mode).`}
             type="error"
           />
-          <Text dimColor>Disable auto-sync first to manage plugins individually.</Text>
-          <Text dimColor>Use "🔄 Toggle auto-sync" from the main menu.</Text>
+          <Text dimColor>Switch to full-manual mode first to manage plugins individually.</Text>
+          <Text dimColor>Use "🔄 Sync mode" from the main menu.</Text>
           <Box marginTop={1}>
             <ConfirmInput
               onConfirm={() => setStep("action")}

@@ -15,9 +15,12 @@ import {
   copyMcpServersFromDefault,
   copyMcpServersBetweenInstances,
   listMcpServers,
-  updateInstanceAutoSync,
+  updateInstanceSyncMode,
+  getSyncMode,
+  syncModeLabel,
   syncPluginsAndSkills,
   unsyncPluginsAndSkills,
+  halfSyncPluginsAndSkills,
   detectBrokenSymlinks,
   getEnabledPlugins,
   setEnabledPlugins,
@@ -31,6 +34,7 @@ import {
   copySelectedPlugins,
   removeSinglePlugin,
   isPluginsSymlinked,
+  isHalfManualSync,
   detectMcpCollisions,
   type Instance,
 } from "@/config";
@@ -49,7 +53,7 @@ import {
 import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, getProviderRegions } from "@/templates";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
 import { toMessage } from "@/errors";
-import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType } from "@/constants";
+import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
 import type { ProviderTemplate } from "@/templates";
 
 function exitWithCode(code: 0 | 1): never {
@@ -103,7 +107,9 @@ program
   .option("--api-key <key>", "API key for the provider")
   .option("--region <region>", "Region for regional providers (e.g., cn, sgp, ams for mimo-token)")
   .option("--auto-sync", "Auto-sync plugins/skills via symlinks (default)")
-  .option("--manual", "Manually manage plugins/skills (copy files)")
+  .option("--manual", "Manually manage plugins/skills (full copy)")
+  .option("--half-manual", "Symlink individual plugins/skills, new installs stay isolated")
+  .option("--sync-mode <mode>", "Sync mode: auto, half-manual, full-manual")
   .action(
     async (
       name: string,
@@ -119,6 +125,8 @@ program
         region?: string;
         autoSync?: boolean;
         manual?: boolean;
+        halfManual?: boolean;
+        syncMode?: string;
       },
     ) => {
       try {
@@ -135,7 +143,33 @@ program
         let useProviderTemplate = false;
         let providerTemplate: ProviderTemplate | null | undefined = null;
         let apiKey = "";
-        let autoSync = !options.manual;
+
+        // Resolve sync mode from flags (detect conflicting flags)
+        let effectiveSyncMode: SyncModeType;
+        const flagCount = [options.syncMode, options.autoSync, options.halfManual, options.manual].filter(Boolean).length;
+        if (flagCount > 1) {
+          console.error(chalk.red("✗ Conflicting sync mode flags. Use only one of: --sync-mode, --auto-sync, --half-manual, --manual"));
+          exitWithCode(1);
+        }
+        if (options.syncMode) {
+          const valid = [SyncMode.Auto, SyncMode.HalfManual, SyncMode.FullManual];
+          if (!valid.includes(options.syncMode as SyncModeType)) {
+            console.error(chalk.red(`✗ Invalid sync mode '${options.syncMode}'. Use: ${valid.join(", ")}`));
+            exitWithCode(1);
+          }
+          effectiveSyncMode = options.syncMode as SyncModeType;
+        } else if (options.autoSync) {
+          effectiveSyncMode = SyncMode.Auto;
+        } else if (options.halfManual) {
+          effectiveSyncMode = SyncMode.HalfManual;
+        } else if (options.manual) {
+          effectiveSyncMode = SyncMode.FullManual;
+        } else {
+          effectiveSyncMode = SyncMode.Auto;
+        }
+
+        // Legacy boolean for Instance field compat
+        const autoSync = effectiveSyncMode === SyncMode.Auto;
         let providerRegion: string | undefined;
 
         // Handle provider template in CLI mode
@@ -252,6 +286,7 @@ program
           binaryPath,
           createdAt: new Date().toISOString(),
           autoSync,
+          syncMode: effectiveSyncMode,
           createdWithVersion: getClaudeMultiVersion(),
           ...(useProviderTemplate && providerTemplate ? { providerTemplate: providerTemplate.name } : {}),
           ...(providerRegion ? { providerRegion } : {}),
@@ -280,11 +315,13 @@ program
           }
 
           if (copyAllFiles) {
-            await copyAllFromDefault(configDir);
-            if (autoSync) {
+            await copyAllFromDefault(configDir, effectiveSyncMode);
+            if (effectiveSyncMode === SyncMode.Auto) {
               console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
+            } else if (effectiveSyncMode === SyncMode.HalfManual) {
+              console.log(chalk.green("✓ Copied all files with half-manual sync (individual plugins/skills symlinked)"));
             } else {
-              console.log(chalk.green("✓ Copied all files from default Claude (manual mode)"));
+              console.log(chalk.green("✓ Copied all files from default Claude (full-manual mode)"));
             }
           }
 
@@ -409,8 +446,9 @@ program
           const region = instance.providerRegion ? ` (${instance.providerRegion})` : "";
           console.log(chalk.gray(`  Provider: ${instance.providerTemplate}${region}`));
         }
-        const autoSyncStatus = instance.autoSync !== false ? chalk.green("on") : chalk.yellow("off");
-        console.log(chalk.gray(`  Auto-sync: ${autoSyncStatus}`));
+        const mode = getSyncMode(instance);
+        const modeLabel = mode === SyncMode.Auto ? chalk.green(mode) : mode === SyncMode.HalfManual ? chalk.cyan(mode) : chalk.yellow(mode);
+        console.log(chalk.gray(`  Sync mode: ${modeLabel}`));
         console.log(chalk.gray(`  Version:  ${formatVersionLabel(instance.createdWithVersion)}`));
         console.log();
       }
@@ -434,8 +472,9 @@ program
       console.log(
         `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`,
       );
-      const autoSyncStatus = instance.autoSync !== false ? chalk.green("✓ Enabled") : chalk.yellow("✗ Disabled");
-      console.log(`${chalk.gray("Auto-sync:")} ${autoSyncStatus}`);
+      const mode = getSyncMode(instance);
+      const modeColor = mode === SyncMode.Auto ? chalk.green : mode === SyncMode.HalfManual ? chalk.cyan : chalk.yellow;
+      console.log(`${chalk.gray("Sync mode:")} ${modeColor(syncModeLabel(mode))}`);
       console.log(`${chalk.gray("Version:")}  ${formatVersionLabel(instance.createdWithVersion)}`);
       if (instance.providerTemplate) {
         const region = instance.providerRegion ? ` (${instance.providerRegion})` : "";
@@ -507,35 +546,47 @@ program
 // Auto-sync command
 program
   .command("auto-sync <name> <status>")
-  .description("Toggle auto-sync for plugins/skills (on/off)")
+  .description("Set sync mode for plugins/skills (auto, half-manual, full-manual, on, off)")
   .action(async (name: string, status: string) => {
     try {
       const instance = await requireInstance(name);
+      const currentMode = getSyncMode(instance);
 
+      // Map legacy on/off to modes
       const normalized = status.toLowerCase();
-      const newStatus = normalized === "on" || normalized === "true" || status === "1";
-      const currentStatus = instance.autoSync !== false;
+      let newMode: SyncModeType;
+      if (normalized === "on" || normalized === "true" || status === "1") {
+        newMode = SyncMode.Auto;
+      } else if (normalized === "off" || normalized === "false" || status === "0") {
+        newMode = SyncMode.FullManual;
+      } else if (normalized === SyncMode.Auto || normalized === SyncMode.HalfManual || normalized === SyncMode.FullManual) {
+        newMode = normalized as SyncModeType;
+      } else {
+        console.error(chalk.red(`✗ Unknown sync mode '${status}'. Use: auto, half-manual, full-manual, on, off`));
+        exitWithCode(1);
+      }
 
-      if (currentStatus === newStatus) {
+      if (currentMode === newMode) {
         console.log(
-          chalk.yellow(`Auto-sync is already ${newStatus ? "enabled" : "disabled"} for '${name}'`),
+          chalk.yellow(`Sync mode is already '${syncModeLabel(newMode)}' for '${name}'`),
         );
         return;
       }
 
-      // Update the instance setting
-      await updateInstanceAutoSync(name, newStatus);
-
-      // Apply the sync/unsync
-      console.log(chalk.bold(`\n🔄 ${newStatus ? "Enabling" : "Disabling"} auto-sync for '${name}'...\n`));
-
-      if (newStatus) {
-        await syncPluginsAndSkills(instance.configDir);
-      } else {
-        await unsyncPluginsAndSkills(instance.configDir);
+      // Validate downgrade-only rule
+      if (!canConvertSyncMode(currentMode, newMode)) {
+        console.error(
+          chalk.red(`✗ Cannot convert from '${syncModeLabel(currentMode)}' to '${syncModeLabel(newMode)}'. Only downgrades are allowed (auto → half-manual → full-manual).`),
+        );
+        exitWithCode(1);
       }
 
-      console.log(chalk.green(`\n✓ Auto-sync ${newStatus ? "enabled" : "disabled"} for '${name}'`));
+      // Apply the mode change
+      console.log(chalk.bold(`\n🔄 Converting '${name}' from ${syncModeLabel(currentMode)} → ${syncModeLabel(newMode)}...\n`));
+
+      await updateInstanceSyncMode(name, newMode);
+
+      console.log(chalk.green(`\n✓ Sync mode set to '${syncModeLabel(newMode)}' for '${name}'`));
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       exitWithCode(1);
@@ -828,6 +879,11 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
     exitWithCode(1);
   }
 
+  if (isHalfManualSync(instance.configDir)) {
+    console.error(chalk.red("✗ Instance has half-manual sync (individually symlinked plugins). Switch to full-manual first."));
+    exitWithCode(1);
+  }
+
   if (pluginIds.length === 0) {
     console.error(chalk.red("✗ No plugins specified"));
     console.log(chalk.gray("Usage: claude-multi plugins install <instance> <plugin-id>..."));
@@ -863,6 +919,11 @@ async function handlePluginsRemove(instanceName: string, pluginIds: string[]): P
 
   if (isPluginsSymlinked(instance.configDir)) {
     console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
+    exitWithCode(1);
+  }
+
+  if (isHalfManualSync(instance.configDir)) {
+    console.error(chalk.red("✗ Instance has half-manual sync (individually symlinked plugins). Switch to full-manual first."));
     exitWithCode(1);
   }
 
@@ -999,7 +1060,7 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
       name: "selected",
       message: "Select instances to fix:",
       choices: instances.map(i => ({
-        title: `${i.name} ${i.autoSync ? "(auto-sync)" : "(manual)"}`,
+        title: `${i.name} (${getSyncMode(i)})`,
         value: i.name,
       })),
     });
@@ -1012,33 +1073,43 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
   const fixResults = await Promise.all(instancesToFix.map(async (instance) => {
     const diagnosis = detectBrokenSymlinks(instance.configDir);
     const needsFix = diagnosis.broken.length > 0;
+    const mode = getSyncMode(instance);
 
     let fixed = false;
-    if (needsFix && instance.autoSync) {
-      await syncPluginsAndSkills(instance.configDir);
-      fixed = true;
+    if (needsFix) {
+      try {
+        if (mode === SyncMode.Auto) {
+          await syncPluginsAndSkills(instance.configDir);
+          fixed = true;
+        } else if (mode === SyncMode.HalfManual) {
+          await halfSyncPluginsAndSkills(instance.configDir);
+          fixed = true;
+        }
+      } catch { /* fix failed */ }
     }
 
-    return { instance, diagnosis, needsFix, fixed };
+    return { instance, diagnosis, needsFix, fixed, mode };
   }));
 
-  for (const { instance, diagnosis, needsFix } of fixResults) {
+  for (const { instance, diagnosis, needsFix, fixed, mode } of fixResults) {
     console.log(chalk.bold(`\n🔍 ${instance.name}`));
     console.log(`  Config: ${instance.configDir}`);
-    console.log(`  Auto-sync: ${instance.autoSync ? "enabled" : "disabled"}`);
+    console.log(`  Sync mode: ${syncModeLabel(mode)}`);
 
     if (diagnosis.all.length === 0) {
-      console.log(chalk.gray("  No symlinks found (manual mode)"));
+      console.log(chalk.gray("  No symlinks found (full-manual mode)"));
       continue;
     }
 
     if (needsFix) {
       console.log(chalk.red(`  ❌ Broken: ${diagnosis.broken.join(", ")}`));
 
-      if (instance.autoSync) {
+      if (fixed) {
         console.log(chalk.green(`  ✅ Fixed: ${diagnosis.broken.join(", ")}`));
+      } else if (mode === SyncMode.FullManual) {
+        console.log(chalk.yellow("  ⚠ Full-manual mode — no symlinks to repair."));
       } else {
-        console.log(chalk.yellow("  ⚠ Auto-sync is disabled. Enable it first."));
+        console.log(chalk.yellow("  ⚠ Could not auto-repair. Try re-syncing via 'claude-multi auto-sync'."));
       }
     } else {
       console.log(chalk.green(`  ✅ All symlinks OK: ${diagnosis.all.join(", ")}`));

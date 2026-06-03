@@ -49,7 +49,7 @@ describe("Ink Rendered Frame Tests", () => {
 
     const frame = lastFrame();
     expect(frame).toContain("glm");
-    expect(frame).toContain("synced");
+    expect(frame).toContain("auto");
     expect(frame).toMatch(/[╭╮╰╯│─]/);
   });
 

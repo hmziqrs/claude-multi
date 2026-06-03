@@ -203,7 +203,7 @@ export const App: React.FC = () => {
       ? [
           { label: "ℹ️  Instance details", value: "info" },
           { label: "🔌 Manage plugins", value: "plugins" },
-          { label: "🔄 Toggle auto-sync", value: "autosync" },
+          { label: "🔄 Sync mode", value: "autosync" },
           { label: "🔗 Re-sync symlinks", value: "resync" },
           { label: "🗑️  Remove instance", value: "remove" },
           { label: "⚙️  MCP servers", value: "mcp" },

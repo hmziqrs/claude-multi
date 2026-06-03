@@ -47,8 +47,8 @@ describe("Ink Visual Snapshot Tests", () => {
     const output = lastFrame();
     expect(output).toContain("glm");
     expect(output).toContain("g2");
-    expect(output).toContain("synced");
-    expect(output).toContain("manual");
+    expect(output).toContain("auto");
+    expect(output).toContain("full-manual");
     expect(output).toContain("2 instance");
   });
 

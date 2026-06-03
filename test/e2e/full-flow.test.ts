@@ -81,13 +81,14 @@ describe("E2E: Full Instance Lifecycle", () => {
   it("auto-sync toggle", async () => {
     await runCli(["add", "sync-test", "--skip-prompts"]);
 
-    // Turn off
+    // Turn off (maps to full-manual)
     const offResult = await runCli(["auto-sync", "sync-test", "off"]);
-    expect(offResult.stdout).toContain("disabled");
+    expect(offResult.stdout).toContain("Full-manual");
 
-    // Turn on
+    // Cannot upgrade back (downgrade-only rule) — should error on stderr
     const onResult = await runCli(["auto-sync", "sync-test", "on"]);
-    expect(onResult.stdout).toContain("enabled");
+    expect(onResult.exitCode).not.toBe(0);
+    expect(onResult.stderr).toContain("Cannot convert");
 
     // Cleanup
     await runCli(["remove", "sync-test", "--force"]);
