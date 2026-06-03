@@ -468,11 +468,15 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         if (selections.length > 0) {
           await cfg.copySelectedPlugins(cDir, selections);
         }
-        // Apply sync mode for the selected plugins dir
-        if (sync === SyncMode.HalfManual) {
-          // Half-manual: symlink individual items after copy
-          // Already copied above, no additional action needed for select-plugins
+        // Apply sync mode to the plugins/skills directories
+        if (sync === SyncMode.Auto) {
+          // Auto: replace the copied plugins dir with a whole-directory symlink
+          await cfg.syncPluginsAndSkills(cDir);
+        } else if (sync === SyncMode.HalfManual) {
+          // Half-manual: replace copied plugins with individual symlinks
+          await cfg.halfSyncPluginsAndSkills(cDir);
         }
+        // FullManual: already copied as real files, nothing more to do
       } else if (copyOpt === CopyOption.All) {
         await cfg.copyAllFromDefault(cDir, sync);
       } else if (copyOpt === CopyOption.Settings) {

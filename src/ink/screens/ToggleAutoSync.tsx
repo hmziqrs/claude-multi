@@ -69,7 +69,7 @@ const SyncModeAction: React.FC<{
 };
 
 export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, toggleSyncMode } = useConfig();
+  const { instances, toggleSyncMode, syncPluginsAndSkills, halfSyncPluginsAndSkills } = useConfig();
   const [step, setStep] = useState<Step>("select");
   const [selected, setSelected] = useState<typeof instances[0] | null>(null);
   const { error, setError } = useMessage();
@@ -113,11 +113,31 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
   };
 
   const VALID_MODES = new Set<string>(Object.values(SyncMode));
+  const FORCE_RESYNC = "force-resync";
 
   const handleAction = async (value: string) => {
     if (value === "cancel" || !selected) {
       setStep("select");
       setSelected(null);
+      return;
+    }
+
+    // Handle force re-sync as a direct sync call (bypasses updateInstanceSyncMode)
+    if (value === FORCE_RESYNC) {
+      setStep("syncing");
+      try {
+        const mode = getSyncMode(selected);
+        if (mode === SyncMode.Auto) {
+          await syncPluginsAndSkills(selected.configDir);
+        } else if (mode === SyncMode.HalfManual) {
+          await halfSyncPluginsAndSkills(selected.configDir);
+        }
+        setNewMode(mode);
+        setStep("done");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
+        setStep("select");
+      }
       return;
     }
 
@@ -147,9 +167,9 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const currentMode = getSyncMode(selected);
     const options: { label: string; value: string }[] = [];
 
-    // Re-sync (only for auto mode)
-    if (currentMode === SyncMode.Auto) {
-      options.push({ label: "⚡ Force re-sync (rebuild symlinks)", value: SyncMode.Auto });
+    // Re-sync (for modes that use symlinks)
+    if (currentMode === SyncMode.Auto || currentMode === SyncMode.HalfManual) {
+      options.push({ label: "⚡ Force re-sync (rebuild symlinks)", value: FORCE_RESYNC });
     }
 
     // Available downgrades

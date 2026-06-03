@@ -447,8 +447,9 @@ program
           console.log(chalk.gray(`  Provider: ${instance.providerTemplate}${region}`));
         }
         const mode = getSyncMode(instance);
-        const modeLabel = mode === SyncMode.Auto ? chalk.green(mode) : mode === SyncMode.HalfManual ? chalk.cyan(mode) : chalk.yellow(mode);
-        console.log(chalk.gray(`  Sync mode: ${modeLabel}`));
+        const label = syncModeLabel(mode);
+        const modeColor = mode === SyncMode.Auto ? chalk.green : mode === SyncMode.HalfManual ? chalk.cyan : chalk.yellow;
+        console.log(chalk.gray(`  Sync mode: ${modeColor(label)}`));
         console.log(chalk.gray(`  Version:  ${formatVersionLabel(instance.createdWithVersion)}`));
         console.log();
       }
