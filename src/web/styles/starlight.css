@@ -132,12 +132,13 @@ footer {
   z-index: 1;
 }
 
-/* Header must stay sticky at top */
+/* Header — full-width sticky bar, no outer padding */
 header.header {
   position: sticky !important;
   top: 0;
   z-index: 20;
   overflow: visible !important;
+  padding: 0 0.1rem !important;
 }
 
 /* Right sidebar (TOC) must stay sticky */
