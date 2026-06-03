@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2026-06-03
+
+### Added
+- **Granular sync modes for plugins and skills**: Replaced the binary auto-sync toggle (on/off) with three sync modes: `auto` (symlink entire directories, existing behavior), `half-manual` (symlink individual plugins/skills, new installs stay isolated), and `full-manual` (independent copy, no symlinks). Only downgrades are allowed: auto → half-manual → full-manual.
+  - New CLI flags: `--half-manual`, `--sync-mode <mode>` on the `add` command.
+  - `auto-sync` command now accepts: `auto`, `half-manual`, `full-manual`, `on` (legacy), `off` (legacy).
+  - `halfSyncPluginsAndSkills()` in `config.ts`: converts whole-directory symlinks to real directories with individual item symlinks.
+  - `getSyncMode()` resolves the effective mode from the new `syncMode` field, falling back to the deprecated `autoSync` boolean for backward compatibility.
+  - `canConvertSyncMode()` and `availableSyncModeConversions()` in `constants.ts` enforce downgrade-only rule.
+  - `copyAllFromDefault()` now accepts a `SyncMode` parameter instead of a boolean.
+  - `detectBrokenSymlinks()` now detects broken individual symlinks inside real directories (half-manual mode), not just broken directory-level symlinks.
+  - TUI `ToggleAutoSync` screen rewritten as `Sync Mode` screen with color-coded mode labels and available-downgrade display.
+  - Instance info screen (`ShowInstanceInfo`) shows sync mode with color-coded labels instead of binary on/off.
+  - `plugin install/remove` commands blocked when instance is in half-manual mode (individually symlinked plugins cannot be individually managed).
+  - `fix-symlinks` command handles all three modes.
+
+### Changed
+- **Responsive header with hamburger dropdown navigation**: The docs site header now collapses into a hamburger menu on tablet/mobile viewports (< 60rem). A custom `<nav-dropdown>` web component handles open/close with keyboard escape, outside-click dismiss, and coordination with Starlight's mobile sidebar.
+- **Sticky sidebar with CSS grid overlay**: On desktop (≥ 72rem), the docs page uses a CSS grid where the sidebar and main content overlap in the same grid cell. The sidebar uses `position: sticky` so it scrolls with the page but stops at the bottom, never overlapping the site footer.
+- **SSR site footer**: A full-width site footer is now injected during Astro's SSR build via a Vite plugin, so it spans the full viewport without sidebar overlap. Includes product links, docs links, and version number.
+- Header spacing and navigation density adjusted for better visual balance.
+- `Instance.autoSync` field deprecated in favor of `Instance.syncMode`. Old configs with `autoSync: false` resolve to `full-manual` via `getSyncMode()`.
+
+### Blog
+- Blog post: [v0.8.2: Granular Sync Modes and Responsive Web](https://claude-multi.hmziq.xyz/blog/v082-granular-sync-modes-responsive-web/)
+
 ## [0.8.1] - 2026-06-03
 
 ### Fixed
@@ -453,6 +479,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.8.2]: https://github.com/hmziqrs/claude-multi/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/hmziqrs/claude-multi/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/hmziqrs/claude-multi/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/hmziqrs/claude-multi/compare/v0.6.5...v0.7.0
+[0.6.5]: https://github.com/hmziqrs/claude-multi/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/hmziqrs/claude-multi/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/hmziqrs/claude-multi/compare/v0.6.2...v0.6.3
 [0.5.5]: https://github.com/hmziqrs/claude-multi/compare/v0.5.1...v0.5.5
