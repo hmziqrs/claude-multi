@@ -3,6 +3,7 @@ title: "Kimi K2.7 Code in Claude Code: Setup, Benchmarks & Tiers"
 description: "Kimi K2.7 Code is now available in Claude Code via claude-multi. See benchmark results, the new three-tier model mapping (opus/sonnet/haiku), and setup steps."
 date: 2026-06-12
 tags: [providers, models, kimi, benchmark, claude-code]
+audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/kimi-k27-three-tier-agentic-coding.mp3"
 ---
 
 Moonshot released [Kimi K2.7 Code](https://huggingface.co/moonshotai/Kimi-K2.7-Code). It is a coding-focused model built on K2.6 with double-digit improvements on coding and agent benchmarks, and roughly 30% less thinking-token usage. The claude-multi kimi template now maps K2.7 Code to opus, K2.6 to sonnet, K2.5 to haiku.
