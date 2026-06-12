@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-06-12
+
+### Changed
+- **Kimi template updated with tiered model mapping**: Opus slot now uses `kimi-k2.7`, sonnet uses `kimi-k2.6`, haiku uses `kimi-k2.5`. Previous template used `kimi-k2.5` for all roles.
+- Kimi template description updated to reflect the three model tiers.
+
+### Blog
+- Blog post: [Kimi K2.7 for Claude Code: Three-Tier Model Mapping, Agentic Benchmarks](https://claude-multi.hmziq.xyz/blog/kimi-k27-three-tier-agentic-coding/)
+
 ## [0.8.2] - 2026-06-03
 
 ### Added

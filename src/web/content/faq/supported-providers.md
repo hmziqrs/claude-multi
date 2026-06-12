@@ -16,7 +16,7 @@ Each provider is a template, a bundle of environment variables (base URL, model 
 | `deepseek` | DeepSeek | DeepSeek-V4-Pro, V4-Flash | api.deepseek.com |
 | `mimo` | Xiaomi MiMo (pay-per-token) | MiMo-V2.5-Pro, V2.5 | api.xiaomimimo.com |
 | `mimo-token` | Xiaomi MiMo (subscription) | MiMo-V2.5-Pro | token-plan-cn.xiaomimimo.com |
-| `kimi` | Moonshot Kimi | Kimi K2.6, K2.5 | api.moonshot.ai |
+| `kimi` | Moonshot Kimi | Kimi K2.7, K2.6, K2.5 | api.moonshot.ai |
 | `qwen` | Alibaba Qwen (pay-per-token) | Qwen3-Coder-Next/Plus/Flash | dashscope-intl.aliyuncs.com |
 | `qwen-coding` | Alibaba Qwen (coding plan) | Qwen3-Coder-Next/Plus/Flash | coding-intl.dashscope.aliyuncs.com |
 

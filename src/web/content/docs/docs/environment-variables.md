@@ -134,8 +134,8 @@ The `mimo-token` template uses the same models but a different base URL (`token-
   "ANTHROPIC_BASE_URL": "https://api.moonshot.ai/anthropic",
   "ANTHROPIC_MODEL": "kimi-k2.6",
   "ANTHROPIC_SMALL_FAST_MODEL": "kimi-k2.5",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k2.5",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k2.6",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k2.6",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k2.7",
   "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k2.5",
   "API_TIMEOUT_MS": "600000"
 }

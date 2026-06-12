@@ -5,6 +5,11 @@ description: Release history and changes
 
 All notable changes to claude-multi are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0], 2026-06-12
+
+### Changed
+- **Kimi template updated from K2.5 to K2.7/K2.6/K2.5 tiered mapping**: Opus slot now uses `kimi-k2.7`, sonnet uses `kimi-k2.6`, haiku uses `kimi-k2.5`. Previous template used K2.5 for all roles.
+
 ## [0.5.7], 2026-05-27
 
 ### Added
@@ -126,6 +131,7 @@ All notable changes to claude-multi are documented here. The format follows [Kee
 - Version checking and update commands
 - CI/CD workflows
 
+[0.9.0]: https://github.com/hmziqrs/claude-multi/compare/v0.5.7...v0.9.0
 [0.5.7]: https://github.com/hmziqrs/claude-multi/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/hmziqrs/claude-multi/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/hmziqrs/claude-multi/compare/v0.5.1...v0.5.5

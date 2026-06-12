@@ -146,22 +146,22 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   kimi: {
     name: "kimi",
     displayName: "Moonshot Kimi",
-    description: "Kimi K2.5 models via moonshot.ai — pay-per-token only, no subscription plan",
+    description: "Kimi K2.7, K2.6, K2.5 models via moonshot.ai — pay-per-token only, no subscription plan",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "kimi-k2.5",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "kimi-k2.5",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "kimi-k2.5",
+        ANTHROPIC_MODEL: "kimi-k2.6",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "kimi-k2.7",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "kimi-k2.6",
         ANTHROPIC_DEFAULT_HAIKU_MODEL: "kimi-k2.5",
         ANTHROPIC_SMALL_FAST_MODEL: "kimi-k2.5",
         ENABLE_THINKING: "true",
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // Kimi K2.5 has a 128K context window. Claude Code assumes 200K for
+        // Kimi K2.7/K2.6/K2.5 have a 128K context window. Claude Code assumes 200K for
         // unrecognized models, so auto-compaction never fires without these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
