@@ -8,7 +8,7 @@ All notable changes to claude-multi are documented here. The format follows [Kee
 ## [0.9.0], 2026-06-12
 
 ### Changed
-- **Kimi template updated from K2.5 to K2.7/K2.6/K2.5 tiered mapping**: Opus slot now uses `kimi-k2.7`, sonnet uses `kimi-k2.6`, haiku uses `kimi-k2.5`. Previous template used K2.5 for all roles.
+- **Kimi template updated from K2.5 to K2.7 Code/K2.6/K2.5 tiered mapping**: Opus slot now uses `kimi-k2.7-code`, sonnet uses `kimi-k2.6`, haiku uses `kimi-k2.5`. Previous template used K2.5 for all roles.
 
 ## [0.5.7], 2026-05-27
 

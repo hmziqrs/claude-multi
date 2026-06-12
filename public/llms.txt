@@ -42,7 +42,7 @@ Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
 | DeepSeek | api.deepseek.com | deepseek-v4-pro, deepseek-v4-flash |
 | Xiaomi MiMo | api.xiaomimimo.com | mimo-v2.5-pro, mimo-v2.5 |
 | Xiaomi MiMo (Token Plan) | token-plan-cn.xiaomimimo.com | mimo-v2.5-pro, mimo-v2.5 |
-| Moonshot Kimi | api.moonshot.ai | kimi-k2.7, kimi-k2.6, kimi-k2.5 |
+| Moonshot Kimi | api.moonshot.ai | kimi-k2.7-code, kimi-k2.6, kimi-k2.5 |
 | Alibaba Qwen | dashscope-intl.aliyuncs.com | qwen3-coder-next, qwen3-coder-plus, qwen3-coder-flash |
 | Alibaba Qwen Coding Plan | coding-intl.dashscope.aliyuncs.com | qwen3-coder-next, qwen3-coder-plus, qwen3-coder-flash |
 

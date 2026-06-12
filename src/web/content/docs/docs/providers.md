@@ -1,6 +1,6 @@
 ---
 title: Providers
-description: "Supported AI provider templates in claude-multi: GLM Coding Plan, MiniMax M3, DeepSeek, Xiaomi MiMo, Moonshot Kimi (kimi-k2.7), and Alibaba Qwen with model details and API endpoints."
+description: "Supported AI provider templates in claude-multi: GLM Coding Plan, MiniMax M3, DeepSeek, Xiaomi MiMo, Moonshot Kimi (kimi-k2.7-code), and Alibaba Qwen with model details and API endpoints."
 ---
 
 claude-multi ships ready-to-use templates for these providers. Each template pre-fills `ANTHROPIC_BASE_URL`, model mappings, and related env vars into your instance's `settings.json`. You only need to supply your API key.
@@ -14,7 +14,7 @@ claude-multi ships ready-to-use templates for these providers. Each template pre
 | `deepseek` | DeepSeek | `api.deepseek.com` | `deepseek-v4-pro[1m]` | `deepseek-v4-flash` |
 | `mimo` | Xiaomi MiMo | `api.xiaomimimo.com` | `mimo-v2.5-pro` | `mimo-v2.5` |
 | `mimo-token` | Xiaomi MiMo (Token Plan) | `token-plan-cn.xiaomimimo.com` | `mimo-v2.5-pro` | `mimo-v2.5` |
-| `kimi` | Moonshot Kimi | `api.moonshot.ai` | `kimi-k2.7` | `kimi-k2.6`, `kimi-k2.5` |
+| `kimi` | Moonshot Kimi | `api.moonshot.ai` | `kimi-k2.7-code` | `kimi-k2.6`, `kimi-k2.5` |
 | `qwen` | Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen3-coder-next` | `qwen3-coder-flash` |
 | `qwen-coding` | Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen3-coder-next` | `qwen3-coder-flash` |
 
