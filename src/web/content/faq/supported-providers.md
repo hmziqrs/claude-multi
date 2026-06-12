@@ -16,7 +16,7 @@ Each provider is a template, a bundle of environment variables (base URL, model 
 | `deepseek` | DeepSeek | DeepSeek-V4-Pro, V4-Flash | api.deepseek.com |
 | `mimo` | Xiaomi MiMo (pay-per-token) | MiMo-V2.5-Pro, V2.5 | api.xiaomimimo.com |
 | `mimo-token` | Xiaomi MiMo (subscription) | MiMo-V2.5-Pro | token-plan-cn.xiaomimimo.com |
-| `kimi` | Moonshot Kimi | Kimi K2.7 Code, K2.6, K2.5 | api.moonshot.ai |
+| `kimi` | [Moonshot Kimi](/providers/kimi/) | Kimi K2.7 Code, K2.6, K2.5 | api.moonshot.ai |
 | `qwen` | Alibaba Qwen (pay-per-token) | Qwen3-Coder-Next/Plus/Flash | dashscope-intl.aliyuncs.com |
 | `qwen-coding` | Alibaba Qwen (coding plan) | Qwen3-Coder-Next/Plus/Flash | coding-intl.dashscope.aliyuncs.com |
 
@@ -54,6 +54,7 @@ Set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_SMALL_FAST_MODEL` to
 
 - [/docs/providers/](/docs/providers/): full template reference with model mappings
 - [/blog/five-new-provider-templates/](/blog/five-new-provider-templates/): the MiMo, Kimi, Qwen announcement
+- [/blog/kimi-k27-three-tier-agentic-coding/](/blog/kimi-k27-three-tier-agentic-coding/): Kimi K2.7 Code benchmarks and tier mapping
 - [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/): cost optimization with LLM routing
 - Run `claude-multi` and select **Add new instance** to see all templates in the picker
 - [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): template definitions
