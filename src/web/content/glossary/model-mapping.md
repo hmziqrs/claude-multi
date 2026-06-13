@@ -25,9 +25,9 @@ Provider templates set these variables in the wrapper script:
 ## Example mappings
 
 **GLM template:**
-- Default: `glm-5.1`
-- Fast: `glm-5-turbo`
-- Sonnet/Opus/Haiku: all mapped to `glm-5-turbo` or `glm-5.1`
+- Default/Opus: `glm-5.2[1m]`
+- Sonnet: `glm-5.1`
+- Haiku/Fast: `glm-5-turbo`
 
 **MiniMax template:**
 - All roles map to `MiniMax-M3`

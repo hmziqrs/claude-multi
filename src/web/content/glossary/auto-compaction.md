@@ -21,7 +21,7 @@ Different models have different context windows, so compaction thresholds need t
 - `CLAUDE_CODE_AUTO_COMPACT_WINDOW`: the model's actual context window size in tokens
 - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: the percentage threshold that triggers compaction
 
-For example, the GLM template sets the window to 131072 (128K) and the trigger to 75%. Without these overrides, Claude Code assumes a 200K window (the default for Claude models), which means compaction never triggers early enough and the API call fails when the real 128K limit is exceeded.
+For example, the Qwen template sets the window to 131072 (128K) and the trigger to 75%. Without these overrides, Claude Code assumes a 200K window (the default for Claude models), which means compaction never triggers early enough and the API call fails when the real 128K limit is exceeded. (Some templates avoid the override entirely: models that match or exceed the 200K default, like GLM-5.2 with its 1M window, just use a `[1m]` suffix so no global window value is needed.)
 
 ## What happens without it
 

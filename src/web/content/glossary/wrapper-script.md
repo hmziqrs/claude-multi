@@ -43,7 +43,7 @@ A simplified example:
 #!/bin/bash
 export CLAUDE_CONFIG_DIR="$HOME/.claude-multi/glm"
 export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
-export ANTHROPIC_MODEL="glm-5.1"
+export ANTHROPIC_MODEL="glm-5.2[1m]"
 exec claude "$@"
 ```
 

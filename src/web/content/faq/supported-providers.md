@@ -11,7 +11,7 @@ Each provider is a template, a bundle of environment variables (base URL, model 
 
 | Template | Provider | Models | Endpoint |
 |----------|----------|--------|----------|
-| `glm` | GLM Coding Plan | GLM-5.1, GLM-5-Turbo | api.z.ai |
+| `glm` | GLM Coding Plan | GLM-5.2, GLM-5.1, GLM-5-Turbo | api.z.ai |
 | `minimax` | MiniMax | MiniMax-M3 | api.minimax.io |
 | `deepseek` | DeepSeek | DeepSeek-V4-Pro, V4-Flash | api.deepseek.com |
 | `mimo` | Xiaomi MiMo (pay-per-token) | MiMo-V2.5-Pro, V2.5 | api.xiaomimimo.com |

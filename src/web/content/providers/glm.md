@@ -1,6 +1,6 @@
 ---
 title: "GLM Coding Plan Provider for Claude Code"
-description: "Run Claude Code with GLM-5.1 and GLM-5-Turbo via z.ai Coding Plan subscription. Full Anthropic API compatibility, 128K context, thinking mode enabled."
+description: "Run Claude Code with GLM-5.2, GLM-5.1 and GLM-5-Turbo via z.ai Coding Plan subscription. Full Anthropic API compatibility, up to 1M context, thinking mode enabled."
 provider: "glm"
 tagline: "Frontier reasoning models on a fixed monthly plan"
 setupCommand: "claude-multi add glm"
@@ -13,18 +13,19 @@ pricing: "Coding Plan subscription via z.ai"
 order: 1
 ---
 
-GLM-5.1 is a frontier-class reasoning model accessible through z.ai's Coding Plan. It exposes a native Anthropic-compatible endpoint, so Claude Code talks to it without adapters or middleware.
+GLM-5.2 is a frontier-class reasoning model accessible through z.ai's Coding Plan. It exposes a native Anthropic-compatible endpoint, so Claude Code talks to it without adapters or middleware.
 
 ## Model specs
 
 | Role | Model | Context |
 |------|-------|---------|
-| Primary (Opus) | GLM-5.1 | 128K |
-| Fast (Sonnet/Haiku) | GLM-5-Turbo | 128K |
+| Primary (Opus) | GLM-5.2 | 1M |
+| Standard (Sonnet) | GLM-5.1 | 200K |
+| Fast (Haiku) | GLM-5-Turbo | 200K |
 
 Thinking mode is enabled by default. The template sets `REASONING_EFFORT` to `high` and allocates 8,000 thinking tokens, which is enough for most code tasks without burning through your context window.
 
-Auto-compaction is tuned for the 128K context. Without it, Claude Code assumes a 200K window for unknown models and never triggers compaction, eventually crashing when the real context fills up. The template sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 131,072 and compacts at 75% usage.
+Context windows are mixed across tiers, so the template exposes them per-model rather than with a single global override. GLM-5.2 carries a `[1m]` suffix that tells Claude Code its real 1M window, while Claude Code's default 200K assumption for unrecognized models already matches GLM-5.1 and GLM-5-Turbo exactly — so auto-compaction triggers at the right point for every tier without any `CLAUDE_CODE_AUTO_COMPACT_WINDOW` override.
 
 ## Setup
 
@@ -42,7 +43,7 @@ That is the whole process. The template configures the base URL, model mappings,
 
 ## When to pick GLM
 
-GLM-5.1 is a good fit when you want a fixed monthly cost instead of per-token billing. The Coding Plan gives you a generous allocation of requests, and GLM-5-Turbo handles lighter tasks (quick edits, shell commands, subagent work) at higher speed.
+GLM-5.2 is a good fit when you want a fixed monthly cost instead of per-token billing. The Coding Plan gives you a generous allocation of requests, and GLM-5-Turbo handles lighter tasks (quick edits, shell commands, subagent work) at higher speed, while GLM-5.1 covers everyday coding in between.
 
 If your workload is bursty and you prefer paying only for what you use, look at the DeepSeek or MiMo pay-per-token templates instead.
 

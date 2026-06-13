@@ -70,10 +70,10 @@ Each provider template sets these variables with provider-specific values. Here'
 ```json
 {
   "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
-  "ANTHROPIC_MODEL": "glm-5.1",
+  "ANTHROPIC_MODEL": "glm-5.2[1m]",
   "ANTHROPIC_SMALL_FAST_MODEL": "glm-5-turbo",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5-turbo",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.1",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.1",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.2[1m]",
   "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5-turbo",
   "CLAUDE_CODE_SUBAGENT_MODEL": "glm-5-turbo",
   "CLAUDE_CODE_EFFORT_LEVEL": "high"

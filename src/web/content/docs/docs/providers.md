@@ -9,7 +9,7 @@ claude-multi ships ready-to-use templates for these providers. Each template pre
 
 | Template | Display name | Endpoint | Opus model | Sonnet/Haiku model |
 |---|---|---|---|---|
-| `glm` | GLM Coding Plan | `api.z.ai` | `glm-5.1` | `glm-5-turbo` |
+| `glm` | GLM Coding Plan | `api.z.ai` | `glm-5.2[1m]` | `glm-5.1`, `glm-5-turbo` |
 | `minimax` | MiniMax | `api.minimax.io` | `MiniMax-M3` | `MiniMax-M3` |
 | `deepseek` | DeepSeek | `api.deepseek.com` | `deepseek-v4-pro[1m]` | `deepseek-v4-flash` |
 | `mimo` | Xiaomi MiMo | `api.xiaomimimo.com` | `mimo-v2.5-pro` | `mimo-v2.5` |

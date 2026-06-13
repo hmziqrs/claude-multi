@@ -15,7 +15,7 @@ The context window is the total number of tokens a model can work with at once. 
 
 Different providers offer different context windows:
 
-- **GLM-5.1**: 128K tokens
+- **GLM-5.2**: 1M tokens (GLM-5.1 and GLM-5-Turbo: 200K)
 - **MiniMax-M3**: 1M tokens
 - **DeepSeek-V3**: 128K tokens
 - **Claude Sonnet 4**: 200K tokens
