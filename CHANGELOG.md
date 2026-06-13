@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-06-13
+
+### Changed
+- **GLM template moved to a three-tier model mapping**: Opus slot now uses `glm-5.2[1m]`, sonnet uses `glm-5.1`, haiku uses `glm-5-turbo`. The previous template put GLM-5.1 in opus and reused GLM-5-Turbo for both sonnet and haiku, so there was no real middle tier.
+- GLM-5.2 is the new opus-tier model with a 1,000,000-token context window, exposed through the `[1m]` model-name suffix. GLM-5.1 and GLM-5-Turbo are 200K models.
+- Removed the global `CLAUDE_CODE_AUTO_COMPACT_WINDOW` (131072) and `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` overrides from the GLM template. A single global window cannot fit a 1M model and two 200K models at once, so each tier now carries its own size: the `[1m]` suffix for GLM-5.2, and Claude Code's default 200K assumption for the other two, which matches their real limit.
+- Updated GLM model and context-window references across the provider docs, FAQ, environment-variables guide, and glossary to reflect the three models.
+
+### Blog
+- Blog post: [GLM-5.2 for Claude Code: 1M Context and Three-Tier Model Mapping](https://claude-multi.hmziq.xyz/blog/glm-5-2-three-tier-coding-plan/)
+
 ## [0.9.0] - 2026-06-12
 
 ### Changed
