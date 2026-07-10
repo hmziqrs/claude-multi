@@ -42,7 +42,6 @@ export function getSiteFooterHtml(version: string): string {
           <li><a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener">Issues</a></li>
           <li><a href="/docs/troubleshooting/">Troubleshooting</a></li>
           <li><a href="/docs/contributing/">Contributing</a></li>
-          <li><a href="/compare/">Compare tools</a></li>
           <li><a href="https://hmziq.rs" target="_blank" rel="noopener">hmziq.rs</a></li>
         </ul>
       </div>

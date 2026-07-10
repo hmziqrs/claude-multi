@@ -20,21 +20,24 @@
 /guides/team-setup/ /docs/usage/#standardize-a-team-setup 301
 /guides/ /docs/usage/ 301
 
-# --- SEO cleanup: removed /alternatives/ (duplicated /compare/) ---
-/alternatives/aider/ /compare/claude-multi-vs-aider/ 301
-/alternatives/claude-squad/ /compare/ 301
-/alternatives/continue/ /compare/ 301
-/alternatives/cursor/ /compare/claude-multi-vs-cursor/ 301
-/alternatives/openrouter/ /compare/ 301
-/alternatives/ /compare/ 301
-
-# --- SEO cleanup: /compare/ shelved down to the 2 strongest pages (vs Aider, vs Cursor) ---
-/compare/claude-multi-vs-agent-teams/ /compare/ 301
-/compare/claude-multi-vs-claude-squad/ /compare/ 301
-/compare/claude-multi-vs-continue/ /compare/ 301
-/compare/claude-multi-vs-openrouter/ /compare/ 301
+# --- SEO cleanup: removed /alternatives/ and /compare/ entirely. No comparison
+# content survives (no real "X vs claude-multi" search demand at 1 indexed page),
+# so these route to the most relevant remaining page instead of a same-topic one. ---
+/alternatives/aider/ / 301
+/alternatives/claude-squad/ / 301
+/alternatives/continue/ / 301
+/alternatives/cursor/ / 301
+/alternatives/openrouter/ / 301
+/alternatives/ / 301
+/compare/claude-multi-vs-agent-teams/ / 301
+/compare/claude-multi-vs-claude-squad/ / 301
+/compare/claude-multi-vs-continue/ / 301
+/compare/claude-multi-vs-openrouter/ / 301
+/compare/claude-multi-vs-aider/ / 301
+/compare/claude-multi-vs-cursor/ / 301
 /compare/deepseek-vs-glm/ /providers/ 301
 /compare/minimax-vs-deepseek/ /providers/ 301
+/compare/ / 301
 
 # --- SEO cleanup: removed /for/ (personas, orphaned + no search intent) ---
 /for/freelancers/ /#who-its-for 301

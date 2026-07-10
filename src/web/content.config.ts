@@ -42,23 +42,4 @@ export const collections = {
       order: z.number().default(0),
     }),
   }),
-  comparisons: defineCollection({
-    loader: glob({ pattern: '**/*.md', base: './src/web/content/comparisons' }),
-    schema: z.object({
-      title: z.string(),
-      description: z.string(),
-      toolA: z.string(),
-      toolB: z.string(),
-      toolAUrl: z.string(),
-      toolBUrl: z.string(),
-      verdict: z.string(),
-      toolAPros: z.array(z.string()),
-      toolBPros: z.array(z.string()),
-      toolACons: z.array(z.string()),
-      toolBCons: z.array(z.string()),
-      useToolAWhen: z.string(),
-      useToolBWhen: z.string(),
-      order: z.number().default(0),
-    }),
-  }),
 };
