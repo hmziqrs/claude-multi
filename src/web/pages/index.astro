@@ -2,21 +2,44 @@
 import Layout from '../layouts/MarketingLayout.astro';
 import InteractiveDemo from '../components/InteractiveDemo.astro';
 import { latestVersion, latestHighlight } from '../util/changelog';
+import { getCollection } from 'astro:content';
+import { formatDate } from '../util/author';
 const highlight = latestHighlight();
+
+const latestPosts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .toSorted((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
 ---
 
 <Layout
-  jsonLd={{
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'claude-multi',
-    url: 'https://claude-multi.hmziq.xyz',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://claude-multi.hmziq.xyz/docs/?q={search_term_string}',
-      'query-input': 'required name=search_term_string',
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'claude-multi',
+      url: 'https://claude-multi.hmziq.xyz',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://claude-multi.hmziq.xyz/docs/?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
     },
-  }}
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'claude-multi',
+      url: 'https://claude-multi.hmziq.xyz',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://claude-multi.hmziq.xyz/favicon.svg',
+      },
+      sameAs: [
+        'https://github.com/hmziqrs/claude-multi',
+        'https://www.npmjs.com/package/claude-multi',
+      ],
+    },
+  ]}
 >
   <!-- ========== HERO ========== -->
   <section class="relative z-10 pt-36 pb-24 px-6">

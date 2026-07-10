@@ -5,27 +5,27 @@ category: "Maintenance"
 order: 14
 ---
 
-Two separate things need updating: the claude-multi tool itself, and the Claude Code binary it wraps.
+Two separate things need updating, and they update independently: the claude-multi tool itself, and the Claude Code binary it wraps. Mixing them up is the most common source of "I updated but nothing changed" confusion.
 
 ## Updating Claude Code
 
-Check what you're running vs. what's latest:
+Claude Code is the `@anthropic-ai/claude-code` package. Every `claude-<name>` instance launches the same shared binary, so you only update it once. Check what you have versus what's published:
 
 ```sh
 claude-multi version
 ```
 
-This shows your installed version, the latest published version, and whether an update is available. To upgrade:
+This prints three things: the version of claude-multi you are running, the installed version of Claude Code, and the latest Claude Code available on npm, with a flag if an update is pending. To apply it:
 
 ```sh
 claude-multi update
 ```
 
-This updates the `@anthropic-ai/claude-code` package that all your instances share.
+That runs the upgrade for the shared `@anthropic-ai/claude-code` package. After it finishes, every instance picks up the new binary on its next launch. You do not need to recreate or touch any instance.
 
-## Updating claude-multi
+## Updating claude-multi itself
 
-Use the same package manager you installed with:
+claude-multi is a separate npm package. Update it with whatever you installed it with:
 
 ```sh
 # bun
@@ -38,12 +38,18 @@ npm update -g claude-multi
 pnpm update -g claude-multi
 
 # Deno
-deno install -g npm:claude-multi
+deno install -g -A -n claude-multi npm:claude-multi
 ```
+
+Deno's `install` command reinstalls, which is how you get the new version under Deno. With bun, npm, and pnpm, the `update -g` flag pulls the latest.
 
 ## What happens to instances during updates
 
-Nothing. Updating Claude Code doesn't touch your instance directories, they keep their settings, plugins, and conversation history. Since instances are just config directories + wrapper scripts, updates to either tool are non-destructive.
+Nothing destructive. Neither an update to Claude Code nor an update to claude-multi touches your instance directories. The config at `~/.claude-multi/<name>/`, the `settings.json`, the plugins, the skills, and the conversation history under `projects/` all stay exactly where they were. An instance is just a config directory plus a wrapper script, and the wrapper only sets `CLAUDE_CONFIG_DIR` before exec'ing `claude`. None of that depends on a specific version.
+
+## After a major Claude Code release
+
+Occasionally Claude Code ships a breaking change to its config schema. claude-multi runs a migration on launch when it detects one, and those migrations write `.bak` files first. If an instance looks wrong after an update, open the TUI and press `!` for the health screen, or check for `.bak` files in `~/.claude-multi/<name>/` and restore manually. See the troubleshooting FAQ for the full recovery flow.
 
 ## More info
 

@@ -84,7 +84,12 @@ export default defineConfig({
         lucide: ['globe'],
       },
     }),
-    sitemap(),
+    sitemap({
+      serialize(item) {
+        item.lastmod = new Date().toISOString();
+        return item;
+      },
+    }),
     starlight({
       title: 'claude-multi',
       description:
@@ -119,7 +124,6 @@ export default defineConfig({
             { slug: 'docs/configuration' },
             { slug: 'docs/environment-variables' },
             { slug: 'docs/troubleshooting' },
-            { slug: 'docs/changelog' },
           ],
         },
         {

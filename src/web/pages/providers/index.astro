@@ -1,0 +1,115 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@/web/layouts/MarketingLayout.astro';
+
+const SITE = 'https://claude-multi.hmziq.xyz';
+
+const entries = (await getCollection('providers')).toSorted(
+  (a, b) => a.data.order - b.data.order
+);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: SITE,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Providers',
+      item: `${SITE}/providers/`,
+    },
+  ],
+};
+---
+
+<Layout
+  title="Providers - claude-multi"
+  description="Browse every AI provider claude-multi supports for Claude Code — GLM, DeepSeek, Kimi, Qwen, MiniMax, MiMo and more. Setup commands, pricing, and use cases for each."
+  jsonLd={breadcrumbSchema}
+>
+  <section class="relative z-10 pt-36 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <span class="eyebrow">// Providers</span>
+      <h1
+        class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
+      >
+        Every provider claude-multi <span class="gradient-text">supports.</span>
+      </h1>
+      <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
+        claude-multi routes Claude Code to the provider that fits your budget
+        and workload. Each provider exposes a native Anthropic-compatible
+        endpoint, so setup is a single command. Pick one to see setup steps,
+        pricing, and where it fits best.
+      </p>
+    </div>
+  </section>
+
+  <section class="relative z-10 pb-32 px-6">
+    <div class="max-w-4xl mx-auto space-y-4">
+      {
+        entries.map((entry) => (
+          <a
+            href={`/providers/${entry.id}/`}
+            class="reveal block glass rounded-2xl p-7 no-underline transition-colors hover:border-edge-hover group"
+          >
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <h2 class="text-xl font-bold tracking-tight group-hover:text-lime transition-colors">
+                {entry.data.title}
+              </h2>
+              <span class="text-xs font-mono text-text-mute whitespace-nowrap mt-1">
+                {entry.data.provider}
+              </span>
+            </div>
+            <p class="text-text-dim leading-relaxed text-[0.95rem] mb-5">
+              {entry.data.description}
+            </p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <code class="text-xs text-lime font-mono px-2.5 py-1 rounded-md border border-edge bg-[rgba(163,230,53,0.08)]">
+                {entry.data.setupCommand}
+              </code>
+              <span class="text-xs font-mono text-text-mute">
+                {entry.data.pricing}
+              </span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="relative z-10 px-6 pb-20">
+    <div class="max-w-2xl mx-auto reveal text-center">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        Not sure which provider to pick?
+      </h2>
+      <p class="mt-4 text-text-dim text-lg">
+        The docs walk through configuration, model selection, and switching
+        between providers. It takes about two minutes to get going.
+      </p>
+      <div class="mt-7 flex gap-3 justify-center flex-wrap">
+        <a href="/docs/providers/" class="btn-primary">
+          Read the docs
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+          >
+        </a>
+        <a href="/alternatives/" class="btn-secondary">Compare alternatives</a>
+      </div>
+    </div>
+  </section>
+</Layout>

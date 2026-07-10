@@ -231,13 +231,13 @@ const related = allComparisons.filter((e) => e.id !== entry.id).slice(0, 3);
       <div class="grid sm:grid-cols-2 gap-6 mb-10">
         <!-- Tool A pros/cons -->
         <div class="glass rounded-2xl p-6">
-          <h3 class="text-lg font-bold mb-4">
+          <h2 class="text-lg font-bold mb-4">
             {entry.data.toolA}
-          </h3>
+          </h2>
           <div class="mb-5">
-            <h4 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
               Pros
-            </h4>
+            </h3>
             <ul class="list-none p-0 m-0 space-y-2">
               {entry.data.toolAPros.map((p) => (
                 <li class="flex items-start gap-2 text-sm text-text-dim">
@@ -261,9 +261,9 @@ const related = allComparisons.filter((e) => e.id !== entry.id).slice(0, 3);
             </ul>
           </div>
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-3">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-3">
               Cons
-            </h4>
+            </h3>
             <ul class="list-none p-0 m-0 space-y-2">
               {entry.data.toolACons.map((c) => (
                 <li class="flex items-start gap-2 text-sm text-text-dim">
@@ -291,13 +291,13 @@ const related = allComparisons.filter((e) => e.id !== entry.id).slice(0, 3);
 
         <!-- Tool B pros/cons -->
         <div class="glass rounded-2xl p-6">
-          <h3 class="text-lg font-bold mb-4">
+          <h2 class="text-lg font-bold mb-4">
             {entry.data.toolB}
-          </h3>
+          </h2>
           <div class="mb-5">
-            <h4 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
               Pros
-            </h4>
+            </h3>
             <ul class="list-none p-0 m-0 space-y-2">
               {entry.data.toolBPros.map((p) => (
                 <li class="flex items-start gap-2 text-sm text-text-dim">
@@ -321,9 +321,9 @@ const related = allComparisons.filter((e) => e.id !== entry.id).slice(0, 3);
             </ul>
           </div>
           <div>
-            <h4 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-3">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-3">
               Cons
-            </h4>
+            </h3>
             <ul class="list-none p-0 m-0 space-y-2">
               {entry.data.toolBCons.map((c) => (
                 <li class="flex items-start gap-2 text-sm text-text-dim">
@@ -353,17 +353,17 @@ const related = allComparisons.filter((e) => e.id !== entry.id).slice(0, 3);
       <!-- When to choose cards -->
       <div class="grid sm:grid-cols-2 gap-6 mb-10">
         <div class="glass rounded-2xl p-6 border-l-2 border-lime">
-          <h3 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
             When to choose {entry.data.toolA}
-          </h3>
+          </h2>
           <p class="text-sm text-text-dim leading-relaxed">
             {entry.data.useToolAWhen}
           </p>
         </div>
         <div class="glass rounded-2xl p-6 border-l-2 border-text-mute">
-          <h3 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-3">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-text-mute mb-3">
             When to choose {entry.data.toolB}
-          </h3>
+          </h2>
           <p class="text-sm text-text-dim leading-relaxed">
             {entry.data.useToolBWhen}
           </p>
@@ -372,9 +372,9 @@ const related = allComparisons.filter((e) => e.id !== entry.id).slice(0, 3);
 
       <!-- Verdict -->
       <div class="glass rounded-2xl p-6 mb-10">
-        <h3 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-3">
           Verdict
-        </h3>
+        </h2>
         <p class="text-text-dim leading-relaxed">
           {entry.data.verdict}
         </p>

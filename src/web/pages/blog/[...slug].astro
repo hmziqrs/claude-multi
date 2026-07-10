@@ -21,6 +21,29 @@ const minutes = readingTime(post.body ?? '');
 const localAudioPath = join(process.cwd(), 'audio', `${post.id}.mp3`);
 const audioSrc = post.data.audio ?? (existsSync(localAudioPath) ? `/audio/${post.id}.mp3` : null);
 const ogImageUrl = 'https://claude-multi.hmziq.xyz/og/blog.png?title=' + encodeURIComponent(post.data.title) + '&desc=' + encodeURIComponent(post.data.description);
+
+// Internal link equity: related posts (by tag overlap) + chronological prev/next.
+const allPosts = (await getCollection('blog')).filter((p) => !p.data.draft);
+const others = allPosts.filter((p) => p.id !== post.id);
+
+const currentTags = new Set(post.data.tags);
+const byTagOverlap = others
+  .map((p) => {
+    const overlap = p.data.tags.filter((t) => currentTags.has(t)).length;
+    return { post: p, overlap };
+  })
+  .sort((a, b) => b.overlap - a.overlap || b.post.data.date.valueOf() - a.post.data.date.valueOf());
+const relatedByTags = byTagOverlap.filter((x) => x.overlap > 0).slice(0, 3).map((x) => x.post);
+const recentFallback = others
+  .slice()
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+const relatedPosts = relatedByTags.length > 0 ? relatedByTags : recentFallback;
+
+const chronological = allPosts.slice().sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+const currentIndex = chronological.findIndex((p) => p.id === post.id);
+const newerPost = currentIndex < chronological.length - 1 ? chronological[currentIndex + 1] : null;
+const olderPost = currentIndex > 0 ? chronological[currentIndex - 1] : null;
 ---
 
 <Layout
@@ -134,6 +157,34 @@ const ogImageUrl = 'https://claude-multi.hmziq.xyz/og/blog.png?title=' + encodeU
         <Content />
       </div>
 
+      {relatedPosts.length > 0 && (
+        <section class="related-posts mt-16 pt-10 border-t border-edge">
+          <h2 class="text-xl font-bold tracking-tight mb-6">Related posts</h2>
+          <ul class="list-none p-0 m-0 grid gap-4">
+            {relatedPosts.map((rp) => (
+              <li>
+                <a
+                  href={`/blog/${rp.id}/`}
+                  class="block glass rounded-2xl p-5 no-underline transition-colors hover:border-edge-hover group"
+                >
+                  <div class="flex items-center gap-2 text-xs text-text-mute mb-2 font-mono">
+                    <time datetime={rp.data.date.toISOString()}>
+                      {formatDate(rp.data.date)}
+                    </time>
+                  </div>
+                  <h3 class="text-base font-semibold tracking-tight group-hover:text-lime transition-colors mb-1">
+                    {rp.data.title}
+                  </h3>
+                  <p class="text-sm text-text-dim leading-relaxed">
+                    {rp.data.description}
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <footer class="mt-16 pt-10 border-t border-edge">
         <div class="glass rounded-2xl p-6 flex items-start gap-4">
           <img
@@ -177,6 +228,37 @@ const ogImageUrl = 'https://claude-multi.hmziq.xyz/og/blog.png?title=' + encodeU
           </div>
         </div>
       </footer>
+
+      {(olderPost || newerPost) && (
+        <nav class="post-nav mt-10 flex items-stretch justify-between gap-4" aria-label="Post navigation">
+          {olderPost ? (
+            <a
+              href={`/blog/${olderPost.id}/`}
+              class="post-nav-link glass rounded-2xl p-5 flex-1 no-underline transition-colors hover:border-edge-hover group"
+            >
+              <span class="block text-xs text-text-mute font-mono mb-1">&larr; Older</span>
+              <span class="block text-sm font-semibold group-hover:text-lime transition-colors">
+                {olderPost.data.title}
+              </span>
+            </a>
+          ) : (
+            <span class="post-nav-link glass rounded-2xl p-5 flex-1 opacity-0 pointer-events-none" aria-hidden="true"></span>
+          )}
+          {newerPost ? (
+            <a
+              href={`/blog/${newerPost.id}/`}
+              class="post-nav-link glass rounded-2xl p-5 flex-1 text-right no-underline transition-colors hover:border-edge-hover group"
+            >
+              <span class="block text-xs text-text-mute font-mono mb-1">Newer &rarr;</span>
+              <span class="block text-sm font-semibold group-hover:text-lime transition-colors">
+                {newerPost.data.title}
+              </span>
+            </a>
+          ) : (
+            <span class="post-nav-link glass rounded-2xl p-5 flex-1 opacity-0 pointer-events-none" aria-hidden="true"></span>
+          )}
+        </nav>
+      )}
     </div>
   </article>
 </Layout>
