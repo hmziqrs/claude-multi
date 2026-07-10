@@ -143,6 +143,9 @@ export default defineConfig({
       customCss: ['/src/web/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',
+      // The site ships its own branded 404 at src/web/pages/404.astro;
+      // disable Starlight's default /404 to avoid a route collision.
+      disable404Route: true,
       head: [
         {
           tag: 'meta',

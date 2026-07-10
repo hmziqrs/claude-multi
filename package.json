@@ -50,15 +50,14 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "@astrojs/starlight": "^0.39.2",
-    "@astrojs/tailwind": "^6.0.2",
+    "@astrojs/starlight": "^0.41.3",
     "@inkjs/ui": "^2.0.0",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^20.0.0",
     "@types/prompts": "^2.4.9",
     "@types/react": "^19.2.14",
     "@types/semver": "^7.7.1",
-    "astro": "^6.4.2",
+    "astro": "^7.0.7",
     "bun-types": "latest",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
@@ -78,7 +77,8 @@
     "bun": ">=1.0.0"
   },
   "dependencies": {
-    "@astrojs/rss": "^4.0.18",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
     "@iconify-json/lucide": "^1.2.109",
     "@iconify-json/simple-icons": "^1.2.83",
     "astro-icon": "^1.1.5",

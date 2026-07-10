@@ -215,7 +215,7 @@ export const App: React.FC = () => {
       ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
       : []),
     ...(instanceMigrationVersion && instanceMigrationVersion !== getClaudeMultiVersion()
-      ? [{ label: "⬆️  Run instance migrations", value: "doctor-fix" }]
+      ? [{ label: "⬆️  Run instance migrations", value: "doctor-migrate" }]
       : []),
     { label: "📦 Check for updates", value: "update" },
     { label: "🚪 Exit", value: "exit" },
@@ -244,7 +244,7 @@ export const App: React.FC = () => {
             setTimeout(() => exit(), 300);
           } else if (value === "doctor-check") {
             setScreen("health");
-          } else if (value === "doctor-fix") {
+          } else if (value === "doctor-fix" || value === "doctor-migrate") {
             await handleDoctorFix();
           } else {
             setScreen(value as Screen);
