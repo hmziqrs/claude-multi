@@ -1,2 +1,41 @@
 /docs/changelog/ /changelog/ 301
 /docs/changelog /changelog/ 301
+
+# --- SEO cleanup: removed /use-cases/ (duplicated /guides/) ---
+/use-cases/cost-optimization/ /guides/cost-optimization/ 301
+/use-cases/isolated-experiments/ /guides/personal-work-isolation/ 301
+/use-cases/multi-model-review/ /guides/benchmark-providers/ 301
+/use-cases/provider-comparison/ /guides/benchmark-providers/ 301
+/use-cases/byo-api-key/ /guides/multi-provider-setup/ 301
+/use-cases/team-setup/ /guides/team-setup/ 301
+/use-cases/ /guides/ 301
+
+# --- SEO cleanup: removed /alternatives/ (duplicated /compare/) ---
+/alternatives/aider/ /compare/claude-multi-vs-aider/ 301
+/alternatives/claude-squad/ /compare/claude-multi-vs-claude-squad/ 301
+/alternatives/continue/ /compare/claude-multi-vs-continue/ 301
+/alternatives/cursor/ /compare/claude-multi-vs-cursor/ 301
+/alternatives/openrouter/ /compare/claude-multi-vs-openrouter/ 301
+/alternatives/ /compare/ 301
+
+# --- SEO cleanup: removed /for/ (personas, orphaned + no search intent) ---
+/for/freelancers/ /#who-its-for 301
+/for/indie-developers/ /#who-its-for 301
+/for/researchers/ /#who-its-for 301
+/for/students/ /#who-its-for 301
+/for/teams/ /#who-its-for 301
+/for/ / 301
+
+# --- SEO cleanup: /glossary/ collapsed from 12 pages into 1 with anchors ---
+/glossary/api-key/ /glossary/#api-key 301
+/glossary/auto-compaction/ /glossary/#auto-compaction 301
+/glossary/base-url/ /glossary/#base-url 301
+/glossary/config-directory/ /glossary/#config-directory 301
+/glossary/context-window/ /glossary/#context-window 301
+/glossary/instance-isolation/ /glossary/#instance-isolation 301
+/glossary/llm-routing/ /glossary/#llm-routing 301
+/glossary/mcp-server/ /glossary/#mcp-server 301
+/glossary/model-mapping/ /glossary/#model-mapping 301
+/glossary/plugin-sync/ /glossary/#plugin-sync 301
+/glossary/provider-template/ /glossary/#provider-template 301
+/glossary/wrapper-script/ /glossary/#wrapper-script 301

@@ -34,7 +34,6 @@ export function getSiteFooterHtml(version: string): string {
           <li><a href="/glossary/">Glossary</a></li>
           <li><a href="/guides/">Guides</a></li>
           <li><a href="/providers/">Provider pages</a></li>
-          <li><a href="/use-cases/">Use cases</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -47,8 +46,6 @@ export function getSiteFooterHtml(version: string): string {
           <li><a href="/docs/troubleshooting/">Troubleshooting</a></li>
           <li><a href="/docs/contributing/">Contributing</a></li>
           <li><a href="/compare/">Compare tools</a></li>
-          <li><a href="/alternatives/">Alternatives</a></li>
-          <li><a href="/for/">For you</a></li>
           <li><a href="https://hmziq.rs" target="_blank" rel="noopener">hmziq.rs</a></li>
         </ul>
       </div>
