@@ -78,6 +78,6 @@ The three-tier mapping means Claude Code routes heavy tasks to K2.7 Code and lig
 ## Further reading
 
 - [Kimi provider page](/providers/kimi/) for setup instructions and full pricing
-- [Supported providers FAQ](/faq/supported-providers/) for a comparison of all available templates
+- [Supported providers FAQ](/faq/#supported-providers) for a comparison of all available templates
 - [Kimi K2.7 Code on HuggingFace](https://huggingface.co/moonshotai/Kimi-K2.7-Code) for the model card and weights
 - [Kimi API platform](https://platform.kimi.ai/docs/pricing/chat-k27-code) for official pricing and documentation

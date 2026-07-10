@@ -29,5 +29,5 @@ There's no shared state between instances. No lock files, no central server, no 
 
 ## Related questions
 
-- [What is claude-multi?](/faq/what-is-claude-multi/): the full overview
-- [Which providers are supported?](/faq/supported-providers/): pick your models
+- [What is claude-multi?](/faq/#what-is-claude-multi): the full overview
+- [Which providers are supported?](/faq/#supported-providers): pick your models

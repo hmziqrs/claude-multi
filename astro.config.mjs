@@ -113,7 +113,7 @@ export default defineConfig({
           label: 'Guides',
           items: [
             { slug: 'docs/usage' },
-            { slug: 'docs/providers' },
+            { label: 'Providers', link: '/providers/' },
             { slug: 'docs/how-it-works' },
             { slug: 'docs/plugins-mcp' },
           ],
@@ -129,10 +129,7 @@ export default defineConfig({
         {
           label: 'Development',
           collapsed: true,
-          items: [
-            { slug: 'docs/contributing' },
-            { slug: 'docs/development/subagent-model-plan' },
-          ],
+          items: [{ slug: 'docs/contributing' }],
         },
       ],
       components: {

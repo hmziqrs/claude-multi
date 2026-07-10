@@ -1,22 +1,40 @@
 /docs/changelog/ /changelog/ 301
 /docs/changelog /changelog/ 301
 
-# --- SEO cleanup: removed /use-cases/ (duplicated /guides/) ---
-/use-cases/cost-optimization/ /guides/cost-optimization/ 301
-/use-cases/isolated-experiments/ /guides/personal-work-isolation/ 301
-/use-cases/multi-model-review/ /guides/benchmark-providers/ 301
-/use-cases/provider-comparison/ /guides/benchmark-providers/ 301
-/use-cases/byo-api-key/ /guides/multi-provider-setup/ 301
-/use-cases/team-setup/ /guides/team-setup/ 301
-/use-cases/ /guides/ 301
+# --- SEO cleanup: removed /use-cases/ (duplicated /guides/, which is itself now folded into /docs/) ---
+/use-cases/cost-optimization/ /docs/usage/#route-by-cost 301
+/use-cases/isolated-experiments/ /docs/usage/#separate-work-and-personal-instances 301
+/use-cases/multi-model-review/ /docs/usage/#benchmark-providers-on-your-codebase 301
+/use-cases/provider-comparison/ /docs/usage/#benchmark-providers-on-your-codebase 301
+/use-cases/byo-api-key/ /docs/getting-started/ 301
+/use-cases/team-setup/ /docs/usage/#standardize-a-team-setup 301
+/use-cases/ /docs/usage/ 301
+
+# --- SEO cleanup: removed /guides/ (redundant with /docs/, folded the few genuinely new bits in) ---
+/guides/multi-provider-setup/ /docs/getting-started/ 301
+/guides/switch-providers/ /docs/usage/#switch-providers-on-the-fly 301
+/guides/mcp-server-setup/ /docs/plugins-mcp/ 301
+/guides/cost-optimization/ /docs/usage/#route-by-cost 301
+/guides/personal-work-isolation/ /docs/usage/#separate-work-and-personal-instances 301
+/guides/benchmark-providers/ /docs/usage/#benchmark-providers-on-your-codebase 301
+/guides/team-setup/ /docs/usage/#standardize-a-team-setup 301
+/guides/ /docs/usage/ 301
 
 # --- SEO cleanup: removed /alternatives/ (duplicated /compare/) ---
 /alternatives/aider/ /compare/claude-multi-vs-aider/ 301
-/alternatives/claude-squad/ /compare/claude-multi-vs-claude-squad/ 301
-/alternatives/continue/ /compare/claude-multi-vs-continue/ 301
+/alternatives/claude-squad/ /compare/ 301
+/alternatives/continue/ /compare/ 301
 /alternatives/cursor/ /compare/claude-multi-vs-cursor/ 301
-/alternatives/openrouter/ /compare/claude-multi-vs-openrouter/ 301
+/alternatives/openrouter/ /compare/ 301
 /alternatives/ /compare/ 301
+
+# --- SEO cleanup: /compare/ shelved down to the 2 strongest pages (vs Aider, vs Cursor) ---
+/compare/claude-multi-vs-agent-teams/ /compare/ 301
+/compare/claude-multi-vs-claude-squad/ /compare/ 301
+/compare/claude-multi-vs-continue/ /compare/ 301
+/compare/claude-multi-vs-openrouter/ /compare/ 301
+/compare/deepseek-vs-glm/ /providers/ 301
+/compare/minimax-vs-deepseek/ /providers/ 301
 
 # --- SEO cleanup: removed /for/ (personas, orphaned + no search intent) ---
 /for/freelancers/ /#who-its-for 301
@@ -26,16 +44,41 @@
 /for/teams/ /#who-its-for 301
 /for/ / 301
 
-# --- SEO cleanup: /glossary/ collapsed from 12 pages into 1 with anchors ---
-/glossary/api-key/ /glossary/#api-key 301
-/glossary/auto-compaction/ /glossary/#auto-compaction 301
-/glossary/base-url/ /glossary/#base-url 301
-/glossary/config-directory/ /glossary/#config-directory 301
-/glossary/context-window/ /glossary/#context-window 301
-/glossary/instance-isolation/ /glossary/#instance-isolation 301
-/glossary/llm-routing/ /glossary/#llm-routing 301
-/glossary/mcp-server/ /glossary/#mcp-server 301
-/glossary/model-mapping/ /glossary/#model-mapping 301
-/glossary/plugin-sync/ /glossary/#plugin-sync 301
-/glossary/provider-template/ /glossary/#provider-template 301
-/glossary/wrapper-script/ /glossary/#wrapper-script 301
+# --- SEO cleanup: removed /glossary/ entirely, terms already live in /docs/ prose ---
+/glossary/api-key/ /docs/getting-started/ 301
+/glossary/auto-compaction/ /docs/environment-variables/ 301
+/glossary/base-url/ /docs/environment-variables/ 301
+/glossary/config-directory/ /docs/how-it-works/ 301
+/glossary/context-window/ /docs/environment-variables/ 301
+/glossary/instance-isolation/ /docs/how-it-works/ 301
+/glossary/llm-routing/ /docs/usage/#route-by-cost 301
+/glossary/mcp-server/ /docs/plugins-mcp/ 301
+/glossary/model-mapping/ /docs/environment-variables/ 301
+/glossary/plugin-sync/ /docs/plugins-mcp/ 301
+/glossary/provider-template/ /docs/how-it-works/ 301
+/glossary/wrapper-script/ /docs/how-it-works/ 301
+/glossary/ /docs/ 301
+
+# --- SEO cleanup: /faq/ collapsed from 17 pages into 1 with anchors ---
+/faq/api-key-safety/ /faq/#api-key-safety 301
+/faq/concurrent-instances/ /faq/#concurrent-instances 301
+/faq/create-instance/ /faq/#create-instance 301
+/faq/how-to-install/ /faq/#how-to-install 301
+/faq/is-it-a-fork/ /faq/#is-it-a-fork 301
+/faq/local-models/ /faq/#local-models 301
+/faq/mcp-servers/ /faq/#mcp-servers 301
+/faq/plugin-syncing/ /faq/#plugin-syncing 301
+/faq/pricing/ /faq/#pricing 301
+/faq/remove-instance/ /faq/#remove-instance 301
+/faq/runtime-compatibility/ /faq/#runtime-compatibility 301
+/faq/supported-providers/ /faq/#supported-providers 301
+/faq/troubleshooting/ /faq/#troubleshooting 301
+/faq/updating/ /faq/#updating 301
+/faq/what-is-claude-multi/ /faq/#what-is-claude-multi 301
+/faq/windows-support/ /faq/#windows-support 301
+
+# --- SEO cleanup: merged /docs/providers/ into /providers/ (single canonical providers page) ---
+/docs/providers/ /providers/ 301
+
+# --- SEO cleanup: removed empty internal planning stub from public docs ---
+/docs/development/subagent-model-plan/ /docs/contributing/ 301

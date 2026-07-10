@@ -1,9 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import Layout from '@/web/layouts/MarketingLayout.astro';
 
 const entries = (await getCollection('faq')).toSorted(
   (a, b) => a.data.order - b.data.order
+);
+
+const rendered = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    Content: (await render(entry)).Content,
+  }))
 );
 
 const categories = [...new Set(entries.map((e) => e.data.category))];
@@ -25,7 +32,7 @@ const faqSchema = {
   jsonLd={faqSchema}
 >
   <section class="relative z-10 pt-36 pb-12 px-6">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-3xl mx-auto">
       <span class="eyebrow">// FAQ</span>
       <h1
         class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
@@ -34,38 +41,51 @@ const faqSchema = {
       </h1>
       <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
         Straight answers with links to the docs, blog posts, source code, and
-        the relevant TUI screens you can try right now.
+        the relevant TUI screens you can try right now. All on one page.
       </p>
+
+      <nav class="reveal mt-8 flex flex-wrap gap-2">
+        {
+          entries.map((entry) => (
+            <a
+              href={`#${entry.id}`}
+              class="text-xs font-mono px-2.5 py-1.5 rounded-md border border-edge text-text-mute no-underline hover:text-lime hover:border-edge-hover transition-colors"
+            >
+              {entry.data.question}
+            </a>
+          ))
+        }
+      </nav>
     </div>
   </section>
 
   <section class="relative z-10 pb-32 px-6">
-    <div class="max-w-4xl mx-auto space-y-12">
+    <div class="max-w-3xl mx-auto space-y-16">
       {
         categories.map((category) => (
-          <div class="reveal">
-            <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-5">
+          <div>
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-8">
               {category}
             </h2>
-            <ul class="list-none p-0 m-0 space-y-4">
-              {entries
-                .filter((e) => e.data.category === category)
-                .map((entry) => (
-                  <li>
-                    <a
-                      href={`/faq/${entry.id}/`}
-                      class="block glass rounded-2xl p-7 no-underline transition-colors hover:border-edge-hover group"
-                    >
-                      <h3 class="text-xl font-bold tracking-tight mb-2 group-hover:text-lime transition-colors">
+            <div class="space-y-14">
+              {rendered
+                .filter(({ entry }) => entry.data.category === category)
+                .map(({ entry, Content }) => (
+                  <article id={entry.id} class="reveal scroll-mt-28">
+                    <h3 class="text-2xl font-bold tracking-tight mb-4">
+                      <a
+                        href={`#${entry.id}`}
+                        class="no-underline text-text hover:text-lime transition-colors"
+                      >
                         {entry.data.question}
-                      </h3>
-                      <p class="text-text-dim leading-relaxed text-[0.95rem]">
-                        {entry.data.description}
-                      </p>
-                    </a>
-                  </li>
+                      </a>
+                    </h3>
+                    <div class="prose-faq">
+                      <Content />
+                    </div>
+                  </article>
                 ))}
-            </ul>
+            </div>
           </div>
         ))
       }
@@ -106,3 +126,98 @@ const faqSchema = {
     </div>
   </section>
 </Layout>
+
+<style is:global>
+  .prose-faq {
+    color: var(--color-text-dim);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .prose-faq h2 {
+    color: var(--color-text);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-faq h3 {
+    color: var(--color-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .prose-faq p {
+    margin-bottom: 1rem;
+  }
+  .prose-faq a {
+    color: var(--color-lime);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(163, 230, 53, 0.3);
+    transition: border-color 0.15s;
+  }
+  .prose-faq a:hover {
+    border-bottom-color: var(--color-lime);
+  }
+  .prose-faq code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--color-lime);
+    background: rgba(163, 230, 53, 0.08);
+    padding: 0.12rem 0.4rem;
+    border-radius: 0.3rem;
+  }
+  .prose-faq pre {
+    background: rgba(10, 10, 14, 0.85);
+    border: 1px solid var(--color-edge);
+    border-radius: 0.85rem;
+    padding: 1.1rem 1.25rem;
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  .prose-faq pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+  .prose-faq ul,
+  .prose-faq ol {
+    padding-left: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .prose-faq li {
+    margin-bottom: 0.35rem;
+  }
+  .prose-faq strong {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .prose-faq table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    font-size: 0.9rem;
+  }
+  .prose-faq th {
+    color: var(--color-text);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--color-edge);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .prose-faq td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-edge);
+    vertical-align: top;
+  }
+  .prose-faq tr:last-child td {
+    border-bottom: none;
+  }
+</style>

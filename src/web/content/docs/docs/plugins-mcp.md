@@ -160,3 +160,42 @@ When creating a new instance through the TUI, the Copy Options step lets you bri
 ```bash
 claude-multi add new-instance --provider deepseek --api-key sk-... --copy-mcp
 ```
+
+### Example: filesystem and database servers
+
+Edit an instance's `settings.json` directly to add a server manually:
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/projects/my-app"]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://user:pass@localhost:5432/mydb"]
+    }
+  }
+}
+```
+
+Restart the instance and the servers load automatically. Inside a session, `/mcp` lists every connected server and its available tools.
+
+### Isolating servers per instance
+
+Some servers should only reach specific providers, a production database server has no business being reachable from an experimental sandbox instance. Keep auto-sync off for that instance and configure MCP servers only in its own `settings.json`:
+
+```
+~/.claude-glm/settings.json          # includes the postgres MCP server
+~/.claude-sandbox/settings.json      # no postgres MCP server
+```
+
+### Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Server not loading | Check the command path in `settings.json` |
+| Permission denied | Make sure the MCP binary is executable (`chmod +x`) |
+| Connection refused | Verify the server is running and the port is correct |
+| Server loads but no tools | Check the server's own logs for startup errors |

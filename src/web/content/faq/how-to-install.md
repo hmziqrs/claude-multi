@@ -45,13 +45,13 @@ The `bin/claude-multi.js` file is a polyglot, it works as both a shell script an
 
 ## Related questions
 
-- [How do I create a new instance?](/faq/create-instance/): step-by-step after install
-- [Which providers are supported?](/faq/supported-providers/): pick the right one
+- [How do I create a new instance?](/faq/#create-instance): step-by-step after install
+- [Which providers are supported?](/faq/#supported-providers): pick the right one
 
 ## More info
 
 - [/docs/getting-started/](/docs/getting-started/): full setup walkthrough
-- [/docs/providers/](/docs/providers/): pick a provider
+- [/providers/](/providers/): pick a provider
 - [bin/claude-multi.js](https://github.com/hmziqrs/claude-multi/blob/master/bin/claude-multi.js): the polyglot entry point
 - [src/util/runtime.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/runtime.ts): package manager detection
 - [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): wrapper script generation

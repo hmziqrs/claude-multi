@@ -125,7 +125,7 @@ The project uses GitHub Actions for:
 2. Add a new entry to the `providerTemplates` object following the existing pattern
 3. Set `name`, `displayName`, `description`, and the `settings.env` block
 4. Run tests: `bun test`
-5. Update the provider table in `src/web/content/docs/docs/providers.md`
+5. Update the provider table in `src/web/pages/providers/index.astro` and add a matching entry to `src/web/content/providers/`
 
 ## Submitting changes
 

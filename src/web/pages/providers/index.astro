@@ -83,18 +83,89 @@ const breadcrumbSchema = {
     </div>
   </section>
 
+  <section class="relative z-10 pb-20 px-6">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-6">
+        Template reference
+      </h2>
+      <p class="text-text-dim mb-6 max-w-2xl">
+        Each template pre-fills <code class="font-mono text-lime">ANTHROPIC_BASE_URL</code>,
+        model mappings, and related env vars into your instance's <code class="font-mono text-lime">settings.json</code>.
+        You only need to supply your API key. All providers expose an
+        Anthropic-compatible API, so claude-multi points the same Claude Code
+        binary at whichever endpoint you pick.
+      </p>
+      <div class="overflow-x-auto glass rounded-2xl p-1 mb-10">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="text-left text-xs uppercase tracking-wide text-text-mute">
+              <th class="p-3">Template</th>
+              <th class="p-3">Display name</th>
+              <th class="p-3">Endpoint</th>
+              <th class="p-3">Opus model</th>
+              <th class="p-3">Sonnet/Haiku model</th>
+            </tr>
+          </thead>
+          <tbody class="text-text-dim">
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">glm</td><td class="p-3">GLM Coding Plan</td><td class="p-3 font-mono text-xs">api.z.ai</td><td class="p-3 font-mono text-xs">glm-5.2[1m]</td><td class="p-3 font-mono text-xs">glm-5.1, glm-5-turbo</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">minimax</td><td class="p-3">MiniMax</td><td class="p-3 font-mono text-xs">api.minimax.io</td><td class="p-3 font-mono text-xs">MiniMax-M3</td><td class="p-3 font-mono text-xs">MiniMax-M3</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">deepseek</td><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">api.deepseek.com</td><td class="p-3 font-mono text-xs">deepseek-v4-pro[1m]</td><td class="p-3 font-mono text-xs">deepseek-v4-flash</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">mimo</td><td class="p-3">Xiaomi MiMo</td><td class="p-3 font-mono text-xs">api.xiaomimimo.com</td><td class="p-3 font-mono text-xs">mimo-v2.5-pro</td><td class="p-3 font-mono text-xs">mimo-v2.5</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">mimo-token</td><td class="p-3">Xiaomi MiMo (Token Plan)</td><td class="p-3 font-mono text-xs">token-plan-cn.xiaomimimo.com</td><td class="p-3 font-mono text-xs">mimo-v2.5-pro</td><td class="p-3 font-mono text-xs">mimo-v2.5</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">kimi</td><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">api.moonshot.ai</td><td class="p-3 font-mono text-xs">kimi-k2.7-code</td><td class="p-3 font-mono text-xs">kimi-k2.6, kimi-k2.5</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">qwen</td><td class="p-3">Alibaba Qwen</td><td class="p-3 font-mono text-xs">dashscope-intl.aliyuncs.com</td><td class="p-3 font-mono text-xs">qwen3-coder-next</td><td class="p-3 font-mono text-xs">qwen3-coder-flash</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">qwen-coding</td><td class="p-3">Alibaba Qwen Coding Plan</td><td class="p-3 font-mono text-xs">coding-intl.dashscope.aliyuncs.com</td><td class="p-3 font-mono text-xs">qwen3-coder-next</td><td class="p-3 font-mono text-xs">qwen3-coder-flash</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-xl font-bold tracking-tight mb-4">Pay-per-token vs. subscription</h3>
+      <p class="text-text-dim mb-6 max-w-2xl">
+        Some providers offer two access models, a pay-per-token API and a
+        subscription/coding plan, each with a different base URL. Use the
+        right template for your account type:
+      </p>
+      <div class="overflow-x-auto glass rounded-2xl p-1 mb-10">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="text-left text-xs uppercase tracking-wide text-text-mute">
+              <th class="p-3">Provider</th>
+              <th class="p-3">Pay-per-token template</th>
+              <th class="p-3">Subscription template</th>
+            </tr>
+          </thead>
+          <tbody class="text-text-dim">
+            <tr class="border-t border-edge"><td class="p-3">Xiaomi MiMo</td><td class="p-3 font-mono text-xs">mimo</td><td class="p-3 font-mono text-xs">mimo-token (regional URL)</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">Alibaba Qwen</td><td class="p-3 font-mono text-xs">qwen</td><td class="p-3 font-mono text-xs">qwen-coding</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">GLM (Z.ai)</td><td class="p-3 font-mono text-xs">no Anthropic URL</td><td class="p-3 font-mono text-xs">glm (coding-plan-only)</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">MiniMax</td><td class="p-3 font-mono text-xs">minimax</td><td class="p-3 font-mono text-xs">same URL, different key type</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">kimi</td><td class="p-3 font-mono text-xs">pay-per-token only</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">deepseek</td><td class="p-3 font-mono text-xs">pay-per-token only</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="text-text-dim text-sm space-y-2 max-w-2xl list-disc pl-5">
+        <li><b class="text-text">GLM</b>: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The pay-per-token API only exposes an OpenAI-compatible URL.</li>
+        <li><b class="text-text">MiMo Token Plan</b>: defaults to the CN regional endpoint. If your subscription is SG or EU, update <code class="font-mono text-lime text-xs">ANTHROPIC_BASE_URL</code> with the endpoint shown in your subscription console.</li>
+        <li><b class="text-text">Kimi</b>: no subscription plan, strictly pay-per-token at <code class="font-mono text-lime text-xs">api.moonshot.ai</code>.</li>
+        <li><b class="text-text">MiniMax</b>: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. MiniMax-M3 has a 1M token context window and supports text, image, and video inputs.</li>
+      </ul>
+    </div>
+  </section>
+
   <section class="relative z-10 px-6 pb-20">
     <div class="max-w-2xl mx-auto reveal text-center">
       <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
         Not sure which provider to pick?
       </h2>
       <p class="mt-4 text-text-dim text-lg">
-        The docs walk through configuration, model selection, and switching
-        between providers. It takes about two minutes to get going.
+        The getting started guide walks through installing claude-multi and
+        adding your first instance. It takes about two minutes to get going.
       </p>
       <div class="mt-7 flex gap-3 justify-center flex-wrap">
-        <a href="/docs/providers/" class="btn-primary">
-          Read the docs
+        <a href="/docs/getting-started/" class="btn-primary">
+          Get started
           <svg
             width="14"
             height="14"

@@ -93,7 +93,7 @@ A provider template is a bundle of environment variables, base URL, model mappin
 
 Templates are pure config, they don't install anything, make network calls, or change Claude Code's behavior beyond pointing it at a different endpoint.
 
-See [Providers](/docs/providers/) for the full template reference.
+See [Providers](/providers/) for the full template reference.
 
 ## Settings copy security
 

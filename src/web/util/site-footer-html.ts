@@ -27,13 +27,10 @@ export function getSiteFooterHtml(version: string): string {
       <div class="footer-col">
         <h4 class="footer-heading">Resources</h4>
         <ul class="footer-list">
-          <li><a href="/docs/providers/">Providers</a></li>
+          <li><a href="/providers/">Providers</a></li>
           <li><a href="/docs/how-it-works/">How it works</a></li>
           <li><a href="/docs/plugins-mcp/">Plugins &amp; MCP</a></li>
           <li><a href="/faq/">FAQ</a></li>
-          <li><a href="/glossary/">Glossary</a></li>
-          <li><a href="/guides/">Guides</a></li>
-          <li><a href="/providers/">Provider pages</a></li>
         </ul>
       </div>
       <div class="footer-col">

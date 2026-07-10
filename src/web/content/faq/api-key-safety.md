@@ -26,7 +26,7 @@ Settings files are written using a temp-file-rename pattern with JSON verificati
 
 ## Related questions
 
-- [What is claude-multi?](/faq/what-is-claude-multi/): the "no telemetry" overview
+- [What is claude-multi?](/faq/#what-is-claude-multi): the "no telemetry" overview
 
 ## More info
 

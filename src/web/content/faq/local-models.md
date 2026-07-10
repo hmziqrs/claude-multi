@@ -41,10 +41,10 @@ Running local models eliminates per-token API costs entirely. You pay in compute
 
 ## Related questions
 
-- [Which providers are supported?](/faq/supported-providers/): the built-in templates
-- [How do I create a new instance?](/faq/create-instance/): the full setup walkthrough
+- [Which providers are supported?](/faq/#supported-providers): the built-in templates
+- [How do I create a new instance?](/faq/#create-instance): the full setup walkthrough
 
 ## More info
 
-- [/docs/providers/](/docs/providers/): template reference and env var details
+- [/providers/](/providers/): template reference and env var details
 - [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): see how templates set `ANTHROPIC_BASE_URL` and model mappings for reference

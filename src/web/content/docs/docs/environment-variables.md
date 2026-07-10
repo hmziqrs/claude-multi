@@ -59,6 +59,17 @@ These are set inside each instance's `settings.json` under the `env` key. Provid
 |----------|-------------|---------|
 | `API_TIMEOUT_MS` | Request timeout in milliseconds | `600000` |
 
+### Context window / auto-compaction variables
+
+Claude Code compresses older conversation history once usage crosses a threshold of the context window, instead of failing when the model's token limit is hit. Claude Code assumes a 200K window by default, so any provider with a smaller real window needs these overridden or compaction triggers too late and the API call fails mid-session.
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | The model's actual context window size, in tokens | `131072` (Qwen's 128K) |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Percentage of the window that triggers compaction | `75` |
+
+Models that match or exceed the 200K default, like GLM-5.2 with its 1M window, use a `[1m]` suffix on the model name instead, so no override is needed.
+
 ---
 
 ## Per-provider defaults

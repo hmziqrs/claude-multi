@@ -53,8 +53,8 @@ This scans for conflicts and reports any plugins that share an MCP server name b
 
 ## Related questions
 
-- [How do I manage MCP servers?](/faq/mcp-servers/): MCP configs work independently per instance
-- [How do I troubleshoot broken instances?](/faq/troubleshooting/): fixing broken symlinks and more
+- [How do I manage MCP servers?](/faq/#mcp-servers): MCP configs work independently per instance
+- [How do I troubleshoot broken instances?](/faq/#troubleshooting): fixing broken symlinks and more
 
 ## More info
 

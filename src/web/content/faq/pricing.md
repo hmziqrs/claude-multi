@@ -20,7 +20,7 @@ So your bill depends on:
 
 That's actually one of the reasons claude-multi exists, you can A/B providers on the same task and see which gives you the best results per dollar. Some providers like DeepSeek and MiMo are significantly cheaper per token than Anthropic. Others like Kimi or Qwen offer subscription plans with credit pools.
 
-Check the [providers docs](/docs/providers/) for the full list with model details.
+Check the [providers page](/providers/) for the full list with model details.
 
 ## What about Claude Code itself?
 
@@ -28,6 +28,6 @@ Claude Code (the `@anthropic-ai/claude-code` package) is also free. It's Anthrop
 
 ## More info
 
-- [/docs/providers/](/docs/providers/): full provider comparison
+- [/providers/](/providers/): full provider comparison
 - [/blog/five-new-provider-templates/](/blog/five-new-provider-templates/): provider pricing context
 - [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/): cost optimization with LLM routing

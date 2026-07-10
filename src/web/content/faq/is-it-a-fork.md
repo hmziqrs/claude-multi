@@ -36,8 +36,8 @@ When Claude Code ships an update, you get it immediately. There's nothing to reb
 
 ## Related questions
 
-- [What is claude-multi?](/faq/what-is-claude-multi/): the full overview
-- [How do I create a new instance?](/faq/create-instance/): getting started
+- [What is claude-multi?](/faq/#what-is-claude-multi): the full overview
+- [How do I create a new instance?](/faq/#create-instance): getting started
 
 ## More info
 

@@ -42,16 +42,6 @@ export const collections = {
       order: z.number().default(0),
     }),
   }),
-  glossary: defineCollection({
-    loader: glob({ pattern: '**/*.md', base: './src/web/content/glossary' }),
-    schema: z.object({
-      title: z.string(),
-      description: z.string(),
-      term: z.string(),
-      category: z.string(),
-      related: z.array(z.string()).default([]),
-    }),
-  }),
   comparisons: defineCollection({
     loader: glob({ pattern: '**/*.md', base: './src/web/content/comparisons' }),
     schema: z.object({
@@ -68,18 +58,6 @@ export const collections = {
       toolBCons: z.array(z.string()),
       useToolAWhen: z.string(),
       useToolBWhen: z.string(),
-      order: z.number().default(0),
-    }),
-  }),
-  guides: defineCollection({
-    loader: glob({ pattern: '**/*.md', base: './src/web/content/guides' }),
-    schema: z.object({
-      title: z.string(),
-      description: z.string(),
-      difficulty: z.string(),
-      timeRequired: z.string(),
-      prerequisites: z.array(z.string()),
-      relatedProviders: z.array(z.string()),
       order: z.number().default(0),
     }),
   }),

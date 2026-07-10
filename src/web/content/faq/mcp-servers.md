@@ -45,7 +45,7 @@ Each instance stores MCP server configuration in its own `settings.json` at `~/.
 
 ## Related questions
 
-- [How does plugin syncing work?](/faq/plugin-syncing/): symlinks, auto-sync, and collision detection
+- [How does plugin syncing work?](/faq/#plugin-syncing): symlinks, auto-sync, and collision detection
 
 ## More info
 

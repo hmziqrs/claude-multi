@@ -58,8 +58,8 @@ Migrations create backups before touching anything. If one fails:
 
 ## Related questions
 
-- [How does plugin syncing work?](/faq/plugin-syncing/): understanding symlinks and auto-sync
-- [How do I create a new instance?](/faq/create-instance/): recreating a corrupted instance
+- [How does plugin syncing work?](/faq/#plugin-syncing): understanding symlinks and auto-sync
+- [How do I create a new instance?](/faq/#create-instance): recreating a corrupted instance
 
 ## More info
 

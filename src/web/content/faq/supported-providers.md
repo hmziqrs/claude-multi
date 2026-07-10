@@ -47,12 +47,12 @@ Set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_SMALL_FAST_MODEL` to
 
 ## Related questions
 
-- [How do I create a new instance?](/faq/create-instance/): the actual setup steps
-- [Can I use local models like Ollama?](/faq/local-models/): any Anthropic-compatible API works
+- [How do I create a new instance?](/faq/#create-instance): the actual setup steps
+- [Can I use local models like Ollama?](/faq/#local-models): any Anthropic-compatible API works
 
 ## More info
 
-- [/docs/providers/](/docs/providers/): full template reference with model mappings
+- [/providers/](/providers/): full template reference with model mappings
 - [/blog/five-new-provider-templates/](/blog/five-new-provider-templates/): the MiMo, Kimi, Qwen announcement
 - [/blog/kimi-k27-three-tier-agentic-coding/](/blog/kimi-k27-three-tier-agentic-coding/): Kimi K2.7 Code benchmarks and tier mapping
 - [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/): cost optimization with LLM routing

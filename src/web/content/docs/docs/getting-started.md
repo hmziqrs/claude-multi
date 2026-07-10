@@ -103,7 +103,7 @@ The exact binary location depends on your package manager, the TUI will show the
 
 ## What's next
 
-- [Providers](/docs/providers/): full list of provider templates and model mappings
+- [Providers](/providers/): full list of provider templates and model mappings
 - [Usage](/docs/usage/): all CLI commands and flags
 - [Configuration](/docs/configuration/): settings file reference
 - [Plugins & MCP](/docs/plugins-mcp/): manage plugins and MCP servers across instances

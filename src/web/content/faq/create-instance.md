@@ -55,9 +55,9 @@ After that, run `claude-<name>` (e.g. `claude-deepseek`) to launch Claude Code w
 
 ## Related questions
 
-- [How does plugin syncing work?](/faq/plugin-syncing/): keep plugins in sync across instances
-- [How do I manage MCP servers?](/faq/mcp-servers/): copy MCP configs to new instances
-- [How do I remove an instance?](/faq/remove-instance/): the reverse of this process
+- [How does plugin syncing work?](/faq/#plugin-syncing): keep plugins in sync across instances
+- [How do I manage MCP servers?](/faq/#mcp-servers): copy MCP configs to new instances
+- [How do I remove an instance?](/faq/#remove-instance): the reverse of this process
 
 ## More info
 

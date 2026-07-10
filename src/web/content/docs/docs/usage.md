@@ -156,3 +156,67 @@ These commands manage the `@anthropic-ai/claude-code` package. To update claude-
 | `CLAUDE_MULTI_UPDATE_CHECK` | `false` | Set to `true` to check for updates on launch |
 
 See [Environment Variables](/docs/environment-variables/) for the full reference including provider env vars.
+
+## Common workflows
+
+The commands above combine into a handful of patterns people actually reach for.
+
+### Switch providers on the fly
+
+Each instance is an independent command, so switching is just running a different one, no config edits, no environment variables to export:
+
+```bash
+claude-glm "explain this function"
+claude-deepseek "write tests for auth.ts"
+```
+
+Both are full, simultaneous Claude Code sessions. Open two terminals and they don't interfere with each other.
+
+### Route by cost
+
+Most day-to-day tasks, renaming variables, boilerplate, doc updates, don't need a frontier model. Keep a cheap instance for routine work and a stronger one for the hard problems:
+
+```bash
+claude-multi add budget --provider deepseek --api-key sk-...
+claude-multi add power --provider glm --api-key your-key
+
+claude-budget "add error handling to all fetch calls"   # routine
+claude-power "redesign the auth module to support SAML" # needs judgment
+```
+
+Enable auto-sync on both so they still share the same plugins and MCP servers.
+
+### Benchmark providers on your codebase
+
+Marketing pages claim every model is the best. Test against your actual code instead: create one instance per provider, run the same prompt through each, and compare correctness, speed, and cost.
+
+```bash
+claude-multi add test-glm --provider glm --api-key ...
+claude-multi add test-deepseek --provider deepseek --api-key ...
+
+claude-test-glm -p "find the memory leak in src/cache.ts"
+claude-test-deepseek -p "find the memory leak in src/cache.ts"
+```
+
+Remove the test instances once you've picked a winner, or keep them around for a quarterly re-check.
+
+### Separate work and personal instances
+
+Mixing contexts in one config leaks a work API key into personal sessions and tangles conversation history. Give each its own instance instead:
+
+```bash
+claude-multi add work --provider glm --api-key work-key
+claude-multi add personal --provider deepseek --api-key personal-key
+```
+
+Leave auto-sync off between them, sharing plugins here would defeat the point of isolating the two.
+
+### Standardize a team setup
+
+Create one reference instance with your team's provider, plugins, MCP servers, and `CLAUDE.md`, then have each new hire recreate it with the copy-all option:
+
+```bash
+claude-multi add team --provider your-provider --copy-all
+```
+
+Store the config (minus API keys) in your dotfiles repo so onboarding is `git clone` plus one command.

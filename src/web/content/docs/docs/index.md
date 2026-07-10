@@ -31,7 +31,7 @@ That is it. `claude-glm` launches the official Claude Code binary with the GLM C
 
 - [Getting started](/docs/getting-started/) covers installation and your first instance.
 - [Usage](/docs/usage/) is the full CLI command reference.
-- [Providers](/docs/providers/) lists every supported provider with model details.
+- [Providers](/providers/) lists every supported provider with model details.
 - [How it works](/docs/how-it-works/) explains the architecture under the hood.
 - [Configuration](/docs/configuration/) documents every config option.
 - [Troubleshooting](/docs/troubleshooting/) covers common issues and fixes.

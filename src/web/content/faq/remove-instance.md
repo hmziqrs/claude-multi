@@ -47,8 +47,8 @@ claude-multi remove deepseek --force
 
 ## Related questions
 
-- [How do I create a new instance?](/faq/create-instance/): recreate after removing
-- [How do I troubleshoot broken instances?](/faq/troubleshooting/): when removal is part of the fix
+- [How do I create a new instance?](/faq/#create-instance): recreate after removing
+- [How do I troubleshoot broken instances?](/faq/#troubleshooting): when removal is part of the fix
 
 ## More info
 
