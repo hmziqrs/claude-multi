@@ -1,7 +1,4 @@
----
-title: Contributing
-description: Development setup and contribution guide
----
+# Contributing
 
 ## Prerequisites
 

@@ -85,6 +85,7 @@ export default defineConfig({
       },
     }),
     sitemap({
+      filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/'),
       serialize(item) {
         item.lastmod = new Date().toISOString();
         return item;
@@ -129,7 +130,13 @@ export default defineConfig({
         {
           label: 'Development',
           collapsed: true,
-          items: [{ slug: 'docs/contributing' }],
+          items: [
+            {
+              label: 'Contributing',
+              link: 'https://github.com/hmziqrs/claude-multi/blob/master/CONTRIBUTING.md',
+              attrs: { target: '_blank', rel: 'noopener' },
+            },
+          ],
         },
       ],
       components: {

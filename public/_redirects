@@ -84,4 +84,7 @@
 /docs/providers/ /providers/ 301
 
 # --- SEO cleanup: removed empty internal planning stub from public docs ---
-/docs/development/subagent-model-plan/ /docs/contributing/ 301
+/docs/development/subagent-model-plan/ https://github.com/hmziqrs/claude-multi/blob/master/CONTRIBUTING.md 301
+
+# --- SEO cleanup: contributing guide moved to repo root CONTRIBUTING.md, not a public docs page ---
+/docs/contributing/ https://github.com/hmziqrs/claude-multi/blob/master/CONTRIBUTING.md 301
