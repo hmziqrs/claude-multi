@@ -29,5 +29,4 @@ Claude Code (the `@anthropic-ai/claude-code` package) is also free. It's Anthrop
 ## More info
 
 - [/providers/](/providers/): full provider comparison
-- [/blog/five-new-provider-templates/](/blog/five-new-provider-templates/): provider pricing context
-- [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/): cost optimization with LLM routing
+- [/blog/llm-cost-optimization-routing/](/blog/llm-cost-optimization-routing/): cost optimization with LLM routing

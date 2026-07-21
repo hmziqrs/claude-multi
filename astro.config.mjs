@@ -85,7 +85,7 @@ export default defineConfig({
       },
     }),
     sitemap({
-      filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/'),
+      filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/') && !page.endsWith('/feed.xml'),
       serialize(item) {
         item.lastmod = new Date().toISOString();
         return item;

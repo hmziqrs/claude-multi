@@ -12,7 +12,7 @@ The longer version is worth reading. M3 clears Opus 4.7 on three benchmarks and 
 
 ## What changed in the template
 
-The model names in the `minimax` template went from `MiniMax-M2.7` to `MiniMax-M3` across all model slots (opus, sonnet, haiku, small/fast). If you created a MiniMax instance before this update, running `claude-multi doctor fix` will sync the new template automatically ([how template sync works](/blog/v064-provider-template-sync/)). Three things are different this time:
+The model names in the `minimax` template went from `MiniMax-M2.7` to `MiniMax-M3` across all model slots (opus, sonnet, haiku, small/fast). If you created a MiniMax instance before this update, running `claude-multi doctor fix` will sync the new template automatically ([how template sync works](/changelog/)). Three things are different this time:
 
 **No more auto-compaction override.** M2.7 had a 128K context window. Claude Code assumes 200K for unrecognized models, which meant auto-compaction never fired and context would fill to 100% before crashing. M3 has a 1M context window. The override is gone.
 
@@ -118,4 +118,4 @@ Or from the TUI: press `!` to open the health screen, then `f` to fix. The sync 
 
 ---
 
-Provider reference with model mappings, endpoints, and plan notes: [/docs/providers/](/docs/providers/). Environment variable reference: [/docs/environment-variables/](/docs/environment-variables/). Template source: [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts). For background on how the minimax template was originally added, see [Five New Provider Templates](/blog/five-new-provider-templates/).
+Provider reference with model mappings, endpoints, and plan notes: [/docs/providers/](/docs/providers/). Environment variable reference: [/docs/environment-variables/](/docs/environment-variables/). Template source: [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts). For background on how the minimax template was originally added, see the [changelog](/changelog/).

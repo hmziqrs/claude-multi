@@ -39,10 +39,6 @@ This generates a wrapper script in your PATH (the exact location depends on your
 
 You'll need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a supported runtime (Bun 1+, Node 18+, or Deno 1+), and an API key for at least one provider.
 
-## How the entry point works
-
-The `bin/claude-multi.js` file is a polyglot, it works as both a shell script and a JavaScript module. When you run it, the shell portion checks for bun, then node, then deno, and re-executes itself under whichever one it finds. You never have to think about it.
-
 ## Related questions
 
 - [How do I create a new instance?](/faq/#create-instance): step-by-step after install

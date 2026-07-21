@@ -48,18 +48,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Header spacing and navigation density adjusted for better visual balance.
 - `Instance.autoSync` field deprecated in favor of `Instance.syncMode`. Old configs with `autoSync: false` resolve to `full-manual` via `getSyncMode()`.
 
-### Blog
-- Blog post: [v0.8.2: Granular Sync Modes and Responsive Web](https://claude-multi.hmziq.xyz/blog/v082-granular-sync-modes-responsive-web/)
-
 ## [0.8.1] - 2026-06-03
 
 ### Fixed
 - **CLI build output moved from `dist/` to `build/`**: The CLI and Astro docs builds both output to `dist/`, causing the published npm package to contain the docs site HTML instead of `cli.js`. Global installs would fail with `Module not found ... dist/cli.js`. The CLI now builds to `build/cli.js`, eliminating the collision.
 - Updated `bin/claude-multi.js` to resolve `../build/cli.js` instead of `../dist/cli.js`.
 - Updated CI workflows (`ci.yml`, `publish.yml`) to verify `build/cli.js` instead of `dist/cli.js`.
-
-### Blog
-- Blog post: [v0.8.1: Fixing the Broken npm Package](https://claude-multi.hmziq.xyz/blog/v081-fixing-the-broken-npm-package/)
 
 ## [0.8.0] - 2026-06-01
 
@@ -100,9 +94,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `add` command PATH check was Unix-only (`lastIndexOf('/')` and `split(':')`).
 - Health check had no regex for Windows `.cmd` wrapper format.
 
-### Blog
-- Blog post: [v0.7.0: No More Pinned Claude Binary](https://claude-multi.hmziq.xyz/blog/v070-no-more-pinned-claude/)
-
 ## [0.6.5] - 2026-05-30
 
 ### Added
@@ -119,18 +110,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Doctor fix guard**: `handleDoctorFix` is now guarded against double-invocation from rapid keypresses.
 - Removed pre-existing TypeScript type errors in `migration.ts` v0.6.3 migration body (narrow `Record` type inference on `newEnv`).
 
-### Blog
-- Blog post: [v0.6.5: Action Buttons, Health Screen Fix, Hardened Migrations](https://claude-multi.hmziq.xyz/blog/v065-instance-actions-health-fix/)
-
 ## [0.6.4] - 2026-05-29
 
 ### Added
 - Instance migration (0.6.3) syncs provider template env vars to existing instances. Detects the provider from `ANTHROPIC_BASE_URL` in `settings.json` and re-applies the latest template (model names, thinking tokens, output limits). Preserves API keys and user-added env vars.
 - `detectProvider()` and `getProviderByBaseUrl()` in `templates.ts` match a base URL to a provider template name.
 - `providerTemplate` field on the `Instance` type. New instances store it; migration backfills it for existing instances.
-
-### Blog
-- Blog post: [v0.6.4: Existing Instances Now Auto-Sync Provider Template Updates](https://claude-multi.hmziq.xyz/blog/v064-provider-template-sync/)
 
 ## [0.6.3] - 2026-05-29
 
@@ -152,9 +137,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Health test compared `fixWrapperVersions` output against `generateWrapperScript()` (resolves via env override) instead of `buildWrapperScript(inst, PINNED_CLAUDE_BIN)` (what the function actually uses). Would break if `CLAUDE_MULTI_CLAUDE_PATH` was set.
-
-### Blog
-- Blog post: [v0.6.3: Drop the Pinned Binary, Update Every Provider Template](https://claude-multi.hmziq.xyz/blog/v063-migration-and-provider-updates/)
 
 ### Added
 - Instances track the claude-multi version they were created with (`createdWithVersion`). New instances get the current version. Instances created before this field existed get `0.5` and show "before version tracking" in the UI.
@@ -186,9 +168,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `doctor fix` now reinstalls the pinned binary when its version differs from `COMPATIBLE_CLAUDE_VERSION`, not just when broken. Covers the upgrade path from the old v2.1.153 pin.
 - Unknown CLI subcommands exit with an error instead of falling through to the Ink TUI.
 - All version pinning and compatibility code tagged with `[SAFE PARK]` comments for easy discovery and reactivation.
-
-### Added
-- Blog post: "Claude Code v2.1.156 fixes the third-party provider breakage"
 
 ## [0.6.0] - 2026-05-29
 

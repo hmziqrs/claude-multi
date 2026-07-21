@@ -62,16 +62,7 @@ Two instances can run at the same time in different terminals with no conflicts.
 
 ## Auto-sync via symlinks
 
-When auto-sync is enabled on an instance, `plugins/` and `skills/` become symlinks:
-
-```
-~/.claude-deepseek/plugins/  →  ~/.claude/plugins/
-~/.claude-deepseek/skills/   →  ~/.claude/skills/
-```
-
-Install a plugin once in `~/.claude` and every synced instance sees it immediately. Disable auto-sync to convert them back to independent copies.
-
-If you move or delete `~/.claude`, the symlinks break. Use `claude-multi fix-symlinks` to repair them.
+Sync has three modes (auto / half-manual / full-manual). In `auto` mode, an instance's `plugins/` and `skills/` are symlinked to `~/.claude/`, so a change there is immediately visible to every synced instance. The other modes trade that immediacy for per-instance control. See [Sync modes](/docs/usage/#sync-modes) for the full comparison and [Plugins & MCP](/docs/plugins-mcp/) for the operational detail, including `claude-multi fix-symlinks` for broken links.
 
 ## Provider templates
 

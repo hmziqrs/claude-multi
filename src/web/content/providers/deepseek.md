@@ -49,7 +49,7 @@ If you prefer a fixed monthly cost over variable billing, the GLM Coding Plan is
 
 ## Pricing details
 
-DeepSeek charges per token with no minimum commitment. Rates are among the lowest for frontier-class models. Check [deepseek.com](https://deepseek.com) for current pricing.
+DeepSeek is pay-per-token only, with no subscription plan. V4-Flash (the haiku-tier model) is markedly cheaper than V4-Pro, so background work and subagent calls cost little while heavy reasoning uses the larger model. Check [deepseek.com](https://deepseek.com) for current per-token rates.
 
 ## Related providers
 

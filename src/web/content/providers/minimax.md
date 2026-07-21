@@ -48,7 +48,15 @@ For shorter, more interactive coding sessions, DeepSeek or GLM may offer better 
 
 ## Pricing details
 
-MiniMax uses pay-per-token billing. Cost scales linearly with usage, and there is no monthly commitment. Check [minimax.io](https://minimax.io) for current per-token rates.
+MiniMax bills per token through [minimax.io](https://minimax.io) with no monthly commitment. Token Plan subscriptions are also available (Plus / Max / Ultra monthly tiers); both plans share the same `api.minimax.io` endpoint, and the API key type decides which quota is consumed.
+
+| Tier | Input / 1M | Output / 1M |
+|------|-----------|-------------|
+| Standard (up to 512K context) | $0.60 | $2.40 |
+| Long context (512K–1M) | $1.20 | $4.80 |
+| Cache read | $0.12 | — |
+
+For benchmark comparisons vs Opus 4.7 and GPT-5.5, see the [MiniMax M3 announcement post](/blog/minimax-m3-one-million-context-frontier-coding/).
 
 ## Related providers
 

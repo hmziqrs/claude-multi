@@ -89,17 +89,34 @@ This scans for plugins that share an MCP server name but have different content.
 
 ### Auto-sync and symlinks
 
-When auto-sync is enabled on an instance, the `plugins/` directory is a symlink back to `~/.claude/plugins/`. This means:
+Sync has three modes. They control how an instance's `plugins/` and `skills/` relate to `~/.claude/`:
 
-- Install a plugin in `~/.claude` → every synced instance sees it
-- You can't do per-plugin operations (install/remove/enable/disable) on a symlinked instance, changes happen at the source
-- Disable auto-sync to convert back to independent copies
+- **`auto`** — `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Install or update a plugin once and every synced instance sees it immediately. Per-plugin operations (install/remove/enable/disable) aren't available, since changes happen at the source.
+- **`half-manual`** — real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing set, but new installs in `~/.claude` don't appear until you re-sync. Per-plugin management is blocked here too.
+- **`full-manual`** — independent copies. No symlinks. The instance can drift freely from `~/.claude/`, and all per-plugin operations work.
 
 ```bash
-# Toggle auto-sync
+# Set or change the mode
+claude-multi auto-sync deepseek auto
+claude-multi auto-sync deepseek half-manual
+claude-multi auto-sync deepseek full-manual
+
+# Legacy on/off still works (on → auto, off → full-manual)
 claude-multi auto-sync deepseek on
 claude-multi auto-sync deepseek off
 ```
+
+Conversions are one-way: `auto` → `half-manual` → `full-manual`. You can't step back up, because reconciling directories that have diverged is a data-loss problem.
+
+### Repairing broken symlinks
+
+If you move or delete `~/.claude`, symlinks across every synced instance break. Rebuild them with:
+
+```bash
+claude-multi fix-symlinks [names...]
+```
+
+Run it for specific instances, or with `-a`/`--all` across all of them. From the TUI, **Re-sync symlinks** does the same thing.
 
 ---
 

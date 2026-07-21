@@ -5,51 +5,16 @@ category: "Plugins & MCP"
 order: 6
 ---
 
-Claude Code keeps plugins and skills in `~/.claude/plugins/` and `~/.claude/skills/`. If every instance had its own copies, you'd need to update each one separately. Auto-sync avoids that with symlinks.
-
-## What auto-sync does
-
-When it's enabled on an instance, claude-multi creates symlinks pointing back to your primary install:
-
-```
-~/.claude-multi/deepseek/plugins/  →  ~/.claude/plugins/
-~/.claude-multi/deepseek/skills/   →  ~/.claude/skills/
-```
-
-Install or update a plugin once in `~/.claude`, and every synced instance picks it up immediately.
-
-## Turning it on and off
-
-From the TUI: select **Toggle auto-sync** and pick an instance.
-
-From the CLI:
+Auto-sync symlinks each instance's `plugins/` and `skills/` directories back to your primary `~/.claude`, so you install or update a plugin once and every synced instance picks it up immediately. Toggle it per instance:
 
 ```sh
 claude-multi auto-sync deepseek on
 claude-multi auto-sync deepseek off
 ```
 
-## When symlinks break
+If symlinks break (you moved or deleted `~/.claude`), repair them with `claude-multi fix-symlinks`, or use **Re-sync symlinks** in the TUI.
 
-If you move or delete `~/.claude`, the symlinks point to nothing. Fix them with:
-
-```sh
-claude-multi fix-symlinks
-```
-
-You can also target specific instances: `claude-multi fix-symlinks deepseek glm`.
-
-From the TUI, the **Re-sync symlinks** option does the same thing.
-
-## Collision detection
-
-If you've installed the same plugin in multiple places (one symlinked, one copied, different versions), you might get MCP server name collisions. Check for them with:
-
-```sh
-claude-multi plugins check-collisions <instance> <plugin-id>...
-```
-
-This scans for conflicts and reports any plugins that share an MCP server name but have different content.
+Sync now has three modes (auto / half-manual / full-manual), and conversions are one-way: you can step down from auto to half-manual to full-manual, but not back up. For the full mechanism, the mode comparison, and collision detection, see the plugins and MCP guide.
 
 ## Related questions
 
@@ -59,7 +24,4 @@ This scans for conflicts and reports any plugins that share an MCP server name b
 ## More info
 
 - [/docs/plugins-mcp/](/docs/plugins-mcp/): plugin and MCP management guide
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): Manage Plugins and Toggle Auto-sync screens
-- Run `claude-multi` and try **Manage plugins**, **Toggle auto-sync**, or **Re-sync symlinks**
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): `syncPluginsAndSkills()` and symlink repair logic
-- [src/ink/screens/ManagePlugins.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/ManagePlugins.tsx): the TUI plugin screen
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): Manage Plugins and Sync mode screens

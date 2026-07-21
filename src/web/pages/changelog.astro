@@ -36,9 +36,7 @@ function summarize(r: Release) {
 <Layout
   title="Changelog - claude-multi | Release History & Updates"
   description="Release history for claude-multi: every feature, fix, and change from v0.1 to today. See what changed in each version of the multi-provider Claude Code CLI."
-  ogImage="https://claude-multi.hmziq.xyz/og/changelog.png?title=Changelog&desc=Release+history"
 >
-  <!-- ====== HERO ====== -->
   <section class="relative z-10 pt-32 pb-12 px-6">
     <div class="max-w-4xl mx-auto">
       <div class="reveal flex justify-center mb-6">
@@ -58,7 +56,6 @@ function summarize(r: Release) {
         </p>
       </div>
 
-      <!-- Stat strip -->
       <div class="reveal mt-12 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
         <div class="glass rounded-2xl px-4 py-5 text-center">
           <div class="stat-num text-3xl">{total}</div>
@@ -76,17 +73,14 @@ function summarize(r: Release) {
     </div>
   </section>
 
-  <!-- ====== LATEST RELEASE ====== -->
   <section class="relative z-10 px-6">
     <div class="max-w-4xl mx-auto">
       <article class="reveal">
         <div class="glass rounded-3xl p-7 sm:p-10 relative overflow-hidden">
-          <!-- glow accent -->
           <div class="absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full pointer-events-none bg-[radial-gradient(circle,rgba(163,230,53,0.18),transparent_70%)]"></div>
           <div class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-lime/0 via-lime/60 to-lime/0 pointer-events-none"></div>
 
           <div class="relative">
-            <!-- header -->
             <div class="flex flex-wrap items-end justify-between gap-y-3 gap-x-6 mb-7">
               <div>
                 <div class="inline-flex items-center gap-2 mb-3">
@@ -118,7 +112,6 @@ function summarize(r: Release) {
 
             <div class="divider-glow mb-7"></div>
 
-            <!-- sections -->
             <div class="space-y-9">
               {latest.sections.map((section) => {
                 const s = styles[section.label] ?? fallback;
@@ -159,7 +152,6 @@ function summarize(r: Release) {
     </div>
   </section>
 
-  <!-- ====== PAST RELEASES (collapsible) ====== -->
   <section class="relative z-10 px-6 mt-20 pb-32">
     <div class="max-w-4xl mx-auto">
       <div class="reveal flex items-baseline justify-between mb-6">
@@ -178,10 +170,8 @@ function summarize(r: Release) {
           return (
             <details class="release-card group rounded-2xl border border-edge bg-[rgba(20,20,28,0.45)] backdrop-blur-xl overflow-hidden transition-colors hover:border-edge-hover">
               <summary class="cursor-pointer list-none px-5 sm:px-7 py-5 flex items-center gap-4 sm:gap-6 select-none">
-                <!-- chevron -->
                 <svg class="chev flex-shrink-0 text-text-mute group-hover:text-lime transition-all duration-300" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
 
-                <!-- version + date -->
                 <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 flex-shrink-0">
                   <span class="text-xl sm:text-2xl font-bold tracking-tight">
                     <span class="text-text-mute font-mono text-sm">v</span><span class="text-text">{release.version}</span>
@@ -189,7 +179,6 @@ function summarize(r: Release) {
                   <time class="font-mono text-xs text-text-mute">{release.date}</time>
                 </div>
 
-                <!-- summary chips -->
                 <div class="hidden sm:flex flex-1 flex-wrap gap-1.5 justify-end">
                   {summarize(release).map(({ label, count, style }) => (
                     <span class={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border ${style.chip}`}>
@@ -243,7 +232,6 @@ function summarize(r: Release) {
         })}
       </div>
 
-      <!-- CTA -->
       <div class="reveal mt-16 text-center">
         <p class="text-text-mute text-sm mb-5">Want to follow along between releases?</p>
         <div class="flex gap-3 justify-center flex-wrap">

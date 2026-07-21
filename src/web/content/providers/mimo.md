@@ -51,7 +51,7 @@ For developers who prefer a fixed monthly bill, switch to the MiMo Token Plan te
 
 ## Pricing details
 
-Pay-per-token rates are competitive with other frontier providers. The MoE architecture keeps costs down because only 42B of the 1T parameters are active per request. Check [xiaomimimo.com](https://xiaomimimo.com) for current rates.
+MiMo is available two ways: pay-per-token at [xiaomimimo.com](https://xiaomimimo.com), or a subscription Token Plan (monthly credit pool, regional CN/SG/EU endpoints — use the `mimo-token` template). The 1T MoE architecture keeps per-token cost low because only 42B of the 1T parameters are active per request. Check xiaomimimo.com for current rates.
 
 ## Related providers
 

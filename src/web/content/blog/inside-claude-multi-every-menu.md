@@ -27,7 +27,7 @@ You type `claude-multi`. That's it.
     📋 List all instances
     ℹ️  Instance details
     🔌 Manage plugins
-    🔄 Toggle auto-sync
+    🔄 Sync mode
     🔗 Re-sync symlinks
     🗑️  Remove instance
     ⚙️  MCP servers
@@ -86,14 +86,15 @@ A multi-select list of every plugin in your default `~/.claude`. `space` toggles
 
 Useful when you have a few plugins you trust and a bunch you're still evaluating.
 
-### Step 7: auto-sync (if "All files")
+### Step 7: sync mode (if "All files")
 
-The wizard asks whether to symlink `plugins/` and `skills/` back to your default `~/.claude/`.
+The wizard asks how this instance's `plugins/` and `skills/` should relate to your default `~/.claude/`.
 
-- **`y`.** Those folders become symlinks. Install a plugin once in your default Claude, every instance with auto-sync sees it. One source of truth.
-- **`n`.** Those folders are copies. The instance can drift from your default without affecting it. Good for isolated experiments.
+- **Auto.** Those folders become symlinks. Install a plugin once in your default Claude, every synced instance sees it. One source of truth.
+- **Half-manual.** Real folders, but each plugin and skill inside is individually symlinked. You get the existing set, but new installs in `~/.claude` don't appear until you re-sync.
+- **Full-manual.** Copies. The instance can drift from your default without affecting it. Good for isolated experiments.
 
-You can flip this later. It is not a permanent decision.
+You can change this later, but only downward (auto → half-manual → full-manual), not back up.
 
 ### Step 8: done
 
@@ -111,7 +112,7 @@ Run `claude-glm`. You get a full Claude Code session pointed at the provider you
 
 ## Instance details
 
-**ℹ️ Instance details** is the deeper view of a single instance: where its files live, which plugins are active, a snapshot of `settings.json`, the auto-sync state. This is the screen I open when something is misbehaving and I want to confirm the state before I touch anything.
+**ℹ️ Instance details** is the deeper view of a single instance: where its files live, which plugins are active, a snapshot of `settings.json`, the sync mode. This is the screen I open when something is misbehaving and I want to confirm the state before I touch anything.
 
 ## Manage plugins
 
@@ -124,15 +125,15 @@ From there:
 - Copy a plugin from your default `~/.claude/` into this instance by hand.
 - Remove a plugin completely.
 
-Auto-sync is the thing to keep in mind. If it's on, the plugin list is really a view onto your default `~/.claude/` install, so changes propagate. If it's off, the instance's plugin set is its own.
+Sync mode is the thing to keep in mind. In auto or half-manual mode the plugin list is partly a view onto your default `~/.claude/` install, so changes propagate (and in half-manual mode, per-plugin install and remove are blocked). In full-manual mode the instance's plugin set is entirely its own.
 
 claude-multi also runs a collision check on install. If a new plugin would clash with one already there (same name, version mismatch, that kind of thing), the TUI flags it before writing anything.
 
-## Toggle auto-sync
+## Sync mode
 
-**🔄 Toggle auto-sync** does what it says. Pick an instance, flip the switch. Turning it on rebuilds the symlinks. Turning it off converts them back to plain folders.
+**🔄 Sync mode** lets you pick auto, half-manual, or full-manual for an instance. The current mode gets a color label, and the screen shows which downgrades are available, since conversions only go one way (auto → half-manual → full-manual). There's also a **Force re-sync** option that rebuilds the symlinks without changing the mode.
 
-I use this when I've created an instance without sync and decide later that I want it after all.
+I use this when I've created an instance without sync and decide later that I want some of it after all.
 
 ## Re-sync symlinks
 

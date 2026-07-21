@@ -35,8 +35,10 @@ claude-multi add <name> [options]
 | `--copy-all` | Copy all files from `~/.claude` (settings, plugins, skills, CLAUDE.md) |
 | `--copy-mcp` | Copy MCP server configs from `~/.claude` |
 | `--skip-prompts` | Skip interactive prompts (use with `--provider` and `--api-key`) |
-| `--auto-sync` | Enable auto-sync (symlink plugins/skills from `~/.claude`) |
-| `--manual` | Disable auto-sync |
+| `--sync-mode <mode>` | Set sync mode at creation: `auto`, `half-manual`, or `full-manual` |
+| `--auto-sync` | Shortcut for `--sync-mode auto` |
+| `--half-manual` | Shortcut for `--sync-mode half-manual` |
+| `--manual` | Shortcut for `--sync-mode full-manual` |
 
 **Examples:**
 
@@ -111,15 +113,26 @@ claude-multi mcp <action> [args]
 | `copy` | Copy MCP server configs between instances |
 | `verify` | Check that referenced executables and paths still exist |
 
-## Auto-sync
+## Sync modes
 
-Toggle symlink-based plugin/skill syncing for an instance:
+Plugin and skill syncing has three modes. Set one at creation, or change it later:
 
 ```bash
-claude-multi auto-sync <name> <on|off>
+claude-multi add <name> --sync-mode half-manual
+claude-multi auto-sync <name> <auto|half-manual|full-manual>
 ```
 
-When enabled, `plugins/` and `skills/` in the instance directory are symlinks pointing back to `~/.claude/`. Install or update a plugin once and every synced instance picks it up.
+Legacy `on`/`off` still work with `auto-sync` (`on` maps to `auto`, `off` maps to `full-manual`).
+
+| Mode | Behavior |
+|------|----------|
+| `auto` | `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Any change there is instantly visible to the instance. |
+| `half-manual` | Real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing plugins, but new installs in `~/.claude` don't appear until you re-sync. |
+| `full-manual` | Independent copies of everything. No symlinks. The instance can drift freely from `~/.claude`. |
+
+Conversions are one-way: `auto` → `half-manual` → `full-manual`. You can't step back up, because reconciling directories that have diverged is a data-loss problem. The TUI Sync Mode screen shows the current mode (color-coded) and which downgrades are available, plus a **Force re-sync** option that rebuilds the symlinks without changing the mode. In half-manual mode, `plugin install` and `remove` are blocked, since individually symlinked plugins can't be individually managed.
+
+If symlinks break (you moved or deleted `~/.claude`), repair them with `claude-multi fix-symlinks`.
 
 ## Symlink repair
 

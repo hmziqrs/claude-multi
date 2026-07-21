@@ -5,34 +5,15 @@ category: "Architecture"
 order: 5
 ---
 
-No. It doesn't fork, patch, or modify Claude Code in any way.
+No. claude-multi doesn't fork, patch, or modify Claude Code. Each instance is a shell wrapper script that sets `CLAUDE_CONFIG_DIR` to point at an isolated config directory, then execs the real `claude` binary. No proxy, no monkey-patching, no background process.
 
-## The actual mechanism
+Everything else (flags, commands, keybindings) works exactly as it does normally, and Claude Code updates land immediately because you're running the actual binary. Each instance is also a real directory you can `cd` into, inspect, or delete with standard tools.
 
-Each instance is a shell wrapper script (batch file on Windows) that does two things: set `CLAUDE_CONFIG_DIR` to the instance's directory, then `exec` the real `claude` binary. Simplified:
-
-```sh
-#!/bin/sh
-export CLAUDE_CONFIG_DIR="$HOME/.claude-multi/deepseek"
-exec claude "$@"
-```
-
-That's it. No proxy, no monkey-patching, no background process. Claude Code reads its config from the pointed-to directory instead of `~/.claude`, and everything else, flags, commands, keybindings, works exactly as it does normally.
-
-## Why this matters in practice
-
-When Claude Code ships an update, you get it immediately. There's nothing to rebase or merge. Every feature works because you're running the actual binary. And each instance is a real directory you can `cd` into, inspect, or delete with standard tools.
+For the wrapper script itself and the full architecture, see how it works.
 
 ## What's inside an instance directory
 
-```
-~/.claude-multi/deepseek/
-├── settings.json        # provider env vars + merged settings
-├── .claude.json         # instance-level Claude config
-├── plugins/             # symlinked or copied plugins
-├── skills/              # symlinked or copied skills
-└── projects/            # conversation history per project
-```
+Every instance lives under `~/.claude-multi/<name>/`: a `settings.json` (provider env vars and merged settings), a `.claude.json` (instance-level Claude config), `plugins/` and `skills/` (symlinked or copied), and a `projects/` directory holding conversation history per project.
 
 ## Related questions
 
@@ -41,8 +22,6 @@ When Claude Code ships an update, you get it immediately. There's nothing to reb
 
 ## More info
 
+- [/docs/how-it-works/](/docs/how-it-works/): architecture overview and wrapper script
 - [/about/](/about/): the "wrapper, not a fork" explanation
-- [/docs/how-it-works/](/docs/how-it-works/): architecture overview
-- Run `claude-multi`, pick an instance, select **Instance details** to see its directory, wrapper path, and config
 - [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): wrapper generation code
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): how instance directories are created

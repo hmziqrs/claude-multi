@@ -36,6 +36,6 @@ It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon. It doesn
 - [/about/](/about/): design principles and how it works
 - [/docs/getting-started/](/docs/getting-started/): install and create your first instance
 - [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): walkthrough of every TUI screen
-- [/blog/claude-code-co-engineer-and-claude-multi/](/blog/claude-code-co-engineer-and-claude-multi/): how it fits into the Claude Code ecosystem
+- [/blog/claude-code-mcp-workflow-automation/](/blog/claude-code-mcp-workflow-automation/): how it fits into the Claude Code ecosystem
 - [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): where provider templates are defined
 - [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): instance creation and plugin management

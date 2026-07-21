@@ -49,7 +49,15 @@ If your workload is bursty and you prefer paying only for what you use, look at 
 
 ## Pricing details
 
-GLM uses a Coding Plan subscription model. You pay a flat monthly fee and get an allocation of requests. Check [z.ai](https://z.ai) for current pricing tiers.
+GLM reaches Claude Code through Z.ai's Coding Plan, a monthly subscription. The Anthropic-compatible endpoint is gated to the plan; there is no pay-per-token Anthropic URL for GLM.
+
+| Plan | Price / month | Usage |
+|------|---------------|-------|
+| Lite | $18 | 1x baseline |
+| Pro  | $72 | ~5x |
+| Max  | $160 | ~20x |
+
+Opus-tier models (GLM-5.2, GLM-5.1, GLM-5-Turbo) count at 3x during peak hours and 2x off-peak. GLM-5-Turbo is also on the standard API at $1.20/M input and $4.00/M output, but that route isn't Anthropic-compatible, so claude-multi doesn't use it. See the [GLM-5.2 announcement post](/blog/glm-5-2-three-tier-coding-plan/) for the full plan breakdown and benchmarks, and [z.ai](https://z.ai) for current pricing.
 
 ## Related providers
 
