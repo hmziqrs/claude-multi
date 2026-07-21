@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/favicon-animated.svg" width="256" height="256" alt="claude-multi logo">
+<img src="https://raw.githubusercontent.com/hmziqrs/claude-multi/master/public/favicon-animated.svg" width="256" height="256" alt="claude-multi logo">
 
 <h1 align="center">claude-multi</h1>
 
