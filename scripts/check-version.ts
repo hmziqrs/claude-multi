@@ -1,7 +1,11 @@
 /**
  * Version Comparison Script
- * Compares package.json version with the published npm version
- * Exits with code 0 if should publish, code 1 if should skip
+ * Compares package.json version with the published npm version.
+ *
+ * Emits a `should_publish` output (true/false) for the workflow to gate on —
+ * the exit code is NOT used for gating. Exits 0 on any successful comparison
+ * (publish or skip); exits non-zero only on unexpected errors, so a normal
+ * "nothing to publish" run keeps CI green.
  */
 
 import { readFileSync } from "fs";
@@ -118,7 +122,7 @@ async function main() {
       );
     }
 
-    process.exit(1);
+    process.exit(0);
   } else {
     console.log("❌ SKIP PUBLISH");
     console.log(`   package.json version is OLDER than npm`);
@@ -135,7 +139,7 @@ async function main() {
       );
     }
 
-    process.exit(1);
+    process.exit(0);
   }
 }
 

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- CI `check-version` job no longer fails when there is nothing new to publish. It now exits `0` on a skip (equal or older version) and relies on the `should_publish` output to gate publishing, so ordinary pushes keep CI green instead of turning it red on every non-version-bump change.
+
 ## [0.10.0] - 2026-06-13
 
 ### Changed
