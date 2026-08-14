@@ -25,26 +25,29 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   glm: {
     name: "glm",
     displayName: "GLM Coding Plan",
-    description: "GLM-5.2, GLM-5.1 and GLM-5-Turbo via z.ai Coding Plan subscription (Anthropic endpoint is coding-plan-only)",
+    description: "GLM-5.3 and GLM-5-Turbo via z.ai Coding Plan subscription (Anthropic endpoint is coding-plan-only)",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic",
         API_TIMEOUT_MS: "3000000",
         ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5-turbo",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.1",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.2[1m]",
-        ANTHROPIC_MODEL: "glm-5.2[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_MODEL: "glm-5.3[1m]",
         ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
         ENABLE_THINKING: "true",
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "8000",
         ENABLE_STREAMING: "true",
-        MAX_OUTPUT_TOKENS: "64000",
-        // Context windows are now mixed: GLM-5.2 is 1M, GLM-5.1 and GLM-5-Turbo are 200K.
-        // The [1m] suffix on glm-5.2 exposes its true 1M window per-model; Claude Code's
-        // default 200K assumption for unrecognized models matches GLM-5.1/5-Turbo exactly.
-        // No global CLAUDE_CODE_AUTO_COMPACT_WINDOW — a single value can't fit both sizes.
+        MAX_OUTPUT_TOKENS: "128000",
+        // Opus and sonnet are now glm-5.3[1m] — the [1m] suffix opts into the 1M context
+        // window per-model, following Z.ai's official Claude Code example. glm-5.2 and
+        // glm-5.1 are no longer served on the Coding Plan endpoint (requests for them are
+        // auto-routed to glm-5.3), which is why sonnet no longer uses 5.1. Haiku and
+        // small-fast stay glm-5-turbo (200K — Claude Code's default assumption for
+        // unrecognized models matches it). Still no global CLAUDE_CODE_AUTO_COMPACT_WINDOW:
+        // one value can't fit the 1M and 200K models this template mixes.
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,

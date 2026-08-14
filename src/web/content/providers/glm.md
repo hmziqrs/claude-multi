@@ -1,6 +1,6 @@
 ---
-title: "GLM Coding Plan Provider for Claude Code"
-description: "Run Claude Code with GLM-5.2, GLM-5.1 and GLM-5-Turbo via z.ai Coding Plan subscription. Full Anthropic API compatibility, up to 1M context, thinking mode enabled."
+title: "GLM-5.3 Coding Plan Provider for Claude Code"
+description: "Run Claude Code with GLM-5.3 and GLM-5-Turbo via z.ai Coding Plan subscription. Full Anthropic API compatibility, up to 1M context, thinking mode enabled."
 provider: "glm"
 tagline: "Frontier reasoning models on a fixed monthly plan"
 setupCommand: "claude-multi add glm"
@@ -13,19 +13,21 @@ pricing: "Coding Plan subscription via z.ai"
 order: 1
 ---
 
-GLM-5.2 is a frontier-class reasoning model accessible through z.ai's Coding Plan. It exposes a native Anthropic-compatible endpoint, so Claude Code talks to it without adapters or middleware.
+GLM-5.3 is a frontier reasoning model available through z.ai's Coding Plan. It exposes a native Anthropic-compatible endpoint, so Claude Code talks to it without adapters or middleware.
 
 ## Model specs
 
-| Role | Model | Context |
-|------|-------|---------|
-| Primary (Opus) | GLM-5.2 | 1M |
-| Standard (Sonnet) | GLM-5.1 | 200K |
-| Fast (Haiku) | GLM-5-Turbo | 200K |
+| Role | Model | Context | Max output |
+|------|-------|---------|------------|
+| Primary (Opus) | `glm-5.3[1m]` | 1M | 128K |
+| Standard (Sonnet) | `glm-5.3[1m]` | 1M | 128K |
+| Fast (Haiku) | `glm-5-turbo` | 200K | 128K |
 
-Thinking mode is enabled by default. The template sets `REASONING_EFFORT` to `high` and allocates 8,000 thinking tokens, which is enough for most code tasks without burning through your context window.
+The older `glm-5.2` and `glm-5.1` ids are no longer served on the Coding Plan endpoint. Requests for them are automatically routed to `glm-5.3`, so existing configs keep working, but the ids are effectively deprecated.
 
-Context windows are mixed across tiers, so the template exposes them per-model rather than with a single global override. GLM-5.2 carries a `[1m]` suffix that tells Claude Code its real 1M window, while Claude Code's default 200K assumption for unrecognized models already matches GLM-5.1 and GLM-5-Turbo exactly — so auto-compaction triggers at the right point for every tier without any `CLAUDE_CODE_AUTO_COMPACT_WINDOW` override.
+Thinking is always on: GLM-5.3 rejects requests that disable it, and supports `reasoning_effort` values of `low`, `high`, and `max`. The template sets `REASONING_EFFORT` to `high` and allocates 8,000 thinking tokens, which is enough for most code tasks without consuming much of the context window.
+
+Context windows differ across tiers, so the template sets them per model rather than through a single global override. GLM-5.3 carries a `[1m]` suffix that tells Claude Code its real 1M window in the opus and sonnet slots, and Claude Code's default 200K assumption for unrecognized models already matches GLM-5-Turbo exactly. Auto-compaction therefore triggers at the right point for every tier, with no `CLAUDE_CODE_AUTO_COMPACT_WINDOW` override required.
 
 ## Setup
 
@@ -39,25 +41,36 @@ claude-multi add glm
 
 4. Paste your API key when prompted
 
-That is the whole process. The template configures the base URL, model mappings, context limits, and thinking parameters. Your instance is ready immediately.
+The template handles the base URL, model mappings, context limits, and thinking parameters.
 
 ## When to pick GLM
 
-GLM-5.2 is a good fit when you want a fixed monthly cost instead of per-token billing. The Coding Plan gives you a generous allocation of requests, and GLM-5-Turbo handles lighter tasks (quick edits, shell commands, subagent work) at higher speed, while GLM-5.1 covers everyday coding in between.
+GLM-5.3 is a good fit when you want a fixed monthly cost instead of per-token billing. GLM-5-Turbo handles the light work (quick edits, shell commands, subagent calls) while GLM-5.3 takes heavier refactoring and long agentic runs, all inside the same quota.
 
-If your workload is bursty and you prefer paying only for what you use, look at the DeepSeek or MiMo pay-per-token templates instead.
+If your workload is bursty and you prefer paying only for what you use, look at the [DeepSeek](/providers/deepseek/) or [MiMo](/providers/mimo/) pay-per-token templates instead.
 
 ## Pricing details
 
-GLM reaches Claude Code through Z.ai's Coding Plan, a monthly subscription. The Anthropic-compatible endpoint is gated to the plan; there is no pay-per-token Anthropic URL for GLM.
+GLM reaches Claude Code through Z.ai's Coding Plan, a monthly subscription. The Anthropic-compatible endpoint is gated to the plan; there is no pay-per-token Anthropic URL for GLM, and GLM-5.3 is Coding Plan-only at launch with general pay-as-you-go API access coming soon.
 
-| Plan | Price / month | Usage |
-|------|---------------|-------|
-| Lite | $18 | 1x baseline |
-| Pro  | $72 | ~5x |
-| Max  | $160 | ~20x |
+Usage is metered in credits: `(input x input_mult + cached_input x cached_mult + output x output_mult) / 10,000`, with multipliers per model:
 
-Opus-tier models (GLM-5.2, GLM-5.1, GLM-5-Turbo) count at 3x during peak hours and 2x off-peak. GLM-5-Turbo is also on the standard API at $1.20/M input and $4.00/M output, but that route isn't Anthropic-compatible, so claude-multi doesn't use it. See the [GLM-5.2 announcement post](/blog/glm-5-2-three-tier-coding-plan/) for the full plan breakdown and benchmarks, and [z.ai](https://z.ai) for current pricing.
+| Model | Input | Cached input | Output |
+|-------|-------|--------------|--------|
+| GLM-5.3 | 6.9 | 1.7 | 24 |
+| GLM-5-Turbo | 5.7 | 1.5 | 21 |
+| GLM-4.7 | 4.6 | 1.2 | 16 |
+| GLM-4.6V (vision MCP tools only) | 1.2 | 0.3 | 2.7 |
+
+Off-peak requests count at 50% of the standard credit rate. Peak is only Monday-Friday 14:00-18:00 UTC+8, so nights, weekends, and weekday mornings all bill at the off-peak rate.
+
+| Plan | 5-hour quota | Weekly quota |
+|------|--------------|--------------|
+| Lite | 2,000 credits | 10,000 credits |
+| Pro  | 12,000 credits | 60,000 credits |
+| Max  | 28,000 credits | 140,000 credits |
+
+Plans start from $18 USD/month for Lite, with 20% off quarterly and 30% off yearly billing. This points system replaced the older peak/off-peak multiplier plan, which was discontinued for new users on 2026-07-30. GLM-5-Turbo is also on the standard pay-as-you-go API, but that route isn't Anthropic-compatible, so claude-multi doesn't use it. For benchmarks and a full breakdown of the plan, see the [GLM-5.3 announcement post](/blog/glm-5-3-coding-plan/). The [GLM-5.2 post](/blog/glm-5-2-three-tier-coding-plan/) covers how the plan looked at launch, and [z.ai](https://z.ai) has current Pro and Max pricing.
 
 ## Related providers
 

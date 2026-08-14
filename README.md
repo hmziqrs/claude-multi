@@ -49,7 +49,7 @@ Each instance is isolated. All of them run the normal, unmodified Claude Code bi
 ## Features
 
 * Multiple Claude Code instances, one `claude-<name>` command each.
-* Provider templates for GLM/Z.ai, MiniMax, and DeepSeek.
+* Provider templates for GLM/Z.ai, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Qwen.
 * Isolated config directories. Every instance gets its own `~/.claude-<name>/`.
 * A full terminal UI that covers adding, listing, plugins, MCP, and sync.
 * Plugin management per instance: enable, disable, install, copy, remove.

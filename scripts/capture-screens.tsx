@@ -120,7 +120,7 @@ const screens: Record<string, React.ReactElement> = {
       <Box flexDirection="column" gap={1}>
         <Text>Select a provider:</Text>
         <Box>
-          <Text color="green">❯ </Text><Text>GLM (智谱AI) — GLM-5.1 via z.ai</Text>
+          <Text color="green">❯ </Text><Text>GLM (智谱AI) — GLM-5.3 via z.ai</Text>
         </Box>
         <Box><Text>   </Text><Text>MiniMax — MiniMax-M2.7 via minimax.io</Text></Box>
         <Box><Text>   </Text><Text>DeepSeek — DeepSeek-V4 via deepseek.com</Text></Box>

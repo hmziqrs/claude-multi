@@ -5,10 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.11.0] - 2026-08-14
+
+### Changed
+- **GLM template updated for GLM-5.3**: Opus and sonnet slots now use `glm-5.3[1m]` (sonnet follows Z.ai's official Claude Code example); haiku and small/fast stay on `glm-5-turbo`. GLM-5.2 and GLM-5.1 are no longer served on the GLM Coding Plan, and requests for them auto-route to GLM-5.3. `MAX_OUTPUT_TOKENS` raised from `64000` to `128000` to match the documented 128K max output of both models. Thinking can no longer be disabled on GLM-5.3 (`reasoning_effort` low/high/max); the template keeps `high`.
+- New points-based GLM Coding Plan pricing documented on the provider page and in the GLM-5.3 blog post. The legacy 3x peak / 2x off-peak multiplier model was discontinued for new users on 2026-07-30.
+- Model and context-window references updated across the provider docs, environment-variables guide, FAQ, providers table, and llms.txt.
 
 ### Fixed
-- CI `check-version` job no longer fails when there is nothing new to publish. It now exits `0` on a skip (equal or older version) and relies on the `should_publish` output to gate publishing, so ordinary pushes keep CI green instead of turning it red on every non-version-bump change.
+- CI `check-version` job no longer fails when there is nothing new to publish. It now exits `0` on a skip (equal or older version) and relies on the `should_publish` output to gate publishing, so pushes without a version bump keep CI green.
+
+### Blog
+- Blog post: [GLM-5.3 for Claude Code: Post-Training Gains and a Two-Model Mapping](https://claude-multi.hmziq.xyz/blog/glm-5-3-coding-plan/)
 
 ## [0.10.0] - 2026-06-13
 
@@ -483,6 +491,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.11.0]: https://github.com/hmziqrs/claude-multi/compare/v0.10.0...v0.11.0
 [0.8.2]: https://github.com/hmziqrs/claude-multi/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/hmziqrs/claude-multi/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/hmziqrs/claude-multi/compare/v0.7.0...v0.8.0

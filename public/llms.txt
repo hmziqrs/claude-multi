@@ -37,8 +37,8 @@ Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
 
 | Provider | Endpoint | Models |
 |----------|----------|--------|
-| GLM Coding Plan | api.z.ai | glm-5.1, glm-5-turbo |
-| MiniMax | api.minimax.io | MiniMax-M2.7 |
+| GLM Coding Plan | api.z.ai | glm-5.3[1m], glm-5-turbo |
+| MiniMax | api.minimax.io | MiniMax-M3 |
 | DeepSeek | api.deepseek.com | deepseek-v4-pro, deepseek-v4-flash |
 | Xiaomi MiMo | api.xiaomimimo.com | mimo-v2.5-pro, mimo-v2.5 |
 | Xiaomi MiMo (Token Plan) | token-plan-cn.xiaomimimo.com | mimo-v2.5-pro, mimo-v2.5 |

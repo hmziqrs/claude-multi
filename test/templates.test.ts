@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { getProviderByBaseUrl, detectProvider, detectRegionFromBaseUrl } from "@/templates";
+import { getProviderByBaseUrl, getProviderTemplate, detectProvider, detectRegionFromBaseUrl } from "@/templates";
 
 let testDir: string;
 
@@ -18,6 +18,16 @@ describe("Provider detection", () => {
   describe("getProviderByBaseUrl", () => {
     test("detects GLM by base URL", () => {
       expect(getProviderByBaseUrl("https://api.z.ai/api/anthropic")).toBe("glm");
+    });
+
+    test("GLM template pins the GLM-5.3 model mapping", () => {
+      const env = getProviderTemplate("glm")!.settings.env;
+      expect(env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
+      expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
+      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
+      expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
+      expect(env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
+      expect(env.MAX_OUTPUT_TOKENS).toBe("128000");
     });
 
     test("detects MiniMax by base URL", () => {

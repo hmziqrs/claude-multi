@@ -68,7 +68,7 @@ Claude Code compresses older conversation history once usage crosses a threshold
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | The model's actual context window size, in tokens | `131072` (Qwen's 128K) |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Percentage of the window that triggers compaction | `75` |
 
-Models that match or exceed the 200K default, like GLM-5.2 with its 1M window, use a `[1m]` suffix on the model name instead, so no override is needed.
+Models that match or exceed the 200K default, like GLM-5.3 with its 1M window, use a `[1m]` suffix on the model name instead, so no override is needed.
 
 ---
 
@@ -80,16 +80,23 @@ Each provider template sets these variables with provider-specific values. Here'
 
 ```json
 {
+  "ANTHROPIC_AUTH_TOKEN": "",
   "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
-  "ANTHROPIC_MODEL": "glm-5.2[1m]",
-  "ANTHROPIC_SMALL_FAST_MODEL": "glm-5-turbo",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.1",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.2[1m]",
+  "API_TIMEOUT_MS": "3000000",
   "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5-turbo",
-  "CLAUDE_CODE_SUBAGENT_MODEL": "glm-5-turbo",
-  "CLAUDE_CODE_EFFORT_LEVEL": "high"
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.3[1m]",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.3[1m]",
+  "ANTHROPIC_MODEL": "glm-5.3[1m]",
+  "ANTHROPIC_SMALL_FAST_MODEL": "glm-5-turbo",
+  "ENABLE_THINKING": "true",
+  "REASONING_EFFORT": "high",
+  "MAX_THINKING_TOKENS": "8000",
+  "ENABLE_STREAMING": "true",
+  "MAX_OUTPUT_TOKENS": "128000"
 }
 ```
+
+The `glm` template maps opus and sonnet to `glm-5.3[1m]` (1M context via the `[1m]` suffix) and haiku/small-fast to `glm-5-turbo` (200K). Requests for `glm-5.2` or `glm-5.1` are automatically routed to `glm-5.3` on the Coding Plan endpoint, so existing configs keep working.
 
 ### MiniMax (`minimax`)
 
