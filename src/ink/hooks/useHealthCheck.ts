@@ -13,7 +13,7 @@ import {
 export function useHealthCheck(
   instances: Instance[],
   migrationStatus: MigrationMeta | null,
-  instanceMigrationVersion?: string,
+  instanceMigrationsPending?: boolean,
 ) {
   const [issues, setIssues] = useState<HealthIssue[]>([]);
   const [checking, setChecking] = useState(false);
@@ -21,7 +21,7 @@ export function useHealthCheck(
   const runChecks = useCallback(() => {
     setChecking(true);
     try {
-      const found = runHealthChecks(instances, migrationStatus, instanceMigrationVersion);
+      const found = runHealthChecks(instances, migrationStatus, instanceMigrationsPending);
       const previous = loadHealthStatus();
 
       // Merge: carry forward dismissed state
@@ -45,7 +45,7 @@ export function useHealthCheck(
     } finally {
       setChecking(false);
     }
-  }, [instances, migrationStatus, instanceMigrationVersion]);
+  }, [instances, migrationStatus, instanceMigrationsPending]);
 
   useEffect(() => {
     runChecks();

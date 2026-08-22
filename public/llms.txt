@@ -26,6 +26,8 @@ Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
 - `claude-multi remove <name>` — Remove instance (`--force` to skip confirm)
 - `claude-multi list` — List all instances
 - `claude-multi info <name>` — Show instance details
+- `claude-multi doctor check` — Find wrapper, settings, and provider template issues
+- `claude-multi doctor fix` — Back up and apply pending instance migrations
 - `claude-multi version` — Check for Claude Code updates
 - `claude-multi update` — Update Claude Code to latest
 - `claude-multi auto-sync <name> <on|off>` — Toggle symlink-based plugin/skill sync
@@ -48,6 +50,8 @@ Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
 
 All providers use the Anthropic-compatible API format with their own base URL.
 
+Existing instances do not update their provider settings in the background. After upgrading claude-multi, run `claude-multi doctor check`, then `claude-multi doctor fix` to apply pending template changes. The sync updates model slots and other template settings, while keeping API keys and custom tunables unless a documented legacy default needs an upgrade.
+
 ## Key concepts
 
 - **Instances**: Named Claude Code configs stored in `~/.claude-<name>/`
@@ -55,7 +59,7 @@ All providers use the Anthropic-compatible API format with their own base URL.
 - **Manual mode**: Copies files instead of symlinking for full isolation
 - **Plugin management**: Install/remove individual plugins with MCP collision detection and rollback
 - **Health checks**: Detects broken symlinks, missing dirs, corrupted settings, failed migrations
-- **Migration system**: Version-based config upgrades with backup rotation and file locking
+- **Migration system**: Version and provider template checks with backups and file locking
 
 ## File locations
 

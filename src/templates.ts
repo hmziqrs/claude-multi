@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { TUNABLE_ENV_VARS } from "@/constants/env";
 
 export interface ProviderTemplate {
   name: string;
@@ -347,21 +348,26 @@ export function applyProviderTemplate(
  * Returns the provider template name, or null if unrecognized.
  */
 export function getProviderByBaseUrl(baseUrl: string): string | null {
+  // Provider endpoints accept a trailing slash, and users commonly add one
+  // while editing settings.json. Match it like the regional URL detector does
+  // so template migrations do not silently skip an otherwise known provider.
+  const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+
   for (const [name, template] of Object.entries(PROVIDER_TEMPLATES)) {
     const templateUrl = template.settings.env.ANTHROPIC_BASE_URL;
     if (!templateUrl) continue;
 
     // mimo-token has region-dependent URLs
     if (name === "mimo-token") {
-      if (baseUrl.startsWith("https://token-plan-")) continue;
+      if (normalizedBaseUrl.startsWith("https://token-plan-")) continue;
       // won't match mimo-token by exact URL since regions vary
     }
 
-    if (baseUrl === templateUrl) return name;
+    if (normalizedBaseUrl === templateUrl) return name;
   }
 
   // Check mimo-token region variants — validate the region code is known
-  const regionCode = detectRegionFromBaseUrl(baseUrl);
+  const regionCode = detectRegionFromBaseUrl(normalizedBaseUrl);
   if (regionCode) {
     return "mimo-token";
   }
@@ -386,3 +392,172 @@ export function detectProvider(configDir: string): string | null {
   }
 }
 
+/**
+ * Per-provider tunable env values that previous template versions shipped as defaults.
+ * During "overwrite-legacy-defaults" sync, a tunable holding one of these values is
+ * treated as stale rather than user-customized: overwritten with the current template
+ * value if the template still sets the key, removed if it no longer does.
+ * Update this map in the same commit as any template change to a TUNABLE_ENV_VARS value.
+ */
+export const LEGACY_ENV_DEFAULTS: Readonly<Record<string, Partial<Record<string, readonly string[]>>>> = {
+  glm: {
+    // 0.11.0 raised the output cap to match glm-5.3's 128K documented max output
+    MAX_OUTPUT_TOKENS: ["64000"],
+    // Pre-0.10 glm templates set a 131072 compaction window; 0.10.0 removed it because
+    // one value can't fit the 1M and 200K models the template mixes
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["131072"],
+    CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: ["75"],
+  },
+  minimax: {
+    // 0.8.0 raised MiniMax from 64K to its 512K max output
+    MAX_OUTPUT_TOKENS: ["64000"],
+  },
+};
+
+export type TunableEnvPolicy = "preserve-custom" | "overwrite-legacy-defaults";
+
+export interface ProviderEnvSyncOptions {
+  /** Stored provider hint; falls back to detectProvider(configDir) */
+  providerTemplate?: string;
+  /** Stored region hint for regional providers */
+  providerRegion?: string;
+  /** How to treat TUNABLE_ENV_VARS that differ from the template. Default "preserve-custom". */
+  tunablePolicy?: TunableEnvPolicy;
+  /** Calculate the result without writing settings.json. */
+  dryRun?: boolean;
+}
+
+export type ProviderEnvSyncStatus = "synced" | "unchanged" | "skipped";
+
+export interface ProviderEnvSyncResult {
+  status: ProviderEnvSyncStatus;
+  providerName: string | null;
+  /** Resolved region code, regional providers only */
+  region: string | null;
+  reason?: "no-settings" | "unknown-provider";
+}
+
+function isLegacyDefault(providerName: string, key: string, value: string): boolean {
+  return (LEGACY_ENV_DEFAULTS[providerName]?.[key] ?? []).includes(value);
+}
+
+/**
+ * Sync an instance's settings.json env to its provider template.
+ *
+ * Model-name and structural vars always get template values; the API key is
+ * preserved; user-only env vars survive. TUNABLE_ENV_VARS that differ from the
+ * template are preserved ("preserve-custom") or preserved unless they hold a
+ * known legacy default ("overwrite-legacy-defaults" — stale defaults from older
+ * templates get refreshed, genuine customizations survive).
+ *
+ * Returns the sync outcome plus the resolved provider/region so callers can
+ * backfill instance metadata. Throws on settings.json parse/IO errors — callers
+ * decide warn-vs-throw. Writes only when content actually changes.
+ */
+export function syncProviderEnvToSettings(
+  configDir: string,
+  options: ProviderEnvSyncOptions = {},
+): ProviderEnvSyncResult {
+  const providerName = options.providerTemplate ?? detectProvider(configDir);
+  if (!providerName) {
+    return { status: "skipped", providerName: null, region: null, reason: "unknown-provider" };
+  }
+
+  let template = getProviderTemplate(providerName);
+  if (!template) {
+    return { status: "skipped", providerName, region: null, reason: "unknown-provider" };
+  }
+
+  const settingsFile = join(configDir, "settings.json");
+  if (!existsSync(settingsFile)) {
+    return { status: "skipped", providerName, region: null, reason: "no-settings" };
+  }
+
+  const existing = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
+  const before = JSON.stringify(existing, null, 2);
+  const existingEnv = (existing.env as Record<string, string>) ?? {};
+  const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
+  const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
+
+  // For regional providers, resolve the correct regional template.
+  // Priority: detect from actual URL first, fall back to the stored region.
+  // This ensures manually-edited URLs take precedence over stale metadata.
+  let region: string | null = null;
+  if (providerHasRegions(providerName)) {
+    const providerRegions = getProviderRegions(providerName);
+    const detectedRegion = detectRegionFromBaseUrl(existingBaseUrl ?? "") ?? options.providerRegion;
+    if (detectedRegion && providerRegions && detectedRegion in providerRegions) {
+      template = resolveRegionTemplate(template, detectedRegion);
+      region = detectedRegion;
+    }
+  }
+
+  // Build new env from template, preserve API key
+  const templateSettings = structuredClone(template.settings);
+  const templateEnv = templateSettings.env as Record<string, string>;
+  const newEnv: Record<string, string> = { ...templateEnv, ANTHROPIC_AUTH_TOKEN: apiKey };
+
+  // For regional providers where we couldn't resolve a valid region,
+  // preserve the existing base URL to avoid silently overwriting with the default region
+  if (providerHasRegions(providerName) && region === null && existingBaseUrl) {
+    newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
+  }
+
+  // Preserve user-tunable env vars that the user has explicitly customized.
+  // Model names and structural vars are always synced from the template,
+  // but preference vars like MAX_OUTPUT_TOKENS are kept if the user set them.
+  const policy = options.tunablePolicy ?? "preserve-custom";
+  for (const key of TUNABLE_ENV_VARS) {
+    if (!(key in existingEnv)) continue;
+    const value = existingEnv[key]!;
+    if (value === templateEnv[key]) continue;
+    if (policy === "overwrite-legacy-defaults" && isLegacyDefault(providerName, key, value)) continue;
+    newEnv[key] = value;
+  }
+
+  // Merge: template vars overwrite existing, user-only vars survive
+  const merged = { ...existingEnv, ...newEnv };
+
+  // With the legacy policy, tunables that older templates shipped as defaults but the
+  // current template no longer sets (e.g. glm's auto-compaction overrides) are stale — drop them
+  if (policy === "overwrite-legacy-defaults") {
+    for (const [key, values] of Object.entries(LEGACY_ENV_DEFAULTS[providerName] ?? {})) {
+      if (!(key in templateEnv) && key in merged && values?.includes(merged[key]!)) {
+        delete merged[key];
+      }
+    }
+  }
+
+  existing.env = merged;
+  existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
+  existing.alwaysThinkingEnabled = template.settings.alwaysThinkingEnabled;
+
+  const after = JSON.stringify(existing, null, 2);
+  if (after !== before && !options.dryRun) {
+    writeFileSync(settingsFile, after, "utf-8");
+  }
+
+  return { status: after !== before ? "synced" : "unchanged", providerName, region };
+}
+
+/**
+ * True when an instance's provider settings differ from the current template.
+ * Used to catch template changes even when a release forgot to add an explicit
+ * versioned migration entry.
+ */
+export function needsProviderTemplateSync(
+  configDir: string,
+  options: Omit<ProviderEnvSyncOptions, "dryRun"> = {},
+): boolean {
+  try {
+    return syncProviderEnvToSettings(configDir, {
+      ...options,
+      tunablePolicy: options.tunablePolicy ?? "overwrite-legacy-defaults",
+      dryRun: true,
+    }).status === "synced";
+  } catch {
+    // A corrupt/unreadable file is a health issue, not evidence that a provider
+    // template should be applied.
+    return false;
+  }
+}

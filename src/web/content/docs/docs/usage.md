@@ -148,6 +148,19 @@ claude-multi fix-symlinks [names...]
 
 Without arguments, you'll be prompted to pick which instances to repair.
 
+## Provider template updates
+
+Provider models and recommended settings change over time. Check existing instances after updating claude-multi:
+
+```bash
+claude-multi doctor check
+claude-multi doctor fix
+```
+
+`doctor check` reports instances whose provider settings differ from the current template. `doctor fix` asks for confirmation, creates a backup, then updates model slots and other template settings. API keys and custom tunables stay unchanged unless a value is a documented legacy default that needs an upgrade.
+
+The TUI shows `Run instance migrations` when the same work is pending.
+
 ## Version and updates
 
 ```bash

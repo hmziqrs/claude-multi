@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { getProviderByBaseUrl, getProviderTemplate, detectProvider, detectRegionFromBaseUrl } from "@/templates";
+import { getProviderByBaseUrl, getProviderTemplate, detectProvider, detectRegionFromBaseUrl, LEGACY_ENV_DEFAULTS } from "@/templates";
 
 let testDir: string;
 
@@ -20,6 +20,10 @@ describe("Provider detection", () => {
       expect(getProviderByBaseUrl("https://api.z.ai/api/anthropic")).toBe("glm");
     });
 
+    test("detects GLM by base URL with a trailing slash", () => {
+      expect(getProviderByBaseUrl("https://api.z.ai/api/anthropic/")).toBe("glm");
+    });
+
     test("GLM template pins the GLM-5.3 model mapping", () => {
       const env = getProviderTemplate("glm")!.settings.env;
       expect(env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
@@ -28,6 +32,13 @@ describe("Provider detection", () => {
       expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
       expect(env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
       expect(env.MAX_OUTPUT_TOKENS).toBe("128000");
+    });
+
+    test("LEGACY_ENV_DEFAULTS pins the stale defaults the migrations upgrade", () => {
+      expect(LEGACY_ENV_DEFAULTS.glm?.MAX_OUTPUT_TOKENS).toContain("64000");
+      expect(LEGACY_ENV_DEFAULTS.glm?.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toContain("131072");
+      expect(LEGACY_ENV_DEFAULTS.glm?.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE).toContain("75");
+      expect(LEGACY_ENV_DEFAULTS.minimax?.MAX_OUTPUT_TOKENS).toContain("64000");
     });
 
     test("detects MiniMax by base URL", () => {

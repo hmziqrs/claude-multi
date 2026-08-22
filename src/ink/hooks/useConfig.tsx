@@ -49,7 +49,7 @@ import {
 } from "@/config";
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
 import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS, getApiKeyPlaceholder } from "@/templates";
-import { getMigrationStatus, clearMigrationFailure } from "@/migration";
+import { getMigrationStatus, clearMigrationFailure, needsInstanceMigration } from "@/migration";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { SyncMode, type SyncMode as SyncModeType } from "@/constants";
 
@@ -116,6 +116,7 @@ export function useConfig() {
   }, [reload]);
 
   const migrationStatus = config ? getMigrationStatus(config) : null;
+  const instanceMigrationsPending = config ? needsInstanceMigration(config) : false;
 
   return {
     config,
@@ -130,7 +131,7 @@ export function useConfig() {
     syncTemplateEnv,
     regenerateWrapper,
     migrationStatus,
-    instanceMigrationVersion: config?.instanceMigrationVersion,
+    instanceMigrationsPending,
     getInstance: getInstanceFromConfig,
     getSyncMode,
     syncModeLabel,

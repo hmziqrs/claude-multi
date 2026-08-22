@@ -3,20 +3,11 @@ import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises"
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import type { ProviderTemplate } from "@/templates";
-import {
-  applyProviderTemplate,
-  detectProvider,
-  getProviderTemplate,
-  providerHasRegions,
-  resolveRegionTemplate,
-  detectRegionFromBaseUrl,
-  getProviderRegions,
-} from "@/templates";
+import type { ProviderTemplate, ProviderEnvSyncResult } from "@/templates";
+import { applyProviderTemplate, syncProviderEnvToSettings } from "@/templates";
 import { writeJsonFileAtomic } from "@/util/json-file";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
 import { MigrationStatus, PluginCategory, McpServerType, PluginAction, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
-import { TUNABLE_ENV_VARS } from "@/constants/env";
 import chalk from "chalk";
 
 export interface McpServer {
@@ -838,83 +829,48 @@ export async function mergeProviderEnv(
  * Sync provider template env vars for a single instance.
  * Re-applies the latest template (model names, thinking limits, etc.)
  * while preserving the API key and any user-customized tunable vars.
+ * Tunables still holding a known legacy default from an older template
+ * are refreshed (see LEGACY_ENV_DEFAULTS).
  *
- * Adapted from the v0.6.3 instance migration logic — this is the
- * user-triggered standalone version that runs on-demand from the UI.
+ * This is the user-triggered standalone version that runs on-demand
+ * from the UI; migrations use the same shared sync implementation.
  */
 export async function syncProviderTemplateForInstance(instance: Instance): Promise<void> {
-  // Detect provider
-  const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
-  if (!providerName) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Could not detect provider for '${instance.name}'`);
+  let result: ProviderEnvSyncResult;
+  try {
+    result = syncProviderEnvToSettings(instance.configDir, {
+      providerTemplate: instance.providerTemplate,
+      providerRegion: instance.providerRegion,
+      tunablePolicy: "overwrite-legacy-defaults",
+    });
+  } catch (err: unknown) {
+    // Surface IO/parse failures with the same context the direct implementation used to give
+    throw new ClaudeMultiError(
+      ErrorCode.CONFIG_CORRUPTED,
+      `Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 
-  let template = getProviderTemplate(providerName);
-  if (!template) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Unknown provider template '${providerName}'`);
-  }
-
-  const settingsFile = join(instance.configDir, "settings.json");
-  if (!existsSync(settingsFile)) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, `No settings.json found for '${instance.name}'`);
-  }
-
-  const raw = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
-  const existingEnv = (raw.env as Record<string, string>) ?? {};
-  const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
-  const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
-
-  // Resolve regional template if applicable
-  let resolvedRegion: string | null = null;
-  if (providerHasRegions(providerName)) {
-    const detectedRegion = existingBaseUrl
-      ? detectRegionFromBaseUrl(existingBaseUrl) ?? instance.providerRegion
-      : instance.providerRegion;
-    if (detectedRegion) {
-      // Validate region before resolving — resolveRegionTemplate throws on invalid codes
-      const providerRegions = getProviderRegions(providerName);
-      if (providerRegions && detectedRegion in providerRegions) {
-        template = resolveRegionTemplate(template, detectedRegion);
-        resolvedRegion = detectedRegion;
-      }
+  if (result.status === "skipped") {
+    if (result.reason === "no-settings") {
+      throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, `No settings.json found for '${instance.name}'`);
     }
+    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, result.providerName
+      ? `Unknown provider template '${result.providerName}'`
+      : `Could not detect provider for '${instance.name}'`);
   }
-
-  // Build new env from template, preserve API key
-  const templateSettings = structuredClone(template.settings);
-  const newEnv: Record<string, string> = { ...templateSettings.env, ANTHROPIC_AUTH_TOKEN: apiKey };
-
-  // For regional providers where we couldn't resolve a valid region,
-  // preserve the existing base URL to avoid silently overwriting
-  if (providerHasRegions(providerName) && !resolvedRegion && existingBaseUrl) {
-    newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
-  }
-
-  // Preserve user-tunable env vars that differ from the template default
-  for (const key of TUNABLE_ENV_VARS) {
-    if (key in existingEnv && existingEnv[key] !== (templateSettings.env as Record<string, string>)[key]) {
-      newEnv[key] = existingEnv[key]!;
-    }
-  }
-
-  // Merge and write
-  raw.env = { ...existingEnv, ...newEnv };
-  raw.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
-  raw.alwaysThinkingEnabled = template.settings.alwaysThinkingEnabled;
-
-  writeFileSync(settingsFile, JSON.stringify(raw, null, 2), "utf-8");
 
   // Backfill providerTemplate / providerRegion on the instance in config
   let needsSave = false;
   const config = await loadConfig();
   const inst = config.instances.find(i => i.name === instance.name);
   if (inst) {
-    if (!inst.providerTemplate) {
-      inst.providerTemplate = providerName;
+    if (!inst.providerTemplate && result.providerName) {
+      inst.providerTemplate = result.providerName;
       needsSave = true;
     }
-    if (providerHasRegions(providerName) && resolvedRegion && !inst.providerRegion) {
-      inst.providerRegion = resolvedRegion;
+    if (result.region && !inst.providerRegion) {
+      inst.providerRegion = result.region;
       needsSave = true;
     }
     if (needsSave) {

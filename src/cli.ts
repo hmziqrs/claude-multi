@@ -673,7 +673,7 @@ program
         // Check mode
         console.log(chalk.bold("\n🔍 Doctor Check\n"));
         const fullConfig = await loadConfig();
-        const issues = runHealthChecks(instances, undefined, fullConfig.instanceMigrationVersion);
+        const issues = runHealthChecks(instances, undefined, needsInstanceMigration(fullConfig));
 
         if (issues.length === 0) {
           console.log(chalk.green("✓ No issues found!"));

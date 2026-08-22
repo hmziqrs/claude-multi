@@ -146,6 +146,19 @@ Migrations create backups before touching anything. The last 3 backup sets are k
 
 ---
 
+## Provider template did not update
+
+After upgrading claude-multi, run:
+
+```bash
+claude-multi doctor check
+claude-multi doctor fix
+```
+
+The check reports provider settings that no longer match the current template. The fix creates a backup and updates model slots and template settings. It keeps API keys and custom tuning values.
+
+---
+
 ## Update check not working
 
 Update checks are opt-in. Enable them:

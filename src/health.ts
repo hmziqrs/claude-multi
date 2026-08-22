@@ -38,7 +38,7 @@ function getHealthFile() { return join(getBaseDir(), ".claude-multi", "health-st
 export function runHealthChecks(
   instances: Instance[],
   migrationStatus?: { migrationStatus: string; failureInfo?: { error: string } } | null,
-  instanceMigrationVersion?: string,
+  instanceMigrationsPending?: boolean,
 ): HealthIssue[] {
   const now = new Date().toISOString();
   const issues: HealthIssue[] = [];
@@ -46,13 +46,13 @@ export function runHealthChecks(
   const currentVersion = getClaudeMultiVersion();
 
   // Check for pending instance migrations
-  if (instanceMigrationVersion !== currentVersion) {
+  if (instanceMigrationsPending) {
     issues.push({
       id: "instance-migrations-pending",
       severity: "warning",
       category: "migration",
       title: "Instance migrations pending",
-      message: `Instance schema is v${instanceMigrationVersion || "0.0.0"}, current is v${currentVersion}`,
+      message: "Instance settings are behind the current claude-multi version",
       detail: null,
       instanceName: null,
       timestamp: now,

@@ -84,6 +84,12 @@ A provider template is a bundle of environment variables, base URL, model mappin
 
 Templates are pure config, they don't install anything, make network calls, or change Claude Code's behavior beyond pointing it at a different endpoint.
 
+## Updating existing templates
+
+Creating an instance copies the current provider template into its `settings.json`. Later template updates are not applied in the background. Run `claude-multi doctor check` after upgrading claude-multi, then use `claude-multi doctor fix` to apply pending changes. claude-multi backs up the affected settings first.
+
+The sync restores provider model slots and other template settings. It leaves API keys and custom tunables alone, except for known legacy defaults that must change with the provider template.
+
 See [Providers](/providers/) for the full template reference.
 
 ## Settings copy security

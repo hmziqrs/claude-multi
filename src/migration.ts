@@ -5,9 +5,8 @@ import type { Config, Instance, MigrationMeta } from "@/config";
 import { getBaseDir } from "@/paths";
 import { MigrationStatus } from "@/constants";
 import { getClaudeMultiVersion } from "@/version";
-import { TUNABLE_ENV_VARS } from "@/constants/env";
 import { tryGetClaudePath, buildWrapperScript } from "@/wrapper";
-import { detectProvider, getProviderTemplate, providerHasRegions, resolveRegionTemplate, detectRegionFromBaseUrl, getProviderRegions } from "@/templates";
+import { syncProviderEnvToSettings, needsProviderTemplateSync } from "@/templates";
 
 export const CONFIG_VERSION = "2.0.0";
 
@@ -68,71 +67,55 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         return Promise.resolve(instance);
       }
 
-      // Detect provider from settings.json (or use stored providerTemplate)
-      const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
-      if (!providerName) return Promise.resolve(instance);
-
-      let template = getProviderTemplate(providerName);
-      if (!template) return Promise.resolve(instance);
-
-      // Read existing API key and settings before re-applying template
-      const settingsFile = join(instance.configDir, "settings.json");
       try {
-        if (!existsSync(settingsFile)) return Promise.resolve(instance);
+        const result = syncProviderEnvToSettings(instance.configDir, {
+          providerTemplate: instance.providerTemplate,
+          providerRegion: instance.providerRegion,
+          tunablePolicy: "preserve-custom",
+        });
 
-        const existing = JSON.parse(readFileSync(settingsFile, "utf-8")) as Record<string, unknown>;
-        const existingEnv = (existing.env as Record<string, string>) ?? {};
-        const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
-        const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
-
-        // For regional providers, resolve the correct regional template.
-        // Priority: detect from actual URL first, fall back to stored region.
-        // This ensures manually-edited URLs take precedence over stale metadata.
-        let resolvedRegional = false;
-        if (providerHasRegions(providerName)) {
-          const providerRegions = getProviderRegions(providerName);
-          const detectedRegion = detectRegionFromBaseUrl(existingBaseUrl ?? "") ?? instance.providerRegion;
-          if (detectedRegion && providerRegions && detectedRegion in providerRegions) {
-            template = resolveRegionTemplate(template, detectedRegion);
-            // Backfill providerRegion for future migrations
-            instance.providerRegion = detectedRegion;
-            resolvedRegional = true;
+        if (result.status !== "skipped") {
+          // Correct stale region metadata from the URL we just synced
+          if (result.region) instance.providerRegion = result.region;
+          // Backfill providerTemplate for future migrations
+          if (!instance.providerTemplate && result.providerName) {
+            instance.providerTemplate = result.providerName;
           }
-        }
-
-        // Build new env from template, preserve API key
-        const templateSettings = structuredClone(template.settings);
-        const newEnv: Record<string, string> = { ...templateSettings.env, ANTHROPIC_AUTH_TOKEN: apiKey };
-
-        // For regional providers where we couldn't resolve a valid region,
-        // preserve the existing base URL to avoid silently overwriting with cn default
-        if (providerHasRegions(providerName) && !resolvedRegional && existingBaseUrl) {
-          newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
-        }
-
-        // Preserve user-tunable env vars that the user has explicitly customized.
-        // Model names and structural vars are always synced from the template,
-        // but preference vars like MAX_OUTPUT_TOKENS are kept if the user set them.
-        for (const key of TUNABLE_ENV_VARS) {
-          if (key in existingEnv && existingEnv[key] !== (templateSettings.env as Record<string, string>)[key]) {
-            newEnv[key] = existingEnv[key]!;
-          }
-        }
-
-        // Merge: template vars overwrite existing, user-only vars survive
-        existing.env = { ...existingEnv, ...newEnv };
-        existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
-        existing.alwaysThinkingEnabled = template.settings.alwaysThinkingEnabled;
-
-        writeFileSync(settingsFile, JSON.stringify(existing, null, 2), "utf-8");
-
-        // Backfill providerTemplate for future migrations (inside try for atomicity)
-        if (!instance.providerTemplate) {
-          instance.providerTemplate = providerName;
         }
       } catch (err: unknown) {
         // Log warning instead of silently swallowing
         console.warn(`[migration] Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
+      }
+
+      return Promise.resolve(instance);
+    },
+  },
+  {
+    version: "0.11.1",
+    description: "Sync provider env to current templates: model slots always updated; tunable vars refreshed when holding a known legacy default (e.g. GLM MAX_OUTPUT_TOKENS 64000)",
+    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    migrate: (instance) => {
+      // Fast path: skip if instance is already at current version
+      const currentVersion = getClaudeMultiVersion();
+      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+        return Promise.resolve(instance);
+      }
+
+      try {
+        const result = syncProviderEnvToSettings(instance.configDir, {
+          providerTemplate: instance.providerTemplate,
+          providerRegion: instance.providerRegion,
+          tunablePolicy: "overwrite-legacy-defaults",
+        });
+
+        if (result.status !== "skipped") {
+          if (result.region) instance.providerRegion = result.region;
+          if (!instance.providerTemplate && result.providerName) {
+            instance.providerTemplate = result.providerName;
+          }
+        }
+      } catch (err: unknown) {
+        console.warn(`[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
       }
 
       return Promise.resolve(instance);
@@ -166,14 +149,30 @@ function updateClaudeJson(configDir: string): void {
 export function needsInstanceMigration(config: Config): boolean {
   const current = getClaudeMultiVersion();
   const stored = config.instanceMigrationVersion;
-  if (!stored) return INSTANCE_MIGRATIONS.length > 0;
+  const providerTemplateDrift = config.instances.some(instance => needsProviderTemplateSync(instance.configDir, {
+    providerTemplate: instance.providerTemplate,
+    providerRegion: instance.providerRegion,
+  }));
+
+  if (!stored) return INSTANCE_MIGRATIONS.length > 0 || providerTemplateDrift;
   const storedCoerced = semver.coerce(stored);
-  if (!storedCoerced) return INSTANCE_MIGRATIONS.length > 0;
-  return INSTANCE_MIGRATIONS.some(m => semver.gt(m.version, storedCoerced) && semver.lte(m.version, current));
+  if (!storedCoerced) return INSTANCE_MIGRATIONS.length > 0 || providerTemplateDrift;
+  return providerTemplateDrift || INSTANCE_MIGRATIONS.some(m => semver.gt(m.version, storedCoerced) && semver.lte(m.version, current));
 }
 
 export async function runInstanceMigrations(config: Config): Promise<Config> {
-  if (!needsInstanceMigration(config)) return config;
+  if (!needsInstanceMigration(config)) {
+    // Stamp the current version even when nothing applies so callers that check
+    // instanceMigrationVersion (TUI menu, health warning) converge instead of
+    // offering a permanent no-op. Never stamp down over a stored newer version —
+    // a downgrade+re-upgrade must not replay migrations.
+    const currentVersion = getClaudeMultiVersion();
+    const storedCoerced = semver.coerce(config.instanceMigrationVersion ?? "");
+    if (!storedCoerced || semver.lt(storedCoerced, currentVersion)) {
+      config.instanceMigrationVersion = currentVersion;
+    }
+    return config;
+  }
 
   if (!createLock()) return config;
 
@@ -192,6 +191,29 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
         // eslint-disable-next-line @react-doctor/async-await-in-loop -- migrations must run sequentially per version order
         const migrated = await migration.migrate({ ...config.instances[i] } as Instance, config);
         config.instances[i] = migrated;
+      }
+    }
+
+    // Template drift is checked independently from versioned migrations. This
+    // makes model/env updates reach every provider even if a future release
+    // forgets to add an INSTANCE_MIGRATIONS entry.
+    for (let i = 0; i < config.instances.length; i++) {
+      const instance = config.instances[i]!;
+      if (!needsProviderTemplateSync(instance.configDir, {
+        providerTemplate: instance.providerTemplate,
+        providerRegion: instance.providerRegion,
+      })) continue;
+
+      try {
+        const result = syncProviderEnvToSettings(instance.configDir, {
+          providerTemplate: instance.providerTemplate,
+          providerRegion: instance.providerRegion,
+          tunablePolicy: "overwrite-legacy-defaults",
+        });
+        if (result.region) instance.providerRegion = result.region;
+        if (!instance.providerTemplate && result.providerName) instance.providerTemplate = result.providerName;
+      } catch (err: unknown) {
+        console.warn(`[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
       }
     }
 

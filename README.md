@@ -55,6 +55,7 @@ Each instance is isolated. All of them run the normal, unmodified Claude Code bi
 * Plugin management per instance: enable, disable, install, copy, remove.
 * MCP management: list and copy server configs between instances.
 * Optional auto-sync that symlinks plugins and skills from your default `~/.claude`.
+* `doctor` reports provider template updates for existing instances and can apply them after making a backup.
 * No fork. It wraps your existing `claude` binary instead of patching it.
 
 ---
@@ -207,6 +208,17 @@ That's a full Claude Code session on the provider you picked, with its own isola
 
 If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
 
+### Update an existing provider instance
+
+Provider templates change as providers ship new models or revise their settings. After updating claude-multi, check existing instances:
+
+```bash
+claude-multi doctor check
+claude-multi doctor fix
+```
+
+The TUI also shows `Run instance migrations` when an update is available. The sync updates model names and other template settings, while keeping API keys and values you changed yourself. It creates a backup before writing `settings.json`.
+
 ---
 
 ## Providers
@@ -222,7 +234,7 @@ If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
 | Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen` |
 | Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen-coding` |
 
-The templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and a few related env vars into `~/.claude-<name>/settings.json`. Edit that file if you want to tweak things further.
+The templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. If you edit a setting, provider sync keeps your custom tunables but restores model slots to the current template.
 
 ---
 

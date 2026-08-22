@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2026-08-22
+
+### Fixed
+- Existing instances can now pick up provider template changes. `claude-multi doctor check` spots model and structural environment values that differ from the current template, even when the stored migration version is current. Run `claude-multi doctor fix` to back up the instance settings and apply the update.
+- The GLM 5.3 mapping now reaches existing GLM instances. Model slots update to `glm-5.3[1m]`; a legacy `MAX_OUTPUT_TOKENS=64000` becomes `128000`; obsolete GLM auto-compaction overrides are removed. MiniMax instances still using the old 64K output limit move to 512K.
+- Provider detection now accepts endpoints with a trailing slash, so a valid edited GLM URL does not cause template sync to be skipped.
+- The TUI migration option and health warning no longer appear for a version mismatch with no work to do.
+
+### Changed
+- Migrations and the instance-details "Sync template" action now use the same provider environment sync code. Model and structural settings follow the current template. API keys and user-tuned values stay in place, except for documented legacy defaults that need an upgrade.
+
 ## [0.11.0] - 2026-08-14
 
 ### Changed
