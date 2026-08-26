@@ -48,3 +48,4 @@ recordings/
 .claude/worktrees/
 
 build/
+redesign/.audit/
