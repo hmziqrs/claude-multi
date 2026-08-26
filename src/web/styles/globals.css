@@ -16,10 +16,10 @@
 
 @theme {
   /* Brand */
-  --color-lime: #a3e635;
-  --color-lime-bright: #bef264;
-  --color-lime-deep: #65a30d;
-  --color-lime-soft: #d9f99d;
+  --color-lime: #d97757;
+  --color-lime-bright: #e08a6d;
+  --color-lime-deep: #b85a3e;
+  --color-lime-soft: #e8a08a;
 
   /* Surface */
   --color-bg: #06060a;
@@ -29,8 +29,8 @@
   --color-surface-deep: rgba(0, 0, 0, 0.85);
 
   /* Borders */
-  --color-edge: rgba(163, 230, 53, 0.08);
-  --color-edge-hover: rgba(163, 230, 53, 0.28);
+  --color-edge: rgba(217, 119, 87, 0.08);
+  --color-edge-hover: rgba(217, 119, 87, 0.28);
 
   /* Text */
   --color-text: #f1f1f6;
@@ -90,16 +90,16 @@
     font-family: var(--font-mono);
   }
   ::selection {
-    background: rgba(163, 230, 53, 0.3);
+    background: rgba(217, 119, 87, 0.3);
     color: #fff;
   }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: var(--color-bg); }
   ::-webkit-scrollbar-thumb {
-    background: rgba(163, 230, 53, 0.15);
+    background: rgba(217, 119, 87, 0.15);
     border-radius: 10px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(163, 230, 53, 0.3); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(217, 119, 87, 0.3); }
 }
 
 /* ========== Background layers ========== */
@@ -112,8 +112,8 @@
   z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(163, 230, 53, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(163, 230, 53, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(217, 119, 87, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 119, 87, 0.035) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
@@ -164,7 +164,7 @@ nav-dropdown button {
 }
 nav-dropdown button:hover {
   color: var(--color-lime);
-  background: rgba(163, 230, 53, 0.06);
+  background: rgba(217, 119, 87, 0.06);
 }
 
 nav-dropdown .nd-icon.close { display: none; }
@@ -213,7 +213,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
 }
 .nd-panel a:hover {
   color: var(--color-lime);
-  background: rgba(163, 230, 53, 0.06);
+  background: rgba(217, 119, 87, 0.06);
 }
 .nd-panel .nd-gh {
   margin-top: 0.25rem;
@@ -255,8 +255,8 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(163, 230, 53, 0.15), rgba(163, 230, 53, 0.04));
-  border: 1px solid rgba(163, 230, 53, 0.2);
+  background: linear-gradient(135deg, rgba(217, 119, 87, 0.15), rgba(217, 119, 87, 0.04));
+  border: 1px solid rgba(217, 119, 87, 0.2);
   color: var(--color-lime);
 }
 
@@ -271,7 +271,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   border-radius: 0.6rem;
   font-weight: 600;
   font-size: 0.95rem;
-  background: linear-gradient(135deg, #bef264, #a3e635);
+  background: linear-gradient(135deg, #e08a6d, #d97757);
   color: #06060a;
   text-decoration: none;
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -312,7 +312,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   padding: 0.4rem 0.9rem 0.4rem 0.5rem;
   border-radius: 999px;
   border: 1px solid var(--color-edge-hover);
-  background: rgba(163, 230, 53, 0.06);
+  background: rgba(217, 119, 87, 0.06);
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--color-text);
@@ -339,7 +339,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   padding: 0.3rem 0.7rem;
   border: 1px solid var(--color-edge);
   border-radius: 0.4rem;
-  background: rgba(163, 230, 53, 0.04);
+  background: rgba(217, 119, 87, 0.04);
 }
 
 /* ========== Text effects ========== */
@@ -370,7 +370,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   backdrop-filter: blur(20px);
   box-shadow:
     0 30px 80px -20px rgba(0, 0, 0, 0.6),
-    0 0 80px -30px rgba(163, 230, 53, 0.3),
+    0 0 80px -30px rgba(217, 119, 87, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
 }
 
@@ -432,7 +432,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   width: 0;
   background: linear-gradient(90deg, var(--color-lime), var(--color-lime-bright));
   z-index: 100;
-  box-shadow: 0 0 12px rgba(163, 230, 53, 0.6);
+  box-shadow: 0 0 12px rgba(217, 119, 87, 0.6);
   transition: width 0.08s linear;
 }
 
@@ -507,7 +507,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   transform-style: preserve-3d;
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(28, 28, 38, 0.92), rgba(15, 15, 22, 0.95));
-  border: 1px solid rgba(163, 230, 53, 0.14);
+  border: 1px solid rgba(217, 119, 87, 0.14);
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.65);
   overflow: hidden;
 }
@@ -598,7 +598,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   width: 90px;
   height: 90px;
   border-radius: 22px;
-  background: linear-gradient(160deg, #d9f99d 0%, var(--color-lime) 55%, #65a30d 100%);
+  background: linear-gradient(160deg, #e8a08a 0%, var(--color-lime) 55%, #b85a3e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -658,7 +658,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
 .logo3d-stage:hover .logo-glyph {
   transform: translate(-50%, -50%) translateZ(180px) scale(1.08);
   box-shadow:
-    0 36px 70px -10px rgba(163, 230, 53, 0.7),
+    0 36px 70px -10px rgba(217, 119, 87, 0.7),
     0 0 0 1px rgba(255, 255, 255, 0.22) inset,
     0 1px 0 rgba(255, 255, 255, 0.35) inset;
 }
@@ -674,5 +674,5 @@ a:hover .brand-mark rect:nth-of-type(2) { transform: translate(-1px, 1.5px); }
 a:hover .brand-mark rect:nth-of-type(3) { transform: translate(1px, -1.5px); }
 a:hover .brand-mark rect:nth-of-type(4) {
   transform: translate(2.5px, -3px);
-  filter: drop-shadow(0 2px 6px rgba(163, 230, 53, 0.45));
+  filter: drop-shadow(0 2px 6px rgba(217, 119, 87, 0.45));
 }
