@@ -345,20 +345,13 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
 /* ========== Text effects ========== */
 
 @utility gradient-text {
-  background: linear-gradient(135deg, #d9f99d 0%, #a3e635 40%, #65a30d 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-lime);
 }
-
 
 @utility stat-num {
   font-family: var(--font-sans);
   font-weight: 800;
-  background: linear-gradient(135deg, #f1f1f6, #a3e635);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-lime);
 }
 
 @utility divider-glow {

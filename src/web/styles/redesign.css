@@ -452,10 +452,7 @@
 
 /* ---- Remap legacy lime utility classes ---- */
 .redesign-root .gradient-text {
-  background: linear-gradient(135deg, #e8a08a 0%, var(--accent) 40%, #b85a3e 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent);
 }
 
 .redesign-root .headline-glow {
@@ -465,10 +462,7 @@
 .redesign-root .stat-num {
   font-family: var(--font-sans);
   font-weight: 800;
-  background: linear-gradient(135deg, #f2f3f5, var(--accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent);
 }
 
 .redesign-root .icon-box {
