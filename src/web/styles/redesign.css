@@ -22,7 +22,12 @@
   /* ---- Text ---- */
   --text-primary: #f2f3f5;
   --text-secondary: #a3a8b3;
-  --text-muted: #787f8c;
+  /* Lightened from #787f8c to clear WCAG AA (4.5:1) AND the 4.8 safety margin on
+     every dark surface it styles: 4.93:1 on --background-elevated (#14161b, the
+     worst case, e.g. hero tab name), 5.11:1 on --surface-1, 5.23:1 on --surface-code,
+     5.33:1 on --surface-page. Stays clearly dimmer than --text-secondary (#a3a8b3).
+     Drives hero__name, hero__prompt, rd-metric__label, rd-terminal__title, rd-code__file. */
+  --text-muted: #7e8694;
   /* Lightened past #6b7280 (4.05:1) to clear WCAG AA (4.5:1) on --surface-page
      for the small/uppercase text it styles (version tag, table heads, graph label). */
   --text-faint: #7c8492;
