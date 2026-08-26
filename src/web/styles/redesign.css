@@ -23,7 +23,9 @@
   --text-primary: #f2f3f5;
   --text-secondary: #a3a8b3;
   --text-muted: #787f8c;
-  --text-faint: #6b7280;
+  /* Lightened past #6b7280 (4.05:1) to clear WCAG AA (4.5:1) on --surface-page
+     for the small/uppercase text it styles (version tag, table heads, graph label). */
+  --text-faint: #7c8492;
 
   /* ---- Accent (coral) ---- */
   --accent: #d97757;
