@@ -1,4 +1,7 @@
-/* Claude Multi design system — assembled from components/*.js. Do not edit by hand. */
+// ClaudeMultiDesignSystem_1ef354 — generated design system bundle
+// Order: icons first, then components alphabetically. Do not edit by hand.
+
+// ===== icons.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -157,6 +160,7 @@
   };
 })();
 
+// ===== Badge.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -235,6 +239,7 @@
   };
 })();
 
+// ===== Button.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -355,6 +360,7 @@
   };
 })();
 
+// ===== CodeBlock.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -564,6 +570,7 @@
   };
 })();
 
+// ===== CodeTabs.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -754,6 +761,7 @@
   };
 })();
 
+// ===== FAQ.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -911,6 +919,7 @@
   };
 })();
 
+// ===== FeatureCard.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1063,6 +1072,7 @@
   };
 })();
 
+// ===== Footer.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1235,6 +1245,7 @@
   };
 })();
 
+// ===== InstallCommand.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1357,6 +1368,7 @@
   };
 })();
 
+// ===== MetricCard.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1415,6 +1427,7 @@
   };
 })();
 
+// ===== ProductTable.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1537,6 +1550,7 @@
   };
 })();
 
+// ===== StatusBadge.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1587,6 +1601,7 @@
   };
 })();
 
+// ===== Tag.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1621,6 +1636,7 @@
   };
 })();
 
+// ===== Terminal.js =====
 (function () {
   'use strict';
   var React = window.React;
@@ -1818,6 +1834,7 @@
   };
 })();
 
+// ===== Workflow.js =====
 (function () {
   'use strict';
   var React = window.React;
