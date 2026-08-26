@@ -71,12 +71,14 @@ const graph = {
 
     <div class="providers__grid">
       <div class="providers__table-card">
-        <ProductTable
-          columns={providerTable.columns}
-          rows={providerTable.rows}
-          dense={providerTable.dense}
-          selectedIndex={providerTable.selectedIndex}
-        />
+        <div class="providers__table-scroll">
+          <ProductTable
+            columns={providerTable.columns}
+            rows={providerTable.rows}
+            dense={providerTable.dense}
+            selectedIndex={providerTable.selectedIndex}
+          />
+        </div>
       </div>
 
       <div class="providers__graph-card">
@@ -121,6 +123,23 @@ const graph = {
     border-radius: 10px;
     overflow: hidden;
     background: var(--surface-1);
+  }
+
+  /* Keep the comparison table's column proportions intact on narrow
+     screens instead of clipping every cell. The card clips its rounded
+     corners; this inner wrapper scrolls horizontally when needed. On
+     desktop the card is wide enough (matches the design composition),
+     so the min-width only kicks in below the single-column breakpoint. */
+  .providers__table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  @media (max-width: 900px) {
+    .providers__table-scroll :global(.rd-table) {
+      min-width: 740px;
+    }
   }
 
   .providers__graph-card {
