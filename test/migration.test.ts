@@ -1323,7 +1323,7 @@ describe("Migration", () => {
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
-      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
       expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
       expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
@@ -1665,6 +1665,125 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_MODEL).toBe("MiniMax-M3");
       expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("MiniMax-M3");
       expect(settings.env.MAX_OUTPUT_TOKENS).toBe("512000");
+    });
+  });
+
+  describe("0.12.0 instance migration — GLM sonnet slot to glm-5.3-flash[1m]", () => {
+    function glmConfig(instDir: string, overrides: Partial<Config> = {}): Config {
+      return makeConfig({
+        instanceMigrationVersion: "0.11.1", // 0.11.1 already applied — only 0.12.0 should run
+        instances: [{
+          name: "glm-old",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "glm-old"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: "0.11.0",
+        }],
+        ...overrides,
+      });
+    }
+
+    test("moves the sonnet slot to glm-5.3-flash[1m] and leaves correct slots untouched", async () => {
+      const { runInstanceMigrations } = await import("@/migration");
+
+      mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
+      const instDir = join(testDir, ".claude-glm-sonnet-flash");
+      writeGlmSettings(instDir, {
+        ANTHROPIC_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]", // pre-0.12.0 template value
+        ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
+        MAX_OUTPUT_TOKENS: "128000",
+      });
+
+      await runInstanceMigrations(glmConfig(instDir));
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
+      // Already-correct slots and tunables pass through unchanged
+      expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
+      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("sk-glm-secret");
+    });
+
+    test("fills an absent sonnet slot via template drift even for current-version instances", async () => {
+      const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
+
+      mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
+      const instDir = join(testDir, ".claude-glm-missing-sonnet");
+      writeGlmSettings(instDir, {
+        ANTHROPIC_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
+        MAX_OUTPUT_TOKENS: "128000",
+        API_TIMEOUT_MS: "3000000",
+        ENABLE_THINKING: "true",
+        REASONING_EFFORT: "high",
+        MAX_THINKING_TOKENS: "8000",
+        ENABLE_STREAMING: "true",
+      }); // no ANTHROPIC_DEFAULT_SONNET_MODEL at all
+
+      const config = makeConfig({
+        instanceMigrationVersion: getClaudeMultiVersion(),
+        instances: [{
+          name: "glm-missing-sonnet",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "glm-missing-sonnet"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: getClaudeMultiVersion(),
+        }],
+      });
+
+      expect(needsInstanceMigration(config)).toBe(true);
+
+      await runInstanceMigrations(config);
+
+      const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
+      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
+    });
+
+    test("fast path skips the 0.12.0 migration when instance is already current", async () => {
+      const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
+
+      mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
+      const instDir = join(testDir, ".claude-glm-current-fastpath");
+      // Fully current-template settings — drift detection must be a no-op, so any
+      // change below would come from the migrations themselves
+      writeGlmSettings(instDir, {
+        ANTHROPIC_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3-flash[1m]",
+        ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
+        API_TIMEOUT_MS: "3000000",
+        ENABLE_THINKING: "true",
+        REASONING_EFFORT: "high",
+        MAX_THINKING_TOKENS: "8000",
+        ENABLE_STREAMING: "true",
+        MAX_OUTPUT_TOKENS: "128000",
+      });
+      const settingsFile = join(instDir, "settings.json");
+      const before = readFileSync(settingsFile, "utf-8");
+
+      const config = makeConfig({
+        instanceMigrationVersion: getClaudeMultiVersion(),
+        instances: [{
+          name: "glm-current-fastpath",
+          configDir: instDir,
+          binaryPath: join(testDir, "bin", "glm-current-fastpath"),
+          createdAt: new Date().toISOString(),
+          createdWithVersion: getClaudeMultiVersion(),
+        }],
+      });
+
+      expect(needsInstanceMigration(config)).toBe(false);
+
+      const result = await runInstanceMigrations(config);
+
+      expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
+      expect(readFileSync(settingsFile, "utf-8")).toBe(before);
     });
   });
 });

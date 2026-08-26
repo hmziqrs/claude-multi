@@ -121,6 +121,37 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
       return Promise.resolve(instance);
     },
   },
+  {
+    version: "0.12.0",
+    description: "GLM template: sonnet slot moved to glm-5.3-flash[1m] (three-tier split: opus glm-5.3[1m], sonnet glm-5.3-flash[1m], haiku glm-5-turbo)",
+    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    migrate: (instance) => {
+      // Fast path: skip if instance is already at current version
+      const currentVersion = getClaudeMultiVersion();
+      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+        return Promise.resolve(instance);
+      }
+
+      try {
+        const result = syncProviderEnvToSettings(instance.configDir, {
+          providerTemplate: instance.providerTemplate,
+          providerRegion: instance.providerRegion,
+          tunablePolicy: "overwrite-legacy-defaults",
+        });
+
+        if (result.status !== "skipped") {
+          if (result.region) instance.providerRegion = result.region;
+          if (!instance.providerTemplate && result.providerName) {
+            instance.providerTemplate = result.providerName;
+          }
+        }
+      } catch (err: unknown) {
+        console.warn(`[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
+      }
+
+      return Promise.resolve(instance);
+    },
+  },
 ];
 
 function updateClaudeJson(configDir: string): void {

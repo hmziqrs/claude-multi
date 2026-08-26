@@ -20,7 +20,7 @@ const providerTable = {
   ],
   rows: [
     { name: 'Anthropic', mode: 'NATIVE', models: 'Opus 4.7, Sonnet 4.6, Haiku 4.5', alias: 'claude-anthropic' },
-    { name: 'GLM Coding Plan', mode: 'TEMPLATE', models: 'GLM-5.3, GLM-5-Turbo', alias: 'claude-glm' },
+    { name: 'GLM Coding Plan', mode: 'TEMPLATE', models: 'GLM-5.3, GLM-5.3-Flash, GLM-5-Turbo', alias: 'claude-glm' },
     { name: 'MiniMax', mode: 'TEMPLATE', models: 'MiniMax-M3', alias: 'claude-minimax' },
     { name: 'DeepSeek', mode: 'TEMPLATE', models: 'V4-Pro, V4-Flash', alias: 'claude-deepseek' },
     { name: 'Xiaomi MiMo', mode: 'TEMPLATE', models: 'MiMo-V2.5-Pro, MiMo-V2.5', alias: 'claude-mimo' },
@@ -44,6 +44,7 @@ const graph = {
       chain: [
         { label: 'lab', sublabel: 'glm', icon: 'folder', status: 'running' },
         { label: 'GLM-5.3', sublabel: 'api.z.ai', tone: 'violet' },
+        { label: 'GLM-5.3-Flash', sublabel: 'api.z.ai', tone: 'violet' },
       ],
     },
     {

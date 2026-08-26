@@ -9,6 +9,8 @@ Z.ai released GLM-5.3 today, and the claude-multi GLM template moves to it in ve
 
 The opus/sonnet merge is the part that needs explaining. As of this release, `glm-5.2` and `glm-5.1` are no longer served on the GLM Coding Plan endpoint: requests for them are automatically routed to `glm-5.3`. Z.ai's own Claude Code example maps both the sonnet and opus slots to `glm-5.3[1m]`. The distinct middle tier from 0.10.0 is gone, and this post reverses that stance: there is no separate sonnet-tier model to point at anymore.
 
+_Update (2026-08-26): claude-multi v0.12.0 moves the sonnet slot to `glm-5.3-flash[1m]`._
+
 ## The new mapping
 
 | Role | 0.10.0 model | 0.11.0 model |

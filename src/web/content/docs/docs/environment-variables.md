@@ -84,7 +84,7 @@ Each provider template sets these variables with provider-specific values. Here'
   "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
   "API_TIMEOUT_MS": "3000000",
   "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5-turbo",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.3[1m]",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.3-flash[1m]",
   "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.3[1m]",
   "ANTHROPIC_MODEL": "glm-5.3[1m]",
   "ANTHROPIC_SMALL_FAST_MODEL": "glm-5-turbo",
@@ -96,7 +96,7 @@ Each provider template sets these variables with provider-specific values. Here'
 }
 ```
 
-The `glm` template maps opus and sonnet to `glm-5.3[1m]` (1M context via the `[1m]` suffix) and haiku/small-fast to `glm-5-turbo` (200K). Requests for `glm-5.2` or `glm-5.1` are automatically routed to `glm-5.3` on the Coding Plan endpoint, so existing configs keep working.
+The `glm` template maps opus to `glm-5.3[1m]`, sonnet to `glm-5.3-flash[1m]`, and haiku/small-fast to `glm-5-turbo` (200K). Both `glm-5.3[1m]` and the flash variant use the `[1m]` suffix for their 1M context window; GLM-5.3-Flash is natively multimodal with 3x the GLM-5.3 quota on the Coding Plan. Requests for `glm-5.2` or `glm-5.1` are automatically routed to `glm-5.3` on the Coding Plan endpoint, so existing configs keep working.
 
 ### MiniMax (`minimax`)
 

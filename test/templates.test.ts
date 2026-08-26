@@ -24,11 +24,11 @@ describe("Provider detection", () => {
       expect(getProviderByBaseUrl("https://api.z.ai/api/anthropic/")).toBe("glm");
     });
 
-    test("GLM template pins the GLM-5.3 model mapping", () => {
+    test("GLM template pins the GLM-5.3 three-tier model mapping", () => {
       const env = getProviderTemplate("glm")!.settings.env;
       expect(env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
-      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
+      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
       expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
       expect(env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
       expect(env.MAX_OUTPUT_TOKENS).toBe("128000");

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-08-26
+
+### Changed
+- **GLM template updated**: sonnet-tier now maps to `glm-5.3-flash[1m]` instead of mirroring `glm-5.3[1m]`. Three-tier split restored: opus → `glm-5.3[1m]`, sonnet → `glm-5.3-flash[1m]`, haiku → `glm-5-turbo`. Existing instances are migrated automatically on next launch.
+
 ## [0.11.1] - 2026-08-22
 
 ### Fixed
@@ -502,6 +507,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.12.0]: https://github.com/hmziqrs/claude-multi/compare/v0.11.1...v0.12.0
 [0.11.0]: https://github.com/hmziqrs/claude-multi/compare/v0.10.0...v0.11.0
 [0.8.2]: https://github.com/hmziqrs/claude-multi/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/hmziqrs/claude-multi/compare/v0.8.0...v0.8.1
