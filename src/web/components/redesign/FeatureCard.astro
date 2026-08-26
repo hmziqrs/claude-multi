@@ -1,0 +1,68 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  icon: string;
+  title: string;
+  description?: string;
+  class?: string;
+}
+
+const { icon, title, description, class: className } = Astro.props;
+---
+
+<div class:list={['rd-feature', className]}>
+  <div class="rd-feature__icon"><Icon name={icon} size={16} /></div>
+  <div class="rd-feature__title">{title}</div>
+  {description && <div class="rd-feature__desc">{description}</div>}
+  <div class="rd-feature__slot"><slot /></div>
+</div>
+
+<style>
+  .rd-feature {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 22px;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+  .rd-feature:hover {
+    border-color: var(--border);
+    transform: translateY(-2px);
+  }
+  .rd-feature__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .rd-feature__title {
+    margin-top: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .rd-feature__desc {
+    margin-top: 8px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+  .rd-feature__slot {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+</style>

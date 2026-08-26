@@ -1,0 +1,126 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  command: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { command, class: className } = Astro.props;
+const cmd = typeof command === 'string' ? command : String(command ?? '');
+---
+
+<div class:list={['rd-install', className]} data-code-host>
+  <span class="rd-install__prompt" aria-hidden="true">$</span>
+  <span class="rd-install__cmd" data-copy-text>{cmd}</span>
+  <button class="rd-install__btn rd-copy-btn" type="button" aria-label="Copy install command" title="Copy">
+    <span class="rd-copy-btn__icon" aria-hidden="true"><Icon name="copy" size={14} /></span>
+    <span class="rd-copy-btn__check" aria-hidden="true"><Icon name="check" size={14} /></span>
+  </button>
+</div>
+
+<style>
+  .rd-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 100%;
+    padding: 10px 12px 10px 18px;
+    background: var(--surface-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .rd-install__prompt {
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 9px;
+    user-select: none;
+    font-family: var(--font-mono);
+  }
+  .rd-install__cmd {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-secondary);
+  }
+  .rd-install__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color var(--duration-fast) ease;
+  }
+  .rd-install__btn:hover {
+    color: var(--text-secondary);
+  }
+  .rd-install__btn:focus-visible {
+    outline: 2px solid var(--accent-border);
+    outline-offset: 2px;
+  }
+  .rd-install__btn .rd-copy-btn__icon {
+    display: inline-flex;
+  }
+  .rd-install__btn .rd-copy-btn__check {
+    display: none;
+  }
+  .rd-install__btn.is-copied {
+    color: #3fb950;
+  }
+  .rd-install__btn.is-copied .rd-copy-btn__icon {
+    display: none;
+  }
+  .rd-install__btn.is-copied .rd-copy-btn__check {
+    display: inline-flex;
+  }
+</style>
+
+<script>
+  if (!(window as any).__rdCopyInit) {
+    (window as any).__rdCopyInit = true;
+    const fallback = (text: string, done: () => void) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        done();
+      } catch (e) {
+        /* noop */
+      }
+      ta.remove();
+    };
+    const copy = (text: string, btn: HTMLElement) => {
+      const done = () => {
+        btn.classList.add('is-copied');
+        setTimeout(() => btn.classList.remove('is-copied'), 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+      } else {
+        fallback(text, done);
+      }
+    };
+    document.addEventListener('click', (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('.rd-copy-btn') as HTMLElement | null;
+      if (!btn) return;
+      const host = btn.closest('[data-code-host]');
+      const src = host && host.querySelector('[data-copy-text]');
+      if (src) copy(src.textContent || '', btn);
+    });
+  }
+</script>

@@ -1,0 +1,192 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  code: string;
+  language?: string;
+  filename?: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { code, language = '', filename = '', class: className } = Astro.props;
+
+const rawCode = typeof code === 'string' ? code : String(code ?? '');
+
+type Seg = { text: string; cls: string };
+function highlightJson(src: string): Seg[] {
+  const segs: Seg[] = [];
+  const re = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(src)) !== null) {
+    if (m.index > last) segs.push({ text: src.slice(last, m.index), cls: 'tok-default' });
+    const g1 = m[1];
+    if (g1 !== undefined) {
+      const g2 = m[2];
+      const isKey = g2 !== undefined;
+      segs.push({ text: g1, cls: isKey ? 'tok-key' : 'tok-string' });
+      if (isKey) segs.push({ text: g2!, cls: 'tok-default' });
+    } else {
+      const g3 = m[3];
+      if (g3 !== undefined) {
+        segs.push({ text: g3, cls: 'tok-number' });
+      } else {
+        const g4 = m[4];
+        if (g4 !== undefined) segs.push({ text: g4, cls: 'tok-boolean' });
+      }
+    }
+    last = re.lastIndex;
+  }
+  if (last < src.length) segs.push({ text: src.slice(last), cls: 'tok-default' });
+  return segs.length ? segs : [{ text: src, cls: 'tok-default' }];
+}
+
+const isJson = language === 'json';
+const segs = isJson ? highlightJson(rawCode) : null;
+---
+
+<div class:list={['rd-code', className]} data-code-host>
+  <div class="rd-code__bar">
+    <span class="rd-code__file">{filename}</span>
+    <button class="rd-copy-btn" type="button" aria-label="Copy code" title="Copy">
+      <span class="rd-copy-btn__icon" aria-hidden="true"><Icon name="copy" size={13} /></span>
+      <span class="rd-copy-btn__check" aria-hidden="true"><Icon name="check" size={13} /></span>
+    </button>
+  </div>
+  <pre class="rd-code__pre" data-copy-text><code>{segs ? segs.map((s) => <span class={`rd-code__tok rd-code__tok--${s.cls.slice(4)}`}>{s.text}</span>) : rawCode}</code></pre>
+</div>
+
+<style>
+  .rd-code {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--surface-code);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .rd-code__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 8px 8px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+  .rd-code__file {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rd-code__pre {
+    margin: 0;
+    flex: 1 1 auto;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+  }
+  .rd-code__tok {
+    color: var(--text-secondary);
+  }
+  .rd-code__tok--key {
+    color: var(--accent-hover);
+  }
+  .rd-code__tok--string {
+    color: #7ee2a8;
+  }
+  .rd-code__tok--number {
+    color: var(--info);
+  }
+  .rd-code__tok--boolean {
+    color: var(--warning);
+  }
+
+  .rd-copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color var(--duration-fast) ease;
+  }
+  .rd-copy-btn:hover {
+    color: var(--text-secondary);
+  }
+  .rd-copy-btn:focus-visible {
+    outline: 2px solid var(--accent-border);
+    outline-offset: 2px;
+  }
+  .rd-copy-btn__icon {
+    display: inline-flex;
+  }
+  .rd-copy-btn__check {
+    display: none;
+  }
+  .rd-copy-btn.is-copied {
+    color: #3fb950;
+  }
+  .rd-copy-btn.is-copied .rd-copy-btn__icon {
+    display: none;
+  }
+  .rd-copy-btn.is-copied .rd-copy-btn__check {
+    display: inline-flex;
+  }
+</style>
+
+<script>
+  if (!(window as any).__rdCopyInit) {
+    (window as any).__rdCopyInit = true;
+    const fallback = (text: string, done: () => void) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        done();
+      } catch (e) {
+        /* noop */
+      }
+      ta.remove();
+    };
+    const copy = (text: string, btn: HTMLElement) => {
+      const done = () => {
+        btn.classList.add('is-copied');
+        setTimeout(() => btn.classList.remove('is-copied'), 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+      } else {
+        fallback(text, done);
+      }
+    };
+    document.addEventListener('click', (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('.rd-copy-btn') as HTMLElement | null;
+      if (!btn) return;
+      const host = btn.closest('[data-code-host]');
+      const src = host && host.querySelector('[data-copy-text]');
+      if (src) copy(src.textContent || '', btn);
+    });
+  }
+</script>

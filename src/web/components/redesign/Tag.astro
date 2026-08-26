@@ -1,0 +1,25 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span class:list={['rd-tag', className]}><slot /></span>
+
+<style>
+  .rd-tag {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-code);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+</style>

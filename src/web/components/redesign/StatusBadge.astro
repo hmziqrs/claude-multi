@@ -1,23 +1,25 @@
 ---
-/**
- * StatusBadge.astro — dot + label status indicator.
- * Ported from the design-system `StatusBadge.js`.
- */
+interface Props {
+  status?: 'connected' | 'idle' | 'running' | 'error';
+  label?: string;
+  class?: string;
+}
+
 const { status = 'idle', label, class: className } = Astro.props;
 
-const STATUS_COLORS = {
-  connected: 'var(--success)',
-  idle: 'var(--text-muted)',
+const COLORS: Record<string, string> = {
+  connected: '#3fb950',
+  idle: '#787f8c',
   running: 'var(--accent)',
-  error: 'var(--danger)',
+  error: 'var(--danger)'
 };
-const dotColor = STATUS_COLORS[status] || STATUS_COLORS.idle;
-const text = label != null ? label : status;
+
+const dotColor = COLORS[status] ?? COLORS.idle;
 ---
 
 <span class:list={['rd-status', className]}>
-  <span class="rd-status__dot" style={`background:${dotColor}`} aria-hidden="true"></span>
-  {text}
+  <span class="rd-status__dot" style={`background-color:${dotColor}`} aria-hidden="true"></span>
+  {label ?? status}
 </span>
 
 <style>
@@ -25,16 +27,16 @@ const text = label != null ? label : status;
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    font-family: var(--font-sans);
     font-size: 12px;
-    line-height: 1;
+    font-family: var(--font-sans);
     color: var(--text-secondary);
     white-space: nowrap;
+    line-height: 1;
   }
   .rd-status__dot {
-    flex: none;
     width: 7px;
     height: 7px;
-    border-radius: var(--radius-full);
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 </style>

@@ -1,0 +1,66 @@
+---
+interface Props {
+  tone?: 'accent' | 'neutral';
+  dot?: boolean;
+  class?: string;
+}
+
+const { tone = 'accent', dot = false, class: className } = Astro.props;
+---
+
+<span class:list={['rd-badge', `rd-badge--${tone}`, className]}>
+  {dot && <span class="rd-badge__dot" aria-hidden="true"></span>}
+  <slot />
+</span>
+
+<style>
+  .rd-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .rd-badge--accent {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+  }
+  .rd-badge--neutral {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .rd-badge__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    flex-shrink: 0;
+    animation: rd-badge-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes rd-badge-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.5);
+    }
+    70% {
+      box-shadow: 0 0 0 5px rgba(217, 119, 87, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(217, 119, 87, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rd-badge__dot {
+      animation: none;
+    }
+  }
+</style>

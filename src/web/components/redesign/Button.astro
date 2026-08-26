@@ -1,0 +1,105 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md';
+  href?: string;
+  trailing?: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { variant = 'primary', size = 'md', href, trailing, class: className, ...rest } = Astro.props;
+
+const Tag = (href ? 'a' : 'button') as any;
+const attrs = href ? { href } : { type: 'button' };
+---
+
+<Tag class:list={['rd-btn', `rd-btn--${variant}`, `rd-btn--${size}`, className]} {...attrs} {...rest}>
+  <span class="rd-btn__label"><slot /></span>
+  {trailing && <span class="rd-btn__trailing">{trailing}</span>}
+</Tag>
+
+<style>
+  .rd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    line-height: 1;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      color var(--duration-fast) ease,
+      filter var(--duration-fast) ease;
+  }
+  .rd-btn--md {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+  .rd-btn--sm {
+    height: 30px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .rd-btn--primary {
+    background: var(--accent);
+    color: #16130f;
+    border-color: transparent;
+  }
+  .rd-btn--primary:hover {
+    filter: brightness(1.08);
+  }
+
+  .rd-btn--secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border-color: var(--border);
+  }
+  .rd-btn--secondary:hover {
+    border-color: var(--accent-border);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .rd-btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: transparent;
+  }
+  .rd-btn--ghost:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .rd-btn__label {
+    display: inline-flex;
+    align-items: center;
+  }
+  .rd-btn__trailing {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: -2px;
+  }
+  .rd-btn--sm .rd-btn__trailing {
+    font-size: 11px;
+  }
+  .rd-btn--primary .rd-btn__trailing {
+    color: rgba(22, 19, 15, 0.7);
+  }
+
+  .rd-btn:focus-visible {
+    outline: 2px solid var(--accent-border);
+    outline-offset: 2px;
+  }
+</style>

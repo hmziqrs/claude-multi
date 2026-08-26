@@ -1,0 +1,57 @@
+---
+interface Props {
+  value: string | number;
+  label: string;
+  tone?: 'accent' | 'default';
+  bordered?: boolean;
+  class?: string;
+}
+
+const { value, label, tone = 'default', bordered = false, class: className } = Astro.props;
+---
+
+<div
+  class:list={[
+    'rd-metric',
+    bordered && 'rd-metric--bordered',
+    tone === 'accent' && 'rd-metric--accent',
+    className
+  ]}
+>
+  <div class="rd-metric__value">{value}</div>
+  <div class="rd-metric__label">{label}</div>
+</div>
+
+<style>
+  .rd-metric {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    min-height: 120px;
+    padding: 22px;
+    background: var(--surface-1);
+  }
+  .rd-metric--bordered {
+    border-left: 1px solid var(--border-subtle);
+  }
+  .rd-metric__value {
+    font-family: var(--font-mono);
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
+  .rd-metric--accent .rd-metric__value {
+    color: var(--accent);
+  }
+  .rd-metric__label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+  }
+</style>
