@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Layout from '@/web/layouts/MarketingLayout.astro';
+import Layout from '@/web/layouts/RedesignContentLayout.astro';
 
 const entries = (await getCollection('faq')).toSorted(
   (a, b) => a.data.order - b.data.order

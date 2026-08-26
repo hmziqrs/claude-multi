@@ -413,3 +413,333 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ===================== CORAL CONTENT PROSE ===================== */
+/* Remap legacy lime Tailwind utilities to coral accent inside .redesign-root
+   so existing page content (about, blog, providers, etc.) stays on-theme
+   without editing every class. */
+
+/* ---- Remap lime text/bg/border Tailwind utilities ---- */
+.redesign-root .text-lime { color: var(--accent) !important; }
+.redesign-root .bg-lime { background-color: var(--accent) !important; }
+.redesign-root .bg-lime\/10 { background-color: var(--accent-soft) !important; }
+.redesign-root .bg-lime\/\[0\.03\] { background-color: rgba(217, 119, 87, 0.03) !important; }
+.redesign-root .bg-lime\/\[0\.04\] { background-color: rgba(217, 119, 87, 0.04) !important; }
+.redesign-root .bg-lime\/\[0\.06\] { background-color: rgba(217, 119, 87, 0.06) !important; }
+.redesign-root .border-lime\/30 { border-color: rgba(217, 119, 87, 0.3) !important; }
+.redesign-root .border-lime\/40 { border-color: rgba(217, 119, 87, 0.4) !important; }
+.redesign-root .ring-lime\/40 { --tw-ring-color: rgba(217, 119, 87, 0.4) !important; }
+.redesign-root .text-lime\/30 { color: rgba(217, 119, 87, 0.3) !important; }
+.redesign-root .shadow-\[0_0_10px_var\(--color-lime\)\] { box-shadow: 0 0 10px var(--accent) !important; }
+
+/* ---- Remap legacy lime CSS variable references ---- */
+.redesign-root {
+  --color-lime: var(--accent);
+  --color-lime-bright: var(--accent-hover);
+  --color-lime-deep: #b85a3e;
+  --color-lime-soft: #e8a08a;
+  --color-edge: var(--border-subtle);
+  --color-edge-hover: var(--accent-border);
+  --color-text: var(--text-primary);
+  --color-text-dim: var(--text-secondary);
+  --color-text-mute: var(--text-muted);
+  --color-bg: var(--surface-page);
+  --color-bg-2: var(--surface-1);
+  --color-surface: rgba(217, 119, 87, 0.06);
+  --color-surface-hover: rgba(217, 119, 87, 0.1);
+  --color-surface-deep: rgba(0, 0, 0, 0.85);
+}
+
+/* ---- Remap legacy lime utility classes ---- */
+.redesign-root .gradient-text {
+  background: linear-gradient(135deg, #e8a08a 0%, var(--accent) 40%, #b85a3e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.redesign-root .headline-glow {
+  text-shadow: 0 0 40px rgba(217, 119, 87, 0.25);
+}
+
+.redesign-root .stat-num {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  background: linear-gradient(135deg, #f2f3f5, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.redesign-root .icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(217, 119, 87, 0.15), rgba(217, 119, 87, 0.04));
+  border: 1px solid rgba(217, 119, 87, 0.2);
+  color: var(--accent);
+}
+
+.redesign-root .eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: rgba(217, 119, 87, 0.04);
+}
+
+.redesign-root .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent-border);
+  background: rgba(217, 119, 87, 0.06);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  backdrop-filter: blur(8px);
+}
+
+.redesign-root .btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: linear-gradient(135deg, #e08a6d, var(--accent));
+  color: #0b0c0e;
+  text-decoration: none;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+.redesign-root .btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.redesign-root .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  background: rgba(20, 20, 28, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+.redesign-root .btn-secondary:hover {
+  border-color: var(--accent-border);
+  background: rgba(20, 20, 28, 0.9);
+  color: var(--accent);
+}
+
+.redesign-root .glass {
+  position: relative;
+  background: var(--surface-1);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.4s ease, background 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+}
+.redesign-root .glass:hover {
+  background: var(--background-elevated);
+  border-color: var(--accent-border);
+  transform: translateY(-2px);
+}
+
+.redesign-root .terminal {
+  position: relative;
+  background: linear-gradient(180deg, rgba(13, 15, 19, 0.95), rgba(11, 12, 14, 0.95));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.6),
+    0 0 80px -30px rgba(217, 119, 87, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+
+/* ---- Prose: content page text styling ---- */
+.redesign-root .prose-blog,
+.redesign-root .prose-faq,
+.redesign-root .prose-provider {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.redesign-root .prose-blog h2,
+.redesign-root .prose-faq h2,
+.redesign-root .prose-provider h2 {
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.redesign-root .prose-blog h3,
+.redesign-root .prose-faq h3,
+.redesign-root .prose-provider h3 {
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.redesign-root .prose-blog p,
+.redesign-root .prose-faq p,
+.redesign-root .prose-provider p {
+  margin-bottom: 1.25rem;
+}
+
+.redesign-root .prose-blog a,
+.redesign-root .prose-faq a,
+.redesign-root .prose-provider a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(217, 119, 87, 0.3);
+  transition: border-color 0.15s;
+}
+.redesign-root .prose-blog a:hover,
+.redesign-root .prose-faq a:hover,
+.redesign-root .prose-provider a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.redesign-root .prose-blog code,
+.redesign-root .prose-faq code,
+.redesign-root .prose-provider code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--accent);
+  background: rgba(217, 119, 87, 0.08);
+  padding: 0.12rem 0.4rem;
+  border-radius: 0.3rem;
+}
+
+.redesign-root .prose-blog pre,
+.redesign-root .prose-faq pre,
+.redesign-root .prose-provider pre {
+  background: rgba(13, 15, 19, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.redesign-root .prose-blog pre code,
+.redesign-root .prose-faq pre code,
+.redesign-root .prose-provider pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.redesign-root .prose-blog ul,
+.redesign-root .prose-blog ol,
+.redesign-root .prose-faq ul,
+.redesign-root .prose-faq ol,
+.redesign-root .prose-provider ul,
+.redesign-root .prose-provider ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.redesign-root .prose-blog li,
+.redesign-root .prose-faq li,
+.redesign-root .prose-provider li {
+  margin-bottom: 0.4rem;
+}
+
+.redesign-root .prose-blog blockquote,
+.redesign-root .prose-faq blockquote,
+.redesign-root .prose-provider blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.redesign-root .prose-blog hr,
+.redesign-root .prose-faq hr,
+.redesign-root .prose-provider hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+.redesign-root .prose-blog strong,
+.redesign-root .prose-faq strong,
+.redesign-root .prose-provider strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.redesign-root .prose-blog table,
+.redesign-root .prose-faq table,
+.redesign-root .prose-provider table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+}
+
+.redesign-root .prose-blog th,
+.redesign-root .prose-faq th,
+.redesign-root .prose-provider th {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.redesign-root .prose-blog td,
+.redesign-root .prose-faq td,
+.redesign-root .prose-provider td {
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.redesign-root .prose-blog tr:last-child td,
+.redesign-root .prose-faq tr:last-child td,
+.redesign-root .prose-provider tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---- Divider glow (changelog) ---- */
+.redesign-root .divider-glow {
+  height: 1px;
+  background: var(--border);
+}

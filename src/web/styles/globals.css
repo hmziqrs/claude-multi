@@ -274,19 +274,11 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   background: linear-gradient(135deg, #bef264, #a3e635);
   color: #06060a;
   text-decoration: none;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
-    0 10px 40px -10px rgba(163, 230, 53, 0.6),
-    0 0 60px -20px rgba(163, 230, 53, 0.5);
-  transition: transform 0.2s ease, box-shadow 0.3s ease, filter 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
 
   &:hover {
     transform: translateY(-1px);
     filter: brightness(1.08);
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-      0 14px 50px -10px rgba(163, 230, 53, 0.7),
-      0 0 80px -10px rgba(163, 230, 53, 0.6);
   }
   &:active { transform: translateY(0); }
 }

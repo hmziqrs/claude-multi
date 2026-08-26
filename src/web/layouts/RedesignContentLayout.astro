@@ -1,0 +1,354 @@
+---
+import '../styles/globals.css';
+import '../styles/redesign.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import Button from '../components/redesign/Button.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  articlePublishedTime?: Date;
+  articleTags?: string[];
+  jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+}
+
+const SITE = 'https://claude-multi.hmziq.xyz';
+const DEFAULT_TITLE = 'claude-multi — One harness for every Claude you run';
+const DEFAULT_DESC =
+  'Run Claude Code against Anthropic, GLM, MiniMax, DeepSeek, MiMo, Kimi, Qwen and more from the same machine. Every instance keeps its own config, plugins and history. Nothing overlaps.';
+const DEFAULT_OG_IMAGE = `${SITE}/og-image.jpg`;
+
+const {
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESC,
+  ogType = 'website',
+  ogImage = DEFAULT_OG_IMAGE,
+  articlePublishedTime,
+  articleTags,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, SITE).toString();
+const pathSegments = Astro.url.pathname.replace(/^\/|\/$/g, '').split('/');
+const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
+  ? [
+      { name: 'Home', url: SITE },
+      ...pathSegments.map((seg, i) => ({
+        name: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/[-_]/g, ' '),
+        url: `${SITE}/${pathSegments.slice(0, i + 1).join('/')}/`,
+      })),
+    ]
+  : [{ name: 'Home', url: SITE }];
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0c0e" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="icon" href="/favicon-animated.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/InterVariable.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/JetBrainsMonoVariable.woff2" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="claude-multi" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@hmziqrs" />
+    <meta name="twitter:creator" content="@hmziqrs" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
+    {ogType === 'article' && articlePublishedTime && (
+      <meta property="article:published_time" content={articlePublishedTime.toISOString()} />
+    )}
+    {ogType === 'article' && articleTags?.map((tag) => (
+      <meta property="article:tag" content={tag} />
+    ))}
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="claude-multi Blog"
+      href={`${SITE}/feed.xml`}
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify([
+        {
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: 'claude-multi',
+          url: SITE,
+          description: DEFAULT_DESC,
+          applicationCategory: 'DeveloperApplication',
+          operatingSystem: 'macOS, Linux, Windows',
+          offers: { '@type': 'Offer', price: '0.00', priceCurrency: 'USD' },
+          author: { '@type': 'Person', name: 'hmziqrs', url: 'https://hmziq.rs' },
+          license: 'https://opensource.org/licenses/MIT',
+          codeRepository: 'https://github.com/hmziqrs/claude-multi',
+          programmingLanguage: 'TypeScript',
+          installUrl: 'https://www.npmjs.com/package/claude-multi',
+        },
+        ...(jsonLd ? [jsonLd] : []),
+        ...(pathSegments.length > 0 && pathSegments[0] !== '' ? [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbs.map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, name: crumb.name, item: crumb.url })) }] : []),
+      ])}
+    />
+    <script is:inline>
+      requestIdleCallback(() => {
+        import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js').then(({ initializeApp }) => {
+          const firebaseConfig = { apiKey: 'AIzaSyDAdEgdNAke2wl0q4mBixEDMgQ21J7J71w', authDomain: 'claude-multi.firebaseapp.com', projectId: 'claude-multi', storageBucket: 'claude-multi.firebasestorage.app', messagingSenderId: '961698441477', appId: '1:961698441477:web:2b9cfbd3d9a88149ee6f6c', measurementId: 'G-0VRZJQKZT8' };
+          const app = initializeApp(firebaseConfig);
+          import('https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js').then(({ getAnalytics }) => { getAnalytics(app); });
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="redesign-root">
+      <script is:inline>
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+      </script>
+      <div class="rd-scroll-progress" id="rd-scroll-progress" aria-hidden="true"></div>
+      <div class="rd-grid-overlay" aria-hidden="true"></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <header class="rd-header">
+        <a href="/" class="rd-logo">claude<span class="rd-logo-dot">·</span>multi</a>
+        <nav class="rd-nav" aria-label="Primary">
+          <a href="/docs/">Docs</a>
+          <a href="/providers/">Providers</a>
+          <a href="/changelog/">Changelog</a>
+          <a href="/faq/">FAQ</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+        <span class="rd-spacer"></span>
+        <span class="rd-version">v0.11.1</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          href="https://github.com/hmziqrs/claude-multi"
+          target="_blank"
+          rel="noopener"
+        >
+          View source
+        </Button>
+        <Button size="sm" href="/docs/getting-started/">Get started</Button>
+      </header>
+
+      <main class="rd-main">
+        <slot />
+      </main>
+
+      <SiteFooter />
+
+      <script>
+        const progress = document.getElementById('rd-scroll-progress');
+        function updateProgress() {
+          const h = document.documentElement;
+          const denom = h.scrollHeight - h.clientHeight;
+          const pct = denom > 0 ? (h.scrollTop / denom) * 100 : 0;
+          if (progress) progress.style.width = pct + '%';
+        }
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        updateProgress();
+
+        const revealEls = Array.from(document.querySelectorAll('.reveal'));
+        if (revealEls.length) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const e of entries) {
+                if (e.isIntersecting) {
+                  e.target.classList.add('visible');
+                  io.unobserve(e.target);
+                }
+              }
+            },
+            { threshold: 0, rootMargin: '0px 0px -10% 0px' }
+          );
+          revealEls.forEach((el) => io.observe(el));
+
+          const revealAll = () =>
+            revealEls.forEach((el) => el.classList.add('visible'));
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () =>
+              requestAnimationFrame(revealAll)
+            );
+          } else {
+            requestAnimationFrame(revealAll);
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>
+
+<style>
+  :global(body) {
+    background-color: #0b0c0e;
+    overflow-x: hidden;
+  }
+
+  :global(html:not(.js) .reveal) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .redesign-root {
+    position: relative;
+    isolation: isolate;
+    z-index: 0;
+    min-height: 100vh;
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    --color-lime: var(--accent);
+    --color-lime-bright: var(--accent-hover);
+    --color-edge: var(--border-subtle);
+    --color-edge-hover: var(--accent-border);
+    --color-text: var(--text-primary);
+    --color-text-dim: var(--text-secondary);
+    --color-text-mute: var(--text-muted);
+  }
+
+  .redesign-root :global(.site-footer) {
+    border-top-color: var(--border-subtle);
+    background: var(--surface-page);
+  }
+  .redesign-root :global(.footer-divider) {
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .rd-grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+
+  .rd-scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    z-index: 100;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    box-shadow: 0 0 12px var(--accent);
+    transition: width 0.08s linear;
+  }
+
+  .rd-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 0 32px;
+    background: rgba(11, 12, 14, 0.84);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .rd-logo {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .rd-logo-dot {
+    color: var(--accent);
+    padding: 0 0.12em;
+  }
+
+  .rd-nav {
+    display: flex;
+    gap: 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .rd-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--duration-fast, 0.15s) ease;
+  }
+  .rd-nav a:hover {
+    color: var(--text-primary);
+  }
+
+  .rd-spacer {
+    flex: 1;
+  }
+
+  .rd-version {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  .rd-main {
+    position: relative;
+    z-index: 2;
+  }
+
+  @media (max-width: 860px) {
+    .rd-header {
+      gap: 14px;
+      padding: 0 18px;
+    }
+    .rd-nav {
+      display: none;
+    }
+    .rd-version {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .rd-header {
+      gap: 12px;
+      padding: 0 16px;
+    }
+  }
+</style>

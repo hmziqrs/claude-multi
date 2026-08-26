@@ -1,7 +1,9 @@
-/* ClaudeMultiDesignSystem_1ef354 bundle — round 4 reassembly
- * Order: icons.js first, then components alphabetically.
- * Plain browser JS; each file is an IIFE registering on window.ClaudeMultiDesignSystem_1ef354.
- */
+/* Claude Multi design system — assembled from components/*.js via assemble.sh. Do not edit by hand. */
+(function () {
+  'use strict';
+  function start() {
+
+/* ---- icons.js ---- */
 (function () {
   'use strict';
   var React = window.React; // may be undefined if this bundle executes before the UMD loads
@@ -165,7 +167,8 @@
   };
 })();
 
-/* ===== Badge.js ===== */
+
+/* ---- Badge.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -244,7 +247,8 @@
   };
 })();
 
-/* ===== Button.js ===== */
+
+/* ---- Button.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -365,7 +369,8 @@
   };
 })();
 
-/* ===== CodeBlock.js ===== */
+
+/* ---- CodeBlock.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -575,7 +580,8 @@
   };
 })();
 
-/* ===== CodeTabs.js ===== */
+
+/* ---- CodeTabs.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -766,7 +772,8 @@
   };
 })();
 
-/* ===== FAQ.js ===== */
+
+/* ---- FAQ.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -924,7 +931,8 @@
   };
 })();
 
-/* ===== FeatureCard.js ===== */
+
+/* ---- FeatureCard.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1077,7 +1085,8 @@
   };
 })();
 
-/* ===== Footer.js ===== */
+
+/* ---- Footer.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1250,7 +1259,8 @@
   };
 })();
 
-/* ===== InstallCommand.js ===== */
+
+/* ---- InstallCommand.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1373,7 +1383,8 @@
   };
 })();
 
-/* ===== MetricCard.js ===== */
+
+/* ---- MetricCard.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1432,7 +1443,8 @@
   };
 })();
 
-/* ===== ProductTable.js ===== */
+
+/* ---- ProductTable.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1555,7 +1567,8 @@
   };
 })();
 
-/* ===== StatusBadge.js ===== */
+
+/* ---- StatusBadge.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1606,7 +1619,8 @@
   };
 })();
 
-/* ===== Tag.js ===== */
+
+/* ---- Tag.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1641,7 +1655,8 @@
   };
 })();
 
-/* ===== Terminal.js ===== */
+
+/* ---- Terminal.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -1839,7 +1854,8 @@
   };
 })();
 
-/* ===== Workflow.js ===== */
+
+/* ---- Workflow.js ---- */
 (function () {
   'use strict';
   var React = window.React;
@@ -2142,4 +2158,12 @@
       )
     );
   };
+})();
+
+  }
+  if (window.React) { start(); }
+  else {
+    var iv = setInterval(function () { if (window.React) { clearInterval(iv); start(); } }, 25);
+    setTimeout(function () { clearInterval(iv); }, 30000);
+  }
 })();
