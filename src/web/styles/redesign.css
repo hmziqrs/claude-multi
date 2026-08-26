@@ -305,7 +305,89 @@
   animation: rd-blink 1s steps(1, end) infinite;
 }
 
-/* ===================== REDUCED MOTION ===================== */
+/* ===================== SECTION PRIMITIVES ===================== */
+/* Shared layout/heading helpers used by the homepage section components.
+   Scoped under .redesign-root so they never clash with globals.css. */
+.redesign-root .rd-section {
+  position: relative;
+  padding: 128px 32px;
+  border-top: 1px solid var(--border-subtle);
+}
+.redesign-root .rd-section__inner {
+  width: 100%;
+  max-width: var(--container-xl);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.redesign-root .rd-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+.redesign-root .rd-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.redesign-root .rd-section-title {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+.redesign-root .rd-section-sub {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 640px;
+}
+.redesign-root .rd-inline-code {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+/* Reveal-on-scroll (toggled by RedesignLayout's IntersectionObserver) */
+.redesign-root .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+  will-change: opacity, transform;
+}
+.redesign-root .reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .redesign-root .rd-section {
+    padding: 80px 16px;
+  }
+  .redesign-root .rd-section-title {
+    font-size: 28px;
+  }
+  .redesign-root .rd-section-sub {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .redesign-root .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .redesign-root {
     --duration-instant: 0ms;

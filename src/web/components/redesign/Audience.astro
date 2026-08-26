@@ -1,0 +1,70 @@
+---
+/**
+ * Audience.astro — #audience section.
+ * "Built for" heading + 5 persona FeatureCards in a responsive grid.
+ */
+import FeatureCard from './FeatureCard.astro';
+---
+
+<section id="audience" class="reveal rd-section">
+  <div class="rd-section__inner">
+    <div class="rd-section__head">
+      <div class="rd-eyebrow">Built for</div>
+      <h2 class="rd-section-title">One tool. Every developer.</h2>
+    </div>
+
+    <div class="audience__grid">
+      <FeatureCard
+        icon="briefcase"
+        title="Freelancers"
+        description="Client work stays strictly separated. Different projects, different models, different configs."
+      />
+      <FeatureCard
+        icon="rocket"
+        title="Indie developers"
+        description="Run several providers side by side on one terminal. Zero config clashes."
+      />
+      <FeatureCard
+        icon="flask-conical"
+        title="Researchers"
+        description="Send one prompt to many models, compare outputs, keep every experiment reproducible."
+      />
+      <FeatureCard
+        icon="graduation-cap"
+        title="Students"
+        description="Learn with free and cheap models. Most providers need no card and no setup."
+      />
+      <FeatureCard
+        icon="users"
+        title="Teams"
+        description="Shared provider configs and consistent setups. No works-on-my-machine incidents."
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .audience__grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media (max-width: 1100px) {
+    .audience__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .audience__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .audience__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

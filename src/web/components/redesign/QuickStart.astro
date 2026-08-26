@@ -1,0 +1,139 @@
+---
+/**
+ * QuickStart.astro — #quickstart section.
+ * Heading + two numbered steps (with a coral left-border note) beside a
+ * "setup" Terminal showing the wizard run.
+ */
+import Terminal from './Terminal.astro';
+
+const steps = [
+  {
+    n: '01',
+    title: 'Launch the TUI',
+    body: 'Type <code>claude-multi</code> and hit enter. The menu adds an instance, picks a provider, takes the key, and asks what to copy from the default Claude setup.',
+  },
+  {
+    n: '02',
+    title: 'Run the new alias',
+    body: "The wizard prints something like <code>claude-glm</code>. Run it. Every flag and slash command from <code>claude</code> works as expected.",
+  },
+];
+
+const setupLines = [
+  { text: 'claude-multi', tone: 'command' },
+  { text: 'add new instance', tone: 'arrow' },
+  { text: 'name › glm', tone: 'muted' },
+  { text: 'provider › GLM', tone: 'muted' },
+  { text: 'api key › ••••••••••••', tone: 'muted' },
+  { text: "instance 'glm' created", tone: 'success' },
+  { text: 'claude-glm', tone: 'command' },
+  { text: 'Claude Code 2.1.4 · provider glm · model GLM-5.3', tone: 'arrow' },
+  { text: 'ready', tone: 'success' },
+];
+---
+
+<section id="quickstart" class="reveal rd-section">
+  <div class="rd-section__inner">
+    <div class="rd-section__head">
+      <div class="rd-eyebrow">Quick start</div>
+      <h2 class="rd-section-title">Two steps.<br />No flags to remember.</h2>
+    </div>
+
+    <div class="quickstart__grid">
+      <div class="quickstart__steps">
+        {
+          steps.map((s) => (
+            <div class="quickstart__step">
+              <span class="quickstart__num">{s.n}</span>
+              <div class="quickstart__step-body">
+                <h3 class="quickstart__step-title">{s.title}</h3>
+                <p class="quickstart__step-text" set:html={s.body} />
+              </div>
+            </div>
+          ))
+        }
+        <div class="quickstart__note">
+          The whole flow lives in the menu. No subcommands, nothing to memorize.
+        </div>
+      </div>
+
+      <Terminal title="setup" status="running" cursor lines={setupLines} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .quickstart__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  .quickstart__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .quickstart__step {
+    display: flex;
+    gap: 16px;
+  }
+  .quickstart__num {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .quickstart__step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .quickstart__step-title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .quickstart__step-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+  .quickstart__step-text :global(code) {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+  }
+
+  .quickstart__note {
+    border-left: 2px solid var(--accent-border);
+    padding: 4px 0 4px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .quickstart__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 36px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .quickstart__step-title {
+      font-size: 19px;
+    }
+  }
+</style>

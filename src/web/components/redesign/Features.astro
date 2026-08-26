@@ -1,0 +1,85 @@
+---
+/**
+ * Features.astro — #features section.
+ * Heading + 6 FeatureCards in a responsive 3-col grid. The first card carries
+ * the provider alias Tag chips.
+ */
+import FeatureCard from './FeatureCard.astro';
+import Tag from './Tag.astro';
+---
+
+<section id="features" class="reveal rd-section">
+  <div class="rd-section__inner">
+    <div class="rd-section__head">
+      <div class="rd-eyebrow">Features</div>
+      <h2 class="rd-section-title">For when one model isn't enough.</h2>
+      <p class="rd-section-sub">
+        Stop trampling the <span class="rd-inline-code">~/.claude</span> directory every time you
+        swap models.
+      </p>
+    </div>
+
+    <div class="features__grid">
+      <FeatureCard
+        icon="git-branch"
+        title="Many providers, one harness"
+        description="Templates for GLM, MiniMax, DeepSeek, MiMo, Kimi and Qwen. Every provider you set up gets its own alias that drops straight into the terminal."
+      >
+        <Tag>claude-kimi</Tag>
+        <Tag>claude-mimo</Tag>
+        <Tag>claude-deepseek</Tag>
+        <Tag>claude-qwen</Tag>
+      </FeatureCard>
+
+      <FeatureCard
+        icon="shield"
+        title="Isolated configs"
+        description="Every instance owns its settings.json, history and credentials. An Anthropic setup never touches a GLM setup."
+      />
+
+      <FeatureCard
+        icon="link"
+        title="Plugin sync"
+        description="Plugins and skills symlink back to the primary install. Install once, every instance picks it up."
+      />
+
+      <FeatureCard
+        icon="terminal"
+        title="Real Claude underneath"
+        description="Wraps the official claude binary. Every flag, every slash command, every plugin, exactly as you know them."
+      />
+
+      <FeatureCard
+        icon="key"
+        title="Local credentials"
+        description="API keys live in per-instance config files. No global env vars leaking into the wrong session."
+      />
+
+      <FeatureCard
+        icon="hard-drive"
+        title="Local-first"
+        description="Nothing leaves the machine. Configs, keys and history stay on disk under ~/.claude-multi."
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media (max-width: 900px) {
+    .features__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .features__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

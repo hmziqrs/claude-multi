@@ -1,0 +1,312 @@
+---
+/**
+ * Hero.astro — homepage hero (#top).
+ * Faithful port of the design composition: badge + headline + subcopy + CTAs +
+ * meta row, then a terminal mockup (TUI menu + "add instance" wizard + config).
+ */
+import Badge from './Badge.astro';
+import Button from './Button.astro';
+import StatusBadge from './StatusBadge.astro';
+import Terminal from './Terminal.astro';
+import CodeBlock from './CodeBlock.astro';
+
+const wizardLines = [
+  { text: 'claude-multi', tone: 'command' },
+  { text: 'Step 1 / 8 · instance name › glm', tone: 'arrow' },
+  { text: 'Step 2 / 8 · provider › GLM', tone: 'arrow' },
+  { text: 'Step 3 / 8 · api key › ••••••••••••', tone: 'arrow' },
+  { text: 'Step 7 / 8 · symlink plugins & skills › Y', tone: 'arrow' },
+  { text: "instance 'glm' created", tone: 'success' },
+  { text: 'binary: /usr/local/bin/claude-glm', tone: 'muted' },
+  { text: 'config: ~/.claude-glm', tone: 'muted' },
+];
+
+const configCode = `{
+  "provider": "glm",
+  "baseUrl": "https://api.z.ai",
+  "model": "GLM-5.3",
+  "syncPlugins": true
+}`;
+
+const menuItems = [
+  { label: 'Add new instance', active: true },
+  { label: 'List all instances' },
+  { label: 'Manage plugins' },
+  { label: 'Sync mode' },
+  { label: 'MCP servers' },
+  { label: 'Exit' },
+];
+---
+
+<section id="top" class="reveal hero">
+  <div class="hero__inner">
+    <Badge tone="accent" dot>MIT licensed</Badge>
+    <h1 class="hero__title">One harness for every Claude<br />you run.</h1>
+    <p class="hero__sub">
+      Run Claude Code against Anthropic, GLM, MiniMax, DeepSeek, MiMo, Kimi, Qwen and more
+      from the same machine. Every instance keeps its own config, plugins and history. Nothing
+      overlaps.
+    </p>
+    <div class="hero__cta">
+      <Button size="md" href="/docs/getting-started/">Get started</Button>
+      <Button
+        variant="secondary"
+        size="md"
+        trailing="★ 1.2k"
+        href="https://github.com/hmziqrs/claude-multi"
+        target="_blank"
+        rel="noopener"
+      >
+        View source
+      </Button>
+    </div>
+    <div class="hero__meta">
+      <span>MIT licensed</span>
+      <span>Works with claude-code 2.x</span>
+      <span>No shared state</span>
+    </div>
+  </div>
+
+  <div class="hero__window">
+    <div class="hero__bar">
+      <span class="hero__dots" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </span>
+      <span class="hero__path">~/projects</span>
+      <span class="hero__name">claude-multi</span>
+      <span class="hero__spacer"></span>
+      <StatusBadge status="connected" label="Live" />
+    </div>
+
+    <div class="hero__grid">
+      <div class="hero__menu" aria-hidden="true">
+        <div class="hero__prompt"><span class="hero__dollar">$</span> claude-multi</div>
+        <div class="hero__mode">Claude Multi · interactive mode</div>
+        <div class="hero__count">2 instance(s): glm, dsv3</div>
+        <ul class="hero__list">
+          {
+            menuItems.map((item) => (
+              <li class:list={['hero__item', { 'hero__item--active': item.active }]}>
+                <span class="hero__marker">{item.active ? '▸' : '·'}</span>
+                <span>{item.label}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="hero__foot">↑↓ navigate · ⏎ select · esc back</div>
+      </div>
+
+      <div class="hero__right">
+        <Terminal title="add instance" status="running" cursor lines={wizardLines} />
+        <CodeBlock filename="~/.claude-glm/settings.json" language="json" code={configCode} />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding: 96px 32px 88px;
+    background: var(--surface-page);
+  }
+
+  .hero__inner {
+    position: relative;
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    text-align: center;
+  }
+
+  .hero__title {
+    margin: 0;
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-weight: 600;
+    max-width: 860px;
+    text-wrap: pretty;
+    color: var(--text-primary);
+  }
+
+  .hero__sub {
+    margin: 0;
+    max-width: 620px;
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+
+  .hero__cta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .hero__meta {
+    display: flex;
+    gap: 28px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* ---- Terminal mockup window ---- */
+  .hero__window {
+    position: relative;
+    max-width: 1440px;
+    margin: 64px auto 0;
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  }
+
+  .hero__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 42px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--background-elevated);
+  }
+  .hero__dots {
+    display: flex;
+    gap: 6px;
+  }
+  .hero__dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .hero__path {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .hero__name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .hero__spacer {
+    flex: 1;
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+  }
+
+  .hero__menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 26px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.7;
+    background: var(--surface-code);
+  }
+  .hero__prompt {
+    color: var(--text-muted);
+  }
+  .hero__dollar {
+    color: var(--accent);
+  }
+  .hero__mode {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .hero__count {
+    color: var(--text-faint);
+    font-size: 12px;
+  }
+  .hero__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary);
+  }
+  .hero__item {
+    display: flex;
+    gap: 10px;
+  }
+  .hero__item--active {
+    color: var(--accent);
+  }
+  .hero__marker {
+    color: var(--text-faint);
+    flex: none;
+  }
+  .hero__item--active .hero__marker {
+    color: var(--accent);
+  }
+  .hero__foot {
+    margin-top: auto;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--text-faint);
+  }
+
+  .hero__right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface-1);
+  }
+
+  @media (max-width: 900px) {
+    .hero__window {
+      margin-top: 48px;
+    }
+    .hero__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding: 64px 16px 56px;
+    }
+    .hero__title {
+      font-size: 38px;
+      letter-spacing: -0.03em;
+    }
+    .hero__sub {
+      font-size: 16px;
+    }
+    .hero__cta {
+      flex-direction: column;
+      width: 100%;
+    }
+    .hero__cta :global(.rd-btn) {
+      width: 100%;
+    }
+    .hero__meta {
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+    .hero__menu {
+      padding: 18px 18px;
+      font-size: 12px;
+    }
+    .hero__right {
+      padding: 16px;
+    }
+  }
+</style>

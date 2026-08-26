@@ -1,0 +1,114 @@
+---
+/**
+ * Install.astro — #install section.
+ * Two-column lead (copy + checklist) beside a CodeTabs installer, then a
+ * 4-up MetricCard row.
+ */
+import CodeTabs from './CodeTabs.astro';
+import MetricCard from './MetricCard.astro';
+
+const installTabs = [
+  { label: 'bun', code: 'bun add -g claude-multi' },
+  { label: 'npm', code: 'npm install -g claude-multi' },
+  { label: 'pnpm', code: 'pnpm add -g claude-multi' },
+  { label: 'deno', code: 'deno install -g -A -n claude-multi npm:claude-multi' },
+];
+
+const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'No sudo required'];
+---
+
+<section id="install" class="reveal rd-section install">
+  <div class="rd-section__inner">
+    <div class="install__lead">
+      <div class="rd-eyebrow">Install</div>
+      <h2 class="rd-section-title">One command.<br />Any runtime.</h2>
+      <p class="rd-section-sub">
+        It ships on npm. Install it globally with whatever package manager is already on the
+        machine. No curl-pipe-sh, no platform binaries.
+      </p>
+      <ul class="install__check">
+        {
+          checks.map((c) => (
+            <li>
+              <span class="install__tick" aria-hidden="true">✓</span>
+              {c}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <CodeTabs tabs={installTabs} />
+  </div>
+
+  <div class="install__metrics">
+    <MetricCard value="06" label="Providers wired up" tone="accent" />
+    <MetricCard value="12" label="Plugins linked" bordered />
+    <MetricCard value="02" label="Commands to start" bordered />
+    <MetricCard value="0" label="Config conflicts" bordered />
+  </div>
+</section>
+
+<style>
+  .install__lead {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 520px;
+  }
+
+  .install__check {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .install__check li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .install__tick {
+    color: var(--accent);
+  }
+
+  /* Two-column lead + code */
+  .install > .rd-section__inner:first-child {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 64px;
+    align-items: start;
+  }
+
+  /* Metrics row */
+  .install__metrics {
+    gap: 0;
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 64px auto 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  @media (max-width: 900px) {
+    .install > .rd-section__inner:first-child {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 36px;
+    }
+    .install__metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 520px) {
+    .install__metrics {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

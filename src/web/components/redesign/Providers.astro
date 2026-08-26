@@ -1,0 +1,152 @@
+---
+/**
+ * Providers.astro — #providers section.
+ * Heading + a 2-col grid: ProductTable (provider comparison) beside an
+ * "Instance graph" Workflow card. A secondary CTA links to /providers/.
+ * Subtle radial grid backdrop behind the whole section.
+ */
+import ProductTable from './ProductTable.astro';
+import Workflow from './Workflow.astro';
+import Button from './Button.astro';
+
+const providerTable = {
+  dense: true,
+  selectedIndex: 0,
+  columns: [
+    { key: 'name', label: 'Provider', width: '1.1fr', emphasis: true },
+    { key: 'mode', label: 'Mode', width: '90px', mono: true },
+    { key: 'models', label: 'Models', width: '1.2fr', mono: true },
+    { key: 'alias', label: 'Alias', width: '150px', mono: true },
+  ],
+  rows: [
+    { name: 'Anthropic', mode: 'NATIVE', models: 'Opus 4.7, Sonnet 4.6, Haiku 4.5', alias: 'claude-anthropic' },
+    { name: 'GLM Coding Plan', mode: 'TEMPLATE', models: 'GLM-5.3, GLM-5-Turbo', alias: 'claude-glm' },
+    { name: 'MiniMax', mode: 'TEMPLATE', models: 'MiniMax-M3', alias: 'claude-minimax' },
+    { name: 'DeepSeek', mode: 'TEMPLATE', models: 'V4-Pro, V4-Flash', alias: 'claude-deepseek' },
+    { name: 'Xiaomi MiMo', mode: 'TEMPLATE', models: 'MiMo-V2.5-Pro, MiMo-V2.5', alias: 'claude-mimo' },
+    { name: 'Moonshot Kimi', mode: 'TEMPLATE', models: 'K2.7 Code, K2.6, K2.5', alias: 'claude-kimi' },
+    { name: 'Alibaba Qwen', mode: 'TEMPLATE', models: 'Qwen3-Coder-Next, Plus, Flash', alias: 'claude-qwen' },
+  ],
+};
+
+const graph = {
+  animated: true,
+  root: { label: 'claude-multi', sublabel: '~/.claude-multi', icon: 'layers' },
+  branches: [
+    {
+      active: true,
+      chain: [
+        { label: 'work', sublabel: 'anthropic', icon: 'folder', status: 'running', active: true },
+        { label: 'sonnet-4.6', sublabel: 'api.anthropic.com', tone: 'violet' },
+      ],
+    },
+    {
+      chain: [
+        { label: 'lab', sublabel: 'glm', icon: 'folder', status: 'running' },
+        { label: 'GLM-5.3', sublabel: 'api.z.ai', tone: 'violet' },
+      ],
+    },
+    {
+      chain: [
+        { label: 'cheap', sublabel: 'kimi', icon: 'folder', status: 'idle' },
+        { label: 'K2.7 Code', sublabel: 'api.moonshot.ai', tone: 'violet' },
+      ],
+    },
+  ],
+};
+---
+
+<section id="providers" class="reveal rd-section providers">
+  <div class="providers__bg" aria-hidden="true"></div>
+
+  <div class="rd-section__inner">
+    <div class="rd-section__head">
+      <div class="rd-eyebrow">Providers</div>
+      <h2 class="rd-section-title">Ready for every model.</h2>
+      <p class="rd-section-sub">
+        Endpoints, model names and defaults are already wired up. Pick a provider in the TUI,
+        paste a key, done.
+      </p>
+    </div>
+
+    <div class="providers__grid">
+      <div class="providers__table-card">
+        <ProductTable
+          columns={providerTable.columns}
+          rows={providerTable.rows}
+          dense={providerTable.dense}
+          selectedIndex={providerTable.selectedIndex}
+        />
+      </div>
+
+      <div class="providers__graph-card">
+        <div class="providers__graph-label">Instance graph</div>
+        <Workflow root={graph.root} branches={graph.branches} animated={graph.animated} />
+      </div>
+    </div>
+
+    <div class="providers__cta">
+      <Button variant="secondary" href="/providers/">Explore providers →</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .providers {
+    overflow: hidden;
+  }
+
+  .providers__bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(circle at 50% 40%, black, transparent 70%);
+    mask-image: radial-gradient(circle at 50% 40%, black, transparent 70%);
+  }
+
+  .providers__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  .providers__table-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-1);
+  }
+
+  .providers__graph-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    background: var(--surface-1);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .providers__graph-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .providers__cta {
+    position: relative;
+  }
+
+  @media (max-width: 900px) {
+    .providers__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
