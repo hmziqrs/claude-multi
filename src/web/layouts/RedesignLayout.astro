@@ -342,16 +342,26 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     z-index: 2;
   }
 
-  @media (max-width: 640px) {
+  /* Collapse the nav + version earlier than 640px so the logo and the two
+     header buttons never overflow / clip on tablet widths (the nav + version
+     add ~450px of fixed header content that only fits above ~860px). */
+  @media (max-width: 860px) {
     .rd-header {
       gap: 14px;
-      padding: 0 16px;
+      padding: 0 18px;
     }
     .rd-nav {
       display: none;
     }
     .rd-version {
       display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .rd-header {
+      gap: 12px;
+      padding: 0 16px;
     }
   }
 </style>
