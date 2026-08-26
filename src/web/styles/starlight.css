@@ -1,5 +1,5 @@
 /* ===========================================================
-   claude-multi · Starlight theme (lime · dark · glass)
+   claude-multi · Starlight theme (coral · dark · glass)
    Overrides Starlight via --sl-* tokens + class targeting.
    Safe to edit — single source for all docs styling.
    =========================================================== */
@@ -7,30 +7,30 @@
 :root,
 [data-theme="dark"] {
   /* ---------- Brand ---------- */
-  --sl-color-accent-low:  rgba(163, 230, 53, 0.12);
-  --sl-color-accent:      #a3e635;
-  --sl-color-accent-high: #bef264;
+  --sl-color-accent-low:  rgba(217, 119, 87, 0.12);
+  --sl-color-accent:      #d97757;
+  --sl-color-accent-high: #e08a6d;
 
-  --sl-color-bg-accent:        #a3e635;
-  --sl-color-bg-accent-hover:  #84cc16;
-  --sl-color-text-accent:      #a3e635;
-  --sl-color-text-action:      #a3e635;
+  --sl-color-bg-accent:        #d97757;
+  --sl-color-bg-accent-hover:  #c4664a;
+  --sl-color-text-accent:      #d97757;
+  --sl-color-text-action:      #d97757;
 
   /* ---------- Surface ---------- */
-  --sl-color-bg:          #06060a;
-  --sl-color-bg-nav:      rgba(6, 6, 10, 0.72);
-  --sl-color-bg-sidebar:  rgba(8, 8, 13, 0.65);
-  --sl-color-bg-code:     rgba(10, 10, 16, 0.85);
-  --sl-color-bg-inline-code: rgba(163, 230, 53, 0.1);
+  --sl-color-bg:          #0b0c0e;
+  --sl-color-bg-nav:      rgba(11, 12, 14, 0.72);
+  --sl-color-bg-sidebar:  rgba(13, 15, 19, 0.65);
+  --sl-color-bg-code:     rgba(13, 15, 19, 0.85);
+  --sl-color-bg-inline-code: rgba(217, 119, 87, 0.1);
 
   /* ---------- Text ---------- */
   --sl-color-white:       #ffffff;
-  --sl-color-text:        #e7e7ed;
-  --sl-color-text-invert: #06060a;
+  --sl-color-text:        #f2f3f5;
+  --sl-color-text-invert: #0b0c0e;
 
   /* ---------- Borders ---------- */
-  --sl-color-hairline:        rgba(163, 230, 53, 0.08);
-  --sl-color-hairline-light:  rgba(163, 230, 53, 0.18);
+  --sl-color-hairline:        rgba(217, 119, 87, 0.08);
+  --sl-color-hairline-light:  rgba(217, 119, 87, 0.18);
   --sl-color-hairline-shade:  rgba(255, 255, 255, 0.04);
 
   /* ---------- Gray ramp ---------- */
@@ -43,7 +43,7 @@
   --sl-color-gray-7: #08080d;
 
   /* ---------- Selection ---------- */
-  --sl-color-text-selection-bg: rgba(163, 230, 53, 0.3);
+  --sl-color-text-selection-bg: rgba(217, 119, 87, 0.3);
 
   /* ---------- Fonts ---------- */
   --sl-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -55,27 +55,27 @@
   --sl-nav-height: 4rem;
 
   /* ---------- Custom (used in selectors below) ---------- */
-  --doc-glow: 0 0 32px -8px rgba(163, 230, 53, 0.35);
+  --doc-glow: 0 0 32px -8px rgba(217, 119, 87, 0.35);
 
   /* =========================================================
      Tailwind @theme tokens (needed by shared components)
      These mirror globals.css @theme so NavLinks, SiteFooter,
      etc. resolve correctly in Starlight pages.
      ========================================================= */
-  --color-lime: #a3e635;
-  --color-lime-bright: #bef264;
-  --color-lime-deep: #65a30d;
-  --color-lime-soft: #d9f99d;
-  --color-bg: #06060a;
-  --color-bg-2: #0a0a12;
-  --color-surface: rgba(0, 0, 0, 0.4);
-  --color-surface-hover: rgba(0, 0, 0, 0.55);
+  --color-lime: #d97757;
+  --color-lime-bright: #e08a6d;
+  --color-lime-deep: #b85a3e;
+  --color-lime-soft: #e8a08a;
+  --color-bg: #0b0c0e;
+  --color-bg-2: #101216;
+  --color-surface: rgba(217, 119, 87, 0.06);
+  --color-surface-hover: rgba(217, 119, 87, 0.1);
   --color-surface-deep: rgba(0, 0, 0, 0.85);
-  --color-edge: rgba(163, 230, 53, 0.08);
-  --color-edge-hover: rgba(163, 230, 53, 0.28);
-  --color-text: #f1f1f6;
-  --color-text-dim: #a1a1b5;
-  --color-text-mute: #6b6b7d;
+  --color-edge: rgba(217, 119, 87, 0.08);
+  --color-edge-hover: rgba(217, 119, 87, 0.28);
+  --color-text: #f2f3f5;
+  --color-text-dim: #a3a8b3;
+  --color-text-mute: #7e8694;
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
@@ -104,8 +104,8 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(60vw 60vw at -10vw 10vh, rgba(163, 230, 53, 0.10), transparent 70%),
-    radial-gradient(50vw 50vw at 110vw 80vh, rgba(101, 163, 13, 0.08), transparent 70%);
+    radial-gradient(60vw 60vw at -10vw 10vh, rgba(217, 119, 87, 0.10), transparent 70%),
+    radial-gradient(50vw 50vw at 110vw 80vh, rgba(184, 90, 62, 0.08), transparent 70%);
 }
 
 /* Dotted grid overlay */
@@ -116,8 +116,8 @@ body::after {
   pointer-events: none;
   z-index: 0;
   background-image:
-    linear-gradient(rgba(163, 230, 53, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(163, 230, 53, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(217, 119, 87, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 119, 87, 0.025) 1px, transparent 1px);
   background-size: 56px 56px;
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
           mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
@@ -153,7 +153,7 @@ header.header {
    =========================================================== */
 
 header.header {
-  background: rgba(6, 6, 10, 0.72) !important;
+  background: rgba(11, 12, 14, 0.72) !important;
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   border-bottom: 1px solid var(--sl-color-hairline) !important;
@@ -213,7 +213,7 @@ nav.sidebar {
 }
 
 .sidebar-pane {
-  background: rgba(8, 8, 13, 0.5) !important;
+  background: rgba(13, 15, 19, 0.5) !important;
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
 }
@@ -274,14 +274,14 @@ nav.sidebar {
 }
 
 .sidebar-content a:hover {
-  background: rgba(163, 230, 53, 0.06) !important;
+  background: rgba(217, 119, 87, 0.06) !important;
   color: var(--sl-color-accent) !important;
   transform: translateX(2px);
 }
 
 /* Active link (current page) — Starlight uses aria-current="page" */
 .sidebar-content a[aria-current="page"] {
-  background: linear-gradient(90deg, rgba(163, 230, 53, 0.14), rgba(163, 230, 53, 0.04)) !important;
+  background: linear-gradient(90deg, rgba(217, 119, 87, 0.14), rgba(217, 119, 87, 0.04)) !important;
   color: var(--sl-color-white) !important;
   border: 1px solid var(--sl-color-hairline-light);
   box-shadow: var(--doc-glow);
@@ -297,7 +297,6 @@ nav.sidebar {
   height: 60%;
   background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
   border-radius: 3px;
-  box-shadow: 0 0 12px var(--sl-color-accent);
 }
 
 /* ===========================================================
@@ -322,7 +321,7 @@ header h1 {
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.1;
-  background: linear-gradient(135deg, #d9f99d 0%, #a3e635 45%, #65a30d 100%);
+  background: linear-gradient(135deg, #e8a08a 0%, #d97757 45%, #b85a3e 100%);
   -webkit-background-clip: text;
           background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -351,7 +350,6 @@ header h1 {
   width: 3px;
   background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
   border-radius: 3px;
-  box-shadow: 0 0 10px rgba(163, 230, 53, 0.45);
 }
 
 .sl-markdown-content h3 {
@@ -413,11 +411,11 @@ header h1 {
 .sl-markdown-content :not(pre) > code {
   font-family: var(--sl-font-mono);
   font-size: 0.86em;
-  background: rgba(163, 230, 53, 0.1) !important;
+  background: rgba(217, 119, 87, 0.1) !important;
   color: var(--sl-color-accent) !important;
   padding: 0.15rem 0.45rem;
   border-radius: 0.35rem;
-  border: 1px solid rgba(163, 230, 53, 0.18);
+  border: 1px solid rgba(217, 119, 87, 0.18);
   white-space: nowrap;
 }
 
@@ -428,11 +426,7 @@ header h1 {
 }
 .expressive-code .frame {
   border: 1px solid var(--sl-color-hairline) !important;
-  box-shadow:
-    0 24px 60px -20px rgba(0, 0, 0, 0.55),
-    0 0 80px -40px rgba(163, 230, 53, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.02) inset !important;
-  background: rgba(8, 8, 13, 0.9) !important;
+  background: rgba(13, 15, 19, 0.9) !important;
   backdrop-filter: blur(12px);
 }
 .expressive-code .frame.has-title .title {
@@ -454,7 +448,7 @@ header h1 {
   border-left: none !important;
   padding: 1rem 1.25rem 1rem 1.5rem;
   border-radius: 0 12px 12px 0;
-  background: rgba(163, 230, 53, 0.04);
+  background: rgba(217, 119, 87, 0.04);
   color: var(--sl-color-gray-1);
   font-style: normal;
 }
@@ -467,14 +461,13 @@ header h1 {
   width: 3px;
   background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
   border-radius: 3px;
-  box-shadow: 0 0 10px rgba(163, 230, 53, 0.45);
 }
 
 /* Horizontal rule */
 .sl-markdown-content hr {
   height: 1px !important;
   border: none !important;
-  background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.35), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(217, 119, 87, 0.35), transparent) !important;
   margin: 2.5rem 0 !important;
 }
 
@@ -490,7 +483,7 @@ header h1 {
   backdrop-filter: blur(6px);
 }
 .sl-markdown-content thead {
-  background: rgba(163, 230, 53, 0.06);
+  background: rgba(217, 119, 87, 0.06);
 }
 .sl-markdown-content th {
   text-align: left;
@@ -512,7 +505,7 @@ header h1 {
   border-bottom: none;
 }
 .sl-markdown-content tbody tr:hover {
-  background: rgba(163, 230, 53, 0.025);
+  background: rgba(217, 119, 87, 0.025);
 }
 
 /* Lists */
@@ -537,7 +530,6 @@ header h1 {
 .sl-markdown-content img {
   border-radius: 12px;
   border: 1px solid var(--sl-color-hairline);
-  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.55);
 }
 
 /* ===========================================================
@@ -550,7 +542,6 @@ header h1 {
   padding: 1rem 1.25rem !important;
   background: rgba(20, 20, 28, 0.55) !important;
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: hidden;
 }
@@ -564,16 +555,16 @@ header h1 {
 }
 
 .starlight-aside--note          { border-color: rgba(125, 211, 252, 0.25) !important; }
-.starlight-aside--note::before  { background: linear-gradient(180deg, #7dd3fc, #38bdf8); box-shadow: 0 0 10px rgba(125, 211, 252, 0.5); }
+.starlight-aside--note::before  { background: linear-gradient(180deg, #7dd3fc, #38bdf8); }
 
-.starlight-aside--tip           { border-color: rgba(163, 230, 53, 0.3) !important; }
-.starlight-aside--tip::before   { background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent)); box-shadow: 0 0 10px rgba(163, 230, 53, 0.5); }
+.starlight-aside--tip           { border-color: rgba(217, 119, 87, 0.3) !important; }
+.starlight-aside--tip::before   { background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent)); }
 
 .starlight-aside--caution       { border-color: rgba(251, 191, 36, 0.3) !important; }
-.starlight-aside--caution::before { background: linear-gradient(180deg, #fcd34d, #fbbf24); box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+.starlight-aside--caution::before { background: linear-gradient(180deg, #fcd34d, #fbbf24); }
 
 .starlight-aside--danger        { border-color: rgba(248, 113, 113, 0.3) !important; }
-.starlight-aside--danger::before { background: linear-gradient(180deg, #fca5a5, #f87171); box-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
+.starlight-aside--danger::before { background: linear-gradient(180deg, #fca5a5, #f87171); }
 
 .starlight-aside__title {
   font-weight: 700;
@@ -598,11 +589,11 @@ starlight-toc nav a {
 }
 starlight-toc nav a:hover {
   color: var(--sl-color-accent) !important;
-  background: rgba(163, 230, 53, 0.05);
+  background: rgba(217, 119, 87, 0.05);
 }
 starlight-toc nav a[aria-current="true"] {
   color: var(--sl-color-accent) !important;
-  background: rgba(163, 230, 53, 0.08);
+  background: rgba(217, 119, 87, 0.08);
   font-weight: 600;
   box-shadow: inset 2px 0 0 var(--sl-color-accent);
 }
@@ -635,7 +626,6 @@ starlight-toc nav a[aria-current="true"] {
   border-color: var(--sl-color-hairline-light) !important;
   background: rgba(28, 28, 38, 0.75) !important;
   transform: translateY(-2px);
-  box-shadow: 0 20px 40px -20px rgba(163, 230, 53, 0.25);
 }
 .pagination-links a svg {
   color: var(--sl-color-accent) !important;
@@ -676,8 +666,8 @@ footer.site-footer {
   z-index: 10;
   margin-top: 4rem;
   padding: 4rem 1.5rem 2.5rem;
-  border-top: 1px solid var(--color-edge, rgba(163, 230, 53, 0.08));
-  background: linear-gradient(to bottom, transparent, rgba(163, 230, 53, 0.025));
+  border-top: 1px solid var(--color-edge, rgba(217, 119, 87, 0.08));
+  background: linear-gradient(to bottom, transparent, rgba(217, 119, 87, 0.025));
 }
 
 footer.site-footer .site-footer-inner {
@@ -710,7 +700,7 @@ footer.site-footer .footer-dot {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 9999px;
-  background: var(--color-lime, #a3e635);
+  background: var(--color-lime, #d97757);
 }
 
 footer.site-footer .footer-brand-name {
@@ -751,14 +741,14 @@ footer.site-footer .footer-list a {
 }
 
 footer.site-footer .footer-list a:hover {
-  color: var(--color-lime, #a3e635);
+  color: var(--color-lime, #d97757);
 }
 
 footer.site-footer .footer-divider {
   border: none;
   height: 1px;
   margin: 3rem 0 1.5rem;
-  background: linear-gradient(90deg, transparent, rgba(163, 230, 53, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(217, 119, 87, 0.35), transparent);
 }
 
 footer.site-footer .footer-bottom {
@@ -778,7 +768,7 @@ footer.site-footer .footer-bottom a {
 }
 
 footer.site-footer .footer-bottom a:hover {
-  color: var(--color-lime, #a3e635);
+  color: var(--color-lime, #d97757);
 }
 
 footer.site-footer .footer-version {
@@ -804,7 +794,6 @@ footer.site-footer .footer-bottom-links {
   border-bottom-width: 2px;
   border-radius: 0.4rem;
   color: var(--sl-color-white);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* ===========================================================
@@ -846,11 +835,11 @@ footer.site-footer .footer-bottom-links {
   background: var(--sl-color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(163, 230, 53, 0.15);
+  background: rgba(217, 119, 87, 0.15);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(163, 230, 53, 0.3);
+  background: rgba(217, 119, 87, 0.3);
 }
 
 /* ===========================================================
