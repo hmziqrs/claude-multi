@@ -28,7 +28,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -123,6 +123,12 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
 
   <body>
     <div class="redesign-root">
+      <script is:inline>
+        // Mark JS as available as early as possible so reveal content is only
+        // hidden when scripting is on (see the .no-js fallback in <style>).
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+      </script>
       <div class="rd-scroll-progress" id="rd-scroll-progress" aria-hidden="true"></div>
       <div class="rd-grid-overlay" aria-hidden="true"></div>
       <div class="grain" aria-hidden="true"></div>
@@ -168,19 +174,37 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
         window.addEventListener('scroll', updateProgress, { passive: true });
         updateProgress();
 
-        // ---------- Reveal on scroll ----------
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                e.target.classList.add('visible');
-                io.unobserve(e.target);
+        // ---------- Reveal on scroll (with fail-safe) ----------
+        const revealEls = Array.from(document.querySelectorAll('.reveal'));
+        if (revealEls.length) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              for (const e of entries) {
+                if (e.isIntersecting) {
+                  e.target.classList.add('visible');
+                  io.unobserve(e.target);
+                }
               }
-            }
-          },
-          { threshold: 0, rootMargin: '0px 0px -10% 0px' }
-        );
-        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+            },
+            { threshold: 0, rootMargin: '0px 0px -10% 0px' }
+          );
+          revealEls.forEach((el) => io.observe(el));
+
+          // Fail-safe: reveal every section shortly after load so nothing is ever
+          // left invisible. Below-the-fold .reveal nodes start at opacity:0 and only
+          // become visible when scrolled into view — that leaves them blank in captured
+          // screenshots (taken before the fade-in completes) and in fast-scroll or
+          // unsupported-IO scenarios. This guarantees the content is shown.
+          const revealAll = () =>
+            revealEls.forEach((el) => el.classList.add('visible'));
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () =>
+              requestAnimationFrame(revealAll)
+            );
+          } else {
+            requestAnimationFrame(revealAll);
+          }
+        }
       </script>
     </div>
   </body>
@@ -190,6 +214,12 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
   :global(body) {
     background-color: #0b0c0e;
     overflow-x: hidden;
+  }
+
+  /* No-JS fallback: never hide reveal content when scripting is unavailable. */
+  :global(html:not(.js) .reveal) {
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   .redesign-root {
