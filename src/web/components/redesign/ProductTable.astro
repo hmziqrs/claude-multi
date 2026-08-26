@@ -105,9 +105,12 @@ const rowPadH = dense ? '14px' : '16px';
     font-size: 13px;
     line-height: 1.45;
     color: var(--text-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    /* Allow content to wrap rather than clip. Grid items default to
+       min-width:auto, which would force tracks to the full text width;
+       min-width:0 lets fr tracks size properly and the text wrap. */
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .rd-table__cell--mono {
     font-family: var(--font-mono);
