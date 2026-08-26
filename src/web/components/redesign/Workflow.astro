@@ -26,7 +26,11 @@ const flowColor = 'var(--accent-border)';
 
   <!-- Branch fan-out -->
   <div class="rd-workflow__branches">
-    <div class="rd-workflow__rail" aria-hidden="true"></div>
+    <div
+      class="rd-workflow__rail"
+      aria-hidden="true"
+      style={`background:${hasActive ? 'var(--border)' : 'var(--border-subtle)'}`}
+    ></div>
     {
       branchList.map((branch) => {
         const chain = branch && Array.isArray(branch.chain) ? branch.chain : [];
@@ -131,7 +135,6 @@ const flowColor = 'var(--accent-border)';
     top: -12px;
     bottom: 30px;
     width: 1px;
-    background: var(--border-subtle);
   }
 
   .rd-workflow__branch {

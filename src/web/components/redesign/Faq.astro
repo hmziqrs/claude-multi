@@ -5,7 +5,7 @@
  * with zero JS. The chevron rotates via CSS on [open]. Ported intent from the
  * design-system `FAQ.js`.
  */
-const { eyebrow, title, items = [] } = Astro.props;
+const { eyebrow, title, items = [], name = 'rd-faq' } = Astro.props;
 const faqItems = Array.isArray(items) ? items : [];
 ---
 
@@ -18,7 +18,7 @@ const faqItems = Array.isArray(items) ? items : [];
   <div class="rd-faq__list">
     {
       faqItems.map((item) => (
-        <details class="rd-faq__item" name="rd-faq">
+        <details class="rd-faq__item" name={name}>
           <summary class="rd-faq__summary">
             <span class="rd-faq__q">{item.question}</span>
             <svg
