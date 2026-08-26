@@ -1,12 +1,13 @@
 ---
 /**
  * Workflow.astro — instance graph (root node + fanned branches of node chains).
- * Ported from the design-system `Workflow.js`. Static layout (no animation in
- * v1) with SVG-free CSS connectors. Node icons use the `Icon` component.
+ * Ported from the design-system `Workflow.js`. SVG-free CSS connectors; the
+ * active branch shows animated coral flow lines and a pulsing "running" dot
+ * (respecting prefers-reduced-motion). Node icons use the `Icon` component.
  */
 import Icon from './Icon.astro';
 
-const { root = {}, branches = [], animated = false } = Astro.props;
+const { root = {}, branches = [], animated = true } = Astro.props;
 const branchList = Array.isArray(branches) ? branches : [];
 const hasActive = branchList.some((b) => b && b.active);
 const flowColor = 'var(--accent-border)';
@@ -35,11 +36,16 @@ const flowColor = 'var(--accent-border)';
       branchList.map((branch) => {
         const chain = branch && Array.isArray(branch.chain) ? branch.chain : [];
         const isActive = !!(branch && branch.active);
-        const lineColor = isActive ? flowColor : 'var(--border-subtle)';
+        const flow = isActive && animated;
+        const solidColor = isActive ? 'var(--border)' : 'var(--border-subtle)';
+        const lineStyle = flow ? undefined : `background:${solidColor};`;
         return (
           <div class="rd-workflow__branch">
             <div class="rd-workflow__elbow" aria-hidden="true">
-              <div class="rd-workflow__elbow-line" style={`background:${lineColor}`} />
+              <div
+                class:list={['rd-workflow__elbow-line', { 'rd-workflow__elbow-line--flow': flow }]}
+                style={lineStyle}
+              />
             </div>
             <div class="rd-workflow__chain">
               {chain.map((node, j) => (
@@ -62,7 +68,10 @@ const flowColor = 'var(--accent-border)';
                   </div>
                   {j < chain.length - 1 && (
                     <div class="rd-workflow__connector" aria-hidden="true">
-                      <div class="rd-workflow__connector-line" style={`background:${lineColor}`} />
+                      <div
+                        class:list={['rd-workflow__connector-line', { 'rd-workflow__connector-line--flow': flow }]}
+                        style={lineStyle}
+                      />
                     </div>
                   )}
                 </Fragment>
@@ -197,6 +206,39 @@ const flowColor = 'var(--accent-border)';
     height: 6px;
     border-radius: 50%;
     background: var(--success);
+    animation: rd-wf-pulse 2s ease-in-out infinite;
+  }
+
+  /* Active-branch flow connectors: animated coral dashes */
+  .rd-workflow__elbow-line--flow,
+  .rd-workflow__connector-line--flow {
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--accent-border) 0,
+      var(--accent-border) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    animation: rd-wf-dash 1s linear infinite;
+  }
+
+  @keyframes rd-wf-dash {
+    from { background-position: 0 0; }
+    to { background-position: 16px 0; }
+  }
+
+  @keyframes rd-wf-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.35); }
+    50% { opacity: 0.75; box-shadow: 0 0 0 4px rgba(74, 222, 128, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rd-workflow__elbow-line--flow,
+    .rd-workflow__connector-line--flow,
+    .rd-workflow__dot {
+      animation: none !important;
+    }
   }
   .rd-workflow__node-sub {
     font-family: var(--font-mono);
