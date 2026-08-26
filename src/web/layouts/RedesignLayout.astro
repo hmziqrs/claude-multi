@@ -203,6 +203,24 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* The shared SiteFooter uses the legacy lime theme tokens; remap them to
+       coral/neutral tokens so it stays on-theme inside the redesign shell. */
+    --color-lime: var(--accent);
+    --color-lime-bright: var(--accent-hover);
+    --color-edge: var(--border-subtle);
+    --color-edge-hover: var(--accent-border);
+    --color-text: var(--text-primary);
+    --color-text-dim: var(--text-secondary);
+    --color-text-mute: var(--text-muted);
+  }
+
+  /* Neutralize the legacy footer's hardcoded lime gradients inside the redesign. */
+  .redesign-root :global(.site-footer) {
+    border-top-color: var(--border-subtle);
+    background: var(--surface-page);
+  }
+  .redesign-root :global(.footer-divider) {
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
   }
 
   /* Coral-tinted grid backdrop */
