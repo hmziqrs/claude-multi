@@ -1,0 +1,12 @@
+/* elevation.css — box-shadow tokens for the dark theme */
+:root {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.4);
+
+  /* Accent glow used by highlighted elements */
+  --shadow-glow-accent: 0 0 0 1px var(--accent-border),
+    0 4px 24px rgba(217, 119, 87, 0.18);
+}

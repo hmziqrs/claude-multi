@@ -1,0 +1,31 @@
+/* colors.css — dark theme color tokens */
+:root {
+  /* Surfaces */
+  --surface-page: #0b0c0e;
+  --surface-1: #101216;
+  --surface-code: #0d0f13;
+  --background-elevated: #14161b;
+
+  /* Text */
+  --text-primary: #f2f3f5;
+  --text-secondary: #a3a8b3;
+  --text-muted: #787f8c;
+  --text-faint: #4b515c;
+
+  /* Accent */
+  --accent: #d97757;
+  --accent-border: rgba(217, 119, 87, 0.45);
+  --accent-soft: rgba(217, 119, 87, 0.12);
+  --accent-hover: #e08a6d;
+
+  /* Borders & lines */
+  --border: #23262d;
+  --border-subtle: #191c21;
+  --grid-line: rgba(255, 255, 255, 0.05);
+
+  /* Status */
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
+}

@@ -1,0 +1,12 @@
+/* layout.css — container widths & layout metrics */
+:root {
+  --container-sm: 640px;
+  --container-md: 896px;
+  --container-lg: 1152px;
+  --container-xl: 1280px;
+  --container-max: 1440px;
+
+  --sidebar-width: 260px;
+  --header-height: 52px;
+  --gutter: 24px;
+}

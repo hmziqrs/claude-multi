@@ -1,0 +1,67 @@
+/* styles.css — shared utilities, scrollbar styling, generic helpers */
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+/* Text helpers */
+.ds-text-primary { color: var(--text-primary); }
+.ds-text-secondary { color: var(--text-secondary); }
+.ds-text-muted { color: var(--text-muted); }
+.ds-text-faint { color: var(--text-faint); }
+.ds-text-accent { color: var(--accent); }
+.ds-mono { font-family: var(--font-mono); }
+.ds-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Surface helpers */
+.ds-surface-1 {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.ds-elevated {
+  background-color: var(--background-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Focus ring */
+.ds-focus:focus-visible,
+:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 2px;
+}
+
+/* Subtle grid backdrop */
+.ds-grid-bg {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
