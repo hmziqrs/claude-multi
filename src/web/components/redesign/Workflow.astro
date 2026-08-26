@@ -1,0 +1,253 @@
+---
+/**
+ * Workflow.astro — instance graph (root node + fanned branches of node chains).
+ * Ported from the design-system `Workflow.js`. Static layout (no animation in
+ * v1) with SVG-free CSS connectors. Node icons use the `Icon` component.
+ */
+import Icon from './Icon.astro';
+
+const { root = {}, branches = [], animated = false } = Astro.props;
+const branchList = Array.isArray(branches) ? branches : [];
+const hasActive = branchList.some((b) => b && b.active);
+const flowColor = 'var(--accent-border)';
+---
+
+<div class="rd-workflow">
+  <!-- Root node -->
+  <div class="rd-workflow__root">
+    <span class="rd-workflow__root-icon">
+      <Icon name={root.icon || 'layers'} size={13} />
+    </span>
+    <div class="rd-workflow__root-text">
+      <span class="rd-workflow__root-label">{root.label}</span>
+      {root.sublabel && <span class="rd-workflow__root-sub">{root.sublabel}</span>}
+    </div>
+  </div>
+
+  <!-- Branch fan-out -->
+  <div class="rd-workflow__branches">
+    <div class="rd-workflow__rail" aria-hidden="true"></div>
+    {
+      branchList.map((branch) => {
+        const chain = branch && Array.isArray(branch.chain) ? branch.chain : [];
+        const isActive = !!(branch && branch.active);
+        const lineColor = isActive ? flowColor : 'var(--border-subtle)';
+        return (
+          <div class="rd-workflow__branch">
+            <div class="rd-workflow__elbow" aria-hidden="true">
+              <div class="rd-workflow__elbow-line" style={`background:${lineColor}`} />
+            </div>
+            <div class="rd-workflow__chain">
+              {chain.map((node, j) => (
+                <Fragment>
+                  <div class:list={['rd-workflow__node', { 'rd-workflow__node--bright': isActive }]}>
+                    <div class="rd-workflow__node-top">
+                      {node.icon && <Icon name={node.icon} size={12} />}
+                      <span class="rd-workflow__node-label">{node.label}</span>
+                      {node.status === 'running' && (
+                        <span class="rd-workflow__dot" title="running" aria-hidden="true" />
+                      )}
+                    </div>
+                    {node.sublabel && (
+                      <span
+                        class:list={['rd-workflow__node-sub', { 'rd-workflow__node-sub--violet': node.tone === 'violet' }]}
+                      >
+                        {node.sublabel}
+                      </span>
+                    )}
+                  </div>
+                  {j < chain.length - 1 && (
+                    <div class="rd-workflow__connector" aria-hidden="true">
+                      <div class="rd-workflow__connector-line" style={`background:${lineColor}`} />
+                    </div>
+                  )}
+                </Fragment>
+              ))}
+            </div>
+          </div>
+        );
+      })
+    }
+  </div>
+</div>
+
+<style>
+  .rd-workflow {
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+  }
+
+  /* ---- Root ---- */
+  .rd-workflow__root {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-code);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+  }
+  .rd-workflow__root-icon {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .rd-workflow__root-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rd-workflow__root-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .rd-workflow__root-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 1.4;
+    color: var(--text-faint);
+  }
+
+  /* ---- Branches ---- */
+  .rd-workflow__branches {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .rd-workflow__rail {
+    position: absolute;
+    left: 0;
+    top: -12px;
+    bottom: 30px;
+    width: 1px;
+    background: var(--border-subtle);
+  }
+
+  .rd-workflow__branch {
+    display: flex;
+    align-items: stretch;
+  }
+  .rd-workflow__elbow {
+    flex: none;
+    width: 16px;
+    position: relative;
+  }
+  .rd-workflow__elbow-line {
+    position: absolute;
+    top: 26px;
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  .rd-workflow__chain {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .rd-workflow__node {
+    flex: 1 1 0;
+    min-width: 0;
+    background: var(--surface-code);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .rd-workflow__node--bright {
+    border-color: var(--border);
+  }
+  .rd-workflow__node-top {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 15px;
+  }
+  .rd-workflow__node-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rd-workflow__dot {
+    flex: none;
+    margin-left: auto;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+  .rd-workflow__node-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    color: var(--text-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rd-workflow__node-sub--violet {
+    color: #a78bfa;
+  }
+
+  .rd-workflow__connector {
+    flex: none;
+    width: 12px;
+    display: flex;
+    align-items: center;
+  }
+  .rd-workflow__connector-line {
+    width: 100%;
+    height: 1px;
+  }
+
+  @media (max-width: 640px) {
+    .rd-workflow__branch {
+      flex-direction: column;
+    }
+    .rd-workflow__elbow {
+      width: auto;
+      height: 12px;
+    }
+    .rd-workflow__elbow-line {
+      top: 0;
+      bottom: 0;
+      left: 7px;
+      right: auto;
+      width: 1px;
+      height: auto;
+    }
+    .rd-workflow__chain {
+      flex-direction: column;
+    }
+    .rd-workflow__connector {
+      width: auto;
+      height: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+    .rd-workflow__connector-line {
+      width: 1px;
+      height: 100%;
+    }
+  }
+</style>

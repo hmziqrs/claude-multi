@@ -1,0 +1,159 @@
+---
+/**
+ * Terminal.astro — faux terminal window.
+ * Ported from the design-system `Terminal.js`. Active status is rendered with
+ * the `StatusBadge` component in the header (per the redesign spec).
+ */
+import StatusBadge from './StatusBadge.astro';
+
+const {
+  title = 'terminal',
+  status, // 'running' | 'idle' | 'connected' | 'error'
+  statusLabel,
+  lines = [],
+  cursor = false,
+} = Astro.props;
+
+const lineList = Array.isArray(lines) ? lines : [];
+const KNOWN = ['command', 'arrow', 'success', 'muted', 'plain'];
+const showStatus = status && status !== 'none';
+---
+
+<div class="rd-terminal">
+  <div class="rd-terminal__header">
+    <div class="rd-terminal__dots" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <span class="rd-terminal__title">{title}</span>
+    {
+      showStatus && (
+        <div class="rd-terminal__status">
+          <StatusBadge status={status} label={statusLabel} />
+        </div>
+      )
+    }
+  </div>
+
+  <div class="rd-terminal__body">
+    {
+      lineList.map((line, i) => {
+        const text = line && typeof line.text === 'string' ? line.text : '';
+        const tone = KNOWN.includes(line && line.tone) ? line.tone : 'plain';
+        const isLast = i === lineList.length - 1;
+        return (
+          <div class:list={['rd-terminal__line', `rd-terminal__line--${tone}`, { 'rd-terminal__line--cmd': tone === 'command' }]}>
+            {tone === 'command' && <span class="rd-terminal__pfx" aria-hidden="true">$</span>}
+            {tone === 'arrow' && <span class="rd-terminal__pfx" aria-hidden="true">▸</span>}
+            <span class="rd-terminal__txt">{text}</span>
+            {cursor && isLast && <span class="rd-caret" aria-hidden="true"></span>}
+          </div>
+        );
+      })
+    }
+    <div class="rd-terminal__fill"></div>
+  </div>
+</div>
+
+<style>
+  .rd-terminal {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--surface-code);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .rd-terminal__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+  .rd-terminal__dots {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 6px;
+  }
+  .rd-terminal__dots span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    display: inline-block;
+  }
+  .rd-terminal__title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .rd-terminal__status {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+  }
+
+  .rd-terminal__body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 18px 20px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    min-height: 160px;
+  }
+  .rd-terminal__fill {
+    flex: 1 1 auto;
+  }
+
+  .rd-terminal__line {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .rd-terminal__line--cmd {
+    display: flex;
+  }
+
+  .rd-terminal__pfx {
+    margin-right: 9px;
+    flex: none;
+    user-select: none;
+  }
+  .rd-terminal__line--command .rd-terminal__pfx {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .rd-terminal__line--command .rd-terminal__txt {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .rd-terminal__line--arrow .rd-terminal__pfx {
+    color: var(--accent);
+  }
+  .rd-terminal__line--arrow .rd-terminal__txt {
+    color: var(--text-secondary);
+  }
+  .rd-terminal__line--success .rd-terminal__txt {
+    color: var(--success);
+  }
+  .rd-terminal__line--muted .rd-terminal__txt {
+    color: var(--text-faint);
+  }
+  .rd-terminal__line--plain .rd-terminal__txt {
+    color: var(--text-secondary);
+  }
+</style>

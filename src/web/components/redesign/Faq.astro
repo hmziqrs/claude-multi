@@ -1,0 +1,142 @@
+---
+/**
+ * Faq.astro — accessible accordion.
+ * Uses native <details>/<summary> (exclusive accordion via `name`) so it works
+ * with zero JS. The chevron rotates via CSS on [open]. Ported intent from the
+ * design-system `FAQ.js`.
+ */
+const { eyebrow, title, items = [] } = Astro.props;
+const faqItems = Array.isArray(items) ? items : [];
+---
+
+<div class="rd-faq">
+  <div class="rd-faq__head">
+    {eyebrow && <div class="rd-faq__eyebrow">{eyebrow}</div>}
+    {title && <h2 class="rd-faq__title">{title}</h2>}
+  </div>
+
+  <div class="rd-faq__list">
+    {
+      faqItems.map((item) => (
+        <details class="rd-faq__item" name="rd-faq">
+          <summary class="rd-faq__summary">
+            <span class="rd-faq__q">{item.question}</span>
+            <svg
+              class="rd-faq__chevron"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </summary>
+          <div class="rd-faq__answer">
+            <p>{item.answer}</p>
+          </div>
+        </details>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .rd-faq {
+    font-family: var(--font-sans);
+  }
+
+  .rd-faq__head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .rd-faq__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .rd-faq__title {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .rd-faq__list {
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .rd-faq__item {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .rd-faq__item:last-child {
+    border-bottom: none;
+  }
+
+  .rd-faq__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 0;
+    cursor: pointer;
+    list-style: none;
+    color: var(--text-secondary);
+    transition: color var(--duration-normal) var(--ease-out);
+  }
+  .rd-faq__summary::-webkit-details-marker {
+    display: none;
+  }
+  .rd-faq__summary:hover {
+    color: var(--text-primary);
+  }
+  .rd-faq__item[open] > .rd-faq__summary {
+    color: var(--text-primary);
+  }
+
+  .rd-faq__q {
+    font-size: 15.5px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .rd-faq__chevron {
+    flex: none;
+    color: var(--text-faint);
+    transform: rotate(0deg);
+    transition: transform var(--duration-normal) var(--ease-out);
+  }
+  .rd-faq__item[open] > .rd-faq__summary .rd-faq__chevron {
+    transform: rotate(180deg);
+  }
+
+  .rd-faq__answer {
+    padding: 0 40px 22px 0;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+  .rd-faq__answer p {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .rd-faq__title {
+      font-size: 26px;
+    }
+    .rd-faq__answer {
+      padding-right: 0;
+    }
+  }
+</style>

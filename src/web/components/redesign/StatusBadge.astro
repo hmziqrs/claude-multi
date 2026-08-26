@@ -1,0 +1,40 @@
+---
+/**
+ * StatusBadge.astro — dot + label status indicator.
+ * Ported from the design-system `StatusBadge.js`.
+ */
+const { status = 'idle', label, class: className } = Astro.props;
+
+const STATUS_COLORS = {
+  connected: 'var(--success)',
+  idle: 'var(--text-muted)',
+  running: 'var(--accent)',
+  error: 'var(--danger)',
+};
+const dotColor = STATUS_COLORS[status] || STATUS_COLORS.idle;
+const text = label != null ? label : status;
+---
+
+<span class:list={['rd-status', className]}>
+  <span class="rd-status__dot" style={`background:${dotColor}`} aria-hidden="true"></span>
+  {text}
+</span>
+
+<style>
+  .rd-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .rd-status__dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+  }
+</style>

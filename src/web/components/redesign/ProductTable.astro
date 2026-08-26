@@ -1,0 +1,120 @@
+---
+/**
+ * ProductTable.astro — styled grid table.
+ * Ported from the design-system `ProductTable.js`. Selected row gets a coral
+ * soft background + inset left accent bar. Rendered as a CSS-grid with ARIA
+ * table roles for accessibility.
+ */
+const { columns = [], rows = [], dense = false, selectedIndex = -1 } = Astro.props;
+
+const cols = Array.isArray(columns) ? columns : [];
+const rowList = Array.isArray(rows) ? rows : [];
+const gridTemplate = cols.map((c) => c.width || '1fr').join(' ');
+const rowPadV = dense ? '8px' : '12px';
+const rowPadH = dense ? '14px' : '16px';
+---
+
+<div class="rd-table" role="table" aria-label="Comparison table">
+  <div class="rd-table__row rd-table__row--head" role="row" style={`grid-template-columns:${gridTemplate}`}>
+    {
+      cols.map((col) => (
+        <div class="rd-table__head" role="columnheader" style={`padding:${rowPadH}`}>
+          {col.label}
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="rd-table__body">
+    {
+      rowList.map((row, i) => (
+        <div
+          class:list={['rd-table__row', 'rd-table__row--body', { 'rd-table__row--selected': i === selectedIndex }]}
+          role="row"
+          style={`grid-template-columns:${gridTemplate}`}
+        >
+          {cols.map((col) => (
+            <div
+              class:list={['rd-table__cell', { 'rd-table__cell--mono': col.mono, 'rd-table__cell--emphasis': col.emphasis }]}
+              role="cell"
+              title={row[col.key]}
+              style={`padding:${rowPadV} ${rowPadH}`}
+            >
+              {row[col.key]}
+            </div>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .rd-table {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rd-table__row {
+    display: grid;
+    align-items: center;
+  }
+
+  .rd-table__row--head {
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+  }
+  .rd-table__head {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rd-table__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rd-table__row--body {
+    background: transparent;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--duration-instant) var(--ease-out);
+  }
+  .rd-table__row--body:last-child {
+    border-bottom: none;
+  }
+  .rd-table__row--body:hover {
+    background: var(--surface-code);
+  }
+  .rd-table__row--selected {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .rd-table__row--selected:hover {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+
+  .rd-table__cell {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rd-table__cell--mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .rd-table__cell--emphasis {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+</style>
