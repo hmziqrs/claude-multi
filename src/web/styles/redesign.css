@@ -1,0 +1,326 @@
+/* =============================================================================
+ * redesign.css — Claude Multi homepage redesign (coral / dark theme)
+ *
+ * Single source of truth for the redesign design system. Every token from the
+ * design-system bundle (tokens/*.css + styles.css) is ported here and scoped
+ * under a single root selector `.redesign-root` so it does NOT clash with the
+ * existing lime-themed `globals.css`.
+ *
+ * Plain CSS + CSS variables only. No Tailwind utilities.
+ * Fonts (Inter / JetBrains Mono) are self-hosted via globals.css @font-face,
+ * so the Google Fonts @import from the original tokens is intentionally dropped.
+ * ============================================================================= */
+
+/* ===================== TOKENS (scoped to .redesign-root) ===================== */
+.redesign-root {
+  /* ---- Surfaces ---- */
+  --surface-page: #0b0c0e;
+  --surface-1: #101216;
+  --surface-code: #0d0f13;
+  --background-elevated: #14161b;
+
+  /* ---- Text ---- */
+  --text-primary: #f2f3f5;
+  --text-secondary: #a3a8b3;
+  --text-muted: #787f8c;
+  --text-faint: #4b515c;
+
+  /* ---- Accent (coral) ---- */
+  --accent: #d97757;
+  --accent-border: rgba(217, 119, 87, 0.45);
+  --accent-soft: rgba(217, 119, 87, 0.12);
+  --accent-hover: #e08a6d;
+
+  /* ---- Borders & lines ---- */
+  --border: #23262d;
+  --border-subtle: #191c21;
+  --grid-line: rgba(255, 255, 255, 0.05);
+
+  /* ---- Status ---- */
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
+
+  /* ---- Elevation (box-shadows) ---- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.4);
+  --shadow-glow-accent: 0 0 0 1px var(--accent-border),
+    0 4px 24px rgba(217, 119, 87, 0.18);
+
+  /* ---- Fonts (self-hosted via globals.css) ---- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo,
+    Consolas, 'Liberation Mono', monospace;
+
+  /* ---- Layout ---- */
+  --container-sm: 640px;
+  --container-md: 896px;
+  --container-lg: 1152px;
+  --container-xl: 1280px;
+  --container-max: 1440px;
+  --sidebar-width: 260px;
+  --header-height: 52px;
+  --gutter: 24px;
+
+  /* ---- Motion ---- */
+  --duration-instant: 60ms;
+  --duration-fast: 140ms;
+  --duration-normal: 220ms;
+  --duration-slow: 360ms;
+  --duration-slower: 520ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Shape (radii) ---- */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-full: 9999px;
+
+  /* ---- Spacing scale ---- */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ---- Typography scale ---- */
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12.5px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 38px;
+  --text-5xl: 48px;
+  --leading-none: 1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.08em;
+
+  /* ---- Root element base styles ---- */
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ===================== BASE RESETS ===================== */
+.redesign-root *,
+.redesign-root *::before,
+.redesign-root *::after {
+  box-sizing: border-box;
+}
+
+.redesign-root h1,
+.redesign-root h2,
+.redesign-root h3,
+.redesign-root h4,
+.redesign-root h5,
+.redesign-root h6,
+.redesign-root p,
+.redesign-root figure,
+.redesign-root blockquote {
+  margin: 0;
+}
+
+.redesign-root ul,
+.redesign-root ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.redesign-root button,
+.redesign-root input,
+.redesign-root select,
+.redesign-root textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.redesign-root img,
+.redesign-root svg,
+.redesign-root canvas,
+.redesign-root video {
+  display: block;
+  max-width: 100%;
+}
+
+.redesign-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.redesign-root ::selection {
+  background: var(--accent-border);
+  color: var(--text-primary);
+}
+
+/* ===================== SCROLLBARS ===================== */
+.redesign-root,
+.redesign-root * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.redesign-root ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.redesign-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.redesign-root ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+.redesign-root ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+/* ===================== TEXT HELPERS ===================== */
+.redesign-root .ds-text-primary {
+  color: var(--text-primary);
+}
+.redesign-root .ds-text-secondary {
+  color: var(--text-secondary);
+}
+.redesign-root .ds-text-muted {
+  color: var(--text-muted);
+}
+.redesign-root .ds-text-faint {
+  color: var(--text-faint);
+}
+.redesign-root .ds-text-accent {
+  color: var(--accent);
+}
+.redesign-root .ds-mono {
+  font-family: var(--font-mono);
+}
+.redesign-root .ds-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===================== SURFACE HELPERS ===================== */
+.redesign-root .ds-surface-1 {
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.redesign-root .ds-elevated {
+  background-color: var(--background-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Subtle grid backdrop */
+.redesign-root .ds-grid-bg {
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ===================== FOCUS RING ===================== */
+.redesign-root :focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 2px;
+}
+
+/* ===================== LAYOUT HELPERS ===================== */
+.redesign-root .rd-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ===================== KEYFRAMES ===================== */
+/* Blinking caret for terminal cursors */
+@keyframes rd-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.redesign-root .rd-caret {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: rd-blink 1s steps(1, end) infinite;
+}
+
+/* ===================== REDUCED MOTION ===================== */
+@media (prefers-reduced-motion: reduce) {
+  .redesign-root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+
+  .redesign-root *,
+  .redesign-root *::before,
+  .redesign-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
