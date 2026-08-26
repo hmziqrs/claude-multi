@@ -1,11 +1,16 @@
-// ClaudeMultiDesignSystem_1ef354 — generated design system bundle
-// Order: icons first, then components alphabetically. Do not edit by hand.
-
-// ===== icons.js =====
+/* ClaudeMultiDesignSystem_1ef354 bundle — round 4 reassembly
+ * Order: icons.js first, then components alphabetically.
+ * Plain browser JS; each file is an IIFE registering on window.ClaudeMultiDesignSystem_1ef354.
+ */
 (function () {
   'use strict';
-  var React = window.React;
-  var h = React.createElement;
+  var React = window.React; // may be undefined if this bundle executes before the UMD loads
+  // Lazy createElement: nothing dereferences window.React until first render.
+  var h = function () {
+    var R = window.React || React;
+    if (!R) throw new Error('Icon: React not loaded yet');
+    return R.createElement.apply(R, arguments);
+  };
   var NS = (window.ClaudeMultiDesignSystem_1ef354 = window.ClaudeMultiDesignSystem_1ef354 || {});
 
   // Lucide-style inline SVG path data, 24x24 viewBox, stroke-based.
@@ -160,7 +165,7 @@
   };
 })();
 
-// ===== Badge.js =====
+/* ===== Badge.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -239,7 +244,7 @@
   };
 })();
 
-// ===== Button.js =====
+/* ===== Button.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -360,7 +365,7 @@
   };
 })();
 
-// ===== CodeBlock.js =====
+/* ===== CodeBlock.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -570,7 +575,7 @@
   };
 })();
 
-// ===== CodeTabs.js =====
+/* ===== CodeTabs.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -761,7 +766,7 @@
   };
 })();
 
-// ===== FAQ.js =====
+/* ===== FAQ.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -919,7 +924,7 @@
   };
 })();
 
-// ===== FeatureCard.js =====
+/* ===== FeatureCard.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1072,7 +1077,7 @@
   };
 })();
 
-// ===== Footer.js =====
+/* ===== Footer.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1245,7 +1250,7 @@
   };
 })();
 
-// ===== InstallCommand.js =====
+/* ===== InstallCommand.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1368,7 +1373,7 @@
   };
 })();
 
-// ===== MetricCard.js =====
+/* ===== MetricCard.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1427,7 +1432,7 @@
   };
 })();
 
-// ===== ProductTable.js =====
+/* ===== ProductTable.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1550,7 +1555,7 @@
   };
 })();
 
-// ===== StatusBadge.js =====
+/* ===== StatusBadge.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1601,7 +1606,7 @@
   };
 })();
 
-// ===== Tag.js =====
+/* ===== Tag.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1636,7 +1641,7 @@
   };
 })();
 
-// ===== Terminal.js =====
+/* ===== Terminal.js ===== */
 (function () {
   'use strict';
   var React = window.React;
@@ -1834,7 +1839,7 @@
   };
 })();
 
-// ===== Workflow.js =====
+/* ===== Workflow.js ===== */
 (function () {
   'use strict';
   var React = window.React;

@@ -1,7 +1,12 @@
 (function () {
   'use strict';
-  var React = window.React;
-  var h = React.createElement;
+  var React = window.React; // may be undefined if this bundle executes before the UMD loads
+  // Lazy createElement: nothing dereferences window.React until first render.
+  var h = function () {
+    var R = window.React || React;
+    if (!R) throw new Error('Icon: React not loaded yet');
+    return R.createElement.apply(R, arguments);
+  };
   var NS = (window.ClaudeMultiDesignSystem_1ef354 = window.ClaudeMultiDesignSystem_1ef354 || {});
 
   // Lucide-style inline SVG path data, 24x24 viewBox, stroke-based.
