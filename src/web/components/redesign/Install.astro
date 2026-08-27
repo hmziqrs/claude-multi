@@ -1,11 +1,9 @@
 ---
 /**
  * Install.astro: #install section.
- * Two-column lead (copy + checklist) beside a CodeTabs installer, then a
- * 4-up MetricCard row.
+ * Two-column lead (copy + checklist) beside a CodeTabs installer.
  */
 import CodeTabs from './CodeTabs.astro';
-import MetricCard from './MetricCard.astro';
 
 const installTabs = [
   { label: 'bun', code: 'bun add -g claude-multi' },
@@ -41,12 +39,6 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'No sudo required
     <CodeTabs tabs={installTabs} />
   </div>
 
-  <div class="install__metrics">
-    <MetricCard value="06" label="Providers wired up" tone="accent" />
-    <MetricCard value="12" label="Plugins linked" bordered />
-    <MetricCard value="02" label="Commands to start" bordered />
-    <MetricCard value="0" label="Config conflicts" bordered />
-  </div>
 </section>
 
 <style>
@@ -83,32 +75,10 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'No sudo required
     align-items: start;
   }
 
-  /* Metrics row */
-  .install__metrics {
-    gap: 0;
-    width: 100%;
-    max-width: var(--container-xl);
-    margin: 64px auto 0;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
   @media (max-width: 900px) {
     .install > .rd-section__inner:first-child {
       grid-template-columns: minmax(0, 1fr);
       gap: 36px;
-    }
-    .install__metrics {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 520px) {
-    .install__metrics {
-      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

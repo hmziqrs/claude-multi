@@ -2,7 +2,7 @@
 import '../styles/globals.css';
 import '../styles/redesign.css';
 import SiteFooter from '../components/SiteFooter.astro';
-import Button from '../components/redesign/Button.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 
 interface Props {
   title?: string;
@@ -132,28 +132,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
       <div class="rd-scroll-progress" id="rd-scroll-progress" aria-hidden="true"></div>
       <div class="grain" aria-hidden="true"></div>
 
-      <header class="rd-header">
-        <a href="/" class="rd-logo">claude<span class="rd-logo-dot">·</span>multi</a>
-        <nav class="rd-nav" aria-label="Primary">
-          <a href="/docs/">Docs</a>
-          <a href="/providers/">Providers</a>
-          <a href="/changelog/">Changelog</a>
-          <a href="/faq/">FAQ</a>
-          <a href="/blog/">Blog</a>
-        </nav>
-        <span class="rd-spacer"></span>
-        <span class="rd-version">v0.12.0</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          href="https://github.com/hmziqrs/claude-multi"
-          target="_blank"
-          rel="noopener"
-        >
-          View source
-        </Button>
-        <Button size="sm" href="/docs/getting-started/">Get started</Button>
-      </header>
+      <SiteHeader />
 
       <main class="rd-main">
         <slot />
@@ -252,7 +231,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     background: var(--border);
   }
 
-
   /* Coral scroll-progress bar */
   .rd-scroll-progress {
     position: fixed;
@@ -266,88 +244,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     transition: width 0.08s linear;
   }
 
-  .rd-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    height: 62px;
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    padding: 0 32px;
-    background: rgba(11, 12, 14, 0.84);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .rd-logo {
-    font-family: var(--font-mono);
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .rd-logo-dot {
-    color: var(--accent);
-    padding: 0 0.12em;
-  }
-
-  .rd-nav {
-    display: flex;
-    gap: 18px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-  .rd-nav a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color var(--duration-fast, 0.15s) ease;
-  }
-  .rd-nav a:hover {
-    color: var(--text-primary);
-  }
-
-  .rd-spacer {
-    flex: 1;
-  }
-
-  .rd-version {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    color: var(--text-faint);
-    white-space: nowrap;
-  }
-
   .rd-main {
     position: relative;
     z-index: 2;
-  }
-
-  /* Collapse the nav + version earlier than 640px so the logo and the two
-     header buttons never overflow / clip on tablet widths (the nav + version
-     add ~450px of fixed header content that only fits above ~860px). */
-  @media (max-width: 860px) {
-    .rd-header {
-      gap: 14px;
-      padding: 0 18px;
-    }
-    .rd-nav {
-      display: none;
-    }
-    .rd-version {
-      display: none;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .rd-header {
-      gap: 12px;
-      padding: 0 16px;
-    }
   }
 </style>

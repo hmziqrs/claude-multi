@@ -4,7 +4,6 @@
  * Faithful port of the design composition: badge + headline + subcopy + CTAs +
  * meta row, then a terminal mockup (TUI menu + "add instance" wizard + config).
  */
-import Badge from './Badge.astro';
 import Button from './Button.astro';
 import StatusBadge from './StatusBadge.astro';
 import Terminal from './Terminal.astro';
@@ -40,7 +39,6 @@ const menuItems = [
 
 <section id="top" class="reveal hero">
   <div class="hero__inner">
-    <Badge tone="accent" dot>MIT licensed</Badge>
     <h1 class="hero__title">One harness for every Claude<br />you run.</h1>
     <p class="hero__sub">
       Run Claude Code against Anthropic, GLM, MiniMax, DeepSeek, MiMo, Kimi, Qwen and more
