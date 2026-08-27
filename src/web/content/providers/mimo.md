@@ -13,7 +13,7 @@ pricing: "Pay-per-token via xiaomimimo.com"
 order: 4
 ---
 
-MiMo-V2.5-Pro is a 1 trillion parameter mixture-of-experts model with 42B active parameters and a 1M token context window. It delivers frontier-class coding performance at a significantly lower cost per token than comparable models. The Anthropic-compatible endpoint means it drops straight into Claude Code.
+MiMo-V2.5-Pro is a 1 trillion parameter mixture-of-experts model with 42B active parameters and a 1M token context window. It runs coding benchmarks close to frontier models and costs less per token than any of them. The Anthropic-compatible endpoint means it drops straight into Claude Code.
 
 ## Model specs
 
@@ -37,7 +37,7 @@ claude-multi add mimo
 
 3. Paste your API key when prompted
 
-The template sets up the base URL, model mappings, and thinking parameters. Your instance is ready to use immediately.
+The template sets up the base URL, model mappings, and thinking parameters. That's the whole setup.
 
 ## Token Plan alternative
 
@@ -45,13 +45,13 @@ Xiaomi also offers a subscription-based Token Plan with a monthly credit pool. I
 
 ## When to pick MiMo
 
-MiMo is the cost-performance leader. If you do a lot of coding and want frontier quality without frontier pricing, MiMo-V2.5-Pro delivers. The 1M context window handles large codebases, and the MoE architecture means you only pay for the active parameters.
+MiMo is the cheapest way to get close-to-frontier quality here. If you code a lot, MiMo-V2.5-Pro is the pick: frontier-level results without frontier pricing. The 1M context window handles large codebases, and MoE billing means you only pay for the 42B active parameters, not the full trillion.
 
 For developers who prefer a fixed monthly bill, switch to the MiMo Token Plan template.
 
 ## Pricing details
 
-MiMo is available two ways: pay-per-token at [xiaomimimo.com](https://xiaomimimo.com), or a subscription Token Plan (monthly credit pool, regional CN/SG/EU endpoints — use the `mimo-token` template). The 1T MoE architecture keeps per-token cost low because only 42B of the 1T parameters are active per request. Check xiaomimimo.com for current rates.
+MiMo is available two ways: pay-per-token at [xiaomimimo.com](https://xiaomimimo.com), or a subscription Token Plan (monthly credit pool, regional CN/SG/EU endpoints; use the `mimo-token` template). The 1T MoE architecture keeps per-token cost low because only 42B of the 1T parameters are active per request. Check xiaomimimo.com for current rates.
 
 ## Related providers
 

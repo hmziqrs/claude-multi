@@ -13,7 +13,7 @@ pricing: "Pay-per-token via deepseek.com"
 order: 3
 ---
 
-DeepSeek-V4-Pro is a frontier coding model with a 1M token context window and strong performance across benchmarks. DeepSeek-V4-Flash handles fast tasks at a fraction of the cost. Both are accessible through a native Anthropic-compatible endpoint, which means zero friction with Claude Code.
+DeepSeek-V4-Pro is a frontier coding model with a 1M token context window and strong performance across benchmarks. DeepSeek-V4-Flash handles fast tasks at a fraction of the cost. Both run behind a native Anthropic-compatible endpoint, so Claude Code connects without adapters or middleware.
 
 ## Model specs
 

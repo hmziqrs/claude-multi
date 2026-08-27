@@ -12,7 +12,7 @@ interface Props {
 }
 
 const SITE = 'https://claude-multi.hmziq.xyz';
-const DEFAULT_TITLE = 'claude-multi — One harness for every Claude you run';
+const DEFAULT_TITLE = 'claude-multi: One harness for every Claude you run';
 const DEFAULT_DESC =
   'Run Claude Code against Anthropic, GLM, MiniMax, DeepSeek, MiMo, Kimi, Qwen and more from the same machine. Every instance keeps its own config, plugins and history. Nothing overlaps.';
 const DEFAULT_OG_IMAGE = `${SITE}/og-image.jpg`;
@@ -192,7 +192,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
 
           // Fail-safe: reveal every section shortly after load so nothing is ever
           // left invisible. Below-the-fold .reveal nodes start at opacity:0 and only
-          // become visible when scrolled into view — that leaves them blank in captured
+          // become visible when scrolled into view, which leaves them blank in captured
           // screenshots (taken before the fade-in completes) and in fast-scroll or
           // unsupported-IO scenarios. This guarantees the content is shown.
           const revealAll = () =>

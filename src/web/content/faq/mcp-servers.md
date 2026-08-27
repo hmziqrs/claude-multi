@@ -7,9 +7,9 @@ order: 7
 
 MCP (Model Context Protocol) servers let Claude Code talk to external tools: Jira, GitHub, Slack, databases, anything you've wired up. Each instance can have its own set, and claude-multi manages them without making you dig through JSON:
 
-- `claude-multi mcp list` — show MCP server configs across all instances
-- `claude-multi mcp copy` — copy a server config from one instance to another (also available in the TUI under **MCP servers**)
-- `claude-multi mcp verify` — check that referenced executables and paths still exist
+- `claude-multi mcp list`: show MCP server configs across all instances
+- `claude-multi mcp copy`: copy a server config from one instance to another (also available in the TUI under **MCP servers**)
+- `claude-multi mcp verify`: check that referenced executables and paths still exist
 
 When you create an instance through the TUI, the Copy Options step can bring MCP configs over from your primary `~/.claude` install. Configs live in each instance's `settings.json` at `~/.claude-multi/<name>/settings.json`, same format as Claude Code's native MCP config.
 

@@ -53,7 +53,7 @@ Git Bash, WSL, and Cygwin are common on Windows. claude-multi generates native `
 
 ## CI/CD testing
 
-The project's CI runs install and execution tests on all three operating systems against all three runtimes (bun, node, deno). Windows is not an afterthought, it is in the matrix on every release. If a Windows-specific regression lands, the tests catch it before publish.
+The project's CI runs install and execution tests on all three operating systems against all three runtimes (bun, node, deno) on every release, so a Windows-specific regression gets caught before publish.
 
 ## More info
 

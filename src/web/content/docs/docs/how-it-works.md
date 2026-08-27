@@ -1,5 +1,5 @@
 ---
-title: How It Works
+title: How it works
 description: How claude-multi isolates Claude Code instances using config directories, environment variable injection, plugin symlinks, and wrapper scripts. Architecture overview.
 ---
 
@@ -21,7 +21,7 @@ set "CLAUDE_CONFIG_DIR=%USERPROFILE%\.claude-multi\deepseek"
 "C:\path\to\claude.exe" %*
 ```
 
-That's the entire mechanism. Claude Code reads its config from the pointed-to directory instead of `~/.claude`. Everything else, flags, commands, keybindings, plugins, MCP, works exactly as it does normally.
+That is the entire mechanism. Claude Code reads its config from the pointed-to directory instead of `~/.claude`. Everything else, flags, commands, keybindings, plugins, MCP, works exactly as it does normally.
 
 ## File layout
 
@@ -66,7 +66,7 @@ Sync has three modes (auto / half-manual / full-manual). In `auto` mode, an inst
 
 ## Provider templates
 
-A provider template is a bundle of environment variables, base URL, model mappings, default settings, that gets merged into an instance's `settings.json` during creation. You supply the API key; the template handles the rest.
+A provider template is a bundle of environment variables, base URL, model mappings, default settings, that gets merged into an instance's `settings.json` during creation. You supply the API key and the template handles the rest.
 
 ```json
 {

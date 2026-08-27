@@ -1,5 +1,5 @@
 ---
-title: Environment Variables
+title: Environment variables
 description: Environment variable reference for claude-multi and provider configuration
 ---
 

@@ -14,11 +14,9 @@ Claude Code's Model Context Protocol (MCP) is the part that lets one prompt do a
 
 Three things landed at once, and MCP is the one that ties them together.
 
-**The agent loop.** Claude Code does not just write code. It runs the build, reads the failure, edits the file, runs the build again. Most of the value lands in this loop, because most of what makes code work is not the first attempt.
-
-**MCP.** Model Context Protocol is the open standard from Anthropic that lets the model talk to your tools: Jira, GitHub, Slack, Sentry, your database, Figma. Once a server is configured, you can say "implement the fix, open the PR, update the ticket" and the model coordinates across those systems in one conversation. The integration is what makes the agent loop useful past the file you're editing.
-
-**A 1M-token context window.** Most competitors are still at 200K. It sounds like a spec-sheet number until you watch the model fail at a multi-file refactor because half the project fell out of context. With 1M you can fit the surrounding code, the ticket, the design doc, and the prior PRs, and the model can actually reason about the whole thing.
+- The agent loop. Claude Code does not just write code. It runs the build, reads the failure, edits the file, runs the build again. Most of the value lands in this loop, because most of what makes code work is not the first attempt.
+- MCP. Model Context Protocol is the open standard from Anthropic that lets the model talk to your tools: Jira, GitHub, Slack, Sentry, your database, Figma. Once a server is configured, you can say "implement the fix, open the PR, update the ticket" and the model coordinates across those systems in one conversation. The integration is what makes the agent loop useful past the file you're editing.
+- A 1M-token context window. Most competitors are still at 200K. It sounds like a spec-sheet number until you watch the model fail at a multi-file refactor because half the project fell out of context. With 1M you can fit the surrounding code, the ticket, the design doc, and the prior PRs, and the model can actually reason about the whole thing.
 
 The combined effect is a real shift in what one engineer can ship per day. The senior engineer is not writing less code. They are writing less coordination boilerplate.
 

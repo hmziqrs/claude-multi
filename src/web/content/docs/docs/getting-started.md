@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+title: Getting started
 description: Install claude-multi, add your first provider instance, and launch an isolated Claude Code session in under two minutes. Covers macOS, Linux, and Windows.
 ---
 
@@ -34,7 +34,7 @@ pnpm add -g claude-multi
 deno install -g npm:claude-multi
 ```
 
-The entry point is a polyglot file that auto-detects your runtime, you don't need to configure anything.
+The entry point is a polyglot file that auto-detects your runtime, so no configuration is needed.
 
 ## Create your first instance
 
@@ -67,7 +67,7 @@ Run it:
 claude-deepseek
 ```
 
-That's a full Claude Code session connected to DeepSeek, with its own isolated config. Same `claude` binary you already know, pointed at a different provider.
+You now have a full Claude Code session connected to DeepSeek, with its own isolated config. Same `claude` binary you already know, pointed at a different provider.
 
 ## CLI quick start
 

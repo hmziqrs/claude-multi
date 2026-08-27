@@ -91,9 +91,9 @@ This scans for plugins that share an MCP server name but have different content.
 
 Sync has three modes. They control how an instance's `plugins/` and `skills/` relate to `~/.claude/`:
 
-- **`auto`** — `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Install or update a plugin once and every synced instance sees it immediately. Per-plugin operations (install/remove/enable/disable) aren't available, since changes happen at the source.
-- **`half-manual`** — real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing set, but new installs in `~/.claude` don't appear until you re-sync. Per-plugin management is blocked here too.
-- **`full-manual`** — independent copies. No symlinks. The instance can drift freely from `~/.claude/`, and all per-plugin operations work.
+- **`auto`**: `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Install or update a plugin once and every synced instance sees it immediately. Per-plugin operations (install/remove/enable/disable) aren't available, since changes happen at the source.
+- **`half-manual`**: real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing set, but new installs in `~/.claude` don't appear until you re-sync. Per-plugin management is blocked here too.
+- **`full-manual`**: independent copies with no symlinks. The instance can drift freely from `~/.claude/`, and all per-plugin operations work.
 
 ```bash
 # Set or change the mode

@@ -189,7 +189,7 @@ The commands above combine into a handful of patterns people actually reach for.
 
 ### Switch providers on the fly
 
-Each instance is an independent command, so switching is just running a different one, no config edits, no environment variables to export:
+Each instance is an independent command, so switching is just running a different one: no config edits, no environment variables to export.
 
 ```bash
 claude-glm "explain this function"
@@ -200,7 +200,7 @@ Both are full, simultaneous Claude Code sessions. Open two terminals and they do
 
 ### Route by cost
 
-Most day-to-day tasks, renaming variables, boilerplate, doc updates, don't need a frontier model. Keep a cheap instance for routine work and a stronger one for the hard problems:
+Most day-to-day tasks (renaming variables, boilerplate, doc updates) don't need a frontier model. Keep a cheap instance for routine work and a stronger one for the hard problems:
 
 ```bash
 claude-multi add budget --provider deepseek --api-key sk-...
@@ -224,7 +224,7 @@ claude-test-glm -p "find the memory leak in src/cache.ts"
 claude-test-deepseek -p "find the memory leak in src/cache.ts"
 ```
 
-Remove the test instances once you've picked a winner, or keep them around for a quarterly re-check.
+Remove the test instances once you have picked a winner, or keep them around for a quarterly re-check.
 
 ### Separate work and personal instances
 

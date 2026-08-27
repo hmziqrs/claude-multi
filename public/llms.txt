@@ -4,7 +4,7 @@
 
 ## What it does
 
-claude-multi wraps the existing `claude` binary — no fork, no patches. Each instance gets a wrapper script at `~/.local/bin/claude-<name>` that sets `CLAUDE_CONFIG_DIR` before exec-ing the real `claude` binary. Instance metadata lives in `~/.claude-multi/config.json`.
+claude-multi wraps the existing `claude` binary without forking or patching it. Each instance gets a wrapper script at `~/.local/bin/claude-<name>` that sets `CLAUDE_CONFIG_DIR` before exec-ing the real `claude` binary. Instance metadata lives in `~/.claude-multi/config.json`.
 
 This lets you run Claude Code against different providers (GLM/Z.ai, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, Alibaba Qwen) or different configurations without editing settings by hand.
 
@@ -21,19 +21,19 @@ Requires Node.js 18+ or Bun 1+ and Claude Code installed globally.
 
 ## Commands
 
-- `claude-multi` — Launch interactive terminal UI (default)
-- `claude-multi add <name>` — Create instance (flags: `--provider`, `--api-key`, `--copy-settings`, `--copy-all`, `--auto-sync`)
-- `claude-multi remove <name>` — Remove instance (`--force` to skip confirm)
-- `claude-multi list` — List all instances
-- `claude-multi info <name>` — Show instance details
-- `claude-multi doctor check` — Find wrapper, settings, and provider template issues
-- `claude-multi doctor fix` — Back up and apply pending instance migrations
-- `claude-multi version` — Check for Claude Code updates
-- `claude-multi update` — Update Claude Code to latest
-- `claude-multi auto-sync <name> <on|off>` — Toggle symlink-based plugin/skill sync
-- `claude-multi fix-symlinks` — Fix broken symlinks (`-a` for all)
-- `claude-multi plugins <action>` — Plugin management (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)
-- `claude-multi mcp <action>` — MCP management (list, copy, verify)
+- `claude-multi`: Launch interactive terminal UI (default)
+- `claude-multi add <name>`: Create instance (flags: `--provider`, `--api-key`, `--copy-settings`, `--copy-all`, `--auto-sync`)
+- `claude-multi remove <name>`: Remove instance (`--force` to skip confirm)
+- `claude-multi list`: List all instances
+- `claude-multi info <name>`: Show instance details
+- `claude-multi doctor check`: Find wrapper, settings, and provider template issues
+- `claude-multi doctor fix`: Back up and apply pending instance migrations
+- `claude-multi version`: Check for Claude Code updates
+- `claude-multi update`: Update Claude Code to latest
+- `claude-multi auto-sync <name> <on|off>`: Toggle symlink-based plugin/skill sync
+- `claude-multi fix-symlinks`: Fix broken symlinks (`-a` for all)
+- `claude-multi plugins <action>`: Plugin management (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)
+- `claude-multi mcp <action>`: MCP management (list, copy, verify)
 
 ## Provider templates
 

@@ -47,10 +47,10 @@ The "free first" routing is the part that produces the savings. If your Ollama b
 
 A few things to look for in a router beyond the basic tier mapping:
 
-- **Budget caps and downgrades.** When a tier hits its quota, the router falls back to a cheaper model instead of failing the request or silently busting your budget.
-- **Caching.** Identical inputs hit the same classification result and, ideally, the same response.
-- **Effort knobs.** Some routers can call a model at reduced "thinking" effort for medium work, which cuts the reasoning-token cost meaningfully without dropping output quality on most tasks.
-- **Output caps.** Hard limits on response length per tier. Stops a "summarize" call from accidentally generating a novella.
+- Budget caps and downgrades. When a tier hits its quota, the router falls back to a cheaper model instead of failing the request or silently busting your budget.
+- Caching. Identical inputs hit the same classification result and, ideally, the same response.
+- Effort knobs. Some routers can call a model at reduced "thinking" effort for medium work, which cuts the reasoning-token cost meaningfully without dropping output quality on most tasks.
+- Output caps. Hard limits on response length per tier. Stops a "summarize" call from accidentally generating a novella.
 
 ### Where claude-multi fits in
 

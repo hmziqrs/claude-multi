@@ -133,13 +133,13 @@ Arrow keys to move. `Enter` to pick. `ESC` to go back. `q` to quit.
 
 ### Setting up your first instance
 
-Pick **➕ Add new instance**. The wizard has eight steps.
+Pick **➕ Add new instance** in the TUI. The wizard has eight steps.
 
-**1. Instance name**
+### 1. Instance name
 
 Pick something short like `glm`, `deepseek`, or `work`. Letters, numbers, hyphens, and underscores only. Whatever you type here becomes your command, so `glm` gives you `claude-glm`.
 
-**2. Provider template**
+### 2. Provider template
 
 Pick one:
 
@@ -148,11 +148,11 @@ Pick one:
 * `deepseek` for DeepSeek
 * `None / Custom` if you want to set things up by hand later
 
-**3. API key** *(only if you picked a provider)*
+### 3. API key *(only if you picked a provider)*
 
 Paste your key. It's masked while you type and gets written into the instance's `settings.json`.
 
-**4. Confirm paths**
+### 4. Confirm paths
 
 The wizard shows where things will go:
 
@@ -161,24 +161,24 @@ The wizard shows where things will go:
 
 Hit `y` to accept. The defaults are fine for almost everyone.
 
-**5. Copy options**
+### 5. Copy options
 
 If you already have a `~/.claude` setup, you can carry pieces of it into the new instance:
 
 * **Nothing.** Start fresh, inherit nothing.
 * **Only `settings.json`.** Copy just the base settings file.
-* **Select plugins.** Cherry-pick plugins from your default setup.
+* **Select plugins.** Choose specific plugins from your default setup.
 * **All files.** Settings, `CLAUDE.md`, plugins, skills, the whole thing.
 
-**6. Select plugins** *(only if you picked "Select plugins")*
+### 6. Select plugins *(only if you picked "Select plugins")*
 
 A multi-select list of every plugin in your default `~/.claude`. `space` toggles. `enter` confirms.
 
-**7. Auto-sync** *(only if you picked "All files")*
+### 7. Auto-sync *(only if you picked "All files")*
 
 This asks whether to symlink `plugins/` and `skills/` back to `~/.claude`. Say `y` if you want to install a plugin once and have it show up in every instance. Say `n` if you want this instance to have its own independent copies.
 
-**8. Done**
+### 8. Done
 
 The wizard prints the new instance and its paths:
 
@@ -194,14 +194,14 @@ Run it:
 claude-glm
 ```
 
-That's a full Claude Code session on the provider you picked, with its own isolated config. Same `claude` you already know, just pointed at a different brain.
+That's a full Claude Code session on the provider you picked, with its own isolated config. Same `claude` you already know, pointed at a different model.
 
 ### Other TUI flows
 
 * **📋 List all instances.** Every instance with its provider, paths, and sync status.
 * **ℹ️ Instance details.** Pick one to inspect its full config.
 * **🔌 Manage plugins.** Pick an instance, then enable, disable, install, copy, or remove plugins for it.
-* **🔄 Toggle auto-sync.** Flip symlink syncing on or off for a chosen instance.
+* **🔄 Toggle auto-sync.** Turn symlink syncing on or off for a chosen instance.
 * **🔗 Re-sync symlinks.** Rebuild broken plugin or skill symlinks after you've moved `~/.claude` around.
 * **🗑️ Remove instance.** Delete an instance, its wrapper, and optionally its config dir.
 * **⚙️ MCP servers.** View MCP configs and copy them between instances.
@@ -234,7 +234,7 @@ The TUI also shows `Run instance migrations` when an update is available. The sy
 | Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen` |
 | Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen-coding` |
 
-The templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. If you edit a setting, provider sync keeps your custom tunables but restores model slots to the current template.
+The templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. If you edit a setting, provider sync keeps the values you changed yourself but restores model slots to the current template.
 
 ---
 
@@ -265,9 +265,9 @@ Instance metadata sits in `~/.claude-multi/config.json`. When auto-sync is on, `
 
 ## Auto-sync vs manual mode
 
-With auto-sync on, `plugins/` and `skills/` are symlinks pointing at your default `~/.claude/`. Install a plugin once, and every instance that opted in picks it up.
+With auto-sync on, `plugins/` and `skills/` are symlinks pointing at your default `~/.claude/`. Install a plugin once and every instance that opted in picks it up.
 
-Use manual mode when you want an instance that's fully independent. Just say `n` at the auto-sync step in the wizard. You can also flip this later from the main menu under **🔄 Toggle auto-sync**.
+Use manual mode when you want an instance that's fully independent. Say `n` at the auto-sync step in the wizard, or flip it later from the main menu under **🔄 Toggle auto-sync**.
 
 ---
 

@@ -58,7 +58,7 @@ The pay-per-token model means you pay proportionally. Background work runs on Fl
 
 ## Pricing details
 
-Qwen3-Coder is available two ways: pay-per-token via [DashScope](https://dashscope.aliyuncs.com), or a Coding Plan subscription (use the `qwen-coding` template, same models, different endpoint). Each tier has its own rate — Flash is cheapest, Next is most expensive — so cost scales with how much heavy reasoning you route to Next. Check the DashScope pricing page for current rates.
+Qwen3-Coder is available two ways: pay-per-token via [DashScope](https://dashscope.aliyuncs.com), or a Coding Plan subscription (use the `qwen-coding` template, same models, different endpoint). Each tier has its own rate. Flash is cheapest and Next is most expensive, so cost scales with how much heavy reasoning you route to Next. Check the DashScope pricing page for current rates.
 
 ## Related providers
 

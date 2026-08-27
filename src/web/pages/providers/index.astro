@@ -30,7 +30,7 @@ const breadcrumbSchema = {
 
 <Layout
   title="Providers - claude-multi"
-  description="Browse every AI provider claude-multi supports for Claude Code — GLM, DeepSeek, Kimi, Qwen, MiniMax, MiMo and more. Setup commands, pricing, and use cases for each."
+  description="Browse every AI provider claude-multi supports for Claude Code: GLM, DeepSeek, Kimi, Qwen, MiniMax, MiMo and more. Setup commands, pricing, and use cases for each."
   jsonLd={breadcrumbSchema}
 >
   <section class="relative z-10 pt-36 pb-12 px-6">
@@ -119,7 +119,7 @@ const breadcrumbSchema = {
         </table>
       </div>
 
-      <h3 class="text-xl font-bold tracking-tight mb-4">Pay-per-token vs. subscription</h3>
+      <h3 class="text-xl font-bold tracking-tight mb-4">Pay per token vs. subscription</h3>
       <p class="text-text-dim mb-6 max-w-2xl">
         Some providers offer two access models, a pay-per-token API and a
         subscription/coding plan, each with a different base URL. Use the
@@ -139,17 +139,17 @@ const breadcrumbSchema = {
             <tr class="border-t border-edge"><td class="p-3">Alibaba Qwen</td><td class="p-3 font-mono text-xs">qwen</td><td class="p-3 font-mono text-xs">qwen-coding</td></tr>
             <tr class="border-t border-edge"><td class="p-3">GLM (Z.ai)</td><td class="p-3 font-mono text-xs">no Anthropic URL</td><td class="p-3 font-mono text-xs">glm (coding-plan-only)</td></tr>
             <tr class="border-t border-edge"><td class="p-3">MiniMax</td><td class="p-3 font-mono text-xs">minimax</td><td class="p-3 font-mono text-xs">same URL, different key type</td></tr>
-            <tr class="border-t border-edge"><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">kimi</td><td class="p-3 font-mono text-xs">pay-per-token only</td></tr>
-            <tr class="border-t border-edge"><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">deepseek</td><td class="p-3 font-mono text-xs">pay-per-token only</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">kimi</td><td class="p-3 font-mono text-xs">pay per token only</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">deepseek</td><td class="p-3 font-mono text-xs">pay per token only</td></tr>
           </tbody>
         </table>
       </div>
 
       <ul class="text-text-dim text-sm space-y-2 max-w-2xl list-disc pl-5">
-        <li><b class="text-text">GLM</b>: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The pay-per-token API only exposes an OpenAI-compatible URL.</li>
+        <li><b class="text-text">GLM</b>: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The metered API only exposes an OpenAI-compatible URL.</li>
         <li><b class="text-text">MiMo Token Plan</b>: defaults to the CN regional endpoint. If your subscription is SG or EU, update <code class="font-mono text-lime text-xs">ANTHROPIC_BASE_URL</code> with the endpoint shown in your subscription console.</li>
-        <li><b class="text-text">Kimi</b>: no subscription plan, strictly pay-per-token at <code class="font-mono text-lime text-xs">api.moonshot.ai</code>.</li>
-        <li><b class="text-text">MiniMax</b>: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. MiniMax-M3 has a 1M token context window and supports text, image, and video inputs.</li>
+        <li><b class="text-text">Kimi</b>: no subscription plan, strictly pay per token at <code class="font-mono text-lime text-xs">api.moonshot.ai</code>.</li>
+        <li><b class="text-text">MiniMax</b>: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. MiniMax-M3 has a 1M token context window and accepts text, image, and video inputs.</li>
       </ul>
     </div>
   </section>

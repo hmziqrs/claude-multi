@@ -47,7 +47,7 @@ The template handles the base URL, model mappings, context limits, and thinking 
 
 ## When to pick GLM
 
-GLM-5.3 is a good fit when you want a fixed monthly cost instead of per-token billing. GLM-5-Turbo handles the light work (quick edits, shell commands, subagent calls) while GLM-5.3 takes heavier refactoring and long agentic runs, with GLM-5.3-Flash covering day-to-day coding on its 3x quota — all inside the same plan.
+GLM-5.3 is a good fit when you want a fixed monthly cost instead of per-token billing. GLM-5-Turbo handles the light work (quick edits, shell commands, subagent calls), GLM-5.3 takes heavier refactoring and long agentic runs, and GLM-5.3-Flash covers day-to-day coding while draining the balance a third as fast as GLM-5.3. All of it runs inside one plan.
 
 If your workload is bursty and you prefer paying only for what you use, look at the [DeepSeek](/providers/deepseek/) or [MiMo](/providers/mimo/) pay-per-token templates instead.
 

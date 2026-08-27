@@ -14,11 +14,9 @@ The longer version is worth reading. M3 clears Opus 4.7 on three benchmarks and 
 
 The model names in the `minimax` template went from `MiniMax-M2.7` to `MiniMax-M3` across all model slots (opus, sonnet, haiku, small/fast). If you created a MiniMax instance before this update, running `claude-multi doctor fix` will sync the new template automatically ([how template sync works](/changelog/)). Three things are different this time:
 
-**No more auto-compaction override.** M2.7 had a 128K context window. Claude Code assumes 200K for unrecognized models, which meant auto-compaction never fired and context would fill to 100% before crashing. M3 has a 1M context window. The override is gone.
-
-**Output tokens up to 512K.** M2.7 capped at 64K. M3 supports up to 512K output tokens, which matters for the long-horizon agentic tasks the model is built for.
-
-**Effort level set to `max`.** M3 supports toggleable thinking. The template enables thinking with `REASONING_EFFORT: "high"` and sets `CLAUDE_CODE_EFFORT_LEVEL: "max"`.
+- No more auto-compaction override. M2.7 had a 128K context window. Claude Code assumes 200K for unrecognized models, which meant auto-compaction never fired and context would fill to 100% before crashing. M3 has a 1M context window. The override is gone.
+- Output tokens up to 512K. M2.7 capped at 64K. M3 supports up to 512K output tokens, which matters for the long-horizon agentic tasks the model is built for.
+- Effort level set to `max`. M3 supports toggleable thinking. The template enables thinking with `REASONING_EFFORT: "high"` and sets `CLAUDE_CODE_EFFORT_LEVEL: "max"`.
 
 ## The M3 architecture: MSA
 
@@ -68,7 +66,7 @@ OmniDocBench measures multimodal document understanding across text, tables, cha
 
 ### The jump from M2.7
 
-The upgrade from M2.7 to M3 is massive. On SWE-Bench Pro, M3 jumps from 56.2 to 59.0. On KernelBench Hard, it nearly triples from 10.5 to 28.8. On Claw-Eval, it goes from 49.7 to 74.5. On SVG-Bench, from 48.0 to 63.7. PaperBench goes from 30.6 to 52.6. Across every benchmark, M3 is a different class of model than M2.7.
+The upgrade from M2.7 to M3 is huge. On SWE-Bench Pro, M3 jumps from 56.2 to 59.0. On KernelBench Hard, it nearly triples from 10.5 to 28.8. On Claw-Eval, it goes from 49.7 to 74.5. On SVG-Bench, from 48.0 to 63.7. PaperBench goes from 30.6 to 52.6. On every one of these tables, M3 is a different class of model than M2.7.
 
 ## MiniMax M3 pricing and Token Plans
 
@@ -83,9 +81,10 @@ Through the MiniMax API:
 For comparison, Claude Opus 4.7 runs about $15/M input and $75/M output. M3 at $2.40/M output is roughly 1/30th the cost. Even at the long-context tier ($4.80/M output), it is still a fraction of what Opus charges.
 
 MiniMax also offers Token Plans (subscription):
-- **Plus**: $20/month for about 1.7 billion tokens
-- **Max**: $50/month for about 5.1 billion tokens
-- **Ultra**: $120/month for about 9.8 billion tokens
+
+- Plus: $20/month for about 1.7 billion tokens
+- Max: $50/month for about 5.1 billion tokens
+- Ultra: $120/month for about 9.8 billion tokens
 
 Both Token Plan and pay-per-token use the same `api.minimax.io` endpoint. The API key type determines which quota is consumed.
 
@@ -93,21 +92,21 @@ Both Token Plan and pay-per-token use the same `api.minimax.io` endpoint. The AP
 
 MiniMax published three extended task runs that show what 1M context plus frontier coding looks like in practice.
 
-**CUDA kernel optimization.** M3 optimized an FP8 GEMM kernel on NVIDIA Hopper GPUs over 24 hours. 147 submissions, 1,959 tool calls. Hardware peak utilization went from 7.6% to 71.3%, a 9.4x speedup. Most models stopped improving within 30 submissions. M3's best solution showed up on submission 145. The tool call history gets dense and structured fast, and MSA's sparse attention keeps the model focused on what matters as the conversation grows.
+CUDA kernel optimization. M3 optimized an FP8 GEMM kernel on NVIDIA Hopper GPUs over 24 hours. 147 submissions, 1,959 tool calls. Hardware peak utilization went from 7.6% to 71.3%, a 9.4x speedup. Most models stopped improving within 30 submissions. M3's best solution showed up on submission 145. The tool call history gets dense and structured fast, and MSA's sparse attention keeps the model focused on what matters as the conversation grows.
 
-**Paper reproduction.** M3 autonomously reproduced an ICLR 2025 Outstanding Paper over 12 hours. 18 commits, 23 experimental figures. The paper's text, formulas, and figures all fit in context at once. The multimodal input handled the curves and charts natively.
+Paper reproduction. M3 autonomously reproduced an ICLR 2025 Outstanding Paper over 12 hours. 18 commits, 23 experimental figures. The paper's text, formulas, and figures all fit in context at once. The multimodal input handled the curves and charts natively.
 
-**Training models from scratch.** On PostTrainBench, M3 was given four base models and told to synthesize data, train, evaluate, and iterate, all without human intervention. It scored 0.37, compared to Opus 4.7 at 0.42 and GPT-5.5 at 0.39.
+Training models from scratch. On PostTrainBench, M3 was given four base models and told to synthesize data, train, evaluate, and iterate, all without human intervention. It scored 0.37, compared to Opus 4.7 at 0.42 and GPT-5.5 at 0.39.
 
 ## Getting started
 
-**New instance:**
+New instance:
 
 ```bash
 claude-multi add minimax --provider minimax --api-key sk-...
 ```
 
-**Existing instance (sync to M3):**
+Existing instance (sync to M3):
 
 ```bash
 claude-multi doctor check   # see what needs updating

@@ -67,7 +67,7 @@ Kimi is pay-per-token only. No subscription plan. See [full pricing details on t
 
 ## When to use which tier
 
-K2.7 Code (opus) for long agentic sessions, complex debugging, and multi-file refactors. The improved tool-use accuracy and lower thinking-token cost make it the best fit for Claude Code's core workflow.
+K2.7 Code (opus) for long agentic sessions, complex debugging, and multi-file refactors. Tool use got more accurate and each task burns fewer thinking tokens, which is the right trade for Claude Code's core loop.
 
 K2.6 (sonnet) for balanced work: writing features, code review, interactive pair programming. Better than K2.5 at moderate cost.
 
