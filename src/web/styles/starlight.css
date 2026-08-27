@@ -54,9 +54,6 @@
   /* ---------- Nav height (match marketing h-16) ---------- */
   --sl-nav-height: 4rem;
 
-  /* ---------- Custom (used in selectors below) ---------- */
-  --doc-glow: 0 0 32px -8px rgba(217, 119, 87, 0.35);
-
   /* =========================================================
      Tailwind @theme tokens (needed by shared components)
      These mirror globals.css @theme so NavLinks, SiteFooter,
@@ -94,33 +91,6 @@ body {
   font-feature-settings: "cv11", "ss01", "ss03";
   position: relative;
   background: var(--sl-color-bg);
-}
-
-/* Aurora orbs (low opacity so docs stay readable) */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(60vw 60vw at -10vw 10vh, rgba(217, 119, 87, 0.10), transparent 70%),
-    radial-gradient(50vw 50vw at 110vw 80vh, rgba(184, 90, 62, 0.08), transparent 70%);
-}
-
-/* Dotted grid overlay */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image:
-    linear-gradient(rgba(217, 119, 87, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(217, 119, 87, 0.025) 1px, transparent 1px);
-  background-size: 56px 56px;
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-          mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
 }
 
 /* Make sure real content sits above background layers */
@@ -270,7 +240,7 @@ nav.sidebar {
   padding: 0.4rem 0.75rem !important;
   font-size: 0.9rem;
   color: var(--sl-color-gray-1) !important;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .sidebar-content a:hover {
@@ -281,23 +251,10 @@ nav.sidebar {
 
 /* Active link (current page) — Starlight uses aria-current="page" */
 .sidebar-content a[aria-current="page"] {
-  background: linear-gradient(90deg, rgba(217, 119, 87, 0.14), rgba(217, 119, 87, 0.04)) !important;
+  background: rgba(217, 119, 87, 0.1) !important;
   color: var(--sl-color-white) !important;
-  border: 1px solid var(--sl-color-hairline-light);
-  box-shadow: var(--doc-glow);
 }
 
-.sidebar-content a[aria-current="page"]::before {
-  content: "";
-  position: absolute;
-  left: -1px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
-  border-radius: 3px;
-}
 
 /* ===========================================================
    CONTENT — typography + flow
@@ -345,7 +302,7 @@ header h1 {
   top: 0.4em;
   bottom: 0.4em;
   width: 3px;
-  background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
+  background: var(--sl-color-accent);
   border-radius: 3px;
 }
 
@@ -456,7 +413,7 @@ header h1 {
   top: 0.6rem;
   bottom: 0.6rem;
   width: 3px;
-  background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent));
+  background: var(--sl-color-accent);
   border-radius: 3px;
 }
 
@@ -464,7 +421,7 @@ header h1 {
 .sl-markdown-content hr {
   height: 1px !important;
   border: none !important;
-  background: linear-gradient(90deg, transparent, rgba(217, 119, 87, 0.35), transparent) !important;
+  background: var(--sl-color-hairline) !important;
   margin: 2.5rem 0 !important;
 }
 
@@ -552,16 +509,16 @@ header h1 {
 }
 
 .starlight-aside--note          { border-color: rgba(125, 211, 252, 0.25) !important; }
-.starlight-aside--note::before  { background: linear-gradient(180deg, #7dd3fc, #38bdf8); }
+.starlight-aside--note::before  { background: #38bdf8; }
 
 .starlight-aside--tip           { border-color: rgba(217, 119, 87, 0.3) !important; }
-.starlight-aside--tip::before   { background: linear-gradient(180deg, var(--sl-color-accent-high), var(--sl-color-accent)); }
+.starlight-aside--tip::before   { background: var(--sl-color-accent); }
 
 .starlight-aside--caution       { border-color: rgba(251, 191, 36, 0.3) !important; }
-.starlight-aside--caution::before { background: linear-gradient(180deg, #fcd34d, #fbbf24); }
+.starlight-aside--caution::before { background: #fbbf24; }
 
 .starlight-aside--danger        { border-color: rgba(248, 113, 113, 0.3) !important; }
-.starlight-aside--danger::before { background: linear-gradient(180deg, #fca5a5, #f87171); }
+.starlight-aside--danger::before { background: #f87171; }
 
 .starlight-aside__title {
   font-weight: 700;
@@ -592,7 +549,6 @@ starlight-toc nav a[aria-current="true"] {
   color: var(--sl-color-accent) !important;
   background: rgba(217, 119, 87, 0.08);
   font-weight: 600;
-  box-shadow: inset 2px 0 0 var(--sl-color-accent);
 }
 
 .right-sidebar h2 {
@@ -664,7 +620,6 @@ footer.site-footer {
   margin-top: 4rem;
   padding: 4rem 1.5rem 2.5rem;
   border-top: 1px solid var(--color-edge, rgba(217, 119, 87, 0.08));
-  background: linear-gradient(to bottom, transparent, rgba(217, 119, 87, 0.025));
 }
 
 footer.site-footer .site-footer-inner {
@@ -745,7 +700,7 @@ footer.site-footer .footer-divider {
   border: none;
   height: 1px;
   margin: 3rem 0 1.5rem;
-  background: linear-gradient(90deg, transparent, rgba(217, 119, 87, 0.35), transparent);
+  background: var(--sl-color-hairline, rgba(217, 119, 87, 0.18));
 }
 
 footer.site-footer .footer-bottom {

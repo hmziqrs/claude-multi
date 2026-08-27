@@ -106,19 +106,6 @@
 
 
 
-@utility grid-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(217, 119, 87, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(217, 119, 87, 0.035) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-}
-
 @utility grain {
   position: fixed;
   inset: 0;
@@ -255,7 +242,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(217, 119, 87, 0.15), rgba(217, 119, 87, 0.04));
+  background: rgba(217, 119, 87, 0.1);
   border: 1px solid rgba(217, 119, 87, 0.2);
   color: var(--color-lime);
 }
@@ -271,7 +258,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   border-radius: 0.6rem;
   font-weight: 600;
   font-size: 0.95rem;
-  background: linear-gradient(135deg, #e08a6d, #d97757);
+  background: #d97757;
   color: #06060a;
   text-decoration: none;
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -363,14 +350,13 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
 
 @utility terminal {
   position: relative;
-  background: linear-gradient(180deg, rgba(10, 10, 16, 0.95), rgba(6, 6, 10, 0.95));
+  background: rgba(8, 8, 13, 0.95);
   border: 1px solid var(--color-edge);
   border-radius: 14px;
   overflow: hidden;
   backdrop-filter: blur(20px);
   box-shadow:
     0 30px 80px -20px rgba(0, 0, 0, 0.6),
-    0 0 80px -30px rgba(217, 119, 87, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
 }
 
@@ -430,7 +416,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   left: 0;
   height: 2px;
   width: 0;
-  background: linear-gradient(90deg, var(--color-lime), var(--color-lime-bright));
+  background: var(--color-lime);
   z-index: 100;
   box-shadow: 0 0 12px rgba(217, 119, 87, 0.6);
   transition: width 0.08s linear;
@@ -506,7 +492,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   aspect-ratio: 4 / 3;
   transform-style: preserve-3d;
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(28, 28, 38, 0.92), rgba(15, 15, 22, 0.95));
+  background: rgba(21, 21, 30, 0.94);
   border: 1px solid rgba(217, 119, 87, 0.14);
   box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.65);
   overflow: hidden;
@@ -598,7 +584,7 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   width: 90px;
   height: 90px;
   border-radius: 22px;
-  background: linear-gradient(160deg, #e8a08a 0%, var(--color-lime) 55%, #b85a3e 100%);
+  background: var(--color-lime);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,27 +596,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   color: #0c0c0f;
 }
 
-.logo-glyph::after {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  border-radius: 16px;
-  background: radial-gradient(ellipse at 30% 25%, rgba(255, 255, 255, 0.35), transparent 60%);
-  pointer-events: none;
-}
-
-
-.logo3d-stage::before {
-  content: '';
-  position: absolute;
-  inset: -10% -10% -20% -10%;
-  background:
-    linear-gradient(rgba(245, 236, 222, 0.04) 1px, transparent 1px) 0 0 / 40px 40px,
-    linear-gradient(90deg, rgba(245, 236, 222, 0.04) 1px, transparent 1px) 0 0 / 40px 40px;
-  mask: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 70%);
-  -webkit-mask: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 70%);
-  z-index: -2;
-}
 
 /* === Hover: fan the big logo cards apart === */
 

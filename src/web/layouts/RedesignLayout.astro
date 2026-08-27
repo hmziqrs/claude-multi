@@ -130,7 +130,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
         document.documentElement.classList.add('js');
       </script>
       <div class="rd-scroll-progress" id="rd-scroll-progress" aria-hidden="true"></div>
-      <div class="rd-grid-overlay" aria-hidden="true"></div>
       <div class="grain" aria-hidden="true"></div>
 
       <header class="rd-header">
@@ -250,22 +249,9 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     background: var(--surface-page);
   }
   .redesign-root :global(.footer-divider) {
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    background: var(--border);
   }
 
-  /* Coral-tinted grid backdrop */
-  .rd-grid-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  }
 
   /* Coral scroll-progress bar */
   .rd-scroll-progress {
@@ -275,7 +261,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     height: 2px;
     width: 0;
     z-index: 100;
-    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    background: var(--accent);
     box-shadow: 0 0 12px var(--accent);
     transition: width 0.08s linear;
   }

@@ -1,16 +1,13 @@
 ---
 /**
  * Cta.astro: #cta section (final CTA).
- * Centered heading + subcopy + two buttons + InstallCommand, over a top-fade
- * grid backdrop.
+ * Centered heading + subcopy + two buttons + InstallCommand.
  */
 import Button from './Button.astro';
 import InstallCommand from './InstallCommand.astro';
 ---
 
 <section id="cta" class="reveal rd-section cta">
-  <div class="cta__bg" aria-hidden="true"></div>
-
   <div class="rd-section__inner cta__inner">
     <h2 class="cta__title">Run every Claude.<br />Conflict-free.</h2>
     <p class="cta__sub">
@@ -41,17 +38,6 @@ import InstallCommand from './InstallCommand.astro';
     padding-bottom: 140px;
   }
 
-  .cta__bg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 48px 48px;
-    -webkit-mask-image: linear-gradient(to top, black, transparent);
-    mask-image: linear-gradient(to top, black, transparent);
-  }
 
   .cta__inner {
     position: relative;

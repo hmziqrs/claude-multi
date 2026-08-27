@@ -58,7 +58,6 @@ const graph = {
 ---
 
 <section id="providers" class="reveal rd-section providers">
-  <div class="providers__bg" aria-hidden="true"></div>
 
   <div class="rd-section__inner">
     <div class="rd-section__head">
@@ -99,17 +98,6 @@ const graph = {
     overflow: hidden;
   }
 
-  .providers__bg {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 48px 48px;
-    -webkit-mask-image: radial-gradient(circle at 50% 40%, black, transparent 70%);
-    mask-image: radial-gradient(circle at 50% 40%, black, transparent 70%);
-  }
 
   .providers__grid {
     position: relative;
