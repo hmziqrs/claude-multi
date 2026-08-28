@@ -3,13 +3,29 @@ import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import { getSiteFooterHtml } from './src/web/util/site-footer-html';
 import { latestVersion } from './src/web/util/changelog';
 import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
+
+/**
+ * Blog post slug -> ISO date, read from frontmatter at config load.
+ * Used for sitemap <lastmod>; astro:content is not available in this file.
+ */
+const BLOG_DATES = new Map(
+  readdirSync('./src/web/content/blog')
+    .filter((f) => f.endsWith('.md'))
+    .flatMap((f) => {
+      const raw = readFileSync(join('./src/web/content/blog', f), 'utf-8');
+      const date = raw.match(/^date:\s*(.+)$/m)?.[1].trim().replace(/^["']|["']$/g, '');
+      const parsed = date ? new Date(date) : null;
+      if (!parsed || Number.isNaN(parsed.valueOf())) return [];
+      return [[basename(f, '.md'), parsed.toISOString()]];
+    })
+);
 
 /**
  * Astro integration: injects the site footer at body level for docs pages.
@@ -87,7 +103,12 @@ export default defineConfig({
     sitemap({
       filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/') && !page.endsWith('/feed.xml'),
       serialize(item) {
-        item.lastmod = new Date().toISOString();
+        // Only emit lastmod where a real modification date exists (blog frontmatter).
+        // A synthetic build-time date on every URL makes crawlers distrust the field
+        // site-wide, so pages without a known date get none.
+        const slug = new URL(item.url).pathname.match(/^\/blog\/([^/]+)\/$/)?.[1];
+        const date = slug && BLOG_DATES.get(slug);
+        if (date) item.lastmod = date;
         return item;
       },
     }),
