@@ -12,16 +12,17 @@ const installTabs = [
   { label: 'deno', code: 'deno install -g -A -n claude-multi npm:claude-multi' },
 ];
 
-const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'No sudo required'];
+const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sudo'];
 ---
 
 <section id="install" class="reveal rd-section install">
   <div class="rd-section__inner">
     <div class="install__lead">
       <div class="rd-eyebrow">Install</div>
-      <h2 class="rd-section-title">No curl-pipe-sh,<br />no platform binaries.</h2>
+      <h2 class="rd-section-title">It installs like<br />any npm package.</h2>
       <p class="rd-section-sub">
-        A plain npm package, installed globally with whatever manager is already on the machine.
+        Install it globally with whatever manager the machine already has. There is no shell
+        script to pipe and no platform binary to match.
       </p>
       <ul class="install__check">
         {

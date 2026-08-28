@@ -14,16 +14,16 @@ import Tag from './Tag.astro';
       <div class="rd-eyebrow">Features</div>
       <h2 class="rd-section-title">Switching models shouldn't rewrite <span class="rd-inline-code">~/.claude</span>.</h2>
       <p class="rd-section-sub">
-        Each instance owns its config directory, its credentials and its alias. The setup you
-        already rely on is never touched.
+        Add as many instances as you want. claude-multi never writes to the setup you already
+        have.
       </p>
     </div>
 
     <div class="features__grid">
       <FeatureCard
         icon="git-branch"
-        title="Many providers, one harness"
-        description="Templates for GLM, MiniMax, DeepSeek, MiMo, Kimi and Qwen. Every provider you set up gets its own alias that drops straight into the terminal."
+        title="One alias per provider"
+        description="Templates for GLM, MiniMax, DeepSeek, MiMo, Kimi and Qwen. Each one you set up gets its own command in the terminal."
       >
         <Tag>claude-kimi</Tag>
         <Tag>claude-mimo</Tag>
@@ -40,13 +40,13 @@ import Tag from './Tag.astro';
       <FeatureCard
         icon="link"
         title="Plugin sync"
-        description="Plugins and skills symlink back to the primary install. Install once, every instance picks it up."
+        description="Plugins and skills symlink back to your primary install. Install once and every instance picks it up."
       />
 
       <FeatureCard
         icon="terminal"
-        title="Real Claude underneath"
-        description="Wraps the official claude binary. Your flags and slash commands behave exactly as they do upstream."
+        title="No fork"
+        description="It wraps the claude binary you already have, so your flags and slash commands behave exactly as they do upstream."
       />
 
       <FeatureCard
