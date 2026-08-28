@@ -12,10 +12,10 @@ import Tag from './Tag.astro';
   <div class="rd-section__inner">
     <div class="rd-section__head">
       <div class="rd-eyebrow">Features</div>
-      <h2 class="rd-section-title">When one model isn't enough.</h2>
+      <h2 class="rd-section-title">Switching models shouldn't rewrite <span class="rd-inline-code">~/.claude</span>.</h2>
       <p class="rd-section-sub">
-        Stop trampling the <span class="rd-inline-code">~/.claude</span> directory every time you
-        swap models.
+        Each instance owns its config directory, its credentials and its alias. The setup you
+        already rely on is never touched.
       </p>
     </div>
 
@@ -51,14 +51,8 @@ import Tag from './Tag.astro';
 
       <FeatureCard
         icon="key"
-        title="Local credentials"
-        description="API keys live in per-instance config files. No global env vars leaking into the wrong session."
-      />
-
-      <FeatureCard
-        icon="hard-drive"
-        title="Local-first"
-        description="Nothing leaves the machine. Configs, keys and history stay on disk under ~/.claude-multi."
+        title="Keys stay on disk"
+        description="API keys live in per-instance config files under ~/.claude-multi, never in global env vars. Nothing leaves the machine."
       />
     </div>
   </div>

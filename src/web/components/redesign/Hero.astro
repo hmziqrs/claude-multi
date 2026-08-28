@@ -39,11 +39,12 @@ const menuItems = [
 
 <section id="top" class="reveal hero">
   <div class="hero__inner">
-    <h1 class="hero__title">One harness for every Claude<br />you run.</h1>
+    <h1 class="hero__title">Run a separate Claude Code<br />for every provider.</h1>
     <p class="hero__sub">
-      Run Claude Code against Anthropic, GLM, MiniMax, DeepSeek, MiMo, Kimi, Qwen and more
-      from the same machine. Every instance keeps its own config, plugins and history. Nothing
-      overlaps.
+      Trying a new model means hand-editing <span class="rd-inline-code">settings.json</span>,
+      swapping keys, and keeping a pile of shell aliases alive. claude-multi gives each provider
+      its own <span class="rd-inline-code">claude-&lt;name&gt;</span> command and its own config
+      directory, running the unmodified Claude Code binary underneath.
     </p>
     <div class="hero__cta">
       <Button size="md" href="/docs/getting-started/">Get started</Button>

@@ -5,37 +5,6 @@ import Install from '../components/redesign/Install.astro';
 import Features from '../components/redesign/Features.astro';
 import Providers from '../components/redesign/Providers.astro';
 import QuickStart from '../components/redesign/QuickStart.astro';
-import Audience from '../components/redesign/Audience.astro';
-import Cta from '../components/redesign/Cta.astro';
-import Faq from '../components/redesign/Faq.astro';
-
-const faqItems = [
-  {
-    question: 'Does it modify my existing Claude setup?',
-    answer:
-      'No. Your original ~/.claude directory is never written to unless you explicitly ask for a copy during setup.',
-  },
-  {
-    question: 'Is this a fork of Claude Code?',
-    answer:
-      'No. It wraps the official claude binary: every flag, slash command, and plugin behaves exactly as it does upstream.',
-  },
-  {
-    question: 'Where do API keys live?',
-    answer:
-      'In the per-instance settings.json under ~/.claude-<name>. Nothing goes into global env vars and nothing leaves the machine.',
-  },
-  {
-    question: 'Can instances share plugins?',
-    answer:
-      'Yes. Sync mode symlinks plugins and skills back to the primary install, so one install covers every instance.',
-  },
-  {
-    question: 'How many instances can run at once?',
-    answer:
-      'As many as the machine can handle. Each one has separate config, credentials and history, so they never collide.',
-  },
-];
 ---
 
 <RedesignLayout>
@@ -44,20 +13,4 @@ const faqItems = [
   <Features />
   <Providers />
   <QuickStart />
-  <Audience />
-
-  <section id="faq" class="reveal rd-section">
-    <div class="rd-section__narrow">
-      <Faq eyebrow="FAQ" title="Answers before the install." items={faqItems} />
-    </div>
-  </section>
-
-  <Cta />
 </RedesignLayout>
-
-<style>
-  .rd-section__narrow {
-    max-width: 900px;
-    margin-inline: auto;
-  }
-</style>
