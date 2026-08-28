@@ -111,11 +111,16 @@ header.header {
   padding: 0 !important;
 }
 
-/* Right sidebar (TOC) must stay sticky */
+/* Right sidebar (TOC) must stay sticky.
+   `position: sticky` makes each of these a stacking context at z-index auto,
+   which would paint below the z-index:1 .content-panel siblings — that buries
+   the fixed mobile "On this page" bar (a descendant) under the page content.
+   Lift it above the panels but keep it under the header. */
 .right-sidebar,
 .right-sidebar-container {
   position: sticky !important;
   top: var(--sl-nav-height, 4rem);
+  z-index: 10;
 }
 
 /* ===========================================================
@@ -127,6 +132,21 @@ header.header {
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   backdrop-filter: blur(20px) saturate(140%);
   border-bottom: 1px solid var(--sl-color-hairline) !important;
+}
+
+/* Mobile "On this page" bar — it sits directly under the header and is fixed,
+   so it needs the header's frosted treatment; on its own the translucent
+   --sl-color-bg-nav lets the page scroll through it unreadably. */
+mobile-starlight-toc nav {
+  background-color: rgba(11, 12, 14, 0.72) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border-top-color: var(--sl-color-hairline) !important;
+}
+
+mobile-starlight-toc .dropdown {
+  background-color: var(--sl-color-bg) !important;
+  border-color: var(--sl-color-hairline) !important;
 }
 
 .site-title {
