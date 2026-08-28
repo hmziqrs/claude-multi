@@ -7,6 +7,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import { getSiteFooterHtml } from './src/web/util/site-footer-html';
 import { latestVersion } from './src/web/util/changelog';
+import { DEFAULT_OG_IMAGE_ALT as OG_IMAGE_ALT } from './src/web/util/seo';
 import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
@@ -183,6 +184,49 @@ export default defineConfig({
         {
           tag: 'link',
           attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: '/fonts/JetBrainsMonoVariable.woff2' },
+        },
+        // Starlight already emits og:title, og:description, og:type, og:url,
+        // og:locale and twitter:card per page; only the tags it omits are added
+        // here so docs pages match the custom layouts' social cards.
+        {
+          tag: 'meta',
+          attrs: { property: 'og:site_name', content: 'claude-multi' },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image', content: 'https://claude-multi.hmziq.xyz/og-image.jpg' },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:width', content: '1200' },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:height', content: '630' },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:type', content: 'image/jpeg' },
+        },
+        {
+          tag: 'meta',
+          attrs: { property: 'og:image:alt', content: OG_IMAGE_ALT },
+        },
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:site', content: '@hmziqrs' },
+        },
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:creator', content: '@hmziqrs' },
+        },
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:image', content: 'https://claude-multi.hmziq.xyz/og-image.jpg' },
+        },
+        {
+          tag: 'meta',
+          attrs: { name: 'twitter:image:alt', content: OG_IMAGE_ALT },
         },
         {
           tag: 'script',
