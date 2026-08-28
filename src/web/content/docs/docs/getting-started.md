@@ -1,6 +1,6 @@
 ---
 title: Getting started
-description: Install claude-multi, add your first provider instance, and launch an isolated Claude Code session in under two minutes. Covers macOS, Linux, and Windows.
+description: Install claude-multi, add your first provider instance, and launch an isolated Claude Code session. Covers macOS, Linux, and Windows.
 ---
 
 ## Prerequisites
@@ -34,7 +34,7 @@ pnpm add -g claude-multi
 deno install -g npm:claude-multi
 ```
 
-The entry point is a polyglot file that auto-detects your runtime, so no configuration is needed.
+The entry point is a polyglot file that detects your runtime, so you do not have to configure anything.
 
 ## Create your first instance
 
@@ -67,11 +67,11 @@ Run it:
 claude-deepseek
 ```
 
-You now have a full Claude Code session connected to DeepSeek, with its own isolated config. Same `claude` binary you already know, pointed at a different provider.
+You now have a full Claude Code session connected to DeepSeek with its own isolated config. It is the same `claude` binary you already know, pointed at a different provider.
 
 ## CLI quick start
 
-You can also create instances directly from the command line without the TUI:
+You can also create instances from the command line instead of the TUI:
 
 ```bash
 claude-multi add deepseek --provider deepseek --api-key sk-your-key
@@ -99,7 +99,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-The exact binary location depends on your package manager, the TUI will show the actual path when the instance is created.
+The exact binary location depends on your package manager. The TUI prints the actual path when it creates the instance.
 
 ## What's next
 

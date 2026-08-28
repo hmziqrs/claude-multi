@@ -15,7 +15,7 @@ The only time claude-multi touches your key is during instance creation, when it
 
 ## About those config writes
 
-Settings files are written using a temp-file-rename pattern with JSON verification. The file gets written to a temp path, verified as valid JSON, then atomically renamed into place. No partial writes, no corrupted configs.
+claude-multi writes settings files with a temp-file-rename pattern. It writes to a temp path, checks the result parses as valid JSON, then renames it into place. If the write fails partway, your existing config is untouched.
 
 ## Practical tips
 

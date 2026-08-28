@@ -1,6 +1,6 @@
 ---
 title: How it works
-description: How claude-multi isolates Claude Code instances using config directories, environment variable injection, plugin symlinks, and wrapper scripts. Architecture overview.
+description: How claude-multi isolates Claude Code instances with config directories, environment variables, plugin symlinks, and wrapper scripts.
 ---
 
 ## The wrapper approach
@@ -21,7 +21,7 @@ set "CLAUDE_CONFIG_DIR=%USERPROFILE%\.claude-multi\deepseek"
 "C:\path\to\claude.exe" %*
 ```
 
-That is the entire mechanism. Claude Code reads its config from the pointed-to directory instead of `~/.claude`. Everything else, flags, commands, keybindings, plugins, MCP, works exactly as it does normally.
+That is the entire mechanism. Claude Code reads its config from the directory you point it at instead of `~/.claude`. Everything else behaves normally: flags, commands, keybindings, plugins, and MCP servers.
 
 ## File layout
 
@@ -51,14 +51,9 @@ That is the entire mechanism. Claude Code reads its config from the pointed-to d
 
 ## Instance isolation
 
-Each instance is fully independent:
+Each instance is independent. It has its own `settings.json` holding provider env vars, enabled plugins, and MCP servers. It has its own `.claude.json` holding onboarding state, migration version, and user ID. Its `plugins/` and `skills/` directories are either symlinked back to `~/.claude` under auto-sync or kept as separate copies. Its `projects/` directory holds a conversation history that no other instance can see.
 
-- **Own `settings.json`**, provider env vars, enabled plugins, MCP servers
-- **Own `.claude.json`**, onboarding state, migration version, user ID
-- **Own `plugins/` and `skills/`**, either symlinked (auto-sync) or independent copies
-- **Own `projects/`**, conversation history, completely separate
-
-Two instances can run at the same time in different terminals with no conflicts. No shared state, no lock files, no port conflicts.
+Two instances can run at the same time in different terminals. They share no state, take no lock files, and bind no ports.
 
 ## Auto-sync via symlinks
 
@@ -66,7 +61,7 @@ Sync has three modes (auto / half-manual / full-manual). In `auto` mode, an inst
 
 ## Provider templates
 
-A provider template is a bundle of environment variables, base URL, model mappings, default settings, that gets merged into an instance's `settings.json` during creation. You supply the API key and the template handles the rest.
+A provider template is a bundle of environment variables (base URL, model mappings, and default settings) that claude-multi merges into an instance's `settings.json` when it creates the instance. You supply the API key and the template handles the rest.
 
 ```json
 {
@@ -82,29 +77,29 @@ A provider template is a bundle of environment variables, base URL, model mappin
 }
 ```
 
-Templates are pure config, they don't install anything, make network calls, or change Claude Code's behavior beyond pointing it at a different endpoint.
+Templates are plain config. They install nothing and make no network calls, and the only thing they change about Claude Code is the endpoint it talks to.
 
 ## Updating existing templates
 
-Creating an instance copies the current provider template into its `settings.json`. Later template updates are not applied in the background. Run `claude-multi doctor check` after upgrading claude-multi, then use `claude-multi doctor fix` to apply pending changes. claude-multi backs up the affected settings first.
+Creating an instance copies the current provider template into its `settings.json`. claude-multi does not apply later template updates in the background. Run `claude-multi doctor check` after upgrading claude-multi, then `claude-multi doctor fix` to apply pending changes. The fix backs up the affected settings first.
 
-The sync restores provider model slots and other template settings. It leaves API keys and custom tunables alone, except for known legacy defaults that must change with the provider template.
+The fix restores provider model slots and other template settings. It leaves your API keys and custom tuning values alone, except for known legacy defaults that have to change with the template.
 
 See [Providers](/providers/) for the full template reference.
 
 ## Settings copy security
 
-When copying settings from `~/.claude`, only safe fields are transferred:
+When copying settings from `~/.claude`, claude-multi transfers only these fields:
 
 - `includeCoAuthoredBy`
 - `alwaysThinkingEnabled`
 - `enabledPlugins`
 
-The `env` block (which contains API keys) is **never** copied. Each instance gets its own API key during creation.
+It never copies the `env` block, which holds your API keys. Each instance gets its own API key when you create it.
 
 ## Health monitoring
 
-claude-multi runs health checks across all instances and detects:
+claude-multi runs health checks across all instances. It looks for:
 
 - Missing config directories
 - Missing wrapper binaries
@@ -112,25 +107,25 @@ claude-multi runs health checks across all instances and detects:
 - Broken symlinks
 - Failed config migrations
 
-When issues are found, the TUI shows a warning banner. Press `!` to see the health screen with each problem and its suggested fix.
+If it finds anything, the TUI shows a warning banner. Press `!` to open the health screen, which lists each problem and its suggested fix.
 
 ## Config migration
 
-When the config format changes between versions, claude-multi runs an automatic migration:
+When the config format changes between versions, claude-multi migrates it for you:
 
 1. Backs up `config.json` and affected `settings.json` files
 2. Validates the current state
 3. Transforms to the new format
 4. Saves atomically (temp-file-rename pattern)
 
-Migrations use a PID-based lock to prevent concurrent runs. If a migration fails, it sets a `migrationStatus: "failed"` flag and the health screen offers retry or restore options. The last 3 backups are kept in `~/.claude-multi/backups/`.
+Migrations take a PID-based lock so two cannot run at once. A failed migration sets a `migrationStatus: "failed"` flag, and the health screen then offers retry or restore. claude-multi keeps the last 3 backups in `~/.claude-multi/backups/`.
 
 ## Runtime detection
 
-The entry point (`bin/claude-multi.js`) is a polyglot file, simultaneously valid POSIX shell and ESM JavaScript. When executed:
+The entry point (`bin/claude-multi.js`) is a polyglot file that is valid POSIX shell and valid ESM JavaScript at the same time. When you run it:
 
 1. The shell portion checks for `bun`, then `node`, then `deno` in your PATH
 2. Re-executes itself under the first runtime found
 3. The JavaScript portion takes over
 
-Generated wrapper scripts are plain shell scripts (or `.cmd` batch files on Windows) that don't require a JavaScript runtime at launch, they just set `CLAUDE_CONFIG_DIR` and exec the `claude` binary.
+The generated wrapper scripts are plain shell scripts (or `.cmd` batch files on Windows) and need no JavaScript runtime at launch. They set `CLAUDE_CONFIG_DIR` and exec the `claude` binary.

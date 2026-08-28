@@ -1,6 +1,6 @@
 ---
 title: Documentation
-description: "Complete guide to claude-multi: install the CLI, configure providers, manage instances, and run multiple Claude Code sessions side by side with isolated configs."
+description: "Install the claude-multi CLI, configure providers, manage instances, and run multiple Claude Code sessions side by side with isolated configs."
 template: doc
 ---
 
@@ -22,16 +22,19 @@ That is it. `claude-glm` launches the official Claude Code binary with the GLM C
 
 ## Key concepts
 
-- **Provider templates** come with the right base URLs, model mappings, and defaults. You add your API key and the instance is ready.
-- **Instance isolation** means each provider gets its own config directory under `~/.claude-multi/`, with no shared state or conflicts.
-- **Plugin sync** symlinks skills and MCP servers from your primary install. Update once, every instance sees it.
-- **Native passthrough** means each alias is a thin wrapper around the official `claude` binary. Every flag and keybinding works unchanged.
+Provider templates carry the base URLs, model mappings, and defaults for each provider. You add your API key and the instance is ready.
+
+Each provider gets its own config directory under `~/.claude-multi/`, so instances share no state and cannot conflict.
+
+Plugin sync symlinks skills and MCP servers from your primary install. Update them once and every instance sees the change.
+
+Each alias is a thin wrapper around the official `claude` binary, so every flag and keybinding works unchanged.
 
 ## Where to go next
 
 - [Getting started](/docs/getting-started/) covers installation and your first instance.
 - [Usage](/docs/usage/) is the full CLI command reference.
 - [Providers](/providers/) lists every supported provider with model details.
-- [How it works](/docs/how-it-works/) explains the architecture under the hood.
+- [How it works](/docs/how-it-works/) explains the architecture.
 - [Configuration](/docs/configuration/) documents every config option.
 - [Troubleshooting](/docs/troubleshooting/) covers common issues and fixes.

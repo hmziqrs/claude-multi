@@ -1,6 +1,6 @@
 ---
 question: "How do I create a new instance for a provider?"
-description: "Use the interactive TUI or the CLI add command to spin up an isolated Claude Code instance with a provider template in two commands."
+description: "Use the interactive TUI or the CLI add command to create an isolated Claude Code instance with a provider template."
 category: "Usage"
 order: 4
 ---
@@ -13,7 +13,7 @@ Two ways: the interactive TUI, or a single CLI command.
 claude-multi
 ```
 
-Pick **Add new instance**. The wizard walks through instance name, provider template, API key, paths, copy options, plugin selection, and sync mode. The instance is created and you're back at the menu.
+Pick **Add new instance**. The wizard asks for an instance name, provider template, API key, paths, copy options, plugin selection, and sync mode. When it finishes, you're back at the menu with the instance created.
 
 ## CLI command
 
@@ -21,7 +21,7 @@ Pick **Add new instance**. The wizard walks through instance name, provider temp
 claude-multi add deepseek --provider deepseek --api-key sk-your-key
 ```
 
-The `add` command takes `--provider`, `--api-key`, and a set of copy and sync flags (`--copy-settings`, `--copy-plugins`, `--copy-mcp`, `--sync-mode`). See the CLI reference for the full set.
+The `add` command takes `--provider`, `--api-key`, and the copy and sync flags (`--copy-settings`, `--copy-plugins`, `--copy-mcp`, `--sync-mode`). The CLI reference lists all of them.
 
 After that, run `claude-<name>` (e.g. `claude-deepseek`) to launch Claude Code with that provider.
 

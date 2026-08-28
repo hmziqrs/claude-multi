@@ -1,13 +1,13 @@
 ---
 question: "How do I troubleshoot broken instances?"
-description: "Use the built-in health check system to detect and fix missing directories, broken symlinks, corrupted settings, and migration failures."
+description: "The built-in health check finds missing directories, broken symlinks, corrupted settings, and failed migrations, and suggests a fix for each."
 category: "Troubleshooting"
 order: 9
 ---
 
-claude-multi has a health monitor. Press `!` in the TUI (or watch for the warning banner on the main menu), or run `claude-multi list`. It surfaces missing config directories, deleted wrapper scripts, broken symlinks, corrupted `settings.json`, and failed migrations, each with a suggested fix. It won't change anything without asking.
+claude-multi has a health monitor. Press `!` in the TUI, watch for the warning banner on the main menu, or run `claude-multi list`. It reports missing config directories, deleted wrapper scripts, broken symlinks, corrupted `settings.json`, and failed migrations, each with a suggested fix. It won't change anything without asking.
 
-The most common issue is broken symlinks. Repair them across every instance:
+Broken symlinks are the most common problem. Repair them across every instance:
 
 ```sh
 claude-multi fix-symlinks
@@ -15,7 +15,7 @@ claude-multi fix-symlinks
 
 You can also target specific instances: `claude-multi fix-symlinks deepseek glm`.
 
-For the full set of checks, recovery steps, and how migrations roll back from `.bak` files, see the troubleshooting guide.
+The troubleshooting guide covers every check, the recovery steps, and how migrations roll back from `.bak` files.
 
 ## Related questions
 

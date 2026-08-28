@@ -33,11 +33,11 @@ Or create an instance directly:
 claude-multi add deepseek --provider deepseek --api-key sk-your-key
 ```
 
-This generates a wrapper script in your PATH (the exact location depends on your package manager, could be `~/.bun/bin/`, `~/.local/bin/`, or similar) that you can run like any other command.
+That writes a wrapper script into your PATH, which you then run like any other command. Where it lands depends on your package manager: `~/.bun/bin/`, `~/.local/bin/`, or somewhere similar.
 
 ## Before you start
 
-You'll need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a supported runtime (Bun 1+, Node 18+, or Deno 1+), and an API key for at least one provider.
+You need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a supported runtime (Bun 1+, Node 18+, or Deno 1+), and an API key for at least one provider.
 
 ## Related questions
 

@@ -5,7 +5,7 @@ description: Environment variable reference for claude-multi and provider config
 
 ## claude-multi runtime variables
 
-These control claude-multi's own behavior. Set them in your shell before launching.
+These control claude-multi itself. Set them in your shell before launching.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -27,7 +27,7 @@ CLAUDE_MULTI_HOME=/tmp/test-env claude-multi add test --provider deepseek --api-
 
 ## Claude Code instance variables
 
-These are set inside each instance's `settings.json` under the `env` key. Provider templates populate them automatically during instance creation.
+These live in each instance's `settings.json` under the `env` key. Provider templates fill them in when you create the instance.
 
 ### Core API variables
 
@@ -61,20 +61,20 @@ These are set inside each instance's `settings.json` under the `env` key. Provid
 
 ### Context window / auto-compaction variables
 
-Claude Code compresses older conversation history once usage crosses a threshold of the context window, instead of failing when the model's token limit is hit. Claude Code assumes a 200K window by default, so any provider with a smaller real window needs these overridden or compaction triggers too late and the API call fails mid-session.
+Claude Code compresses older conversation history once usage crosses a share of the context window, instead of failing when the model hits its token limit. It assumes a 200K window by default, so a provider with a smaller real window needs these overrides. Without them, compaction runs too late and the API call fails mid-session.
 
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | The model's actual context window size, in tokens | `131072` (Qwen's 128K) |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Percentage of the window that triggers compaction | `75` |
 
-Models that match or exceed the 200K default, like GLM-5.3 with its 1M window, use a `[1m]` suffix on the model name instead, so no override is needed.
+Models that match or exceed the 200K default, like GLM-5.3 with its 1M window, use a `[1m]` suffix on the model name instead, so you do not need an override.
 
 ---
 
 ## Per-provider defaults
 
-Each provider template sets these variables with provider-specific values. Here's what each template configures:
+Each provider template sets these variables to its own values.
 
 ### GLM (`glm`)
 
@@ -143,7 +143,7 @@ The `glm` template maps opus to `glm-5.3[1m]`, sonnet to `glm-5.3-flash[1m]`, an
 }
 ```
 
-The `mimo-token` template uses the same models but a different base URL (`token-plan-cn.xiaomimimo.com`). Replace with your regional endpoint from the subscription console.
+The `mimo-token` template uses the same models but a different base URL (`token-plan-cn.xiaomimimo.com`). Replace it with your regional endpoint from the subscription console.
 
 ### Moonshot Kimi (`kimi`)
 
@@ -181,4 +181,4 @@ The `qwen-coding` template uses the same models but a different base URL (`codin
 
 **claude-multi variables:** Set in your shell profile (`.zshrc`, `.bashrc`, `.profile`) or export them before running `claude-multi`.
 
-**Instance variables:** Edit `~/.claude-<name>/settings.json` directly, or let provider templates populate them during instance creation. These are set per-instance and don't affect other instances or your default `~/.claude` setup.
+**Instance variables:** Edit `~/.claude-<name>/settings.json` directly, or let the provider template fill them in when you create the instance. They apply to that instance only and do not affect other instances or your default `~/.claude` setup.

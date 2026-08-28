@@ -1,6 +1,6 @@
 ---
 question: "Does it work on Windows?"
-description: "Yes, wrapper scripts are generated as .cmd batch files on Windows, and the polyglot entry point works with Node.js on any platform."
+description: "Yes. On Windows claude-multi writes .cmd batch files instead of shell wrappers, and the polyglot entry point runs on Node.js everywhere."
 category: "Compatibility"
 order: 13
 ---
@@ -9,7 +9,7 @@ Yes. claude-multi works on Windows, macOS, and Linux. The CLI commands, the TUI,
 
 ## What's different on Windows
 
-The only difference is the wrapper scripts claude-multi generates for each instance. On Unix they are plain shell scripts starting with `#!/bin/sh`. On Windows they are `.cmd` batch files that do the same job:
+The wrapper scripts are the only difference. On Unix they are plain shell scripts starting with `#!/bin/sh`. On Windows they are `.cmd` batch files that do the same job:
 
 ```batch
 @echo off
@@ -49,11 +49,11 @@ Make sure the returned path is in your user `PATH` environment variable, then op
 
 ## A note on line endings and shells
 
-Git Bash, WSL, and Cygwin are common on Windows. claude-multi generates native `.cmd` wrappers, so calling `claude-deepseek` from a bash-style shell works because the shell hands off to `cmd.exe` for `.cmd` files. If you live entirely inside WSL, you are effectively on Linux, and claude-multi will generate Unix shell wrappers there instead.
+Git Bash, WSL, and Cygwin are common on Windows. claude-multi writes native `.cmd` wrappers, so calling `claude-deepseek` from a bash-style shell still works: the shell hands off to `cmd.exe` for `.cmd` files. If you live entirely inside WSL, you are on Linux as far as claude-multi is concerned, and it writes Unix shell wrappers there instead.
 
 ## CI/CD testing
 
-The project's CI runs install and execution tests on all three operating systems against all three runtimes (bun, node, deno) on every release, so a Windows-specific regression gets caught before publish.
+CI runs install and execution tests on all three operating systems against all three runtimes (bun, node, deno) on every release, so a Windows-specific regression gets caught before publish.
 
 ## More info
 

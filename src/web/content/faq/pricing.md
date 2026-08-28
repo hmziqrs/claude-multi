@@ -18,9 +18,9 @@ So your bill depends on:
 
 ## Comparing providers
 
-That's actually one of the reasons claude-multi exists, you can A/B providers on the same task and see which gives you the best results per dollar. Some providers like DeepSeek and MiMo are significantly cheaper per token than Anthropic. Others like Kimi or Qwen offer subscription plans with credit pools.
+That's one of the reasons claude-multi exists. You can run the same task against two providers and see which gives you better results per dollar. DeepSeek and MiMo are cheaper per token than Anthropic. GLM and Qwen sell subscription plans with credit pools instead.
 
-Check the [providers page](/providers/) for the full list with model details.
+The [providers page](/providers/) has the full list with model details.
 
 ## What about Claude Code itself?
 

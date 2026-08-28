@@ -5,7 +5,7 @@ category: "Maintenance"
 order: 14
 ---
 
-Two separate things need updating, and they update independently: the claude-multi tool itself, and the Claude Code binary it wraps. Mixing them up is the most common source of "I updated but nothing changed" confusion.
+Two things update independently: the claude-multi tool, and the Claude Code binary it wraps. Mixing them up is the usual reason people say "I updated but nothing changed".
 
 ## Updating Claude Code
 
@@ -45,11 +45,11 @@ Deno's `install` command reinstalls, which is how you get the new version under 
 
 ## What happens to instances during updates
 
-Nothing destructive. Neither an update to Claude Code nor an update to claude-multi touches your instance directories. The config at `~/.claude-multi/<name>/`, the `settings.json`, the plugins, the skills, and the conversation history under `projects/` all stay exactly where they were. An instance is just a config directory plus a wrapper script, and the wrapper only sets `CLAUDE_CONFIG_DIR` before exec'ing `claude`. None of that depends on a specific version.
+Nothing destructive. Neither update touches your instance directories. The config at `~/.claude-multi/<name>/`, the `settings.json`, the plugins, the skills, and the conversation history under `projects/` all stay where they were. An instance is a config directory plus a wrapper script, and the wrapper only sets `CLAUDE_CONFIG_DIR` before exec'ing `claude`. None of that depends on a specific version.
 
 ## After a major Claude Code release
 
-Occasionally Claude Code ships a breaking change to its config schema. claude-multi runs a migration on launch when it detects one, and those migrations write `.bak` files first. If an instance looks wrong after an update, open the TUI and press `!` for the health screen, or check for `.bak` files in `~/.claude-multi/<name>/` and restore manually. See the troubleshooting FAQ for the full recovery flow.
+Occasionally Claude Code ships a breaking change to its config schema. claude-multi detects that on launch and runs a migration, writing a `.bak` file first. If an instance looks wrong after an update, open the TUI and press `!` for the health screen, or look for `.bak` files in `~/.claude-multi/<name>/` and restore one by hand. The troubleshooting FAQ has the full recovery flow.
 
 ## More info
 

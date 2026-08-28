@@ -31,13 +31,13 @@ Replace the URL and model names with whatever your local server exposes.
 
 ## What works and what doesn't
 
-If your local server faithfully implements the Anthropic messages API (the `/v1/messages` endpoint), Claude Code will work with it. Tools like [Ollama](https://ollama.ai) with an Anthropic-compatible adapter, [LiteLLM](https://github.com/BerriAI/litellm), or [vLLM](https://github.com/vllm-project/vllm) with the right proxy can bridge the gap.
+If your local server implements the Anthropic messages API (the `/v1/messages` endpoint), Claude Code will work with it. [Ollama](https://ollama.ai) with an Anthropic-compatible adapter, [LiteLLM](https://github.com/BerriAI/litellm), or [vLLM](https://github.com/vllm-project/vllm) behind the right proxy can bridge the gap.
 
-The further your local setup deviates from the Anthropic API spec, the more likely you are to hit edge cases, especially around streaming, tool use, and extended thinking.
+The further your local setup drifts from the Anthropic API spec, the more edge cases you hit. Streaming and tool use are usually where it breaks first.
 
 ## A practical note on cost
 
-Running local models eliminates per-token API costs entirely. You pay in compute (GPU time, electricity) instead. For high-volume tasks like code generation and refactoring, this can be significantly cheaper than any cloud provider, if you have the hardware.
+Local models have no per-token API cost. You pay in compute instead: GPU time and electricity. If you already have the hardware, that can work out cheaper for high-volume work like code generation and refactoring.
 
 ## Related questions
 

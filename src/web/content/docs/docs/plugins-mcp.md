@@ -22,7 +22,7 @@ Each instance has a `plugins/` directory in its config dir:
         └── ...
 ```
 
-Plugin state is tracked in `installed_plugins.json` (v2 format) with scope, install path, version, and timestamps.
+claude-multi records plugin state in `installed_plugins.json` (v2 format) with scope, install path, version, and timestamps.
 
 ### Listing plugins
 
@@ -38,7 +38,7 @@ claude-multi plugins list-defaults
 claude-multi plugins list-installed deepseek
 ```
 
-Default plugins show category badges (`[internal]` / `[ext]`) and MCP indicators when a plugin provides MCP servers.
+Default plugins show a category badge (`[internal]` or `[ext]`) and an MCP indicator when the plugin provides MCP servers.
 
 ### Installing plugins
 
@@ -50,7 +50,7 @@ Default plugins show category badges (`[internal]` / `[ext]`) and MCP indicators
 claude-multi plugins install deepseek <plugin-id> [<plugin-id>...]
 ```
 
-Before installing, claude-multi runs collision detection, if a new plugin would conflict with an existing one (same MCP server name, different content), you'll be warned before anything is committed.
+Before installing, claude-multi checks for collisions. If a new plugin would conflict with an existing one (same MCP server name, different content), it warns you before writing anything.
 
 ### Enabling and disabling
 
@@ -75,11 +75,11 @@ claude-multi plugins copy <source-instance> <dest-instance> <plugin-id> [<plugin
 claude-multi plugins remove deepseek <plugin-id> [<plugin-id>...]
 ```
 
-Removal uses a rename-to-backup safety pattern, the plugin directory is renamed rather than deleted outright.
+Removal renames the plugin directory to a backup rather than deleting it outright.
 
 ### Collision detection
 
-If you've installed the same plugin in multiple places (one symlinked, one copied, different versions), MCP server names might conflict:
+If you have installed the same plugin in two places, one symlinked and one copied, their MCP server names can conflict:
 
 ```bash
 claude-multi plugins check-collisions deepseek <plugin-id> [<plugin-id>...]
@@ -89,7 +89,7 @@ This scans for plugins that share an MCP server name but have different content.
 
 ### Auto-sync and symlinks
 
-Sync has three modes. They control how an instance's `plugins/` and `skills/` relate to `~/.claude/`:
+Sync has three modes, which control how an instance's `plugins/` and `skills/` relate to `~/.claude/`:
 
 - **`auto`**: `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Install or update a plugin once and every synced instance sees it immediately. Per-plugin operations (install/remove/enable/disable) aren't available, since changes happen at the source.
 - **`half-manual`**: real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing set, but new installs in `~/.claude` don't appear until you re-sync. Per-plugin management is blocked here too.
@@ -122,7 +122,7 @@ Run it for specific instances, or with `-a`/`--all` across all of them. From the
 
 ## MCP server management
 
-MCP (Model Context Protocol) servers let Claude Code talk to external tools, databases, APIs, file systems, and anything else you wire up. Each instance can have its own MCP server configuration.
+MCP (Model Context Protocol) servers let Claude Code talk to outside systems: databases, APIs, file systems, and whatever else you wire up. Each instance can have its own MCP server configuration.
 
 ### Listing MCP servers
 
@@ -134,7 +134,7 @@ MCP (Model Context Protocol) servers let Claude Code talk to external tools, dat
 claude-multi mcp list
 ```
 
-Shows MCP server configs across all instances so you can see at a glance what's connected where.
+This prints the MCP server configs from every instance, so you can see what is connected where.
 
 ### Copying between instances
 
@@ -154,13 +154,13 @@ MCP server configs can go stale if a server binary gets moved or removed:
 claude-multi mcp verify
 ```
 
-Checks that referenced executables and paths still exist.
+This checks that the referenced executables and paths still exist.
 
 ### Adding MCP servers
 
 **TUI:** Select **MCP servers** → pick an instance → **Add custom server**. Enter the server name and JSON config.
 
-MCP configs use the same format as Claude Code's native MCP config, no abstraction layer added.
+MCP configs use the same format as Claude Code's native MCP config, with no extra layer on top.
 
 ### Where configs live
 
@@ -201,7 +201,7 @@ Restart the instance and the servers load automatically. Inside a session, `/mcp
 
 ### Isolating servers per instance
 
-Some servers should only reach specific providers, a production database server has no business being reachable from an experimental sandbox instance. Keep auto-sync off for that instance and configure MCP servers only in its own `settings.json`:
+Some servers should reach only specific instances. A production database server has no business being reachable from a sandbox instance. Keep auto-sync off for that instance and configure its MCP servers in its own `settings.json`:
 
 ```
 ~/.claude-glm/settings.json          # includes the postgres MCP server

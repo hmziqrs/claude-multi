@@ -1,11 +1,11 @@
 ---
 title: Troubleshooting
-description: "Fix common claude-multi issues: instance not starting, provider connection errors, plugin sync failures, config directory problems, and wrapper script troubleshooting."
+description: "Fix common claude-multi issues: instances that will not start, provider connection errors, plugin sync failures, config directory problems, and broken wrapper scripts."
 ---
 
 ## `claude-<name>` command not found
 
-Your global binary directory isn't on `PATH`. The exact location depends on your package manager, the TUI shows it when an instance is created.
+Your global binary directory is not on `PATH`. The exact location depends on your package manager, and the TUI prints it when it creates an instance.
 
 **Common locations:**
 
@@ -34,7 +34,7 @@ Replace `~/.local/bin` with the actual path from your instance creation output.
 
 ## Broken plugin or skill symlinks
 
-If you moved or deleted `~/.claude/`, symlinks in auto-synced instances point to nothing.
+If you moved or deleted `~/.claude/`, the symlinks in auto-synced instances now point at nothing.
 
 **Fix from TUI:** Select **Re-sync symlinks** from the main menu. Pick the broken instance (or all).
 
@@ -52,7 +52,7 @@ claude-multi fix-symlinks --all
 
 ## Health warning banner in the TUI
 
-A yellow or red banner at the top of the main menu means claude-multi detected problems. Press `!` to open the health screen.
+A yellow or red banner at the top of the main menu means claude-multi found problems. Press `!` to open the health screen.
 
 **Common health issues:**
 
@@ -68,7 +68,7 @@ A yellow or red banner at the top of the main menu means claude-multi detected p
 
 ## Ink TUI doesn't render properly
 
-Some terminals (older SSH clients, certain terminal emulators) don't handle the Ink-based React TUI well.
+Some terminals, including older SSH clients, do not handle the Ink-based React TUI well.
 
 **Fix:** Force the simpler prompts-based UI:
 
@@ -85,7 +85,7 @@ Same flows, simpler rendering.
 If Claude Code can't authenticate with your provider:
 
 1. **Check the key is set:** `claude-multi info <name>` shows the instance's settings
-2. **Check the base URL:** Make sure you used the right provider template for your account type. Some providers (MiMo, Qwen) have separate templates for pay-per-token vs. subscription plans, using the wrong one means the wrong endpoint
+2. **Check the base URL:** Make sure you used the right provider template for your account type. MiMo and Qwen have separate templates for pay-per-token and subscription plans, and the wrong one points at the wrong endpoint
 3. **Verify the settings file:** Open `~/.claude-<name>/settings.json` and check the `env` block
 
 ```bash
@@ -105,7 +105,7 @@ Some providers use different base URLs for pay-per-token vs. subscription plans:
 | Alibaba Qwen | `qwen` template | `qwen-coding` template (different subdomain) |
 | GLM (Z.ai) | No Anthropic-compatible URL | `glm` template (coding plan only) |
 
-If you're on a subscription plan but used the pay-per-token template (or vice versa), your API key won't authenticate. Remove the instance and recreate with the correct template.
+If you are on a subscription plan but used the pay-per-token template, or the other way around, your API key will not authenticate. Remove the instance and recreate it with the correct template.
 
 ---
 
@@ -129,7 +129,7 @@ claude-multi add deepseek --provider deepseek --api-key sk-...
 If an MCP server fails to connect:
 
 1. **Verify the config:** `claude-multi mcp verify` checks that referenced executables and paths exist
-2. **Check for collisions:** `claude-multi plugins check-collisions <instance> <plugin-id>`, two plugins might register the same MCP server name
+2. **Check for collisions:** `claude-multi plugins check-collisions <instance> <plugin-id>` catches two plugins registering the same MCP server name
 3. **Inspect the config:** Open `~/.claude-<name>/settings.json` and look at the `mcpServers` field
 
 ---
@@ -142,7 +142,7 @@ If a migration was interrupted:
 2. Look for `.bak` files in the instance directory
 3. The health screen (press `!` in the TUI) shows the specific error and offers retry or restore options
 
-Migrations create backups before touching anything. The last 3 backup sets are kept in `~/.claude-multi/backups/`.
+Migrations create backups before touching anything. claude-multi keeps the last 3 backup sets in `~/.claude-multi/backups/`.
 
 ---
 
@@ -155,7 +155,7 @@ claude-multi doctor check
 claude-multi doctor fix
 ```
 
-The check reports provider settings that no longer match the current template. The fix creates a backup and updates model slots and template settings. It keeps API keys and custom tuning values.
+The check reports provider settings that no longer match the current template. The fix backs them up, then updates the model slots and template settings. It leaves your API keys and custom tuning values alone.
 
 ---
 

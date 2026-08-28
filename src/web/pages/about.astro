@@ -3,7 +3,7 @@ import Layout from '../layouts/RedesignContentLayout.astro';
 import { latestVersion, releases } from '../util/changelog';
 
 const title = 'About claude-multi | Open-Source Multi-Provider CLI for Claude Code';
-const description = 'Why claude-multi exists, how isolated configs with shared plugins work, and which providers are supported.';
+const description = 'Why claude-multi exists, how isolated configs with shared plugins work, and which providers it supports.';
 const totalReleases = releases.length;
 ---
 <Layout title={title} description={description}>
@@ -22,7 +22,7 @@ const totalReleases = releases.length;
           About <span class="gradient-text">claude-multi.</span>
         </h1>
         <p class="mt-6 text-lg sm:text-xl text-text-dim max-w-xl mx-auto leading-relaxed">
-          claude-multi is a CLI that runs multiple Claude Code instances side-by-side. Each is pointed at a different AI provider with its own config directory.
+          claude-multi is a CLI that runs multiple Claude Code instances side by side. Each one talks to a different AI provider and keeps its own config directory.
         </p>
       </div>
     </div>
@@ -37,13 +37,13 @@ const totalReleases = releases.length;
         </h2>
         <div class="mt-6 space-y-5 text-text-dim leading-relaxed text-[0.98rem]">
           <p>
-            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>: settings, MCP servers, plugins, skills, and history. The moment you want to try a second model, share plugins between an experimental setup and your primary one, or A/B two providers on the same project, you start juggling environment variables, copying files around, and silently losing context.
+            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>: settings, MCP servers, plugins, skills, history. Try a second model and that one directory becomes a problem. I ended up editing settings by hand, swapping keys, and keeping shell aliases nobody asked for. Sessions and context get overwritten and you find out later.
           </p>
           <p>
-            claude-multi gives every provider its own alias and config directory. One alias per provider (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code>), each rooted under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills symlink from your primary install, so you maintain them in one place.
+            claude-multi gives every provider its own alias and config directory. One alias per provider (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code>), each rooted under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills symlink from your primary install, so you still maintain them in one place.
           </p>
           <p>
-            No daemons. No background services. No telemetry. Every "instance" is a real directory you can <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code> into and inspect with the tools you already use.
+            There are no daemons and no background services. Nothing phones home. Every instance is a real directory you can <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code> into and inspect with the tools you already use.
           </p>
         </div>
       </div>
@@ -55,7 +55,7 @@ const totalReleases = releases.length;
       <div class="reveal text-center mb-12">
         <span class="eyebrow">// Principles</span>
         <h2 class="mt-5 text-3xl sm:text-4xl font-extrabold tracking-tight">
-          What we <span class="gradient-text">optimize for.</span>
+          What I <span class="gradient-text">optimize for.</span>
         </h2>
       </div>
 
@@ -66,7 +66,7 @@ const totalReleases = releases.length;
           </div>
           <h3 class="text-lg font-semibold mb-2">Zero magic</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Every instance is a real directory at <code class="font-mono text-lime text-xs">~/.claude-multi/&lt;name&gt;</code>. Open it, edit it, delete it. No hidden state.
+            Every instance is a real directory at <code class="font-mono text-lime text-xs">~/.claude-multi/&lt;name&gt;</code>. Open it, edit it, or delete it. Nothing is hidden from you.
           </p>
         </div>
 
@@ -117,15 +117,15 @@ const totalReleases = releases.length;
           <ol class="space-y-3 list-none p-0 m-0">
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">1</span>
-              <span>A directory is created at <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/glm/</code> with its own <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">settings.json</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">.claude.json</code>, and history.</span>
+              <span>claude-multi creates a directory at <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/glm/</code> with its own <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">settings.json</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">.claude.json</code>, and history.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">2</span>
-              <span>Provider-specific env vars (base URL, model mappings) are merged into the instance's settings, without modifying your primary <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>.</span>
+              <span>It merges the provider's env vars (base URL, model mappings) into that instance's settings and never touches your primary <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">3</span>
-              <span>Plugins and skills are symlinked from your primary install. Update once; every instance sees it.</span>
+              <span>It symlinks plugins and skills from your primary install. Update once and every instance sees it.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">4</span>
@@ -133,7 +133,7 @@ const totalReleases = releases.length;
             </li>
           </ol>
           <p class="pt-2">
-            That's the whole trick. No proxy, no monkey-patching, no daemon. Just a config-dir environment variable and a symlink graph.
+            That's the whole trick. One environment variable pointing at a config directory, plus a few symlinks. Nothing proxies your traffic and nothing patches the binary.
           </p>
         </div>
       </div>
@@ -182,7 +182,7 @@ const totalReleases = releases.length;
           <span class="eyebrow">// Author</span>
           <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Built by <span class="gradient-text">hmziqrs.</span></h2>
           <p class="mt-5 text-text-dim leading-relaxed text-[0.98rem] max-w-xl">
-            Independent developer, builds open-source tooling for developer workflows. claude-multi started because switching providers mid-day was annoying and nothing else solved it cleanly.
+            I'm an independent developer and I build open-source tooling for my own workflow first. claude-multi exists because switching providers halfway through a day kept breaking my setup, and every alternative meant learning a new CLI I did not want to learn.
           </p>
           <div class="mt-7 flex flex-wrap gap-3">
             <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="btn-primary">

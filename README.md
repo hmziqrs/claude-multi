@@ -56,7 +56,7 @@ Each instance is isolated. All of them run the normal, unmodified Claude Code bi
 * MCP management: list and copy server configs between instances.
 * Optional auto-sync that symlinks plugins and skills from your default `~/.claude`.
 * `doctor` reports provider template updates for existing instances and can apply them after making a backup.
-* No fork. It wraps your existing `claude` binary instead of patching it.
+* It wraps your existing `claude` binary instead of patching it, so there is no fork to maintain.
 
 ---
 
@@ -150,7 +150,7 @@ Pick one:
 
 ### 3. API key *(only if you picked a provider)*
 
-Paste your key. It's masked while you type and gets written into the instance's `settings.json`.
+Paste your key. The prompt masks it while you type, then writes it into the instance's `settings.json`.
 
 ### 4. Confirm paths
 
@@ -259,7 +259,7 @@ Instance metadata sits in `~/.claude-multi/config.json`. When auto-sync is on, `
 | `~/.claude-multi/config.json` | claude-multi instance registry |
 | `~/.claude-<name>/` | config directory for one instance |
 | `~/.local/bin/claude-<name>` | generated wrapper command on Linux/macOS |
-| `~/.claude/` | your default Claude Code config. Treated as the source for copy and sync operations. |
+| `~/.claude/` | your default Claude Code config. claude-multi reads it as the source for copy and sync operations. |
 
 ---
 

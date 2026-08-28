@@ -1,15 +1,15 @@
 ---
 question: "Which AI providers are supported?"
-description: "claude-multi ships 8 templates covering GLM, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen, each with pre-configured endpoints and model mappings."
+description: "claude-multi ships 8 templates covering GLM, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen. Each one sets the endpoint and model mappings for you."
 category: "Providers"
 order: 3
 ---
 
-Each provider is a template: a bundle of environment variables (base URL, model mappings, default settings) merged into a new instance. You bring the API key; the template handles the rest. The full list, with endpoints and model mappings for all eight templates, lives on the providers page.
+A provider template is a bundle of environment variables (base URL, model mappings, default settings) that claude-multi merges into a new instance. You bring the API key, the template does the rest. The providers page lists endpoints and model mappings for all eight templates.
 
 ## Using Anthropic directly
 
-You don't need a template for Anthropic, that's Claude Code's default. Run `claude` directly for Anthropic, and use claude-multi for everything else. If you still want a managed instance for Anthropic (to keep its config isolated), create one without a provider:
+You don't need a template for Anthropic, that's Claude Code's default. Run `claude` for Anthropic and use claude-multi for everything else. If you want a managed instance for Anthropic anyway, to keep its config isolated, create one without a provider:
 
 ```sh
 claude-multi add anthropic --skip-prompts

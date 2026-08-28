@@ -5,7 +5,7 @@ description: "Full CLI command reference for claude-multi: add, remove, list, sy
 
 ## Default action
 
-Running `claude-multi` with no arguments launches the interactive TUI (terminal UI). Everything you can do from the CLI also lives inside the menu.
+Running `claude-multi` with no arguments launches the interactive terminal UI. Everything you can do from the CLI also lives inside the menu.
 
 ```bash
 claude-multi
@@ -59,7 +59,7 @@ claude-multi add glm --provider glm --api-key your-key --copy-all --auto-sync
 claude-multi remove <name>
 ```
 
-Removes the instance from the registry and deletes the wrapper script. The config directory is kept on disk, you'll see a hint to delete it manually if you want.
+This removes the instance from the registry and deletes the wrapper script. It leaves the config directory on disk and prints a hint so you can delete it yourself.
 
 | Flag | Description |
 |------|-------------|
@@ -115,7 +115,7 @@ claude-multi mcp <action> [args]
 
 ## Sync modes
 
-Plugin and skill syncing has three modes. Set one at creation, or change it later:
+Plugin and skill syncing has three modes. Set one at creation or change it later:
 
 ```bash
 claude-multi add <name> --sync-mode half-manual
@@ -146,7 +146,7 @@ claude-multi fix-symlinks [names...]
 |------|-------------|
 | `-a, --all` | Fix all instances at once |
 
-Without arguments, you'll be prompted to pick which instances to repair.
+Without arguments, claude-multi asks which instances to repair.
 
 ## Provider template updates
 
@@ -185,11 +185,9 @@ See [Environment Variables](/docs/environment-variables/) for the full reference
 
 ## Common workflows
 
-The commands above combine into a handful of patterns people actually reach for.
-
 ### Switch providers on the fly
 
-Each instance is an independent command, so switching is just running a different one: no config edits, no environment variables to export.
+Each instance is an independent command, so switching means running a different one. You do not edit config or export environment variables.
 
 ```bash
 claude-glm "explain this function"
@@ -200,7 +198,7 @@ Both are full, simultaneous Claude Code sessions. Open two terminals and they do
 
 ### Route by cost
 
-Most day-to-day tasks (renaming variables, boilerplate, doc updates) don't need a frontier model. Keep a cheap instance for routine work and a stronger one for the hard problems:
+Most day-to-day work like renaming variables or updating docs does not need a frontier model. Keep a cheap instance for routine tasks and a stronger one for the hard problems:
 
 ```bash
 claude-multi add budget --provider deepseek --api-key sk-...
@@ -214,7 +212,7 @@ Enable auto-sync on both so they still share the same plugins and MCP servers.
 
 ### Benchmark providers on your codebase
 
-Marketing pages claim every model is the best. Test against your actual code instead: create one instance per provider, run the same prompt through each, and compare correctness, speed, and cost.
+Marketing pages claim every model is the best. Test against your own code instead. Create one instance per provider, run the same prompt through each, and compare the results.
 
 ```bash
 claude-multi add test-glm --provider glm --api-key ...
@@ -224,18 +222,18 @@ claude-test-glm -p "find the memory leak in src/cache.ts"
 claude-test-deepseek -p "find the memory leak in src/cache.ts"
 ```
 
-Remove the test instances once you have picked a winner, or keep them around for a quarterly re-check.
+Remove the test instances once you have picked a winner, or keep them for a periodic re-check.
 
 ### Separate work and personal instances
 
-Mixing contexts in one config leaks a work API key into personal sessions and tangles conversation history. Give each its own instance instead:
+Mixing contexts in one config leaks your work API key into personal sessions and tangles the conversation history. Give each context its own instance:
 
 ```bash
 claude-multi add work --provider glm --api-key work-key
 claude-multi add personal --provider deepseek --api-key personal-key
 ```
 
-Leave auto-sync off between them, sharing plugins here would defeat the point of isolating the two.
+Leave auto-sync off between them. Sharing plugins would defeat the point of isolating them.
 
 ### Standardize a team setup
 

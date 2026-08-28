@@ -1,11 +1,11 @@
 ---
 title: Configuration
-description: "Configuration file reference for claude-multi instances: settings.json schema, environment variables, provider template overrides, and plugin management options."
+description: "Configuration file reference for claude-multi instances: the settings.json schema, environment variables, provider template overrides, and plugin options."
 ---
 
 ## Config registry
 
-All instances are tracked in a central registry:
+claude-multi tracks all instances in a central registry:
 
 **Path:** `~/.claude-multi/config.json`
 
@@ -67,7 +67,7 @@ Each instance has its own `settings.json` at `~/.claude-<name>/settings.json`. T
 
 ### `env` object
 
-Environment variables set when launching Claude Code for this instance. Provider templates populate this automatically.
+Environment variables that claude-multi sets when it launches Claude Code for this instance. Provider templates fill these in for you.
 
 | Key | Description |
 |-----|-------------|
@@ -84,7 +84,7 @@ Environment variables set when launching Claude Code for this instance. Provider
 
 ### `enabledPlugins` object
 
-Map of plugin IDs to enabled/disabled state. Only includes plugins that have been explicitly toggled.
+Map of plugin IDs to enabled or disabled state. It lists only the plugins you have toggled.
 
 ### `mcpServers` object
 
@@ -119,13 +119,13 @@ Each instance has a `.claude.json` at `~/.claude-<name>/.claude.json`:
 }
 ```
 
-This file is created automatically during instance setup. `hasCompletedOnboarding: true` tells Claude Code to skip its first-run wizard.
+claude-multi writes this file during instance setup. `hasCompletedOnboarding: true` tells Claude Code to skip its first-run wizard.
 
 ---
 
 ## Plugin tracking
 
-Installed plugins are tracked in `~/.claude-<name>/plugins/installed_plugins.json` (v2 format):
+claude-multi tracks installed plugins in `~/.claude-<name>/plugins/installed_plugins.json` (v2 format):
 
 ```json
 {
@@ -160,13 +160,13 @@ Persistent health issue tracking at `~/.claude-multi/health-status.json`:
 }
 ```
 
-Issues can be dismissed from the TUI health screen. They're re-detected on subsequent checks if the underlying problem persists.
+You can dismiss issues from the TUI health screen. claude-multi finds them again on the next check if the problem is still there.
 
 ---
 
 ## Migration backups
 
-When config format changes, backups are stored in `~/.claude-multi/backups/`:
+When the config format changes, claude-multi stores backups in `~/.claude-multi/backups/`:
 
 ```
 ~/.claude-multi/backups/
@@ -175,7 +175,7 @@ When config format changes, backups are stored in `~/.claude-multi/backups/`:
 └── glm-settings.json.backup.2026-05-27T10-00-00
 ```
 
-The last 3 backup sets are kept. Older ones are automatically cleaned up.
+claude-multi keeps the last 3 backup sets and deletes the older ones.
 
 ---
 

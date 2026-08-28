@@ -1,6 +1,6 @@
 ---
 question: "How do I remove an instance?"
-description: "Use claude-multi remove <name> or the TUI Remove option. The config directory is kept on disk so you can decide whether to delete it."
+description: "Use claude-multi remove <name> or the TUI Remove option. It leaves the config directory on disk so you decide whether to delete it."
 category: "Usage"
 order: 15
 ---
@@ -25,7 +25,7 @@ The remove command does two things:
 1. Removes the instance from claude-multi's registry (`~/.claude-multi/config.json`)
 2. Deletes the wrapper script (e.g. `~/.local/bin/claude-deepseek`)
 
-It does **not** delete the config directory (`~/.claude-multi/deepseek/`). This is intentional, your conversation history lives there, and you might want to keep it.
+It does **not** delete the config directory (`~/.claude-multi/deepseek/`). That's deliberate. Your conversation history lives there, and you might want to keep it.
 
 ## Deleting the config directory
 
