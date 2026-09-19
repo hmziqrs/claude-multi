@@ -1,9 +1,4 @@
 ---
-/**
- * Hero.astro: homepage hero (#top).
- * Faithful port of the design composition: badge + headline + subcopy + CTAs +
- * meta row, then a terminal mockup (TUI menu + "add instance" wizard + config).
- */
 import Button from './Button.astro';
 import StatusBadge from './StatusBadge.astro';
 import Terminal from './Terminal.astro';
@@ -156,7 +151,6 @@ const menuItems = [
     color: var(--text-faint);
   }
 
-  /* ---- Terminal mockup window ---- */
   .hero__window {
     position: relative;
     max-width: 1440px;

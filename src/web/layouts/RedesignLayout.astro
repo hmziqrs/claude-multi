@@ -142,7 +142,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
       <SiteFooter />
 
       <script>
-        // ---------- Scroll progress ----------
         const progress = document.getElementById('rd-scroll-progress');
         function updateProgress() {
           const h = document.documentElement;
@@ -153,7 +152,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
         window.addEventListener('scroll', updateProgress, { passive: true });
         updateProgress();
 
-        // ---------- Reveal on scroll (with fail-safe) ----------
         const revealEls = Array.from(document.querySelectorAll('.reveal'));
         if (revealEls.length) {
           const io = new IntersectionObserver(
@@ -169,11 +167,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           );
           revealEls.forEach((el) => io.observe(el));
 
-          // Fail-safe: reveal every section shortly after load so nothing is ever
-          // left invisible. Below-the-fold .reveal nodes start at opacity:0 and only
-          // become visible when scrolled into view, which leaves them blank in captured
-          // screenshots (taken before the fade-in completes) and in fast-scroll or
-          // unsupported-IO scenarios. This guarantees the content is shown.
+          // Fail-safe: reveal all sections shortly after load — below-fold .reveal nodes start
+          // at opacity:0, leaving them blank in captured screenshots and fast-scroll/no-IO cases.
           const revealAll = () =>
             revealEls.forEach((el) => el.classList.add('visible'));
           if (document.readyState === 'loading') {
@@ -232,7 +227,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     background: var(--border);
   }
 
-  /* Coral scroll-progress bar */
   .rd-scroll-progress {
     position: fixed;
     top: 0;

@@ -93,13 +93,11 @@ const related = allProviders.filter((e) => e.id !== entry.id).slice(0, 3);
         {entry.data.tagline}
       </p>
 
-      <!-- Quick start command -->
       <div class="glass rounded-xl p-4 mb-10 flex items-center gap-3">
         <span class="text-xs text-text-mute font-mono shrink-0">Quick start</span>
         <code class="text-sm text-lime font-mono break-all">{entry.data.setupCommand}</code>
       </div>
 
-      <!-- Use cases -->
       <div class="mb-10">
         <h2 class="text-xs font-semibold uppercase tracking-wider text-text-mute mb-4">Use cases</h2>
         <div class="grid sm:grid-cols-2 gap-3">
@@ -111,18 +109,15 @@ const related = allProviders.filter((e) => e.id !== entry.id).slice(0, 3);
         </div>
       </div>
 
-      <!-- Body content -->
       <div class="prose-provider">
         <Content />
       </div>
 
-      <!-- Pricing callout -->
       <div class="glass rounded-2xl p-6 mt-10 mb-10">
         <span class="text-xs font-semibold uppercase tracking-wider text-text-mute block mb-2">Pricing</span>
         <p class="text-text-dim text-sm leading-relaxed">{entry.data.pricing}</p>
       </div>
 
-      <!-- Related providers -->
       <div class="mt-16 pt-10 border-t border-edge">
         <h2 class="text-xs font-semibold uppercase tracking-wider text-text-mute mb-6">Related providers</h2>
         <div class="grid sm:grid-cols-3 gap-4">
@@ -140,7 +135,6 @@ const related = allProviders.filter((e) => e.id !== entry.id).slice(0, 3);
         </div>
       </div>
 
-      <!-- Prev/Next navigation -->
       <nav class="mt-10 pt-10 border-t border-edge">
         <div class="grid sm:grid-cols-2 gap-4">
           {prev && (

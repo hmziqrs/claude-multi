@@ -1,8 +1,5 @@
-/* ===========================================================
-   claude-multi · Starlight theme (coral · dark · glass)
-   Overrides Starlight via --sl-* tokens + class targeting.
-   Safe to edit — single source for all docs styling.
-   =========================================================== */
+/* claude-multi Starlight theme (coral · dark · glass) — overrides Starlight via
+   --sl-* tokens + class targeting; single source for all docs styling. */
 
 :root,
 [data-theme="dark"] {
@@ -54,11 +51,8 @@
   /* ---------- Nav height (match marketing h-16) ---------- */
   --sl-nav-height: 4rem;
 
-  /* =========================================================
-     Tailwind @theme tokens (needed by shared components)
-     These mirror globals.css @theme so NavLinks, SiteFooter,
-     etc. resolve correctly in Starlight pages.
-     ========================================================= */
+  /* Tailwind @theme tokens mirror globals.css @theme so shared components
+     (NavLinks, SiteFooter, etc.) resolve correctly in Starlight pages. */
   --color-lime: #d97757;
   --color-lime-bright: #e08a6d;
   --color-lime-deep: #b85a3e;
@@ -77,9 +71,7 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-/* ===========================================================
-   GLOBAL CANVAS — subtle ambient layers
-   =========================================================== */
+/* ===== GLOBAL CANVAS — subtle ambient layers ===== */
 
 html {
   scroll-behavior: smooth;
@@ -102,7 +94,6 @@ footer {
   z-index: 1;
 }
 
-/* Header — full-width sticky bar, no outer padding */
 header.header {
   position: sticky !important;
   top: 0;
@@ -111,11 +102,8 @@ header.header {
   padding: 0 !important;
 }
 
-/* Right sidebar (TOC) must stay sticky.
-   `position: sticky` makes each of these a stacking context at z-index auto,
-   which would paint below the z-index:1 .content-panel siblings — that buries
-   the fixed mobile "On this page" bar (a descendant) under the page content.
-   Lift it above the panels but keep it under the header. */
+/* position:sticky makes these stacking contexts at z-index auto, which would paint below
+   the z-index:1 .content-panel and bury the fixed mobile TOC bar; lift above panels, below header. */
 .right-sidebar,
 .right-sidebar-container {
   position: sticky !important;
@@ -123,9 +111,7 @@ header.header {
   z-index: 10;
 }
 
-/* ===========================================================
-   TOP HEADER — frosted, lime accents
-   =========================================================== */
+/* ===== TOP HEADER — frosted, lime accents ===== */
 
 header.header {
   background: rgba(11, 12, 14, 0.72) !important;
@@ -157,7 +143,6 @@ mobile-starlight-toc .dropdown {
   color: var(--sl-color-accent);
 }
 
-/* GitHub social icon */
 .social-icons a {
   color: var(--sl-color-gray-2);
   transition: color 0.2s ease, transform 0.2s ease;
@@ -167,7 +152,6 @@ mobile-starlight-toc .dropdown {
   transform: translateY(-1px);
 }
 
-/* Search button */
 site-search button,
 .sl-search button {
   background: rgba(20, 20, 28, 0.55) !important;
@@ -181,22 +165,10 @@ site-search button:hover,
   background: rgba(28, 28, 38, 0.7) !important;
 }
 
-/* ===========================================================
-   SIDEBAR — glass + glowing active state
-   =========================================================== */
+/* ===== SIDEBAR — glass + glowing active state ===== */
 
-/*
-  On desktop (≥ 72rem), restructure .page as a CSS grid.
-  nav.sidebar and .main-frame share the SAME grid cell — they overlap
-  (sidebar on top), but .sidebar-pane uses position:sticky so it:
-    - Stays visible while scrolling (like fixed)
-    - Stops at .page's bottom edge (never overlaps the site footer)
-
-  On mobile/tablet (< 72rem), Starlight's default flex-column layout
-  and responsive sidebar hiding are preserved untouched.
-*/
-
-/* Default: Starlight's original flex-column (mobile + tablet) */
+/* Desktop (≥72rem): nav.sidebar and .main-frame share one grid cell and overlap; sticky
+   .sidebar-pane stays visible but stops at .page's bottom. Mobile keeps Starlight's flex-column. */
 nav.sidebar {
   background: transparent !important;
   border-right: 1px solid var(--sl-color-hairline) !important;
@@ -212,7 +184,6 @@ nav.sidebar {
   padding-top: 3rem !important;
 }
 
-/* Desktop: grid overlay with sticky sidebar */
 @media (min-width: 72rem) {
   .page {
     display: grid !important;
@@ -246,7 +217,6 @@ nav.sidebar {
   }
 }
 
-/* Section group titles */
 .sidebar summary,
 .sidebar .group-label > span {
   font-family: var(--sl-font-mono);
@@ -258,7 +228,6 @@ nav.sidebar {
   padding: 0.5rem 0.75rem !important;
 }
 
-/* Sidebar items */
 .sidebar-content a {
   position: relative;
   border-radius: 0.5rem !important;
@@ -274,16 +243,13 @@ nav.sidebar {
   transform: translateX(2px);
 }
 
-/* Active link (current page) — Starlight uses aria-current="page" */
+/* Starlight marks the current page with aria-current="page" */
 .sidebar-content a[aria-current="page"] {
   background: rgba(217, 119, 87, 0.1) !important;
   color: var(--sl-color-white) !important;
 }
 
-
-/* ===========================================================
-   CONTENT — typography + flow
-   =========================================================== */
+/* ===== CONTENT — typography + flow ===== */
 
 .content-panel {
   font-size: 1rem;
@@ -294,7 +260,6 @@ nav.sidebar {
   color: var(--sl-color-text);
 }
 
-/* Page title (h1) */
 .sl-markdown-content h1,
 h1#_top,
 h1.heading,
@@ -309,7 +274,6 @@ header h1 {
   margin-bottom: 1rem !important;
 }
 
-/* h2 with lime side-bar */
 .sl-markdown-content h2 {
   position: relative;
   font-size: 1.65rem !important;
@@ -359,19 +323,16 @@ header h1 {
   color: var(--sl-color-accent);
 }
 
-/* Paragraphs */
 .sl-markdown-content p {
   color: var(--sl-color-gray-1);
   line-height: 1.75;
 }
 
-/* Strong */
 .sl-markdown-content strong {
   color: var(--sl-color-white);
   font-weight: 600;
 }
 
-/* Links */
 .sl-markdown-content a:not(.btn) {
   color: var(--sl-color-accent);
   text-decoration: none;
@@ -386,7 +347,6 @@ header h1 {
   color: var(--sl-color-accent-high);
 }
 
-/* Inline code */
 .sl-markdown-content :not(pre) > code {
   font-family: var(--sl-font-mono);
   font-size: 0.86em;
@@ -421,7 +381,6 @@ header h1 {
   color: var(--sl-color-accent) !important;
 }
 
-/* Block-quotes */
 .sl-markdown-content blockquote {
   position: relative;
   border-left: none !important;
@@ -442,7 +401,6 @@ header h1 {
   border-radius: 3px;
 }
 
-/* Horizontal rule */
 .sl-markdown-content hr {
   height: 1px !important;
   border: none !important;
@@ -450,7 +408,6 @@ header h1 {
   margin: 2.5rem 0 !important;
 }
 
-/* Tables */
 .sl-markdown-content table {
   border-collapse: separate;
   border-spacing: 0;
@@ -487,7 +444,6 @@ header h1 {
   background: rgba(217, 119, 87, 0.025);
 }
 
-/* Lists */
 .sl-markdown-content ul,
 .sl-markdown-content ol {
   padding-left: 1.4rem;
@@ -505,15 +461,12 @@ header h1 {
   font-weight: 600;
 }
 
-/* Images */
 .sl-markdown-content img {
   border-radius: 12px;
   border: 1px solid var(--sl-color-hairline);
 }
 
-/* ===========================================================
-   ASIDES (note / tip / caution / danger)
-   =========================================================== */
+/* ===== ASIDES (note / tip / caution / danger) ===== */
 
 .starlight-aside {
   border-radius: 12px !important;
@@ -555,9 +508,7 @@ header h1 {
 .starlight-aside--caution .starlight-aside__title { color: #fcd34d !important; }
 .starlight-aside--danger .starlight-aside__title  { color: #fca5a5 !important; }
 
-/* ===========================================================
-   TABLE OF CONTENTS (right sidebar)
-   =========================================================== */
+/* ===== TABLE OF CONTENTS (right sidebar) ===== */
 
 starlight-toc nav a {
   color: var(--sl-color-gray-3) !important;
@@ -585,9 +536,7 @@ starlight-toc nav a[aria-current="true"] {
   color: var(--sl-color-gray-2) !important;
 }
 
-/* ===========================================================
-   PAGINATION (prev / next links)
-   =========================================================== */
+/* ===== PAGINATION (prev / next links) ===== */
 
 .pagination-links {
   gap: 1rem;
@@ -620,9 +569,7 @@ starlight-toc nav a[aria-current="true"] {
   color: var(--sl-color-white);
 }
 
-/* ===========================================================
-   FOOTER (last-updated + edit-link)
-   =========================================================== */
+/* ===== FOOTER (last-updated + edit-link) ===== */
 
 footer .meta {
   color: var(--sl-color-gray-3);
@@ -758,9 +705,7 @@ footer.site-footer .footer-bottom-links {
   gap: 1rem;
 }
 
-/* ===========================================================
-   KBD
-   =========================================================== */
+/* ===== KBD ===== */
 
 .sl-markdown-content kbd {
   font-family: var(--sl-font-mono);
@@ -773,9 +718,7 @@ footer.site-footer .footer-bottom-links {
   color: var(--sl-color-white);
 }
 
-/* ===========================================================
-   DETAILS / SUMMARY (collapsible blocks in markdown)
-   =========================================================== */
+/* ===== DETAILS / SUMMARY (collapsible blocks in markdown) ===== */
 
 .sl-markdown-content details {
   border: 1px solid var(--sl-color-hairline);
@@ -800,9 +743,7 @@ footer.site-footer .footer-bottom-links {
   color: var(--sl-color-accent);
 }
 
-/* ===========================================================
-   SCROLLBAR
-   =========================================================== */
+/* ===== SCROLLBAR ===== */
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -819,9 +760,7 @@ footer.site-footer .footer-bottom-links {
   background: rgba(217, 119, 87, 0.3);
 }
 
-/* ===========================================================
-   PRINT — strip ambient layers
-   =========================================================== */
+/* ===== PRINT — strip ambient layers ===== */
 
 @media print {
   body::before,

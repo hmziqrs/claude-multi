@@ -7,7 +7,6 @@ const footerHtml = getSiteFooterHtml(latestVersion);
 export const onRequest = defineMiddleware(async (context, next) => {
   const response = await next();
 
-  // Only transform HTML docs pages
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
 

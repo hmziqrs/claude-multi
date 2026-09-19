@@ -1,9 +1,6 @@
 ---
 /**
- * Workflow.astro: instance graph (root node + fanned branches of node chains).
- * Ported from the design-system `Workflow.js`. SVG-free CSS connectors; the
- * active branch shows animated coral flow lines and a pulsing "running" dot
- * (respecting prefers-reduced-motion). Node icons use the `Icon` component.
+ * Instance graph (root node + fanned branch chains); SVG-free CSS connectors, no <svg> markup.
  */
 import Icon from './Icon.astro';
 
@@ -14,7 +11,6 @@ const flowColor = 'var(--accent-border)';
 ---
 
 <div class="rd-workflow">
-  <!-- Root node -->
   <div class="rd-workflow__root">
     <span class="rd-workflow__root-icon">
       <Icon name={root.icon || 'layers'} size={13} />
@@ -25,7 +21,6 @@ const flowColor = 'var(--accent-border)';
     </div>
   </div>
 
-  <!-- Branch fan-out -->
   <div class="rd-workflow__branches">
     <div
       class="rd-workflow__rail"
@@ -90,7 +85,6 @@ const flowColor = 'var(--accent-border)';
     color: var(--text-primary);
   }
 
-  /* ---- Root ---- */
   .rd-workflow__root {
     display: flex;
     align-items: center;
@@ -130,7 +124,6 @@ const flowColor = 'var(--accent-border)';
     color: var(--text-faint);
   }
 
-  /* ---- Branches ---- */
   .rd-workflow__branches {
     position: relative;
     display: flex;
@@ -209,7 +202,6 @@ const flowColor = 'var(--accent-border)';
     animation: rd-wf-pulse 2s ease-in-out infinite;
   }
 
-  /* Active-branch flow connectors: animated coral dashes */
   .rd-workflow__elbow-line--flow,
   .rd-workflow__connector-line--flow {
     background-color: transparent;

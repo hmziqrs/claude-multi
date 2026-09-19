@@ -1,7 +1,6 @@
 /**
- * Generates the site footer as a plain HTML string.
- * Used by the Vite plugin to inject the footer at body level
- * (outside Starlight's .page wrapper) for proper full-width rendering.
+ * Site footer HTML string, injected at body level by the Vite plugin (outside Starlight's
+ * .page wrapper) so it renders at full viewport width.
  */
 export function getSiteFooterHtml(version: string): string {
   return `

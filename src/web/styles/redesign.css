@@ -1,15 +1,6 @@
-/* =============================================================================
- * redesign.css — Claude Multi homepage redesign (coral / dark theme)
- *
- * Single source of truth for the redesign design system. Every token from the
- * design-system bundle (tokens/*.css + styles.css) is ported here and scoped
- * under a single root selector `.redesign-root` so it does NOT clash with the
- * existing lime-themed `globals.css`.
- *
- * Plain CSS + CSS variables only. No Tailwind utilities.
- * Fonts (Inter / JetBrains Mono) are self-hosted via globals.css @font-face,
- * so the Google Fonts @import from the original tokens is intentionally dropped.
- * ============================================================================= */
+/* redesign.css — homepage redesign design system (coral/dark); all tokens scoped under
+   .redesign-root so they never clash with globals.css. Plain CSS only; fonts self-hosted
+   via globals.css @font-face (the bundle's Google Fonts @import is intentionally dropped). */
 
 /* ===================== TOKENS (scoped to .redesign-root) ===================== */
 .redesign-root {
@@ -22,11 +13,8 @@
   /* ---- Text ---- */
   --text-primary: #f2f3f5;
   --text-secondary: #a3a8b3;
-  /* Lightened from #787f8c to clear WCAG AA (4.5:1) AND the 4.8 safety margin on
-     every dark surface it styles: 4.93:1 on --background-elevated (#14161b, the
-     worst case, e.g. hero tab name), 5.11:1 on --surface-1, 5.23:1 on --surface-code,
-     5.33:1 on --surface-page. Stays clearly dimmer than --text-secondary (#a3a8b3).
-     Drives hero__name, hero__prompt, rd-metric__label, rd-terminal__title, rd-code__file. */
+  /* #7e8694: lightened from #787f8c to clear WCAG AA (4.5:1) with margin on every dark
+     surface (worst case 4.93:1 on --background-elevated); stays dimmer than --text-secondary. */
   --text-muted: #7e8694;
   /* Lightened past #6b7280 (4.05:1) to clear WCAG AA (4.5:1) on --surface-page
      for the small/uppercase text it styles (version tag, table heads, graph label). */
@@ -268,7 +256,6 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Subtle grid backdrop */
 .redesign-root .ds-grid-bg {
   background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -290,7 +277,6 @@
 }
 
 /* ===================== KEYFRAMES ===================== */
-/* Blinking caret for terminal cursors */
 @keyframes rd-blink {
   0%,
   49% {
@@ -313,8 +299,6 @@
 }
 
 /* ===================== SECTION PRIMITIVES ===================== */
-/* Shared layout/heading helpers used by the homepage section components.
-   Scoped under .redesign-root so they never clash with globals.css. */
 .redesign-root .rd-section {
   position: relative;
   padding: 128px 32px;
@@ -415,9 +399,8 @@
 }
 
 /* ===================== CORAL CONTENT PROSE ===================== */
-/* Remap legacy lime Tailwind utilities to coral accent inside .redesign-root
-   so existing page content (about, blog, providers, etc.) stays on-theme
-   without editing every class. */
+/* Remap legacy lime Tailwind utilities/variables to coral inside .redesign-root so existing
+   page content (about, blog, providers) stays on-theme without editing every class. */
 
 /* ---- Remap lime text/bg/border Tailwind utilities ---- */
 .redesign-root .text-lime { color: var(--accent) !important; }
@@ -572,7 +555,6 @@
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
 }
 
-/* ---- Prose: content page text styling ---- */
 .redesign-root .prose-blog,
 .redesign-root .prose-faq,
 .redesign-root .prose-provider {
@@ -732,7 +714,6 @@
   border-bottom: none;
 }
 
-/* ---- Divider glow (changelog) ---- */
 .redesign-root .divider-glow {
   height: 1px;
   background: var(--border);

@@ -104,8 +104,6 @@
 
 /* ========== Background layers ========== */
 
-
-
 @utility grain {
   position: fixed;
   inset: 0;
@@ -595,7 +593,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close { display: block; }
   height: 46px;
   color: #0c0c0f;
 }
-
 
 /* === Hover: fan the big logo cards apart === */
 

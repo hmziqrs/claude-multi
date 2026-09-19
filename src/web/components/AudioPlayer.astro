@@ -9,7 +9,6 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
 
 <div class="audio-player glass rounded-2xl px-5 py-4 mb-10" data-player={id}>
   <div class="flex items-center gap-4">
-    <!-- Play / Pause -->
     <button
       class="play-btn flex-shrink-0 w-10 h-10 rounded-full border border-edge bg-[rgba(217,119,87,0.06)] hover:bg-[rgba(217,119,87,0.14)] hover:border-edge-hover text-lime flex items-center justify-center transition-all duration-200"
       aria-label="Play"
@@ -23,10 +22,8 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
     </button>
 
     <div class="flex-1 min-w-0">
-      <!-- Label -->
       <p class="text-xs text-text-mute font-mono mb-2 truncate">{title}</p>
 
-      <!-- Scrubber -->
       <div class="flex items-center gap-3">
         <div
           class="progress-track relative flex-1 h-1 bg-[rgba(217,119,87,0.1)] rounded-full cursor-pointer group"
@@ -46,7 +43,6 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
       </div>
     </div>
 
-    <!-- Volume -->
     <div class="flex items-center gap-2 flex-shrink-0">
       <button class="mute-btn text-text-mute hover:text-lime transition-colors" aria-label="Mute">
         <svg class="icon-vol w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -142,7 +138,6 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
     audio.currentTime = pct * audio.duration;
   });
 
-  // drag scrubbing
   let dragging = false;
   track.addEventListener('mousedown', () => { dragging = true; });
   window.addEventListener('mousemove', (e) => {

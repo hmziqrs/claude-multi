@@ -1,8 +1,4 @@
 ---
-/**
- * Install.astro: #install section.
- * Two-column lead (copy + checklist) beside a CodeTabs installer.
- */
 import CodeTabs from './CodeTabs.astro';
 
 const installTabs = [
@@ -67,7 +63,6 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sud
     color: var(--accent);
   }
 
-  /* Two-column lead + code */
   .install > .rd-section__inner:first-child {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);

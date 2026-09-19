@@ -1,6 +1,5 @@
-// Fetched at build time from blog.hmziq.rs so the author info stays in sync
-// without manual copying. Astro pages are async, so top-level await here just
-// resolves before any page renders.
+// Fetched at build time from blog.hmziq.rs so author info stays in sync without manual
+// copying; top-level await is fine here because Astro pages are async.
 
 const AUTHOR_API = 'https://blog.hmziq.rs/api/v1/author.json';
 

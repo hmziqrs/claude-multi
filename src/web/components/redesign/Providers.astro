@@ -1,10 +1,4 @@
 ---
-/**
- * Providers.astro: #providers section.
- * Heading + a 2-col grid: ProductTable (provider comparison) beside an
- * "Instance graph" Workflow card. A secondary CTA links to /providers/.
- * Subtle radial grid backdrop behind the whole section.
- */
 import ProductTable from './ProductTable.astro';
 import Workflow from './Workflow.astro';
 import Button from './Button.astro';
@@ -98,7 +92,6 @@ const graph = {
     overflow: hidden;
   }
 
-
   .providers__grid {
     position: relative;
     display: grid;
@@ -114,11 +107,8 @@ const graph = {
     background: var(--surface-1);
   }
 
-  /* Keep the comparison table's column proportions intact on narrow
-     screens instead of clipping every cell. The card clips its rounded
-     corners; this inner wrapper scrolls horizontally when needed. On
-     desktop the card is wide enough (matches the design composition),
-     so the min-width only kicks in below the single-column breakpoint. */
+  /* Horizontal scroll keeps column proportions intact on narrow screens instead of clipping
+     cells (the card clips its rounded corners); min-width only kicks in below the breakpoint. */
   .providers__table-scroll {
     width: 100%;
     overflow-x: auto;

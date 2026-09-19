@@ -1,11 +1,7 @@
 ---
 /**
- * SiteHeader.astro: the one header used by both the marketing pages and the
- * docs. Marketing layouts render it as the page <header> (it supplies its own
- * sticky chrome); Starlight renders it as a <div> inside its own header shell,
- * which already provides the sticky background and border.
- *
- * Slot `search` is used by the docs to drop Starlight's search trigger in.
+ * One header for marketing + docs: the page <header> (own sticky chrome) on marketing, a
+ * <div> inside Starlight's sticky header shell in docs. Slot `search` takes the docs search trigger.
  */
 interface Props {
   variant?: 'marketing' | 'docs';
@@ -89,8 +85,6 @@ const repo = 'https://github.com/hmziqrs/claude-multi';
     height: 100%;
   }
 
-  /* Marketing pages own their sticky chrome; in the docs Starlight's header
-     shell already paints the background and border. */
   .site-header--marketing {
     position: sticky;
     top: 0;
@@ -199,7 +193,6 @@ const repo = 'https://github.com/hmziqrs/claude-multi';
     filter: brightness(1.08);
   }
 
-  /* ---------- Mobile dropdown ---------- */
   nav-dropdown {
     display: none;
     position: relative;
@@ -269,7 +262,6 @@ const repo = 'https://github.com/hmziqrs/claude-multi';
     padding-top: 0.625rem;
   }
 
-  /* ---------- Responsive ---------- */
   @media (max-width: 60rem) {
     .site-header__inner {
       gap: 0.75rem;

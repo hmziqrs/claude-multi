@@ -1,9 +1,6 @@
 ---
 /**
- * Faq.astro: accessible accordion.
- * Uses native <details>/<summary> (exclusive accordion via `name`) so it works
- * with zero JS. The chevron rotates via CSS on [open]. Ported intent from the
- * design-system `FAQ.js`.
+ * Native <details>/<summary> with the `name` attribute — exclusive accordion, zero JS.
  */
 const { eyebrow, title, items = [], name = 'rd-faq' } = Astro.props;
 const faqItems = Array.isArray(items) ? items : [];
