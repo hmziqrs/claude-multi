@@ -150,7 +150,6 @@ describe("Plugin Management", () => {
 
   describe("copySinglePlugin", () => {
     test("copies a plugin from default to instance", async () => {
-      // Ensure instance has settings
       writeFileSync(join(instanceDir, "settings.json"), "{}");
 
       await copySinglePlugin(instanceDir, "flat-mcp", "external");

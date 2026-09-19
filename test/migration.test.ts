@@ -1453,7 +1453,6 @@ describe("Migration", () => {
 
       const result = await runInstanceMigrations(config);
 
-      // Current version alone does not suppress template drift detection.
       expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
       expect(existsSync(join(testDir, ".claude-multi", "backups"))).toBe(true);
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
