@@ -3,7 +3,7 @@
  * exits 0 for both publish and skip so a "nothing to publish" run keeps CI green.
  */
 
-import { readFileSync } from "fs";
+import { readFileSync, appendFileSync } from "fs";
 import { join } from "path";
 
 interface PackageJson {
@@ -72,56 +72,31 @@ async function main() {
 
   console.log("\n" + "=".repeat(50));
 
+  const shouldPublish = comparison > 0;
+
   if (comparison > 0) {
     console.log("✅ SHOULD PUBLISH");
     console.log(`   ${pkg.version} > ${npmVersion}`);
-    console.log("=".repeat(50));
-
-    if (process.env.GITHUB_OUTPUT) {
-      const fs = require("fs");
-      fs.appendFileSync(
-        process.env.GITHUB_OUTPUT,
-        `should_publish=true\n` +
-          `package_version=${pkg.version}\n` +
-          `npm_version=${npmVersion}\n`,
-      );
-    }
-
-    process.exit(0);
   } else if (comparison === 0) {
     console.log("⏭️  SKIP PUBLISH");
     console.log(`   Versions are equal: ${pkg.version}`);
-    console.log("=".repeat(50));
-
-    if (process.env.GITHUB_OUTPUT) {
-      const fs = require("fs");
-      fs.appendFileSync(
-        process.env.GITHUB_OUTPUT,
-        `should_publish=false\n` +
-          `package_version=${pkg.version}\n` +
-          `npm_version=${npmVersion}\n`,
-      );
-    }
-
-    process.exit(0);
   } else {
     console.log("❌ SKIP PUBLISH");
     console.log(`   package.json version is OLDER than npm`);
     console.log(`   ${pkg.version} < ${npmVersion}`);
-    console.log("=".repeat(50));
-
-    if (process.env.GITHUB_OUTPUT) {
-      const fs = require("fs");
-      fs.appendFileSync(
-        process.env.GITHUB_OUTPUT,
-        `should_publish=false\n` +
-          `package_version=${pkg.version}\n` +
-          `npm_version=${npmVersion}\n`,
-      );
-    }
-
-    process.exit(0);
   }
+  console.log("=".repeat(50));
+
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(
+      process.env.GITHUB_OUTPUT,
+      `should_publish=${shouldPublish}\n` +
+        `package_version=${pkg.version}\n` +
+        `npm_version=${npmVersion}\n`,
+    );
+  }
+
+  process.exit(0);
 }
 
 main().catch((error) => {

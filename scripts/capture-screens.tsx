@@ -334,6 +334,7 @@ const screens: Record<string, React.ReactElement> = {
 };
 
 // Catppuccin Mocha theme
+const toHex = (v: number) => (v > 0 ? 55 + 40 * v : 0);
 const COLOR_256: string[] = Array.from({ length: 256 });
 const palette16 = [
   "#555","#e06c75","#98c379","#e5c07b","#61afef","#c678dd","#56b6c2","#abb2bf",
@@ -345,7 +346,6 @@ for (let i = 16; i < 232; i++) {
   const b = c % 36;
   const g = Math.floor(c / 36) % 6;
   const r = Math.floor(c / 216);
-  const toHex = (v: number) => v > 0 ? 55 + 40 * v : 0;
   COLOR_256[i] = `rgb(${toHex(r)},${toHex(g)},${toHex(b)})`;
 }
 for (let i = 232; i < 256; i++) {
