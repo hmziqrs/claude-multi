@@ -31,15 +31,14 @@ const byTagOverlap = others
     const overlap = p.data.tags.filter((t) => currentTags.has(t)).length;
     return { post: p, overlap };
   })
-  .sort((a, b) => b.overlap - a.overlap || b.post.data.date.valueOf() - a.post.data.date.valueOf());
+  .toSorted((a, b) => b.overlap - a.overlap || b.post.data.date.valueOf() - a.post.data.date.valueOf());
 const relatedByTags = byTagOverlap.filter((x) => x.overlap > 0).slice(0, 3).map((x) => x.post);
 const recentFallback = others
-  .slice()
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .toSorted((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 const relatedPosts = relatedByTags.length > 0 ? relatedByTags : recentFallback;
 
-const chronological = allPosts.slice().sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+const chronological = allPosts.toSorted((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
 const currentIndex = chronological.findIndex((p) => p.id === post.id);
 const newerPost = currentIndex < chronological.length - 1 ? chronological[currentIndex + 1] : null;
 const olderPost = currentIndex > 0 ? chronological[currentIndex - 1] : null;

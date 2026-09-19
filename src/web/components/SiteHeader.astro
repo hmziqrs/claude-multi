@@ -318,7 +318,8 @@ const repo = 'https://github.com/hmziqrs/claude-multi';
 
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        btn.getAttribute('aria-expanded') === 'true' ? close() : open();
+        if (btn.getAttribute('aria-expanded') === 'true') close();
+        else open();
       });
 
       panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close()));
