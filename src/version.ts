@@ -17,9 +17,6 @@ export interface ClaudeMultiUpdateInfo {
   updateAvailable: boolean;
 }
 
-/**
- * Gets the current version of claude-multi from package.json
- */
 export function getClaudeMultiVersion(): string {
   const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
   const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as unknown;
@@ -29,18 +26,12 @@ export function getClaudeMultiVersion(): string {
   return (pkg as { version: string }).version;
 }
 
-/**
- * Gets the latest version of claude-multi from npm registry
- */
 export async function getLatestClaudeMultiVersion(): Promise<string> {
   const response = await fetch("https://registry.npmjs.org/claude-multi/latest");
   const data = await response.json();
   return data.version;
 }
 
-/**
- * Checks if a claude-multi update is available
- */
 export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInfo> {
   try {
     const current = getClaudeMultiVersion();
@@ -51,14 +42,10 @@ export async function checkForClaudeMultiUpdates(): Promise<ClaudeMultiUpdateInf
       updateAvailable: current !== latest,
     };
   } catch {
-    // On error, return no update available
     return { current: "", latest: "", updateAvailable: false };
   }
 }
 
-/**
- * Upgrades claude-multi to the latest version
- */
 export function upgradeClaudeMulti(): void {
   const pm = detectPackageManager();
   const commands: Record<typeof pm, string> = {
@@ -78,9 +65,6 @@ export function upgradeClaudeMulti(): void {
   }
 }
 
-/**
- * Gets the currently installed version of @anthropic-ai/claude-code
- */
 export function getCurrentVersion(): string | null {
   const pm = detectPackageManager();
   try {
@@ -104,9 +88,6 @@ export function getCurrentVersion(): string | null {
   }
 }
 
-/**
- * Gets the latest version of @anthropic-ai/claude-code from npm registry
- */
 export async function getLatestVersion(): Promise<string> {
   try {
     const response = await fetch("https://registry.npmjs.org/@anthropic-ai/claude-code/latest");
@@ -131,10 +112,6 @@ export async function checkForUpdates(): Promise<VersionInfo> {
   };
 }
 
-
-/**
- * Updates @anthropic-ai/claude-code to the latest version
- */
 export function updateClaudeCode(): void {
   const pm = detectPackageManager();
   const commands: Record<typeof pm, string> = {

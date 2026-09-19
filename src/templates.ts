@@ -14,11 +14,8 @@ export interface ProviderTemplate {
 }
 
 /**
- * [SAFE PARK] Env vars injected into every provider template.
- * claude-multi no longer bundles claude-code and does not pin versions;
- * the user's installed claude-code binary is used as-is.
- * To reactivate: add DISABLE_AUTOUPDATER: "1" and DISABLE_UPDATES: "1"
- * if a future Claude Code release breaks 3rd-party provider compatibility.
+ * [SAFE PARK] intentionally empty — the user's installed claude-code binary is used as-is.
+ * If a future Claude Code release breaks 3rd-party providers, re-add DISABLE_AUTOUPDATER/DISABLE_UPDATES: "1".
  */
 const PROVIDER_COMMON_ENV: Record<string, string> = {};
 
@@ -42,14 +39,8 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         MAX_THINKING_TOKENS: "8000",
         ENABLE_STREAMING: "true",
         MAX_OUTPUT_TOKENS: "128000",
-        // Three-tier mapping. Opus and main run glm-5.3[1m], Z.ai's GLM Coding Plan
-        // flagship — the [1m] suffix opts into the 1M context window per-model,
-        // following Z.ai's official Claude Code example. Sonnet runs glm-5.3-flash[1m],
-        // Z.ai's efficiency model (native multimodal, same 1M context window), which
-        // bills against 3x the coding-plan quota of GLM-5.3. Haiku and small-fast stay
-        // glm-5-turbo (200K — Claude Code's default assumption for unrecognized models
-        // matches it). Still no global CLAUDE_CODE_AUTO_COMPACT_WINDOW: one value can't
-        // fit the 1M and 200K models this template mixes.
+        // [1m] opts into the 1M context window per Z.ai's Claude Code example (three-tier split).
+        // No global CLAUDE_CODE_AUTO_COMPACT_WINDOW: one value can't fit the 1M and 200K models mixed here.
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -165,8 +156,7 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // Kimi K2.7 Code/K2.6/K2.5 have a 256K context window. Claude Code assumes 200K for
-        // unrecognized models, so auto-compaction never fires without these.
+        // 256K context; Claude Code assumes 200K for unrecognized models, so auto-compaction needs these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "262144",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
@@ -192,8 +182,7 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // Qwen3-Coder-Next has a 128K context window. Claude Code assumes 200K
-        // for unrecognized models, so auto-compaction never fires without these.
+        // 128K context; Claude Code assumes 200K for unrecognized models, so auto-compaction needs these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
@@ -219,8 +208,7 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // Qwen3-Coder-Next has a 128K context window. Claude Code assumes 200K
-        // for unrecognized models, so auto-compaction never fires without these.
+        // 128K context; Claude Code assumes 200K for unrecognized models, so auto-compaction needs these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
@@ -254,11 +242,7 @@ export const MIMO_TOKEN_REGIONS: Record<string, { label: string; baseUrl: string
   },
 };
 
-/**
- * Registry mapping provider names to their region configurations.
- * Add new entries here when a provider gains regional support —
- * all region-aware code (migration, health, UI) picks it up automatically.
- */
+/** Provider -> region map registry: add regional providers here and all region-aware code picks them up. */
 const PROVIDER_REGION_MAPS: Record<string, Record<string, { label: string; baseUrl: string }>> = {
   "mimo-token": MIMO_TOKEN_REGIONS,
 };
@@ -267,22 +251,13 @@ export function providerHasRegions(providerName: string): boolean {
   return providerName in PROVIDER_REGION_MAPS;
 }
 
-/**
- * Get the region map for a provider. Returns undefined if the provider has no regions.
- */
 export function getProviderRegions(providerName: string): Record<string, { label: string; baseUrl: string }> | undefined {
   return PROVIDER_REGION_MAPS[providerName];
 }
 
-/**
- * Detect the region code from a regional provider's base URL.
- * Checks all registered provider region maps for a match.
- * Returns null if the URL doesn't match any known region pattern.
- */
 export function detectRegionFromBaseUrl(baseUrl: string): string | null {
   for (const regionMap of Object.values(PROVIDER_REGION_MAPS)) {
     for (const [regionCode, config] of Object.entries(regionMap)) {
-      // Match with optional trailing slash
       const escaped = config.baseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(`^${escaped}/?$`);
       if (regex.test(baseUrl)) {
@@ -314,26 +289,16 @@ export function resolveRegionTemplate(
   return resolved;
 }
 
-/**
- * Get available provider templates
- */
 export function getAvailableProviders(): ProviderTemplate[] {
   return Object.values(PROVIDER_TEMPLATES);
 }
 
-/**
- * Get a provider template by name
- */
 export function getProviderTemplate(
   name: string,
 ): ProviderTemplate | undefined {
   return PROVIDER_TEMPLATES[name.toLowerCase()];
 }
 
-/**
- * Apply a provider template with an API key.
- * Merges common env vars (auto-update disabled, etc.) into the result.
- */
 export function applyProviderTemplate(
   template: ProviderTemplate,
   apiKey: string,
@@ -344,21 +309,14 @@ export function applyProviderTemplate(
   return settings;
 }
 
-/**
- * Match a base URL against the provider template registry.
- * Returns the provider template name, or null if unrecognized.
- */
 export function getProviderByBaseUrl(baseUrl: string): string | null {
-  // Provider endpoints accept a trailing slash, and users commonly add one
-  // while editing settings.json. Match it like the regional URL detector does
-  // so template migrations do not silently skip an otherwise known provider.
+  // Normalize trailing slash (common in hand-edited settings.json) so migrations don't miss a known provider.
   const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 
   for (const [name, template] of Object.entries(PROVIDER_TEMPLATES)) {
     const templateUrl = template.settings.env.ANTHROPIC_BASE_URL;
     if (!templateUrl) continue;
 
-    // mimo-token has region-dependent URLs
     if (name === "mimo-token") {
       if (normalizedBaseUrl.startsWith("https://token-plan-")) continue;
       // won't match mimo-token by exact URL since regions vary
@@ -367,7 +325,6 @@ export function getProviderByBaseUrl(baseUrl: string): string | null {
     if (normalizedBaseUrl === templateUrl) return name;
   }
 
-  // Check mimo-token region variants — validate the region code is known
   const regionCode = detectRegionFromBaseUrl(normalizedBaseUrl);
   if (regionCode) {
     return "mimo-token";
@@ -376,10 +333,6 @@ export function getProviderByBaseUrl(baseUrl: string): string | null {
   return null;
 }
 
-/**
- * Detect which provider template an instance uses by reading its settings.json.
- * Returns the provider name (e.g. "mimo", "kimi") or null.
- */
 export function detectProvider(configDir: string): string | null {
   try {
     const settingsFile = join(configDir, "settings.json");
@@ -394,23 +347,17 @@ export function detectProvider(configDir: string): string | null {
 }
 
 /**
- * Per-provider tunable env values that previous template versions shipped as defaults.
- * During "overwrite-legacy-defaults" sync, a tunable holding one of these values is
- * treated as stale rather than user-customized: overwritten with the current template
- * value if the template still sets the key, removed if it no longer does.
- * Update this map in the same commit as any template change to a TUNABLE_ENV_VARS value.
+ * Legacy template defaults: during "overwrite-legacy-defaults" sync a tunable holding
+ * one of these is stale, not user-customized. Update in the same commit as any template
+ * change to a TUNABLE_ENV_VARS value.
  */
 export const LEGACY_ENV_DEFAULTS: Readonly<Record<string, Partial<Record<string, readonly string[]>>>> = {
   glm: {
-    // 0.11.0 raised the output cap to match glm-5.3's 128K documented max output
     MAX_OUTPUT_TOKENS: ["64000"],
-    // Pre-0.10 glm templates set a 131072 compaction window; 0.10.0 removed it because
-    // one value can't fit the 1M and 200K models the template mixes
     CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["131072"],
     CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: ["75"],
   },
   minimax: {
-    // 0.8.0 raised MiniMax from 64K to its 512K max output
     MAX_OUTPUT_TOKENS: ["64000"],
   },
 };
@@ -420,11 +367,9 @@ export type TunableEnvPolicy = "preserve-custom" | "overwrite-legacy-defaults";
 export interface ProviderEnvSyncOptions {
   /** Stored provider hint; falls back to detectProvider(configDir) */
   providerTemplate?: string;
-  /** Stored region hint for regional providers */
   providerRegion?: string;
   /** How to treat TUNABLE_ENV_VARS that differ from the template. Default "preserve-custom". */
   tunablePolicy?: TunableEnvPolicy;
-  /** Calculate the result without writing settings.json. */
   dryRun?: boolean;
 }
 
@@ -433,7 +378,6 @@ export type ProviderEnvSyncStatus = "synced" | "unchanged" | "skipped";
 export interface ProviderEnvSyncResult {
   status: ProviderEnvSyncStatus;
   providerName: string | null;
-  /** Resolved region code, regional providers only */
   region: string | null;
   reason?: "no-settings" | "unknown-provider";
 }
@@ -443,17 +387,9 @@ function isLegacyDefault(providerName: string, key: string, value: string): bool
 }
 
 /**
- * Sync an instance's settings.json env to its provider template.
- *
- * Model-name and structural vars always get template values; the API key is
- * preserved; user-only env vars survive. TUNABLE_ENV_VARS that differ from the
- * template are preserved ("preserve-custom") or preserved unless they hold a
- * known legacy default ("overwrite-legacy-defaults" — stale defaults from older
- * templates get refreshed, genuine customizations survive).
- *
- * Returns the sync outcome plus the resolved provider/region so callers can
- * backfill instance metadata. Throws on settings.json parse/IO errors — callers
- * decide warn-vs-throw. Writes only when content actually changes.
+ * Sync an instance's settings.json env to its provider template. API key, user-only vars,
+ * and tunables (per tunablePolicy) survive; model/structural vars get template values.
+ * Throws on settings.json parse/IO errors; writes only when content actually changes.
  */
 export function syncProviderEnvToSettings(
   configDir: string,
@@ -480,9 +416,7 @@ export function syncProviderEnvToSettings(
   const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
   const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
 
-  // For regional providers, resolve the correct regional template.
-  // Priority: detect from actual URL first, fall back to the stored region.
-  // This ensures manually-edited URLs take precedence over stale metadata.
+  // Regional: URL-detected region wins over the stored region (hand-edited URLs beat stale metadata).
   let region: string | null = null;
   if (providerHasRegions(providerName)) {
     const providerRegions = getProviderRegions(providerName);
@@ -493,20 +427,15 @@ export function syncProviderEnvToSettings(
     }
   }
 
-  // Build new env from template, preserve API key
   const templateSettings = structuredClone(template.settings);
   const templateEnv = templateSettings.env as Record<string, string>;
   const newEnv: Record<string, string> = { ...templateEnv, ANTHROPIC_AUTH_TOKEN: apiKey };
 
-  // For regional providers where we couldn't resolve a valid region,
-  // preserve the existing base URL to avoid silently overwriting with the default region
+  // Unresolved region: keep existing base URL rather than silently defaulting regions
   if (providerHasRegions(providerName) && region === null && existingBaseUrl) {
     newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
   }
 
-  // Preserve user-tunable env vars that the user has explicitly customized.
-  // Model names and structural vars are always synced from the template,
-  // but preference vars like MAX_OUTPUT_TOKENS are kept if the user set them.
   const policy = options.tunablePolicy ?? "preserve-custom";
   for (const key of TUNABLE_ENV_VARS) {
     if (!(key in existingEnv)) continue;
@@ -516,11 +445,8 @@ export function syncProviderEnvToSettings(
     newEnv[key] = value;
   }
 
-  // Merge: template vars overwrite existing, user-only vars survive
   const merged = { ...existingEnv, ...newEnv };
 
-  // With the legacy policy, tunables that older templates shipped as defaults but the
-  // current template no longer sets (e.g. glm's auto-compaction overrides) are stale — drop them
   if (policy === "overwrite-legacy-defaults") {
     for (const [key, values] of Object.entries(LEGACY_ENV_DEFAULTS[providerName] ?? {})) {
       if (!(key in templateEnv) && key in merged && values?.includes(merged[key]!)) {
@@ -541,11 +467,7 @@ export function syncProviderEnvToSettings(
   return { status: after !== before ? "synced" : "unchanged", providerName, region };
 }
 
-/**
- * True when an instance's provider settings differ from the current template.
- * Used to catch template changes even when a release forgot to add an explicit
- * versioned migration entry.
- */
+/** Safety net: catches template drift even when a release forgets a versioned migration entry. */
 export function needsProviderTemplateSync(
   configDir: string,
   options: Omit<ProviderEnvSyncOptions, "dryRun"> = {},
@@ -557,8 +479,7 @@ export function needsProviderTemplateSync(
       dryRun: true,
     }).status === "synced";
   } catch {
-    // A corrupt/unreadable file is a health issue, not evidence that a provider
-    // template should be applied.
+    // Corrupt/unreadable settings.json is a health issue, not grounds to apply a template
     return false;
   }
 }

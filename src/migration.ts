@@ -26,12 +26,10 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
 
-      // Fast path: instance already at current version, no migration needed
       if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
         return Promise.resolve(instance);
       }
 
-      // Regenerate wrapper pointing to the globally installed claude (not pinned binary)
       if (existsSync(instance.binaryPath)) {
         const claudePath = tryGetClaudePath();
         if (claudePath !== null) {
@@ -50,7 +48,6 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         }
       }
 
-      // Update stale .claude.json values
       updateClaudeJson(instance.configDir);
 
       return Promise.resolve(instance);
@@ -61,7 +58,6 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     description: "Sync provider template env vars (model names, thinking/output limits) to latest",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
-      // Fast path: skip if instance is already at current version
       const currentVersion = getClaudeMultiVersion();
       if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
         return Promise.resolve(instance);
@@ -75,15 +71,12 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
         });
 
         if (result.status !== "skipped") {
-          // Correct stale region metadata from the URL we just synced
           if (result.region) instance.providerRegion = result.region;
-          // Backfill providerTemplate for future migrations
           if (!instance.providerTemplate && result.providerName) {
             instance.providerTemplate = result.providerName;
           }
         }
       } catch (err: unknown) {
-        // Log warning instead of silently swallowing
         console.warn(`[migration] Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
       }
 
@@ -95,7 +88,6 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     description: "Sync provider env to current templates: model slots always updated; tunable vars refreshed when holding a known legacy default (e.g. GLM MAX_OUTPUT_TOKENS 64000)",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
-      // Fast path: skip if instance is already at current version
       const currentVersion = getClaudeMultiVersion();
       if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
         return Promise.resolve(instance);
@@ -126,7 +118,6 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     description: "GLM template: sonnet slot moved to glm-5.3-flash[1m] (three-tier split: opus glm-5.3[1m], sonnet glm-5.3-flash[1m], haiku glm-5-turbo)",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
-      // Fast path: skip if instance is already at current version
       const currentVersion = getClaudeMultiVersion();
       if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
         return Promise.resolve(instance);
@@ -193,10 +184,9 @@ export function needsInstanceMigration(config: Config): boolean {
 
 export async function runInstanceMigrations(config: Config): Promise<Config> {
   if (!needsInstanceMigration(config)) {
-    // Stamp the current version even when nothing applies so callers that check
-    // instanceMigrationVersion (TUI menu, health warning) converge instead of
-    // offering a permanent no-op. Never stamp down over a stored newer version —
-    // a downgrade+re-upgrade must not replay migrations.
+    // Stamp even when nothing applies so instanceMigrationVersion checkers converge instead of
+    // a permanent no-op. Never stamp down over a stored newer version — downgrade+re-upgrade
+    // must not replay migrations.
     const currentVersion = getClaudeMultiVersion();
     const storedCoerced = semver.coerce(config.instanceMigrationVersion ?? "");
     if (!storedCoerced || semver.lt(storedCoerced, currentVersion)) {
@@ -225,9 +215,8 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
       }
     }
 
-    // Template drift is checked independently from versioned migrations. This
-    // makes model/env updates reach every provider even if a future release
-    // forgets to add an INSTANCE_MIGRATIONS entry.
+    // Template drift is checked independently from versioned migrations so model/env
+    // updates reach every provider even if a release forgets an INSTANCE_MIGRATIONS entry.
     for (let i = 0; i < config.instances.length; i++) {
       const instance = config.instances[i]!;
       if (!needsProviderTemplateSync(instance.configDir, {
@@ -275,8 +264,7 @@ function createLock(): boolean {
       const raw = JSON.parse(readFileSync(lockFile, "utf-8")) as unknown;
       if (typeof raw === "object" && raw !== null && "pid" in raw && typeof (raw as { pid: unknown }).pid === "number") {
         const lock = raw as { pid: number; startedAt: string };
-        // Staleness check: if lock is older than 30 minutes, it's almost certainly
-        // from a dead process (even if PID was recycled). Remove it.
+        // >30min-old lock is from a dead process (even with a recycled PID) — remove it
         const lockAge = Date.now() - new Date(lock.startedAt).getTime();
         if (lockAge > 30 * 60 * 1000) {
           rmSync(lockFile, { force: true });
@@ -332,13 +320,11 @@ export function createBackup(config: Config): string {
   const backupPath = join(backupDir, `${ts}-${rand}-v${fromV}-to-v${CONFIG_VERSION}`);
   mkdirSync(backupPath, { recursive: true });
 
-  // Copy config.json
   const configSrc = join(getBaseDir(), ".claude-multi", "config.json");
   if (existsSync(configSrc)) {
     copyFileSync(configSrc, join(backupPath, "config.json"));
   }
 
-  // Copy each instance's settings.json
   const instancesDir = join(backupPath, "instances");
   for (const inst of config.instances) {
     const settingsFile = join(inst.configDir, "settings.json");
@@ -369,10 +355,8 @@ export function runMigration(config: Config): Config {
   const warnings: string[] = [];
 
   try {
-    // Step 1: Create backup
     createBackup(config);
 
-    // Step 2: Validate instances
     for (const inst of config.instances) {
       if (!inst.name || !inst.configDir || !inst.binaryPath) {
         warnings.push(`Instance entry missing required fields, skipping: ${JSON.stringify(inst)}`);
@@ -382,7 +366,6 @@ export function runMigration(config: Config): Config {
       }
     }
 
-    // Step 3: Apply transformation — just version bump + metadata
     config.version = CONFIG_VERSION;
     config.migrationMeta = {
       lastMigrationAt: new Date().toISOString(),

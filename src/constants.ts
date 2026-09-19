@@ -41,12 +41,10 @@ export type SyncMode = typeof SyncMode[keyof typeof SyncMode];
 /** Ordered from most shared to most isolated. Used for downgrade-only enforcement. */
 export const SYNC_MODE_ORDER: readonly SyncMode[] = [SyncMode.Auto, SyncMode.HalfManual, SyncMode.FullManual];
 
-/** Returns true if `from` can be converted to `to` (only downgrades allowed). */
 export function canConvertSyncMode(from: SyncMode, to: SyncMode): boolean {
   return SYNC_MODE_ORDER.indexOf(to) > SYNC_MODE_ORDER.indexOf(from);
 }
 
-/** Returns the SyncModes that `current` can be downgraded to. */
 export function availableSyncModeConversions(current: SyncMode): SyncMode[] {
   const idx = SYNC_MODE_ORDER.indexOf(current);
   return SYNC_MODE_ORDER.slice(idx + 1);

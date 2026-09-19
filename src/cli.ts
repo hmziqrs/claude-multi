@@ -88,7 +88,6 @@ program
   .description("Manage multiple Claude Code instances with different aliases")
   .version(getClaudeMultiVersion());
 
-// Add command
 program
   .command("add <name>")
   .description("Add a new Claude Code instance")
@@ -133,7 +132,6 @@ program
         const configDir = options.config || join(homedir(), `.claude-${name}`);
         const binaryPath = options.binary || getDefaultBinaryPath(name);
 
-        // Check if default Claude config exists
         const hasDefaultConfig = hasDefaultClaudeConfig();
         const hasDefaultMcp = await hasDefaultMcpConfig();
 
@@ -144,7 +142,6 @@ program
         let providerTemplate: ProviderTemplate | null | undefined = null;
         let apiKey = "";
 
-        // Resolve sync mode from flags (detect conflicting flags)
         let effectiveSyncMode: SyncModeType;
         const flagCount = [options.syncMode, options.autoSync, options.halfManual, options.manual].filter(Boolean).length;
         if (flagCount > 1) {
@@ -172,7 +169,6 @@ program
         const autoSync = effectiveSyncMode === SyncMode.Auto;
         let providerRegion: string | undefined;
 
-        // Handle provider template in CLI mode
         if (options.provider) {
           providerTemplate = getProviderTemplate(options.provider);
           if (!providerTemplate) {
@@ -212,7 +208,6 @@ program
           }
         }
 
-        // Non-interactive mode (flags provided)
         if (
           options.copySettings ||
           options.copyAll ||
@@ -232,7 +227,6 @@ program
           }
           // skipPrompts means start fresh (both false)
         } else {
-          // No flags — launch the Ink interactive wizard
           const useInk = process.env.CLAUDE_MULTI_INK !== "false";
           if (useInk) {
             try {
@@ -251,7 +245,6 @@ program
             }
           }
 
-          // Prompts fallback
           if (hasDefaultConfig || hasDefaultMcp) {
             console.log(chalk.gray("\nFound existing Claude Code configuration at ~/.claude"));
 
@@ -297,7 +290,6 @@ program
           await createWrapper(instance);
           await initializeInstanceState(configDir);
 
-          // Copy files if requested
           if (copySettings && !copyAllFiles) {
             await copySettingsFromDefault(configDir);
             console.log(chalk.green("✓ Copied settings.json"));
@@ -325,7 +317,6 @@ program
             }
           }
 
-          // Apply provider template if selected
           if (useProviderTemplate && providerTemplate) {
             await mergeProviderEnv(configDir, providerTemplate, apiKey);
             console.log(
@@ -345,7 +336,6 @@ program
         console.log(chalk.gray(`  Config: ${configDir}`));
         console.log();
 
-        // Check if binary directory is in PATH
         const binDir = dirname(binaryPath);
         const pathEnv = process.env.PATH || "";
         const isInPath = pathEnv.split(delimiter).some((p) => p === binDir);
@@ -373,7 +363,6 @@ program
     },
   );
 
-// Remove command
 program
   .command("remove <name>")
   .alias("rm")
@@ -415,7 +404,6 @@ program
     }
   });
 
-// List command
 program
   .command("list")
   .alias("ls")
@@ -459,7 +447,6 @@ program
     }
   });
 
-// Info command
 program
   .command("info <name>")
   .description("Show details about a specific instance")
@@ -487,7 +474,6 @@ program
     }
   });
 
-// Version command
 program
   .command("version")
   .description("Check Claude Code version and updates")
@@ -522,7 +508,6 @@ program
     }
   });
 
-// Update command
 program
   .command("update")
   .description("Update @anthropic-ai/claude-code to the latest version")
@@ -544,7 +529,6 @@ program
     }
   });
 
-// Auto-sync command
 program
   .command("auto-sync <name> <status>")
   .description("Set sync mode for plugins/skills (auto, half-manual, full-manual, on, off)")
@@ -553,7 +537,7 @@ program
       const instance = await requireInstance(name);
       const currentMode = getSyncMode(instance);
 
-      // Map legacy on/off to modes
+      // Legacy on/off aliases
       const normalized = status.toLowerCase();
       let newMode: SyncModeType;
       if (normalized === "on" || normalized === "true" || status === "1") {
@@ -574,7 +558,6 @@ program
         return;
       }
 
-      // Validate downgrade-only rule
       if (!canConvertSyncMode(currentMode, newMode)) {
         console.error(
           chalk.red(`✗ Cannot convert from '${syncModeLabel(currentMode)}' to '${syncModeLabel(newMode)}'. Only downgrades are allowed (auto → half-manual → full-manual).`),
@@ -582,7 +565,6 @@ program
         exitWithCode(1);
       }
 
-      // Apply the mode change
       console.log(chalk.bold(`\n🔄 Converting '${name}' from ${syncModeLabel(currentMode)} → ${syncModeLabel(newMode)}...\n`));
 
       await updateInstanceSyncMode(name, newMode);
@@ -594,7 +576,6 @@ program
     }
   });
 
-// Fix-symlinks command
 program
   .command("fix-symlinks [name...]")
   .description("Fix broken symlinks for instances (auto-detects and repairs)")
@@ -603,7 +584,6 @@ program
     await handleFixSymlinks(names, options.all);
   });
 
-// Doctor command — diagnose and fix common issues
 program
   .command("doctor")
   .description("Diagnose and fix common issues")
@@ -627,7 +607,6 @@ program
       if (action === "fix") {
         console.log(chalk.bold("\n🔧 Doctor Fix\n"));
 
-        // Verify claude is available
         const claudePath = tryGetClaudePath();
         if (!claudePath) {
           console.error(chalk.red("Claude Code not found in PATH. Please install it first."));
@@ -635,7 +614,6 @@ program
         }
         console.log(chalk.gray(`Using claude at: ${claudePath}`));
 
-        // Fix wrapper versions to point to resolved claude binary
         const fixed = fixWrapperVersions(instances);
         if (fixed.length > 0) {
           console.log(chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use resolved Claude version:`));
@@ -646,7 +624,6 @@ program
           console.log(chalk.gray("  All wrappers already use the correct Claude version"));
         }
 
-        // Instance migrations
         const fullConfig = await loadConfig();
         if (needsInstanceMigration(fullConfig)) {
           const currentVersion = getClaudeMultiVersion();
@@ -670,7 +647,6 @@ program
 
         console.log(chalk.green("\n✓ Doctor fix complete!"));
       } else {
-        // Check mode
         console.log(chalk.bold("\n🔍 Doctor Check\n"));
         const fullConfig = await loadConfig();
         const issues = runHealthChecks(instances, undefined, needsInstanceMigration(fullConfig));
@@ -698,7 +674,6 @@ program
     }
   });
 
-// Plugins command
 program
   .command("plugins")
   .description("Manage plugins for instances")
@@ -750,7 +725,6 @@ async function handlePluginsList(instanceName: string): Promise<void> {
   const instances = await listInstances();
 
   if (!instanceName) {
-    // Show plugins for all instances
     console.log(chalk.bold("\n📋 Enabled Plugins by Instance\n"));
 
     const defaultPlugins = await listAvailablePlugins();
@@ -792,7 +766,6 @@ async function handlePluginsList(instanceName: string): Promise<void> {
       console.log();
     }
   } else {
-    // Show plugins for specific instance
     const instance = await requireInstance(instanceName);
 
     const plugins = await getEnabledPlugins(instance.configDir);
@@ -1055,7 +1028,6 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
       return found ? [found] : [];
     });
   } else {
-    // Interactive selection
     const { selected } = await prompts({
       type: "multiselect",
       name: "selected",
@@ -1120,9 +1092,6 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
   console.log(chalk.bold("\n✨ Done!"));
 }
 
-
-
-// MCP command
 program
   .command("mcp")
   .description("Manage MCP server configurations")
@@ -1163,7 +1132,6 @@ async function handleMcpList(instanceName: string): Promise<void> {
   }
 
   if (!instanceName) {
-    // Show all instances with MCP status
     console.log(chalk.bold("\n📋 MCP Servers by Instance\n"));
 
     const mcpResults = await Promise.all(instances.map(async (instance) => {
@@ -1189,7 +1157,6 @@ async function handleMcpList(instanceName: string): Promise<void> {
       console.log();
     }
   } else {
-    // Show MCP servers for specific instance
     const mcpServers = await listMcpServers(instanceName);
 
     if (!mcpServers) {
@@ -1334,7 +1301,6 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
   for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
     console.log(chalk.gray(`  • ${serverName}: ${serverConfig.type}`));
 
-    // Basic validation
     if (serverConfig.type === McpServerType.Stdio && !serverConfig.command) {
       console.log(chalk.yellow(`    ⚠ Missing command for stdio server`));
     } else if (
@@ -1350,11 +1316,10 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
   }
 }
 
-// Default action: launch interactive mode when no subcommand is given
 program.action(async () => {
   skipGlobalUpdateCheck = true;
 
-  // Reject unknown subcommands that fell through to the default action
+  // Unknown subcommands fall through to the default action — reject them
   const unknownArgs = program.args.filter(a => !a.startsWith("-"));
   if (unknownArgs.length > 0) {
     console.error(chalk.red(`✗ Unknown command: ${unknownArgs[0]}`));
@@ -1382,7 +1347,6 @@ program.action(async () => {
 // Suppressed by interactive commands — they run the check after Ink exits
 let skipGlobalUpdateCheck = false;
 
-// Parse arguments
 program.parse();
 
 // Update check — disabled by default, set CLAUDE_MULTI_UPDATE_CHECK=true to enable

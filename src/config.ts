@@ -35,11 +35,10 @@ export interface Instance {
   createdAt: string;
   /** @deprecated Use syncMode instead. Kept for backward compat — resolved via getSyncMode(). */
   autoSync?: boolean;
-  /** Sync mode: "auto" | "half-manual" | "full-manual". Defaults to "auto" if unset and autoSync is not explicitly false. */
   syncMode?: SyncModeType;
-  createdWithVersion: string; // claude-multi version that created this instance
-  providerTemplate?: string; // e.g. "mimo", "kimi", "qwen-coding"
-  providerRegion?: string;   // e.g. "sgp", "ams", "cn" for regional providers
+  createdWithVersion: string;
+  providerTemplate?: string;
+  providerRegion?: string;
 }
 
 export interface Config {
@@ -87,19 +86,14 @@ const SYNC_DIRS = ["plugins", "skills"] as const;
 
 const VALID_SYNC_MODES = new Set<string>(Object.values(SyncMode));
 
-/**
- * Resolve the effective sync mode for an instance.
- * Priority: syncMode field > autoSync field > default "auto"
- */
+/** Priority: syncMode field > autoSync field > default "auto". */
 export function getSyncMode(instance: Instance): SyncModeType {
   if (instance.syncMode && VALID_SYNC_MODES.has(instance.syncMode)) return instance.syncMode;
   // Backward compat: explicit autoSync=false means full-manual
   if (instance.autoSync === false) return SyncMode.FullManual;
-  // autoSync=true or undefined defaults to auto
   return SyncMode.Auto;
 }
 
-/** Human-readable label for a sync mode */
 export function syncModeLabel(mode: SyncModeType): string {
   switch (mode) {
     case SyncMode.Auto: return "Auto-sync (symlink dirs)";
@@ -172,7 +166,6 @@ export async function loadConfig(): Promise<Config> {
     throw new ClaudeMultiError(ErrorCode.CONFIG_CORRUPTED, `Config file is corrupted: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
   }
 
-  // Run migration if needed
   const { needsMigration, runMigration, LEGACY_INSTANCE_VERSION } = await import("./migration.js");
   if (needsMigration(config)) {
     config = await runMigration(config);
@@ -208,7 +201,6 @@ export async function saveConfigAtomic(config: Config): Promise<void> {
 export async function addInstance(instance: Instance): Promise<void> {
   const config = await loadConfig();
 
-  // Check if instance already exists
   const existing = config.instances.find((i) => i.name === instance.name);
   if (existing) {
     throw new ClaudeMultiError(ErrorCode.INSTANCE_ALREADY_EXISTS, `Instance '${instance.name}' already exists`);
@@ -261,10 +253,7 @@ export async function updateInstanceAutoSync(
   return inst;
 }
 
-/**
- * Update the sync mode for an instance and apply the filesystem changes.
- * Only allows downgrades (auto → half-manual → full-manual).
- */
+/** Applies filesystem changes; downgrades only (auto → half-manual → full-manual). */
 export async function updateInstanceSyncMode(
   name: string,
   newMode: SyncModeType,
@@ -279,26 +268,21 @@ export async function updateInstanceSyncMode(
   const inst = config.instances[index]!;
   const currentMode = getSyncMode(inst);
 
-  // Validate downgrade-only rule
   if (currentMode === newMode) return inst;
   if (!canConvertSyncMode(currentMode, newMode)) {
     throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, `Cannot convert from ${syncModeLabel(currentMode)} to ${syncModeLabel(newMode)}. Only downgrades are allowed.`);
   }
 
-  // Apply filesystem changes
   if (newMode === SyncMode.Auto) {
     await syncPluginsAndSkills(inst.configDir);
   } else if (newMode === SyncMode.HalfManual) {
-    // If coming from auto (whole-dir symlinks), convert to individual symlinks
     if (currentMode === SyncMode.Auto) {
       await halfSyncPluginsAndSkills(inst.configDir);
     }
   } else if (newMode === SyncMode.FullManual) {
-    // If coming from auto or half-manual, replace all symlinks with copies
     await unsyncPluginsAndSkills(inst.configDir);
   }
 
-  // Persist
   inst.syncMode = newMode;
   // Update autoSync for backward compat
   inst.autoSync = newMode === SyncMode.Auto ? true : false;
@@ -306,28 +290,18 @@ export async function updateInstanceSyncMode(
   return inst;
 }
 
-// Test-only: Override default Claude directory
 let _testDefaultClaudeDir: string | undefined;
 
-/**
- * Test-only: Set a custom default Claude directory for testing
- * @internal
- */
+/** Test-only. @internal */
 export function setTestDefaultClaudeDir(dir: string): void {
   _testDefaultClaudeDir = dir;
 }
 
-/**
- * Test-only: Clear the test override for default Claude directory
- * @internal
- */
+/** Test-only. @internal */
 export function clearTestDefaultClaudeDir(): void {
   _testDefaultClaudeDir = undefined;
 }
 
-/**
- * Get the default Claude directory path
- */
 export function getDefaultClaudeDir(): string {
   if (_testDefaultClaudeDir) {
     return _testDefaultClaudeDir;
@@ -335,22 +309,14 @@ export function getDefaultClaudeDir(): string {
   return join(homedir(), ".claude");
 }
 
-/**
- * Check if a symlink is broken (points to non-existent target)
- */
 function isBrokenSymlink(path: string): boolean {
   try {
-    // Use lstatSync to check if path exists (including broken symlinks)
     const stats = lstatSync(path);
-    if (!stats.isSymbolicLink()) return false; // Not a symlink
+    if (!stats.isSymbolicLink()) return false;
 
-    // Try to read the link target
     const target = readlinkSync(path);
-    if (!target) return true; // No target means broken
+    if (!target) return true;
 
-    // Check if the target exists
-    // For absolute paths, check directly
-    // For relative paths, resolve relative to the symlink's directory
     let targetPath: string;
     if (isAbsolute(target)) {
       targetPath = target;
@@ -365,11 +331,7 @@ function isBrokenSymlink(path: string): boolean {
   }
 }
 
-/**
- * Detect broken symlinks in an instance.
- * Checks both whole-directory symlinks (auto-sync) and
- * individual item symlinks inside real directories (half-manual).
- */
+/** Checks whole-directory symlinks (auto-sync) and per-item symlinks inside real dirs (half-manual). */
 export function detectBrokenSymlinks(configDir: string): {
   broken: string[];
   all: string[];
@@ -383,12 +345,10 @@ export function detectBrokenSymlinks(configDir: string): {
       result.all.push(dir);
 
       if (stats.isSymbolicLink()) {
-        // Whole-directory symlink (auto-sync mode)
         if (isBrokenSymlink(targetPath)) {
           result.broken.push(dir);
         }
       } else if (stats.isDirectory()) {
-        // Real directory — check for broken individual symlinks (half-manual mode)
         try {
           const entries = readdirSync(targetPath, { withFileTypes: true });
           for (const entry of entries) {
@@ -407,9 +367,6 @@ export function detectBrokenSymlinks(configDir: string): {
   return result;
 }
 
-/**
- * Check if default Claude directory exists and has settings.json
- */
 export function hasDefaultClaudeConfig(): boolean {
   const defaultDir = getDefaultClaudeDir();
   const settingsFile = join(defaultDir, "settings.json");
@@ -417,9 +374,8 @@ export function hasDefaultClaudeConfig(): boolean {
 }
 
 /**
- * Copy settings.json from default Claude to new instance
- * SECURITY: Only copies safe, non-sensitive settings using a whitelist approach.
- * The "env" key and all sensitive data are never copied to prevent API key exposure.
+ * SECURITY: whitelist-only copy — the "env" key and all other non-whitelisted
+ * (potentially sensitive) data are never copied, preventing API key exposure.
  */
 export async function copySettingsFromDefault(
   targetConfigDir: string,
@@ -431,31 +387,23 @@ export async function copySettingsFromDefault(
     throw new ClaudeMultiError(ErrorCode.DEFAULT_SETTINGS_NOT_FOUND, "Default Claude settings.json not found");
   }
 
-  // Read the source settings
   const content = await readFile(sourceSettings, "utf-8");
   const settings = JSON.parse(content);
 
-  // Filter out sensitive data - only copy safe settings
   const safeSettings: Record<string, unknown> = {};
 
-  // Safe settings whitelist - only these keys will be copied
   const SAFE_SETTINGS = [
     'includeCoAuthoredBy',
     'alwaysThinkingEnabled',
     'enabledPlugins'
   ];
 
-  // Only copy whitelisted settings
   for (const key of SAFE_SETTINGS) {
     if (settings[key] !== undefined) {
       safeSettings[key] = settings[key];
     }
   }
 
-  // SECURITY: The whitelist approach ensures the "env" key is NEVER copied
-  // along with any other sensitive data not in the whitelist
-
-  // Write filtered settings
   if (!existsSync(targetConfigDir)) {
     await mkdir(targetConfigDir, { recursive: true });
   }
@@ -464,10 +412,6 @@ export async function copySettingsFromDefault(
   await writeFile(targetSettings, JSON.stringify(safeSettings, null, 2), "utf-8");
 }
 
-/**
- * Copy all files from default Claude to new instance
- * Excludes: config.json, history.jsonl, debug/, session-env/, todos/
- */
 export async function copyAllFromDefault(
   targetConfigDir: string,
   syncModeOrAutoSync: SyncModeType | boolean = false,
@@ -498,7 +442,7 @@ export async function copyAllFromDefault(
     "file-history",
     "shell-snapshots",
     "statsig",
-    // MCP-related files to exclude (will be handled separately)
+    // MCP-related files — handled separately
     "mcp-cache",
     "mcp-logs",
     ".mcp-temp",
@@ -515,7 +459,6 @@ export async function copyAllFromDefault(
       const targetPath = join(target, entry);
       const stat = statSync(sourcePath);
 
-      // Skip excluded files/directories
       if (excludeSet.has(entry)) {
         continue;
       }
@@ -523,7 +466,6 @@ export async function copyAllFromDefault(
       if (stat.isDirectory()) {
         if (syncDirSet.has(entry)) {
           if (effectiveMode === SyncMode.Auto) {
-            // Auto mode: symlink the entire directory
             try {
               const targetStat = lstatSync(targetPath);
               if (targetStat.isSymbolicLink()) {
@@ -543,7 +485,6 @@ export async function copyAllFromDefault(
             await symlink(sourcePath, targetPath, "dir");
             console.log(`  Symlinked: ${entry} -> ${sourcePath}`);
           } else if (effectiveMode === SyncMode.HalfManual) {
-            // Half-manual mode: create real dir, symlink individual items
             if (!existsSync(targetPath)) {
               await mkdir(targetPath, { recursive: true });
             }
@@ -559,7 +500,6 @@ export async function copyAllFromDefault(
             }
             console.log(`  Half-synced: ${entry} (${linked} items individually symlinked)`);
           } else {
-            // Full-manual: just copy
             if (!existsSync(targetPath)) {
               await mkdir(targetPath, { recursive: true });
             }
@@ -580,9 +520,6 @@ export async function copyAllFromDefault(
   await copyRecursive(defaultDir, targetConfigDir);
 }
 
-/**
- * Detect MCP configurations in a directory
- */
 export async function detectMcpConfigurations(
   configDir: string,
 ): Promise<McpConfiguration | null> {
@@ -590,7 +527,6 @@ export async function detectMcpConfigurations(
     return null;
   }
 
-  // Check for MCP configurations in settings.json
   const settingsFile = join(configDir, "settings.json");
   if (existsSync(settingsFile)) {
     try {
@@ -605,9 +541,7 @@ export async function detectMcpConfigurations(
     }
   }
 
-  // Check for separate MCP configuration files
   const mcpFiles = ["mcp.json", "mcp-servers.json", "claude-mcp.json"];
-
   for (const mcpFile of mcpFiles) {
     const mcpFilePath = join(configDir, mcpFile);
     if (existsSync(mcpFilePath)) {
@@ -628,18 +562,12 @@ export async function detectMcpConfigurations(
   return null;
 }
 
-/**
- * Check if default Claude has MCP configurations
- */
 export async function hasDefaultMcpConfig(): Promise<boolean> {
   const defaultDir = getDefaultClaudeDir();
   const mcpConfig = await detectMcpConfigurations(defaultDir);
   return mcpConfig !== null;
 }
 
-/**
- * Copy MCP server configurations from default Claude to target instance
- */
 export async function copyMcpServersFromDefault(
   targetConfigDir: string,
 ): Promise<void> {
@@ -656,7 +584,6 @@ export async function copyMcpServersFromDefault(
     await copyDirRecursive(defaultPluginsDir, pluginsDir);
   }
 
-  // Also copy any explicit mcpServers from settings.json
   const mcpConfig = await detectMcpConfigurations(defaultDir);
   if (mcpConfig) {
     const existingMcpConfig = await detectMcpConfigurations(targetConfigDir);
@@ -674,9 +601,6 @@ export async function copyMcpServersFromDefault(
   }
 }
 
-/**
- * Write MCP configuration to appropriate file in target directory
- */
 async function writeMcpConfiguration(
   targetConfigDir: string,
   mcpConfig: McpConfiguration,
@@ -684,7 +608,6 @@ async function writeMcpConfiguration(
   const settingsFile = join(targetConfigDir, "settings.json");
 
   if (existsSync(settingsFile)) {
-    // Update existing settings.json
     try {
       const settingsContent = await readFile(settingsFile, "utf-8");
       const settings = JSON.parse(settingsContent);
@@ -696,14 +619,10 @@ async function writeMcpConfiguration(
     }
   }
 
-  // Create separate mcp.json file
   const mcpFile = join(targetConfigDir, "mcp.json");
   await writeFile(mcpFile, JSON.stringify(mcpConfig, null, 2), "utf-8");
 }
 
-/**
- * Copy MCP configurations between instances
- */
 export async function copyMcpServersBetweenInstances(
   sourceInstanceName: string,
   targetInstanceName: string,
@@ -732,9 +651,6 @@ export async function copyMcpServersBetweenInstances(
   await writeMcpConfiguration(targetInstance.configDir, sourceMcpConfig);
 }
 
-/**
- * List MCP servers in an instance
- */
 export async function listMcpServers(
   instanceName: string,
 ): Promise<Record<string, McpServer> | null> {
@@ -748,9 +664,6 @@ export async function listMcpServers(
   return mcpConfig?.mcpServers || null;
 }
 
-/**
- * Create settings.json with provider template
- */
 export async function createSettingsFromTemplate(
   targetConfigDir: string,
   template: ProviderTemplate,
@@ -766,9 +679,7 @@ export async function createSettingsFromTemplate(
   await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
 }
 
-/**
- * Initialize .claude.json state to skip onboarding screens
- */
+/** Writes .claude.json state to skip Claude Code onboarding screens. */
 export async function initializeInstanceState(
   configDir: string,
 ): Promise<void> {
@@ -800,9 +711,6 @@ export async function initializeInstanceState(
   await writeFile(stateFile, JSON.stringify(state, null, 2), "utf-8");
 }
 
-/**
- * Merge provider template env vars into existing settings.json
- */
 export async function mergeProviderEnv(
   configDir: string,
   template: ProviderTemplate,
@@ -825,16 +733,7 @@ export async function mergeProviderEnv(
   await writeFile(settingsFile, JSON.stringify(existing, null, 2), "utf-8");
 }
 
-/**
- * Sync provider template env vars for a single instance.
- * Re-applies the latest template (model names, thinking limits, etc.)
- * while preserving the API key and any user-customized tunable vars.
- * Tunables still holding a known legacy default from an older template
- * are refreshed (see LEGACY_ENV_DEFAULTS).
- *
- * This is the user-triggered standalone version that runs on-demand
- * from the UI; migrations use the same shared sync implementation.
- */
+/** User-triggered on-demand sync; migrations use the same shared sync implementation. */
 export async function syncProviderTemplateForInstance(instance: Instance): Promise<void> {
   let result: ProviderEnvSyncResult;
   try {
@@ -844,7 +743,6 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
       tunablePolicy: "overwrite-legacy-defaults",
     });
   } catch (err: unknown) {
-    // Surface IO/parse failures with the same context the direct implementation used to give
     throw new ClaudeMultiError(
       ErrorCode.CONFIG_CORRUPTED,
       `Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
@@ -860,7 +758,6 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
       : `Could not detect provider for '${instance.name}'`);
   }
 
-  // Backfill providerTemplate / providerRegion on the instance in config
   let needsSave = false;
   const config = await loadConfig();
   const inst = config.instances.find(i => i.name === instance.name);
@@ -879,9 +776,6 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
   }
 }
 
-/**
- * Copy plugins and skills from default Claude to an existing instance
- */
 export async function syncPluginsAndSkills(
   configDir: string,
 ): Promise<void> {
@@ -936,8 +830,7 @@ async function copyFilesRecursive(source: string, target: string): Promise<void>
 }
 
 /**
- * Half-manual sync: replace whole-directory symlinks with real directories
- * containing individual symlinks for each existing plugin/skill.
+ * Half-manual: whole-dir symlinks -> real dirs containing per-item symlinks.
  * New items installed in ~/.claude won't appear here automatically.
  */
 export async function halfSyncPluginsAndSkills(
@@ -958,7 +851,6 @@ export async function halfSyncPluginsAndSkills(
       return;
     }
 
-    // If target is a whole-dir symlink (auto-sync mode), convert it
     let wasWholeDirSymlink = false;
     try {
       const stat = lstatSync(targetPath);
@@ -969,22 +861,18 @@ export async function halfSyncPluginsAndSkills(
       }
     } catch { /* not a symlink, good */ }
 
-    // Ensure the real directory exists
     if (!existsSync(targetPath)) {
       await mkdir(targetPath, { recursive: true });
     }
 
-    // Create individual symlinks for each item in the source directory
     const entries = readdirSync(sourcePath, { withFileTypes: true });
     let linked = 0;
     for (const entry of entries) {
       const sourceEntry = join(sourcePath, entry.name);
       const targetEntry = join(targetPath, entry.name);
 
-      // Skip if target already exists (as symlink or real file/dir)
       const existingStat = lstatSafe(targetEntry);
       if (existingStat) {
-        // If it's already a symlink pointing to the right place, skip
         if (existingStat.isSymbolicLink()) {
           try {
             const currentTarget = readlinkSync(targetEntry);
@@ -996,15 +884,13 @@ export async function halfSyncPluginsAndSkills(
               continue;
             }
           } catch { /* broken symlink, replace it */ }
-          // Points elsewhere — remove and re-link
           rmSync(targetEntry, { force: true });
         } else {
-          // Real file/dir exists — don't overwrite user's own content
+          // Real file/dir — don't overwrite user's own content
           continue;
         }
       }
 
-      // Create relative symlink for this individual item
       const relativePath = relative(dirname(targetEntry), sourceEntry);
       await symlink(relativePath, targetEntry, entry.isDirectory() ? "dir" : "file");
       linked++;
@@ -1014,10 +900,7 @@ export async function halfSyncPluginsAndSkills(
   }));
 }
 
-/**
- * Unsync plugins and skills by copying actual files and removing symlinks.
- * Handles both auto-sync (whole-dir symlinks) and half-manual (individual symlinks).
- */
+/** Replaces symlinks with real copies; handles whole-dir (auto) and per-item (half-manual) symlinks. */
 export async function unsyncPluginsAndSkills(
   configDir: string,
 ): Promise<void> {
@@ -1031,13 +914,11 @@ export async function unsyncPluginsAndSkills(
     const targetPath = join(configDir, dir);
     const sourcePath = join(defaultDir, dir);
 
-    // Skip if source doesn't exist
     if (!existsSync(sourcePath)) {
       console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
       return;
     }
 
-    // Check if it's a whole-directory symlink (auto-sync mode)
     let isWholeDirSymlink = false;
     try {
       readlinkSync(targetPath);
@@ -1047,34 +928,28 @@ export async function unsyncPluginsAndSkills(
     }
 
     if (isWholeDirSymlink) {
-      // Remove the whole-directory symlink
       rmSync(targetPath, { force: true });
       console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
-      // Copy files from source
       await mkdir(targetPath, { recursive: true });
       await copyFilesRecursive(sourcePath, targetPath);
       console.log(chalk.green(`  ✓ Copied files for ${dir}`));
     } else if (!existsSync(targetPath)) {
-      // Neither symlink nor directory exists — just copy
       await mkdir(targetPath, { recursive: true });
       await copyFilesRecursive(sourcePath, targetPath);
       console.log(chalk.green(`  ✓ Copied files for ${dir}`));
     } else {
       // Real directory — may be half-manual with individual symlinks inside
-      // Replace individual symlinks with real copies
       let replaced = 0;
       const entries = readdirSync(targetPath, { withFileTypes: true });
       for (const entry of entries) {
         const entryPath = join(targetPath, entry.name);
         const entryStat = lstatSafe(entryPath);
         if (entryStat?.isSymbolicLink()) {
-          // Resolve symlink target to get the real content
           const linkTarget = readlinkSync(entryPath);
           const resolvedTarget = isAbsolute(linkTarget)
             ? linkTarget
             : resolve(dirname(entryPath), linkTarget);
 
-          // Remove symlink and copy the real content
           rmSync(entryPath, { force: true });
           if (existsSync(resolvedTarget)) {
             const realStat = statSync(resolvedTarget);
@@ -1089,7 +964,6 @@ export async function unsyncPluginsAndSkills(
         }
       }
 
-      // Also copy any items from source that don't exist in target yet
       const sourceEntries = readdirSync(sourcePath, { withFileTypes: true });
       for (const entry of sourceEntries) {
         const targetEntry = join(targetPath, entry.name);
@@ -1114,9 +988,6 @@ export async function unsyncPluginsAndSkills(
   }));
 }
 
-/**
- * Read Claude settings.json file
- */
 export async function readClaudeSettings(
   configDir: string,
 ): Promise<ClaudeSettings | null> {
@@ -1135,9 +1006,6 @@ export async function readClaudeSettings(
   }
 }
 
-/**
- * Write Claude settings.json file (atomic)
- */
 export async function writeClaudeSettings(
   configDir: string,
   settings: ClaudeSettings,
@@ -1148,9 +1016,6 @@ export async function writeClaudeSettings(
   await writeJsonFileAtomic(join(configDir, "settings.json"), settings);
 }
 
-/**
- * Get enabled plugins from a Claude instance
- */
 export async function getEnabledPlugins(
   configDir: string,
 ): Promise<Record<string, boolean> | null> {
@@ -1158,9 +1023,6 @@ export async function getEnabledPlugins(
   return settings?.enabledPlugins || null;
 }
 
-/**
- * Set enabled plugins for a Claude instance
- */
 export async function setEnabledPlugins(
   configDir: string,
   enabledPlugins: Record<string, boolean>,
@@ -1170,9 +1032,6 @@ export async function setEnabledPlugins(
   await writeClaudeSettings(configDir, settings);
 }
 
-/**
- * Enable a plugin for a Claude instance
- */
 export async function enablePlugin(
   configDir: string,
   pluginId: string,
@@ -1185,9 +1044,6 @@ export async function enablePlugin(
   await writeClaudeSettings(configDir, settings);
 }
 
-/**
- * Disable a plugin for a Claude instance
- */
 export async function disablePlugin(
   configDir: string,
   pluginId: string,
@@ -1200,9 +1056,6 @@ export async function disablePlugin(
   await writeClaudeSettings(configDir, settings);
 }
 
-/**
- * List all available plugins from default Claude
- */
 export async function listAvailablePlugins(): Promise<Record<string, boolean> | null> {
   const defaultSettings = await readClaudeSettings(getDefaultClaudeDir());
   return defaultSettings?.enabledPlugins || null;
@@ -1246,7 +1099,6 @@ function scanPluginDir(
     if (!entry.isDirectory()) continue;
     const pluginPath = join(dir, entry.name);
 
-    // Read metadata
     let name = entry.name;
     let description = "";
     const metaFile = join(pluginPath, ".claude-plugin", "plugin.json");
@@ -1260,7 +1112,6 @@ function scanPluginDir(
       }
     }
 
-    // Check MCP
     const mcpFile = join(pluginPath, ".mcp.json");
     const hasMcp = existsSync(mcpFile);
     let mcpServerNames: string[] | undefined;
@@ -1322,8 +1173,7 @@ export function isPluginsSymlinked(configDir: string): boolean {
 }
 
 /**
- * Check if an instance is in half-manual mode (directory exists as real dir,
- * but individual items inside may be symlinks).
+ * Half-manual mode: real dir exists but individual items inside may be symlinks.
  */
 export function isHalfManualSync(configDir: string): boolean {
   for (const dir of SYNC_DIRS) {
@@ -1331,7 +1181,6 @@ export function isHalfManualSync(configDir: string): boolean {
     if (!existsSync(dirPath)) continue;
     const st = lstatSafe(dirPath);
     if (st?.isDirectory() && !st.isSymbolicLink()) {
-      // Check if any child is a symlink
       try {
         const entries = readdirSync(dirPath, { withFileTypes: true });
         for (const entry of entries) {
@@ -1545,7 +1394,6 @@ export async function copySinglePlugin(
     throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${pluginId}' not found in default Claude`);
   }
 
-  // Ensure scaffolding exists
   const scaffoldDir = join(targetConfigDir, MARKETPLACE_REL, subDir);
   if (!existsSync(scaffoldDir)) {
     await mkdir(scaffoldDir, { recursive: true });
@@ -1563,14 +1411,12 @@ export async function copySinglePlugin(
     }
   }
 
-  // Remove existing target if present
   if (existsSync(targetPlugin)) {
     rmSync(targetPlugin, { force: true, recursive: true });
   }
 
   await copyDirRecursive(sourcePlugin, targetPlugin);
 
-  // Update installed_plugins.json
   await addPluginToInstalledPlugins(targetConfigDir, pluginId);
 }
 
@@ -1590,7 +1436,6 @@ export async function copySelectedPlugins(
     throw new ClaudeMultiError(ErrorCode.INSTANCE_RUNNING, "Claude Code is running on this instance. Close it first before modifying plugins.");
   }
 
-  // Pre-flight: check all sources exist
   const defaultDir = getDefaultClaudeDir();
   for (const sel of selections) {
     const subDir = sel.category === PluginCategory.Internal ? "plugins" : "external_plugins";
@@ -1600,7 +1445,6 @@ export async function copySelectedPlugins(
     }
   }
 
-  // Pre-flight: check disk space (estimate)
   let totalSize = 0;
   for (const sel of selections) {
     const subDir = sel.category === PluginCategory.Internal ? "plugins" : "external_plugins";
@@ -1611,7 +1455,6 @@ export async function copySelectedPlugins(
     throw new ClaudeMultiError(ErrorCode.PLUGIN_TOO_LARGE, `Selected plugins total ${(totalSize / 1024 / 1024).toFixed(1)}MB. Ensure sufficient disk space.`);
   }
 
-  // Rollback journal
   const completed: Array<{ id: string; category: PluginCategory }> = [];
 
   try {
@@ -1621,7 +1464,6 @@ export async function copySelectedPlugins(
       completed.push(sel);
     }
   } catch (err: unknown) {
-    // Rollback completed copies
     for (const done of completed) {
       // eslint-disable-next-line @react-doctor/async-await-in-loop -- rollback needs ordered completion tracking
       try {
@@ -1655,7 +1497,7 @@ export async function removeSinglePlugin(
     throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${pluginId}' not found in this instance`);
   }
 
-  // Backup before removal (in case we need to restore)
+  // Stage as .removing backup so a failed removal can be restored
   const backupPath = pluginPath + ".removing";
   try {
     renameSync(pluginPath, backupPath);
@@ -1667,7 +1509,6 @@ export async function removeSinglePlugin(
     rmSync(backupPath, { force: true, recursive: true });
     await removePluginFromInstalledPlugins(configDir, pluginId);
   } catch (err: unknown) {
-    // Try to restore from backup
     try { renameSync(backupPath, pluginPath); } catch {
       console.error(chalk.red("Rollback attempt failed — backup may need manual recovery"));
     }

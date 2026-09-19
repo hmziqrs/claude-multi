@@ -45,7 +45,6 @@ export function runHealthChecks(
 
   const currentVersion = getClaudeMultiVersion();
 
-  // Check for pending instance migrations
   if (instanceMigrationsPending) {
     issues.push({
       id: "instance-migrations-pending",
@@ -62,7 +61,6 @@ export function runHealthChecks(
     });
   }
 
-  // Check migration status
   if (migrationStatus?.migrationStatus === MigrationStatus.Failed) {
     issues.push({
       id: "migration-failed",
@@ -79,9 +77,7 @@ export function runHealthChecks(
     });
   }
 
-  // Per-instance checks
   for (const inst of instances) {
-    // Config dir exists
     if (!existsSync(inst.configDir)) {
       issues.push({
         id: `configdir-missing-${inst.name}`,
@@ -99,7 +95,6 @@ export function runHealthChecks(
       continue;
     }
 
-    // Binary exists
     if (!existsSync(inst.binaryPath)) {
       issues.push({
         id: `binary-missing-${inst.name}`,
@@ -116,7 +111,6 @@ export function runHealthChecks(
       });
     }
 
-    // Settings.json parseable
     const settingsFile = join(inst.configDir, "settings.json");
     if (existsSync(settingsFile)) {
       let parsed: Record<string, unknown> | null = null;
@@ -138,7 +132,6 @@ export function runHealthChecks(
         });
       }
 
-      // Region consistency check for regional providers
       if (parsed && inst.providerTemplate && providerHasRegions(inst.providerTemplate)) {
         const env = parsed.env as Record<string, string> | undefined;
         const actualUrl = env?.ANTHROPIC_BASE_URL;
@@ -182,17 +175,14 @@ export function runHealthChecks(
       });
     }
 
-    // Wrapper points to wrong Claude binary
     const expectedClaudePath = tryGetClaudePath();
     if (existsSync(inst.binaryPath) && expectedClaudePath) {
       try {
         const wrapperContent = readFileSync(inst.binaryPath, "utf-8");
 
-        // Check shell format: exec "/path/to/claude"
+        // Wrapper formats: sh `exec "path"`, Windows .cmd `"path" %*`, node `spawn("path"`
         const shellMatch = wrapperContent.match(/exec\s+"([^"]+)"/);
-        // Check Windows .cmd format: "/path/to/claude" %*
         const cmdMatch = wrapperContent.match(/"([^"]+)"\s+%\*/);
-        // Check Node.js format: spawn("/path/to/claude"
         const nodeMatch = wrapperContent.match(/spawn\("([^"]+)"/);
 
         const currentBin = shellMatch?.[1] ?? cmdMatch?.[1] ?? nodeMatch?.[1];
@@ -216,7 +206,6 @@ export function runHealthChecks(
       }
     }
 
-    // Instance on older version
     if (inst.createdWithVersion && inst.createdWithVersion !== LEGACY_INSTANCE_VERSION && inst.createdWithVersion !== currentVersion) {
       issues.push({
         id: `instance-outdated-${inst.name}`,
@@ -249,11 +238,7 @@ export function loadHealthStatus(): HealthStatus {
   }
 }
 
-/**
- * Atomically write the health status file using write-to-temp + rename.
- * Prevents corruption if the process crashes mid-write or if two
- * claude-multi instances write concurrently.
- */
+/** Atomic write (temp file + rename) — survives crashes and concurrent writers. */
 export function saveHealthStatus(status: HealthStatus): void {
   const dir = join(getBaseDir(), ".claude-multi");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
@@ -287,11 +272,7 @@ export function dismissAllIssues(): void {
   saveHealthStatus(status);
 }
 
-/**
- * Fix wrappers that point to the wrong Claude binary.
- * Regenerates them as shell scripts pointing to the resolved global Claude binary.
- * Returns the list of instance names that were fixed.
- */
+/** Regenerates wrappers pointing at the resolved global Claude binary; returns fixed instance names. */
 export function fixWrapperVersions(instances: Instance[]): string[] {
   const expectedClaudePath = tryGetClaudePath();
   if (!expectedClaudePath) return [];
@@ -303,20 +284,16 @@ export function fixWrapperVersions(instances: Instance[]): string[] {
     try {
       const content = readFileSync(inst.binaryPath, "utf-8");
 
-      // Check shell format
+      // Wrapper formats: sh `exec "path"`, Windows .cmd `"path" %*`, node `spawn("path"`
       const shellMatch = content.match(/exec\s+"([^"]+)"/);
-      // Check Windows .cmd format
       const cmdMatch = content.match(/"([^"]+)"\s+%\*/);
-      // Check Node.js format
       const nodeMatch = content.match(/spawn\("([^"]+)"/);
 
       const currentBin = shellMatch?.[1] ?? cmdMatch?.[1] ?? nodeMatch?.[1];
       if (!currentBin || currentBin === expectedClaudePath) continue;
 
-      // Regenerate using canonical template, targeting resolved global binary
       const newContent = buildWrapperScript(inst, expectedClaudePath);
 
-      // Only write if content actually differs
       if (content !== newContent) {
         writeFileSync(inst.binaryPath, newContent, { mode: 0o755 });
       }

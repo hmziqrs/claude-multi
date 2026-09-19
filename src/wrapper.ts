@@ -11,15 +11,8 @@ export interface WrapperOptions {
   binaryPath: string;
 }
 
-/**
- * Gets the path to the claude binary for wrapper scripts.
- *
- * Priority:
- *  1. CLAUDE_MULTI_CLAUDE_PATH env var (explicit override)
- *  2. Global install in PATH (via which/where)
- */
+/** Priority: CLAUDE_MULTI_CLAUDE_PATH env override, then global PATH lookup. */
 export function getClaudePath(): string {
-  // 1. Allow explicit override via env var
   const override = process.env.CLAUDE_MULTI_CLAUDE_PATH;
   if (override) {
     const resolved = resolve(override);
@@ -32,7 +25,6 @@ export function getClaudePath(): string {
     return resolved;
   }
 
-  // 2. Fall back to global PATH
   try {
     const command =
       process.platform === "win32" ? "where claude" : "which claude";
@@ -48,9 +40,6 @@ export function getClaudePath(): string {
   }
 }
 
-/**
- * Safe variant of getClaudePath() that returns null instead of throwing.
- */
 export function tryGetClaudePath(): string | null {
   try {
     return getClaudePath();
@@ -59,19 +48,12 @@ export function tryGetClaudePath(): string | null {
   }
 }
 
-/**
- * Generates the expected wrapper content for an instance (non-throwing).
- * Returns null if the Claude binary cannot be resolved.
- */
 export function generateWrapperScriptSafe(options: WrapperOptions): string | null {
   const claudePath = tryGetClaudePath();
   if (!claudePath) return null;
   return buildWrapperScript(options, claudePath);
 }
 
-/**
- * Generates a wrapper script that sets CLAUDE_CONFIG_DIR
- */
 export function generateWrapperScript(options: WrapperOptions): string {
   const claudePath = getClaudePath();
   return buildWrapperScript(options, claudePath);
@@ -86,9 +68,6 @@ exec "${claudePath}" "$@"
 `;
 }
 
-/**
- * Generates a Windows batch wrapper script that sets CLAUDE_CONFIG_DIR
- */
 export function generateWindowsWrapperScript(options: WrapperOptions): string {
   const claudePath = getClaudePath();
 
@@ -101,51 +80,35 @@ set "CLAUDE_CONFIG_DIR=${options.configDir}"
 `;
 }
 
-/**
- * Creates a wrapper script at the specified path
- */
 export async function createWrapper(options: WrapperOptions): Promise<void> {
   const { binaryPath, configDir } = options;
 
-  // Ensure the binary directory exists
   const binDir = dirname(binaryPath);
   if (!existsSync(binDir)) {
     mkdirSync(binDir, { recursive: true });
   }
 
-  // Ensure the config directory exists
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true });
   }
 
-  // Generate and write the wrapper script
   if (process.platform === "win32") {
-    // On Windows, create a .cmd batch file
     const script = generateWindowsWrapperScript(options);
     await writeFile(binaryPath, script);
   } else {
-    // On Unix-like systems, create a Bun script
     const script = generateWrapperScript(options);
     await writeFile(binaryPath, script, { mode: 0o755 });
-    // Ensure the script is executable
     chmodSync(binaryPath, 0o755);
   }
 }
 
-/**
- * Removes a wrapper script
- */
 export function removeWrapper(binaryPath: string): void {
   if (existsSync(binaryPath)) {
     unlinkSync(binaryPath);
   }
 }
 
-/**
- * Gets the default binary path for a given instance name
- * Uses ~/.local/bin on Unix-like systems (user-writable, no sudo needed)
- * Uses the active package manager's global bin dir on Windows
- */
+/** ~/.local/bin on Unix (user-writable, no sudo); package-manager global bin dir on Windows. */
 export function getDefaultBinaryPath(name: string): string {
   let binDir: string;
 
