@@ -83,12 +83,10 @@ async function main() {
   console.log(`\nProcessing ${files.length} blog post(s)...\n`);
   for (const file of files) await generateAudio(file);
 
-  // Tell the TTS server to unload the model and shut down
   try {
     await fetch("http://localhost:8880/shutdown");
     console.log("\nTTS server shut down, model unloaded.");
   } catch {
-    // Server already gone, that's fine
     console.log("\nDone. (TTS server already stopped)");
   }
 }

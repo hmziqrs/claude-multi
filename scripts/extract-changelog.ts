@@ -1,9 +1,6 @@
 #!/usr/bin/env bun
-// Extract the section for a given version from CHANGELOG.md.
-// Usage: bun run scripts/extract-changelog.ts <version> [--out <path>]
-//   - <version>: e.g. 0.5.6 (matches `## [0.5.6] - ...`)
-//   - --out <path>: write to file (default: stdout)
-// Exits non-zero if the section is not found.
+// Usage: bun run scripts/extract-changelog.ts <version> [--out <path>] (default: stdout)
+// Matches `## [<version>]` CHANGELOG headings; exits non-zero if no section found.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";

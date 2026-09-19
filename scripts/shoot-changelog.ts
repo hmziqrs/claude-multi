@@ -12,7 +12,7 @@ const ctx = await browser.newContext({
 const page = await ctx.newPage();
 await page.goto(url, { waitUntil: "networkidle" });
 await page.waitForTimeout(500);
-// trigger any IntersectionObserver-based reveals by scrolling through the page
+  // IntersectionObserver reveals would otherwise stay hidden in the capture
 await page.evaluate(() => {
   document.querySelectorAll(".reveal").forEach((el) => el.classList.add("visible"));
 });

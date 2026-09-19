@@ -1,11 +1,6 @@
 /**
- * Version Comparison Script
- * Compares package.json version with the published npm version.
- *
- * Emits a `should_publish` output (true/false) for the workflow to gate on —
- * the exit code is NOT used for gating. Exits 0 on any successful comparison
- * (publish or skip); exits non-zero only on unexpected errors, so a normal
- * "nothing to publish" run keeps CI green.
+ * Gates the release workflow via the `should_publish` GITHUB_OUTPUT, not the exit code —
+ * exits 0 for both publish and skip so a "nothing to publish" run keeps CI green.
  */
 
 import { readFileSync } from "fs";
@@ -16,10 +11,6 @@ interface PackageJson {
   version: string;
 }
 
-/**
- * Compare two semver versions
- * Returns: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
- */
 function compareVersions(v1: string, v2: string): number {
   const parts1 = v1.split(".").map(Number);
   const parts2 = v2.split(".").map(Number);
@@ -35,9 +26,6 @@ function compareVersions(v1: string, v2: string): number {
   return 0;
 }
 
-/**
- * Fetch the latest version from npm registry
- */
 async function getNpmVersion(packageName: string): Promise<string> {
   try {
     const response = await fetch(
@@ -64,18 +52,12 @@ async function getNpmVersion(packageName: string): Promise<string> {
   }
 }
 
-/**
- * Read package.json
- */
 function getPackageInfo(): PackageJson {
   const packageJsonPath = join(process.cwd(), "package.json");
   const content = readFileSync(packageJsonPath, "utf-8");
   return JSON.parse(content);
 }
 
-/**
- * Main execution
- */
 async function main() {
   console.log("🔍 Checking version...\n");
 
@@ -95,7 +77,6 @@ async function main() {
     console.log(`   ${pkg.version} > ${npmVersion}`);
     console.log("=".repeat(50));
 
-    // Set GitHub Actions output if running in CI
     if (process.env.GITHUB_OUTPUT) {
       const fs = require("fs");
       fs.appendFileSync(
