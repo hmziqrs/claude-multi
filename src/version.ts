@@ -26,7 +26,7 @@ export function getClaudeMultiVersion(): string {
   return (pkg as { version: string }).version;
 }
 
-export async function getLatestClaudeMultiVersion(): Promise<string> {
+async function getLatestClaudeMultiVersion(): Promise<string> {
   const response = await fetch("https://registry.npmjs.org/claude-multi/latest");
   const data = await response.json();
   return data.version;
@@ -65,7 +65,7 @@ export function upgradeClaudeMulti(): void {
   }
 }
 
-export function getCurrentVersion(): string | null {
+function getCurrentVersion(): string | null {
   const pm = detectPackageManager();
   try {
     if (pm === 'deno') return null;
@@ -88,7 +88,7 @@ export function getCurrentVersion(): string | null {
   }
 }
 
-export async function getLatestVersion(): Promise<string> {
+async function getLatestVersion(): Promise<string> {
   try {
     const response = await fetch("https://registry.npmjs.org/@anthropic-ai/claude-code/latest");
     const data = await response.json() as { version: string };

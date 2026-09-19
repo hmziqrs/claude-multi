@@ -52,3 +52,6 @@ redesign/.audit/
 
 # z-flashflow session state
 .z-flashflow/
+
+# z-proflow session state
+.z-proflow/

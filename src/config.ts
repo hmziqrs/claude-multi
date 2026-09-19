@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, readlinkSync, rmSync, lstatSync, readFileSync, writeFileSync, renameSync, type Stats } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, readlinkSync, rmSync, lstatSync, readFileSync, renameSync, type Stats } from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
@@ -127,7 +127,7 @@ function lstatSafe(path: string): Stats | null {
   }
 }
 
-export function ensureConfigDir(): void {
+function ensureConfigDir(): void {
   if (!existsSync(getConfigDir())) {
     mkdirSync(getConfigDir(), { recursive: true });
   }
@@ -188,7 +188,7 @@ export async function loadConfig(): Promise<Config> {
   return config;
 }
 
-export async function saveConfig(config: Config): Promise<void> {
+async function saveConfig(config: Config): Promise<void> {
   ensureConfigDir();
   await writeFile(getConfigFile(), JSON.stringify(config, null, 2), "utf-8");
 }
@@ -285,7 +285,7 @@ export async function updateInstanceSyncMode(
 
   inst.syncMode = newMode;
   // Update autoSync for backward compat
-  inst.autoSync = newMode === SyncMode.Auto ? true : false;
+  inst.autoSync = newMode === SyncMode.Auto;
   await saveConfig(config);
   return inst;
 }
@@ -520,7 +520,7 @@ export async function copyAllFromDefault(
   await copyRecursive(defaultDir, targetConfigDir);
 }
 
-export async function detectMcpConfigurations(
+async function detectMcpConfigurations(
   configDir: string,
 ): Promise<McpConfiguration | null> {
   if (!existsSync(configDir)) {
@@ -813,22 +813,6 @@ export async function syncPluginsAndSkills(
   }));
 }
 
-async function copyFilesRecursive(source: string, target: string): Promise<void> {
-  const entries = readdirSync(source);
-  await Promise.all(entries.map(async (entry) => {
-    const sourceEntry = join(source, entry);
-    const targetEntry = join(target, entry);
-    const stat = statSync(sourceEntry);
-
-    if (stat.isDirectory()) {
-      await mkdir(targetEntry, { recursive: true });
-      await copyFilesRecursive(sourceEntry, targetEntry);
-    } else {
-      await copyFile(sourceEntry, targetEntry);
-    }
-  }));
-}
-
 /**
  * Half-manual: whole-dir symlinks -> real dirs containing per-item symlinks.
  * New items installed in ~/.claude won't appear here automatically.
@@ -851,12 +835,10 @@ export async function halfSyncPluginsAndSkills(
       return;
     }
 
-    let wasWholeDirSymlink = false;
     try {
       const stat = lstatSync(targetPath);
       if (stat.isSymbolicLink()) {
         rmSync(targetPath, { force: true });
-        wasWholeDirSymlink = true;
         console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
       }
     } catch { /* not a symlink, good */ }
@@ -931,11 +913,11 @@ export async function unsyncPluginsAndSkills(
       rmSync(targetPath, { force: true });
       console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
       await mkdir(targetPath, { recursive: true });
-      await copyFilesRecursive(sourcePath, targetPath);
+      await copyDirRecursive(sourcePath, targetPath);
       console.log(chalk.green(`  ✓ Copied files for ${dir}`));
     } else if (!existsSync(targetPath)) {
       await mkdir(targetPath, { recursive: true });
-      await copyFilesRecursive(sourcePath, targetPath);
+      await copyDirRecursive(sourcePath, targetPath);
       console.log(chalk.green(`  ✓ Copied files for ${dir}`));
     } else {
       // Real directory — may be half-manual with individual symlinks inside

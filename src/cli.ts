@@ -2,7 +2,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import prompts from "prompts";
 import { homedir } from "node:os";
-import { join, dirname, delimiter, sep } from "node:path";
+import { join, dirname, delimiter } from "node:path";
 import {
   addInstance,
   removeInstance,
@@ -19,7 +19,6 @@ import {
   getSyncMode,
   syncModeLabel,
   syncPluginsAndSkills,
-  unsyncPluginsAndSkills,
   halfSyncPluginsAndSkills,
   detectBrokenSymlinks,
   getEnabledPlugins,
