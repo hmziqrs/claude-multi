@@ -1,6 +1,5 @@
-/* redesign.css — homepage redesign design system (coral/dark); all tokens scoped under
-   .redesign-root so they never clash with globals.css. Plain CSS only; fonts self-hosted
-   via globals.css @font-face (the bundle's Google Fonts @import is intentionally dropped). */
+/* redesign.css — homepage redesign design system (coral/dark); all tokens scoped under .redesign-root so they
+   never clash with globals.css; plain CSS only; fonts self-hosted via globals.css @font-face (no Google Fonts @import). */
 
 /* ===================== TOKENS (scoped to .redesign-root) ===================== */
 .redesign-root {
