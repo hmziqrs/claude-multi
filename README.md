@@ -109,11 +109,7 @@ Launch the TUI:
 claude-multi
 ```
 
-That's the only command you need to remember. Everything else lives inside the terminal UI.
-
-### The main menu
-
-When the TUI opens, you get something like this:
+That's the only command you need to remember. Everything else lives inside the terminal UI. The main menu looks like this:
 
 ```
 🤖 Claude Multi  -  Interactive Mode
@@ -131,56 +127,18 @@ When the TUI opens, you get something like this:
 
 Arrow keys to move. `Enter` to pick. `ESC` to go back. `q` to quit.
 
-### Setting up your first instance
+### Adding your first instance
 
-Pick **➕ Add new instance** in the TUI. The wizard has eight steps.
+Pick Add new instance. The wizard asks for:
 
-### 1. Instance name
+1. A name. Something short like `glm`, `deepseek`, or `work`. Letters, numbers, hyphens, and underscores only. The name becomes your command, so `glm` gives you `claude-glm`.
+2. A provider template: `glm` (GLM / Z.ai), `minimax`, `deepseek`, or `None / Custom` if you want to set things up by hand later.
+3. An API key, if you picked a provider. The prompt masks it while you type and writes it into the instance's `settings.json`.
+4. A path confirmation. Config goes to `~/.claude-<name>/`, the wrapper to `~/.local/bin/claude-<name>`. Hit `y`. The defaults are fine for almost everyone.
+5. What to copy from your existing `~/.claude`, if you have one: nothing, just `settings.json`, specific plugins (a multi-select list; `space` toggles, `enter` confirms), or everything including `CLAUDE.md`, plugins, and skills.
+6. Whether to auto-sync, if you copied everything. Auto-sync symlinks `plugins/` and `skills/` back to `~/.claude`, so a plugin you install once shows up in every instance. Say `n` if you want this instance fully independent.
 
-Pick something short like `glm`, `deepseek`, or `work`. Letters, numbers, hyphens, and underscores only. Whatever you type here becomes your command, so `glm` gives you `claude-glm`.
-
-### 2. Provider template
-
-Pick one:
-
-* `glm` for GLM / Z.ai
-* `minimax` for MiniMax
-* `deepseek` for DeepSeek
-* `None / Custom` if you want to set things up by hand later
-
-### 3. API key *(only if you picked a provider)*
-
-Paste your key. The prompt masks it while you type, then writes it into the instance's `settings.json`.
-
-### 4. Confirm paths
-
-The wizard shows where things will go:
-
-* Config: `~/.claude-<name>/`
-* Binary: `~/.local/bin/claude-<name>`
-
-Hit `y` to accept. The defaults are fine for almost everyone.
-
-### 5. Copy options
-
-If you already have a `~/.claude` setup, you can carry pieces of it into the new instance:
-
-* **Nothing.** Start fresh, inherit nothing.
-* **Only `settings.json`.** Copy just the base settings file.
-* **Select plugins.** Choose specific plugins from your default setup.
-* **All files.** Settings, `CLAUDE.md`, plugins, skills, the whole thing.
-
-### 6. Select plugins *(only if you picked "Select plugins")*
-
-A multi-select list of every plugin in your default `~/.claude`. `space` toggles. `enter` confirms.
-
-### 7. Auto-sync *(only if you picked "All files")*
-
-This asks whether to symlink `plugins/` and `skills/` back to `~/.claude`. Say `y` if you want to install a plugin once and have it show up in every instance. Say `n` if you want this instance to have its own independent copies.
-
-### 8. Done
-
-The wizard prints the new instance and its paths:
+Then it prints the result:
 
 ```
 ✓ Instance 'glm' created successfully!
@@ -194,21 +152,21 @@ Run it:
 claude-glm
 ```
 
-That's a full Claude Code session on the provider you picked, with its own isolated config. Same `claude` you already know, pointed at a different model.
+Same `claude` you already know, pointed at a different model.
 
-### Other TUI flows
+### The rest of the menu
 
-* **📋 List all instances.** Every instance with its provider, paths, and sync status.
-* **ℹ️ Instance details.** Pick one to inspect its full config.
-* **🔌 Manage plugins.** Pick an instance, then enable, disable, install, copy, or remove plugins for it.
-* **🔄 Toggle auto-sync.** Turn symlink syncing on or off for a chosen instance.
-* **🔗 Re-sync symlinks.** Rebuild broken plugin or skill symlinks after you've moved `~/.claude` around.
-* **🗑️ Remove instance.** Delete an instance, its wrapper, and optionally its config dir.
-* **⚙️ MCP servers.** View MCP configs and copy them between instances.
+* List all instances shows each instance's provider, paths, and sync status.
+* Instance details inspects one instance's full config.
+* Manage plugins enables, disables, installs, copies, or removes plugins for a chosen instance.
+* Toggle auto-sync flips symlink syncing on or off per instance.
+* Re-sync symlinks rebuilds broken plugin or skill links after you've moved `~/.claude` around.
+* Remove instance deletes the wrapper and optionally the config dir.
+* MCP servers views MCP configs and copies them between instances.
 
 If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
 
-### Update an existing provider instance
+### Updating instances after an upgrade
 
 Provider templates change as providers ship new models or revise their settings. After updating claude-multi, check existing instances:
 
@@ -217,7 +175,7 @@ claude-multi doctor check
 claude-multi doctor fix
 ```
 
-The TUI also shows `Run instance migrations` when an update is available. The sync updates model names and other template settings, while keeping API keys and values you changed yourself. It creates a backup before writing `settings.json`.
+The TUI also shows Run instance migrations when an update is available. The sync updates model names and other template settings, keeps API keys and values you changed yourself, and creates a backup before writing `settings.json`.
 
 ---
 
@@ -267,7 +225,7 @@ Instance metadata sits in `~/.claude-multi/config.json`. When auto-sync is on, `
 
 With auto-sync on, `plugins/` and `skills/` are symlinks pointing at your default `~/.claude/`. Install a plugin once and every instance that opted in picks it up.
 
-Use manual mode when you want an instance that's fully independent. Say `n` at the auto-sync step in the wizard, or flip it later from the main menu under **🔄 Toggle auto-sync**.
+Use manual mode when you want an instance that's fully independent. Say `n` at the auto-sync step in the wizard, or flip it later from the main menu with Toggle auto-sync.
 
 ---
 
@@ -293,7 +251,7 @@ source ~/.bashrc
 
 ### Broken plugin or skill symlinks
 
-Open the TUI and pick **🔗 Re-sync symlinks**. Choose the broken instance (or all of them) and it rebuilds the links.
+Open the TUI and pick Re-sync symlinks. Choose the broken instance (or all of them) and it rebuilds the links.
 
 ### Health warnings in the menu
 
