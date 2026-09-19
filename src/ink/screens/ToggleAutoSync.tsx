@@ -7,7 +7,7 @@ import { useNavigation } from "@/ink/hooks/useNavigation";
 import { useConfig } from "@/ink/hooks/useConfig";
 import { useMessage } from "@/ink/hooks/useMessage";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
-import { SyncMode, type SyncMode as SyncModeType, canConvertSyncMode, availableSyncModeConversions, SYNC_MODE_ORDER } from "@/constants";
+import { SyncMode, type SyncMode as SyncModeType, availableSyncModeConversions } from "@/constants";
 import { getSyncMode, syncModeLabel, type Instance } from "@/config";
 
 type Step = "select" | "action" | "syncing" | "done";

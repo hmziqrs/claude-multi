@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Text } from "ink";
 import { useFadeIn, usePulse } from "@/ink/hooks/useAnimations";
 import type { Instance } from "@/config";
-import { getSyncMode, syncModeLabel } from "@/config";
+import { getSyncMode } from "@/config";
 import { SyncMode, type SyncMode as SyncModeType } from "@/constants";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
 

@@ -92,7 +92,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const [providerName, setProviderName] = useState<string | null>(null);
   const [actionResult, setActionResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [executing, setExecuting] = useState(false);
-  const [pendingSyncConvert, setPendingSyncConvert] = useState<SyncModeType | null>(null);
 
   // Resolve the current instance from the live instances array so that
   // after reload() the selected reference stays fresh.
@@ -198,7 +197,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
         return;
       }
       const targetMode = rawMode as SyncModeType;
-      setPendingSyncConvert(targetMode);
       setStep("executing");
       setExecuting(true);
       try {

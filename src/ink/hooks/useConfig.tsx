@@ -4,54 +4,39 @@ import {
   addInstance as addInstanceToConfig,
   removeInstance as removeInstanceFromConfig,
   getInstance as getInstanceFromConfig,
-  listInstances as listInstancesFromConfig,
-  updateInstanceAutoSync,
   updateInstanceSyncMode,
   getSyncMode,
   syncModeLabel,
   hasDefaultClaudeConfig,
-  hasDefaultMcpConfig,
   syncPluginsAndSkills,
-  unsyncPluginsAndSkills,
   halfSyncPluginsAndSkills,
-  getEnabledPlugins,
-  setEnabledPlugins,
   enablePlugin,
   disablePlugin,
-  listAvailablePlugins,
   detectBrokenSymlinks,
   copySettingsFromDefault,
   copyAllFromDefault,
-  copyMcpServersFromDefault,
-  createSettingsFromTemplate,
   copyMcpServersBetweenInstances,
-  listMcpServers,
   initializeInstanceState,
   mergeProviderEnv,
   syncProviderTemplateForInstance,
   listDefaultPlugins,
   listInstancePlugins,
   copySelectedPlugins,
-  copySinglePlugin,
   removeSinglePlugin,
   isPluginsSymlinked,
   isHalfManualSync,
-  getMcpServersFromPlugins,
   getInstanceMcpServers,
   setCustomMcpServer,
   removeCustomMcpServer,
-  isClaudeCodeRunning,
-  detectMcpCollisions,
-  validatePluginOperation,
   type Instance,
   type Config,
   type PluginInfo,
 } from "@/config";
 import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
-import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, MIMO_TOKEN_REGIONS, getApiKeyPlaceholder } from "@/templates";
-import { getMigrationStatus, clearMigrationFailure, needsInstanceMigration } from "@/migration";
+import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, getApiKeyPlaceholder } from "@/templates";
+import { getMigrationStatus, needsInstanceMigration } from "@/migration";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
-import { SyncMode, type SyncMode as SyncModeType } from "@/constants";
+import { type SyncMode as SyncModeType } from "@/constants";
 
 export { type Instance, type PluginInfo };
 
@@ -91,11 +76,6 @@ export function useConfig() {
     return instance;
   }, [reload]);
 
-  /** @deprecated Use toggleSyncMode instead */
-  const toggleAutoSync = useCallback(async (name: string, enable: boolean) => {
-    await toggleSyncMode(name, enable ? SyncMode.Auto : SyncMode.FullManual);
-  }, [reload]);
-
   const toggleSyncMode = useCallback(async (name: string, newMode: SyncModeType) => {
     await updateInstanceSyncMode(name, newMode);
     await reload();
@@ -126,7 +106,6 @@ export function useConfig() {
     reload,
     addInstance,
     removeInstance,
-    toggleAutoSync,
     toggleSyncMode,
     syncTemplateEnv,
     regenerateWrapper,
@@ -135,21 +114,13 @@ export function useConfig() {
     getInstance: getInstanceFromConfig,
     getSyncMode,
     syncModeLabel,
-    listInstances: listInstancesFromConfig,
     hasDefaultConfig: hasDefaultClaudeConfig,
-    hasDefaultMcpConfig,
-    getEnabledPlugins,
-    setEnabledPlugins,
     enablePlugin,
     disablePlugin,
-    listAvailablePlugins,
     detectBrokenSymlinks,
     copySettingsFromDefault,
     copyAllFromDefault,
-    copyMcpServersFromDefault,
-    createSettingsFromTemplate,
     copyMcpServersBetweenInstances,
-    listMcpServers,
     createWrapper,
     removeWrapper,
     getDefaultBinaryPath,
@@ -157,9 +128,7 @@ export function useConfig() {
     getProviderTemplate,
     providerHasRegions,
     resolveRegionTemplate,
-    MIMO_TOKEN_REGIONS,
     getApiKeyPlaceholder,
-    updateInstanceAutoSync,
     syncPluginsAndSkills,
     halfSyncPluginsAndSkills,
     initializeInstanceState,
@@ -167,17 +136,11 @@ export function useConfig() {
     listDefaultPlugins,
     listInstancePlugins,
     copySelectedPlugins,
-    copySinglePlugin,
     removeSinglePlugin,
     isPluginsSymlinked,
     isHalfManualSync,
-    getMcpServersFromPlugins,
     getInstanceMcpServers,
     setCustomMcpServer,
     removeCustomMcpServer,
-    isClaudeCodeRunning,
-    detectMcpCollisions,
-    validatePluginOperation,
-    clearMigrationFailure,
   };
 }
