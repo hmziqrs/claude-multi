@@ -157,7 +157,6 @@ export function runHealthChecks(
       }
     }
 
-    // Broken symlinks
     const symlinks = detectBrokenSymlinks(inst.configDir);
     if (symlinks.broken.length > 0) {
       issues.push({

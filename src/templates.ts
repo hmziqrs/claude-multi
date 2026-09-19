@@ -347,9 +347,8 @@ export function detectProvider(configDir: string): string | null {
 }
 
 /**
- * Legacy template defaults: during "overwrite-legacy-defaults" sync a tunable holding
- * one of these is stale, not user-customized. Update in the same commit as any template
- * change to a TUNABLE_ENV_VARS value.
+ * Legacy template defaults: during "overwrite-legacy-defaults" sync these are stale, not user-customized.
+ * Update in the same commit as any template change to a TUNABLE_ENV_VARS value.
  */
 export const LEGACY_ENV_DEFAULTS: Readonly<Record<string, Partial<Record<string, readonly string[]>>>> = {
   glm: {
@@ -387,9 +386,8 @@ function isLegacyDefault(providerName: string, key: string, value: string): bool
 }
 
 /**
- * Sync an instance's settings.json env to its provider template. API key, user-only vars,
- * and tunables (per tunablePolicy) survive; model/structural vars get template values.
- * Throws on settings.json parse/IO errors; writes only when content actually changes.
+ * Sync settings.json env to the provider template: API key, user-only vars, and tunables (per
+ * tunablePolicy) survive. Throws on parse/IO errors; writes only when content actually changes.
  */
 export function syncProviderEnvToSettings(
   configDir: string,

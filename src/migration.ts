@@ -184,9 +184,8 @@ export function needsInstanceMigration(config: Config): boolean {
 
 export async function runInstanceMigrations(config: Config): Promise<Config> {
   if (!needsInstanceMigration(config)) {
-    // Stamp even when nothing applies so instanceMigrationVersion checkers converge instead of
-    // a permanent no-op. Never stamp down over a stored newer version — downgrade+re-upgrade
-    // must not replay migrations.
+    // Stamp even when nothing applies so version checkers converge instead of a permanent no-op.
+    // Never stamp down over a stored newer version — downgrade+re-upgrade must not replay migrations.
     const currentVersion = getClaudeMultiVersion();
     const storedCoerced = semver.coerce(config.instanceMigrationVersion ?? "");
     if (!storedCoerced || semver.lt(storedCoerced, currentVersion)) {
