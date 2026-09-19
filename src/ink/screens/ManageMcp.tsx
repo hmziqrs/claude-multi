@@ -219,7 +219,6 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { fromPlugins, fromSettings } = await getInstanceMcpServers(inst.configDir);
 
     const pluginDir = inst.configDir;
-    // Build a reverse map: mcpServerName -> pluginName
     const mcpToPlugin: Record<string, string> = {};
     try {
       const plugins = listInstancePlugins(pluginDir);
@@ -236,7 +235,6 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const sources: McpSource[] = [];
 
-    // Plugin-derived servers
     for (const [name, config] of Object.entries(fromPlugins)) {
       sources.push({
         name,
@@ -246,7 +244,6 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       });
     }
 
-    // Custom servers (in settings but not from plugins)
     for (const [name, config] of Object.entries(fromSettings)) {
       if (!fromPlugins[name]) {
         sources.push({

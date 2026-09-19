@@ -48,7 +48,6 @@ const GoodbyeScreen: React.FC = () => {
   );
 };
 
-// Doctor result screen for wrapper fix flow
 const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; onBack: () => void }> = ({ fixedCount, migratedCount, onBack }) => {
   useNavigation(onBack);
   return (
@@ -210,7 +209,6 @@ export const App: React.FC = () => {
         ]
       : []),
     { label: "🩺 Doctor check", value: "doctor-check" },
-    // Show fix wrappers option when version issues detected
     ...(hasVersionIssues
       ? [{ label: "🔧 Fix wrappers (3rd-party API)", value: "doctor-fix" }]
       : []),

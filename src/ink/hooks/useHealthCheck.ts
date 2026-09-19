@@ -24,7 +24,6 @@ export function useHealthCheck(
       const found = runHealthChecks(instances, migrationStatus, instanceMigrationsPending);
       const previous = loadHealthStatus();
 
-      // Merge: carry forward dismissed state
       const dismissedMap = new Map<string, boolean>();
       for (const i of previous.issues) {
         if (i.dismissed) dismissedMap.set(i.id, true);

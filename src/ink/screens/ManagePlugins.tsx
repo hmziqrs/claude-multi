@@ -90,7 +90,6 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const inst = getInstance(value);
     if (!inst) return;
 
-    // Check symlink state for operations that modify plugins
     const modifiesPlugins = action === PluginAction.Install || action === PluginAction.Remove || action === PluginAction.Enable || action === PluginAction.Disable;
     if (modifiesPlugins) {
       if (isPluginsSymlinked(inst.configDir) || isHalfManualSync(inst.configDir)) {
@@ -105,7 +104,6 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const loadInstancePluginData = (instName: string, configDir: string) => {
     try {
       if (action === PluginAction.Install) {
-        // Show default plugins for selection
         const defaults = listDefaultPlugins();
         const installed = listInstancePlugins(configDir);
         const installedIds = new Set(installed.map(p => p.id));

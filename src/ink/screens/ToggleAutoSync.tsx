@@ -141,7 +141,6 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       return;
     }
 
-    // Validate the mode value before casting
     if (!VALID_MODES.has(value)) {
       setError(`Invalid sync mode: ${value}`);
       setStep("select");
@@ -167,12 +166,10 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const currentMode = getSyncMode(selected);
     const options: { label: string; value: string }[] = [];
 
-    // Re-sync (for modes that use symlinks)
     if (currentMode === SyncMode.Auto || currentMode === SyncMode.HalfManual) {
       options.push({ label: "⚡ Force re-sync (rebuild symlinks)", value: FORCE_RESYNC });
     }
 
-    // Available downgrades
     const downgrades = availableSyncModeConversions(currentMode);
     for (const mode of downgrades) {
       options.push({

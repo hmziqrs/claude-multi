@@ -125,10 +125,9 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   }, [listInstancePlugins, getInstanceMcpServers]);
 
   useInput((input, key) => {
-    // Block ALL input while an action is executing
     if (executing) return;
 
-    // q to quit — consistent with useNavigation used by all other screens
+    // q quits — mirrors useNavigation behavior on all other screens
     if (input === "q") {
       exit();
       return;
@@ -154,7 +153,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     }
   });
 
-  /** Refresh diagnostics and instance info, then go to the "info" step. */
   const goToInfo = () => {
     const inst = liveSelected;
     if (inst) {
@@ -192,10 +190,8 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     // Guard against double-fire from rapid Enter presses
     if (executing) return;
 
-    // Handle sync mode conversion — it uses a sub-value
     if (value.startsWith("convert:")) {
       const rawMode = value.replace("convert:", "");
-      // Validate before casting
       if (!VALID_SYNC_MODES.has(rawMode)) {
         setActionResult({ message: `Invalid sync mode: ${rawMode}`, type: "error" });
         setStep("result");
@@ -247,8 +243,7 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const buildActionOptions = (): Array<{ label: string; value: string }> => {
     const options: Array<{ label: string; value: string }> = [];
 
-    // Only show template sync when a provider is detected — it will always
-    // fail for instances without a provider template
+    // Template sync always fails without a detected provider template
     if (providerName) {
       options.push({
         label: `🔄 Update settings template  [${templateStatusLabel(templateStatus)}]`,
@@ -261,7 +256,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
       value: ACTION_VALUES.UpdateWrapper,
     });
 
-    // Show override option only when wrapper is mismatched or missing
     if (wrapperStatus === "mismatch" || wrapperStatus === "missing") {
       options.push({
         label: `🔨 Override alias to standard`,
@@ -269,7 +263,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
       });
     }
 
-    // Sync mode conversion options (downgrade only)
     const syncTarget = liveSelected ?? selected;
     if (syncTarget) {
       const currentMode = getSyncMode(syncTarget);
@@ -286,14 +279,11 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     return options;
   };
 
-  // Compute which DetailRow is the last visible one so it gets "└─"
   const hasPlugins = infoData.pluginCount !== null;
   const hasMcp = infoData.mcpCount !== null;
   const hasProvider = providerName !== null;
-  // Last visible row priority: MCP > Plugins > Provider > Version
   const lastRow = hasMcp ? "mcp" : hasPlugins ? "plugins" : hasProvider ? "provider" : "version";
 
-  // Use liveSelected for display to avoid stale data after reload
   const displayInstance = liveSelected ?? selected;
 
   return (

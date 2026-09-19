@@ -24,10 +24,6 @@ export interface WrapperDiagnostic {
   status: WrapperMismatchStatus;
 }
 
-/**
- * Safely resolve a regional template. Returns null if the region is invalid
- * or if resolveRegionTemplate would throw.
- */
 function tryResolveRegionalTemplate(
   template: ReturnType<typeof getProviderTemplate>,
   region: string,
@@ -44,11 +40,7 @@ function tryResolveRegionalTemplate(
   return undefined;
 }
 
-/**
- * Check whether an instance's settings.json env vars match the
- * expected provider template. Compares all structural template vars
- * (model names, base URL) but excludes the API key and tunable preference vars.
- */
+/** Structural-var comparison only — the API key and tunable preference vars are excluded by design. */
 export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
   const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
   if (!providerName) {
@@ -60,7 +52,6 @@ export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
     return { status: "unknown", providerName };
   }
 
-  // Read settings.json once — used for both regional resolution and comparison
   const settingsFile = join(instance.configDir, "settings.json");
   if (!existsSync(settingsFile)) {
     return { status: "unknown", providerName };
@@ -74,7 +65,6 @@ export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
     return { status: "unknown", providerName };
   }
 
-  // Resolve regional template if applicable
   if (providerHasRegions(providerName)) {
     const existingUrl = existingEnv.ANTHROPIC_BASE_URL;
     const detectedRegion = existingUrl
@@ -89,7 +79,6 @@ export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
     }
   }
 
-  // Compare template env vars excluding API key and tunable vars
   const templateEnv = template.settings.env;
   for (const [key, expectedValue] of Object.entries(templateEnv)) {
     if (key === "ANTHROPIC_AUTH_TOKEN") continue;
@@ -102,10 +91,6 @@ export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
   return { status: "match", providerName };
 }
 
-/**
- * Check whether an instance's wrapper script matches the expected
- * standard template (correct claude binary path, correct config dir).
- */
 export function detectWrapperMismatch(instance: Instance): WrapperDiagnostic {
   if (!existsSync(instance.binaryPath)) {
     return { status: "missing" };
