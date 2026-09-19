@@ -49,3 +49,6 @@ recordings/
 
 build/
 redesign/.audit/
+
+# z-flashflow session state
+.z-flashflow/

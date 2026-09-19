@@ -83,15 +83,6 @@ export default defineConfig({
   srcDir: './src/web',
   vite: {
     plugins: [tailwindcss(), serveLocalAudio()],
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules/three')) return 'three';
-          },
-        },
-      },
-    },
   },
   integrations: [
     injectSiteFooterIntegration(),
