@@ -142,7 +142,6 @@ describe("handleAddInstance (component-level tests)", () => {
 
       // Replicate the cli.ts rollback: addInstance succeeds, then createWrapper "fails"
       await addInstance(inst);
-      // Rollback path from cli.ts and AddInstance.tsx on catch
       await removeInstance("zombie").catch(() => {});
 
       const config = await loadConfig();

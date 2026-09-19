@@ -119,7 +119,6 @@ describe("Migration", () => {
     test("creates backup before migration", async () => {
       const { runMigration } = await import("@/migration");
 
-      // Create a config.json to back up
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
       writeFileSync(join(cmDir, "config.json"), JSON.stringify(makeConfig()));
@@ -137,12 +136,10 @@ describe("Migration", () => {
     test("backs up instance settings.json", async () => {
       const { runMigration } = await import("@/migration");
 
-      // Create instance with settings
       const instDir = join(testDir, ".claude-testinst");
       mkdirSync(instDir, { recursive: true });
       writeFileSync(join(instDir, "settings.json"), JSON.stringify({ test: true }));
 
-      // Create config.json
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
 
@@ -181,7 +178,6 @@ describe("Migration", () => {
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
 
-      // Should not throw
       const result = await runMigration(config);
       expect(result.migrationMeta?.migrationStatus).toBe("completed");
     });
@@ -189,7 +185,6 @@ describe("Migration", () => {
     test("sets failure status on error", async () => {
       const { runMigration } = await import("@/migration");
 
-      // Make backup dir unwritable to cause failure
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
       // Create backups dir as a file (will cause mkdirSync to fail)
@@ -268,7 +263,6 @@ describe("Migration", () => {
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
 
-      // Create a lock file with current PID
       const lockFile = join(cmDir, ".migration.lock");
       writeFileSync(lockFile, JSON.stringify({
         pid: process.pid,
@@ -276,9 +270,8 @@ describe("Migration", () => {
       }));
 
       const config = makeConfig();
-      // Should return config unchanged (lock active)
       const result = await runMigration(config);
-      expect(result.version).toBe("1.0.0"); // Not migrated
+      expect(result.version).toBe("1.0.0");
     });
   });
 
@@ -321,7 +314,6 @@ describe("Migration", () => {
         mkdirSync(instDir, { recursive: true });
         const binaryPath = join(testDir, "bin", "skip-test");
 
-        // Write a wrapper that would NOT match generateWrapperScript
         writeFileSync(binaryPath, "#!/bin/sh\n# old wrapper\nexec /old/claude \"$@\"\n", { mode: 0o755 });
 
         const config = makeConfig({
@@ -338,7 +330,6 @@ describe("Migration", () => {
         const result = await runInstanceMigrations(config);
         expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
 
-        // Wrapper should NOT have been rewritten — instance is at current version
         const content = readFileSync(binaryPath, "utf-8");
         expect(content).toContain("/old/claude");
       });
@@ -356,7 +347,6 @@ describe("Migration", () => {
         mkdirSync(instDir, { recursive: true });
         const binaryPath = join(testDir, "bin", "old");
 
-        // Write a stale wrapper
         writeFileSync(binaryPath, `#!/bin/sh\nexport CLAUDE_CONFIG_DIR="/stale/path"\nexec "/stale/claude" "$@"\n`, { mode: 0o755 });
 
         const config = makeConfig({
@@ -442,7 +432,6 @@ describe("Migration", () => {
 
         await runInstanceMigrations(config);
 
-        // File should NOT have been rewritten
         const mtimeAfter = statSync(binaryPath).mtimeMs;
         expect(mtimeAfter).toBe(mtimeBefore);
         expect(readFileSync(binaryPath, "utf-8")).toBe(expectedContent);
@@ -543,7 +532,6 @@ describe("Migration", () => {
 
         const instDir = join(testDir, ".claude-fastpath-json");
         mkdirSync(instDir, { recursive: true });
-        // Intentionally stale .claude.json — fast path should skip updating this
         writeFileSync(join(instDir, ".claude.json"), JSON.stringify({ migrationVersion: 5 }));
 
         const binaryPath = join(testDir, "bin", "fastpath-json");
@@ -562,11 +550,9 @@ describe("Migration", () => {
 
         await runInstanceMigrations(config);
 
-        // .claude.json should NOT have been updated — fast path applies
         const content = readFileSync(join(instDir, ".claude.json"), "utf-8");
         expect(JSON.parse(content).migrationVersion).toBe(5);
 
-        // Wrapper should also NOT have been rewritten
         const wrapperContent = readFileSync(binaryPath, "utf-8");
         expect(wrapperContent).toContain("/old/claude");
       });
@@ -578,13 +564,11 @@ describe("Migration", () => {
         mkdirSync(cmDir, { recursive: true });
         mkdirSync(join(testDir, "bin"), { recursive: true });
 
-        // Instance at current version — should be skipped
         const currentInstDir = join(testDir, ".claude-current-mix");
         mkdirSync(currentInstDir, { recursive: true });
         const currentBinaryPath = join(testDir, "bin", "current-mix");
         writeFileSync(currentBinaryPath, "#!/bin/sh\nexec /old/current \"$@\"\n", { mode: 0o755 });
 
-        // Instance at old version — should be migrated
         const oldInstDir = join(testDir, ".claude-old-mix");
         mkdirSync(oldInstDir, { recursive: true });
         const oldBinaryPath = join(testDir, "bin", "old-mix");
@@ -612,11 +596,9 @@ describe("Migration", () => {
 
         await runInstanceMigrations(config);
 
-        // Current-version instance: wrapper NOT rewritten
         const currentContent = readFileSync(currentBinaryPath, "utf-8");
         expect(currentContent).toContain("/old/current");
 
-        // Old-version instance: wrapper regenerated
         const oldContent = readFileSync(oldBinaryPath, "utf-8");
         expect(oldContent).not.toContain("/old/old");
         expect(oldContent).toContain(`CLAUDE_CONFIG_DIR="${oldInstDir}"`);
@@ -645,7 +627,6 @@ describe("Migration", () => {
 
         await runInstanceMigrations(config);
 
-        // .claude.json should be updated even though wrapper doesn't exist
         const content = readFileSync(join(instDir, ".claude.json"), "utf-8");
         expect(JSON.parse(content).migrationVersion).toBe(13);
       });
@@ -659,7 +640,6 @@ describe("Migration", () => {
 
       mkdirSync(testDir, { recursive: true });
 
-      // Write config with an instance missing createdWithVersion
       const config = {
         version: "2.0.0",
         instances: [{
@@ -717,7 +697,6 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-mimo-sync");
       mkdirSync(instDir, { recursive: true });
 
-      // Write settings with OLD MiMo config (no [1m], no thinking/output limits)
       writeFileSync(join(instDir, "settings.json"), JSON.stringify({
         env: {
           ANTHROPIC_AUTH_TOKEN: "sk-test-key-123",
@@ -811,7 +790,6 @@ describe("Migration", () => {
 
       await runInstanceMigrations(config);
 
-      // Should NOT be modified
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("custom-model");
     });
@@ -856,7 +834,6 @@ describe("Migration", () => {
 
       const instDir = join(testDir, ".claude-no-settings");
       mkdirSync(instDir, { recursive: true });
-      // No settings.json written
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
@@ -869,7 +846,6 @@ describe("Migration", () => {
         }],
       });
 
-      // Should not throw
       const result = await runInstanceMigrations(config);
       expect(result.instances[0]!.providerTemplate).toBeUndefined();
     });
@@ -883,7 +859,6 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-mimo-sgp");
       mkdirSync(instDir, { recursive: true });
 
-      // Write settings with SGP region URL (should NOT be overwritten with cn)
       writeFileSync(join(instDir, "settings.json"), JSON.stringify({
         env: {
           ANTHROPIC_AUTH_TOKEN: "tp_test-sgp-key",
@@ -906,11 +881,8 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // The SGP URL MUST be preserved — not overwritten with cn default
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
-      // Template vars should still be updated
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
-      // API key must survive
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-sgp-key");
     });
 
@@ -1051,9 +1023,7 @@ describe("Migration", () => {
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // Should use the stored region (sgp), not fall back to cn
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
-      // providerRegion should remain unchanged
       expect(result.instances[0]!.providerRegion).toBe("sgp");
     });
 
@@ -1066,7 +1036,6 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-url-priority");
       mkdirSync(instDir, { recursive: true });
 
-      // URL says ams, but stored providerRegion says sgp (stale)
       writeFileSync(join(instDir, "settings.json"), JSON.stringify({
         env: {
           ANTHROPIC_AUTH_TOKEN: "tp_test-key",
@@ -1084,16 +1053,14 @@ describe("Migration", () => {
           createdAt: new Date().toISOString(),
           createdWithVersion: "0.5.0",
           providerTemplate: "mimo-token",
-          providerRegion: "sgp", // stale — user manually changed URL to ams
+          providerRegion: "sgp",
         }],
       });
 
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // URL (ams) should win over stale stored region (sgp)
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-ams.xiaomimimo.com/anthropic");
-      // providerRegion should be updated to match the actual URL
       expect(result.instances[0]!.providerRegion).toBe("ams");
     });
 
@@ -1128,7 +1095,6 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // Should detect sgp from URL with trailing slash (URL gets normalized to canonical form)
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
     });
 
@@ -1164,11 +1130,8 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // Custom URL should be preserved — NOT overwritten with cn default
-      // (providerTemplate is set so the migration runs, but region detection fails,
-      // triggering the fallback that preserves the existing base URL)
+      // providerTemplate is stored so the migration runs; region detection fails → fallback preserves the custom URL
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-custom.xiaomimimo.com/anthropic");
-      // Other template vars should still update
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
     });
 
@@ -1205,9 +1168,7 @@ describe("Migration", () => {
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // Should detect sgp from actual URL (which is valid), ignore invalid stored region
       expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
-      // providerRegion should be corrected to sgp
       expect(result.instances[0]!.providerRegion).toBe("sgp");
     });
 
@@ -1220,7 +1181,6 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-tunable");
       mkdirSync(instDir, { recursive: true });
 
-      // User has customized MAX_OUTPUT_TOKENS and REASONING_EFFORT
       writeFileSync(join(instDir, "settings.json"), JSON.stringify({
         env: {
           ANTHROPIC_AUTH_TOKEN: "tp_test-key",
@@ -1246,11 +1206,9 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // User-customized tunable vars should be preserved
       expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
       expect(settings.env.REASONING_EFFORT).toBe("low");
       expect(settings.env.ENABLE_THINKING).toBe("false");
-      // Model names should still be synced from template
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
     });
 
@@ -1263,7 +1221,6 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-fastpath-063");
       mkdirSync(instDir, { recursive: true });
 
-      // Settings with old model name — drift guard must update it.
       writeFileSync(join(instDir, "settings.json"), JSON.stringify({
         env: {
           ANTHROPIC_AUTH_TOKEN: "sk-test",
@@ -1291,7 +1248,6 @@ describe("Migration", () => {
 
     test("getProviderByBaseUrl rejects unknown mimo-token region (V13)", async () => {
       const { getProviderByBaseUrl } = await import("@/templates");
-      // URL with unknown region code should NOT match mimo-token
       expect(getProviderByBaseUrl("https://token-plan-evil.xiaomimimo.com/anthropic")).toBeNull();
     });
   });
@@ -1700,7 +1656,6 @@ describe("Migration", () => {
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
-      // Already-correct slots and tunables pass through unchanged
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
@@ -1724,7 +1679,7 @@ describe("Migration", () => {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "8000",
         ENABLE_STREAMING: "true",
-      }); // no ANTHROPIC_DEFAULT_SONNET_MODEL at all
+      });
 
       const config = makeConfig({
         instanceMigrationVersion: getClaudeMultiVersion(),

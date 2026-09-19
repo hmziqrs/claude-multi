@@ -197,7 +197,6 @@ describe("Health Check", () => {
     });
 
     test("no version issue when claude binary cannot be resolved", async () => {
-      // Point the override at a nonexistent file so getClaudePath throws
       process.env.CLAUDE_MULTI_CLAUDE_PATH = "/absolutely/nonexistent/path/claude";
 
       const { runHealthChecks } = await import("@/health");
@@ -210,7 +209,6 @@ describe("Health Check", () => {
       const versionIssue = issues.find(i => i.category === "version");
       expect(versionIssue).toBeUndefined();
 
-      // Restore for subsequent tests
       process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;
     });
   });
@@ -284,7 +282,6 @@ describe("Health Check", () => {
     });
 
     test("returns empty when claude binary cannot be resolved", async () => {
-      // Point the override at a nonexistent file so getClaudePath throws
       process.env.CLAUDE_MULTI_CLAUDE_PATH = "/absolutely/nonexistent/path/claude";
 
       const { fixWrapperVersions } = await import("@/health");
@@ -296,7 +293,6 @@ describe("Health Check", () => {
       const fixed = fixWrapperVersions([inst]);
       expect(fixed).toEqual([]);
 
-      // Restore for subsequent tests
       process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;
     });
 

@@ -29,24 +29,20 @@ describe("syncPluginsAndSkills", () => {
 
   describe("basic symlink creation", () => {
     it("should create symlinks for plugins and skills directories", async () => {
-      // Create the instance config directory first
       await helper.createDirectory(instanceConfigDir);
 
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Check that symlinks were created
       const pluginsPath = `${instanceConfigDir}/plugins`;
       const skillsPath = `${instanceConfigDir}/skills`;
 
       helper.assertSymlink(pluginsPath);
       helper.assertSymlink(skillsPath);
 
-      // Verify symlinks point to the right place
       const { readlink } = await import("node:fs/promises");
       const pluginsLink = await readlink(pluginsPath);
       const skillsLink = await readlink(skillsPath);
 
-      // Should be relative paths
       expect(pluginsLink).toContain(".claude");
       expect(skillsLink).toContain(".claude");
     });
@@ -70,7 +66,6 @@ describe("syncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Check that we can read files through the symlinks
       const settingsContent = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(settingsContent)).toEqual({ name: "plugin1" });
 
@@ -84,15 +79,12 @@ describe("syncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Get the initial symlink targets
       const { readlink } = await import("node:fs/promises");
       const pluginsPath = `${instanceConfigDir}/plugins`;
       const initialLink = await readlink(pluginsPath);
 
-      // Sync again
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Check that the symlink is still the same
       const afterLink = await readlink(pluginsPath);
       expect(afterLink).toBe(initialLink);
     });
@@ -100,9 +92,8 @@ describe("syncPluginsAndSkills", () => {
     it("should handle case where directories are already synced", async () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
-      await syncPluginsAndSkills(instanceConfigDir); // Second sync
+      await syncPluginsAndSkills(instanceConfigDir);
 
-      // Should still be symlinks
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
       helper.assertSymlink(`${instanceConfigDir}/skills`);
     });
@@ -110,33 +101,28 @@ describe("syncPluginsAndSkills", () => {
 
   describe("missing source directories", () => {
     it("should skip syncing if source plugins directory doesn't exist", async () => {
-      // Remove plugins from default
       const { rmSync } = await import("node:fs");
       rmSync(`${defaultClaudeDir}/plugins`, { recursive: true, force: true });
 
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Only skills should be synced
       helper.assertSymlink(`${instanceConfigDir}/skills`);
       helper.assertNotExists(`${instanceConfigDir}/plugins`);
     });
 
     it("should skip syncing if source skills directory doesn't exist", async () => {
-      // Remove skills from default
       const { rmSync } = await import("node:fs");
       rmSync(`${defaultClaudeDir}/skills`, { recursive: true, force: true });
 
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Only plugins should be synced
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
       helper.assertNotExists(`${instanceConfigDir}/skills`);
     });
 
     it("should handle both source directories missing", async () => {
-      // Remove both from default
       const { rmSync } = await import("node:fs");
       rmSync(`${defaultClaudeDir}/plugins`, { recursive: true, force: true });
       rmSync(`${defaultClaudeDir}/skills`, { recursive: true, force: true });
@@ -144,7 +130,6 @@ describe("syncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Neither should exist
       helper.assertNotExists(`${instanceConfigDir}/plugins`);
       helper.assertNotExists(`${instanceConfigDir}/skills`);
     });
@@ -154,16 +139,13 @@ describe("syncPluginsAndSkills", () => {
     it("should replace regular directory with symlink", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Create a regular directory with content
       await helper.createDirectory(`${instanceConfigDir}/plugins`);
       await helper.createFile(`${instanceConfigDir}/plugins/wrong.json`, "wrong content");
 
-      // Sync should replace directory with symlink
       await syncPluginsAndSkills(instanceConfigDir);
 
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
 
-      // Should now point to correct content
       const content = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(content)).toEqual({ name: "plugin1" });
     });
@@ -206,18 +188,14 @@ describe("unsyncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Verify symlinks exist
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
       helper.assertSymlink(`${instanceConfigDir}/skills`);
 
-      // Unsync
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Should now be regular directories
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
       helper.assertRegularDirectory(`${instanceConfigDir}/skills`);
 
-      // Verify files were copied
       const content = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(content)).toEqual({ name: "plugin1" });
     });
@@ -227,7 +205,6 @@ describe("unsyncPluginsAndSkills", () => {
       await syncPluginsAndSkills(instanceConfigDir);
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Check nested files were copied
       helper.assertExists(`${instanceConfigDir}/plugins/plugin1.json`);
       helper.assertExists(`${instanceConfigDir}/plugins/plugin2.json`);
       helper.assertExists(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
@@ -242,7 +219,6 @@ describe("unsyncPluginsAndSkills", () => {
       await syncPluginsAndSkills(instanceConfigDir);
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Check that nested structure is preserved
       helper.assertExists(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
 
       const content = await helper.readFile(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
@@ -254,7 +230,6 @@ describe("unsyncPluginsAndSkills", () => {
       await syncPluginsAndSkills(instanceConfigDir);
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Count files in plugins
       const pluginFiles = helper.countFiles(`${instanceConfigDir}/plugins`);
       expect(pluginFiles).toBeGreaterThan(0);
     });
@@ -265,11 +240,9 @@ describe("unsyncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Remove source plugins
       const { rmSync } = await import("node:fs");
       rmSync(`${defaultClaudeDir}/plugins`, { recursive: true, force: true });
 
-      // Skills should still be unsynced
       await unsyncPluginsAndSkills(instanceConfigDir);
 
       helper.assertRegularDirectory(`${instanceConfigDir}/skills`);
@@ -279,11 +252,9 @@ describe("unsyncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Remove source skills
       const { rmSync } = await import("node:fs");
       rmSync(`${defaultClaudeDir}/skills`, { recursive: true, force: true });
 
-      // Plugins should still be unsynced
       await unsyncPluginsAndSkills(instanceConfigDir);
 
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
@@ -294,18 +265,14 @@ describe("unsyncPluginsAndSkills", () => {
     it("should fill in missing items from source when directory is already a regular directory", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Create regular directories manually
       await helper.createDirectory(`${instanceConfigDir}/plugins`);
       await helper.createDirectory(`${instanceConfigDir}/skills`);
 
-      // Unsync should fill in missing items from source (half-manual → full-manual)
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Should still be regular directories
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
       helper.assertRegularDirectory(`${instanceConfigDir}/skills`);
 
-      // Should now have files copied from source
       const { readdirSync } = await import("node:fs");
       const plugins = readdirSync(`${instanceConfigDir}/plugins`);
       expect(plugins.length).toBeGreaterThan(0);
@@ -317,16 +284,12 @@ describe("unsyncPluginsAndSkills", () => {
       await helper.createDirectory(instanceConfigDir);
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // First unsync
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Get file count
       const fileCount1 = helper.countFiles(`${instanceConfigDir}/plugins`);
 
-      // Second unsync
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // File count should be the same
       const fileCount2 = helper.countFiles(`${instanceConfigDir}/plugins`);
       expect(fileCount2).toBe(fileCount1);
     });
@@ -371,10 +334,7 @@ describe("copySettingsFromDefault", () => {
       const content = await helper.readFile(`${instanceConfigDir}/settings.json`);
       const settings = JSON.parse(content);
 
-      // Whitelisted settings should be copied
       expect(settings.enabledPlugins).toBeDefined();
-      
-      // SECURITY: Sensitive data should NOT be copied
       expect(settings.mcpServers).toBeUndefined();
       expect(settings.env).toBeUndefined();
     });
@@ -389,8 +349,6 @@ describe("copySettingsFromDefault", () => {
         plugin1: true,
         plugin2: false,
       });
-      
-      // SECURITY: Verify sensitive data is not copied
       expect(settings?.mcpServers).toBeUndefined();
       expect(settings?.env).toBeUndefined();
     });
@@ -398,7 +356,6 @@ describe("copySettingsFromDefault", () => {
 
   describe("directory creation", () => {
     it("should create target directory if it doesn't exist", async () => {
-      // instanceConfigDir should exist after copy
       await copySettingsFromDefault(instanceConfigDir);
 
       helper.assertExists(instanceConfigDir);
@@ -416,7 +373,6 @@ describe("copySettingsFromDefault", () => {
 
   describe("missing source error", () => {
     it("should throw error if source settings.json doesn't exist", async () => {
-      // Remove settings.json from default
       const { unlinkSync } = await import("node:fs");
       unlinkSync(`${helper.getDefaultClaudeDir()}/settings.json`);
 
@@ -435,7 +391,6 @@ describe("copySettingsFromDefault", () => {
     it("should overwrite existing settings.json", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Create a different settings.json
       await helper.createFile(
         `${instanceConfigDir}/settings.json`,
         JSON.stringify({ different: "content" }),
@@ -443,7 +398,6 @@ describe("copySettingsFromDefault", () => {
 
       await copySettingsFromDefault(instanceConfigDir);
 
-      // Should have the new content
       const content = await helper.readFile(`${instanceConfigDir}/settings.json`);
       const settings = JSON.parse(content);
 
@@ -514,7 +468,6 @@ describe("copyAllFromDefault", () => {
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
       helper.assertRegularDirectory(`${instanceConfigDir}/skills`);
 
-      // Verify files were copied
       helper.assertExists(`${instanceConfigDir}/plugins/plugin1.json`);
       helper.assertExists(`${instanceConfigDir}/skills/skill1.ts`);
     });
@@ -576,7 +529,6 @@ describe("copyAllFromDefault", () => {
     });
 
     it("should handle multiple levels of nesting", async () => {
-      // Create deeper nesting in default
       await helper.createDirectory(`${helper.getDefaultClaudeDir()}/plugins/nested/deep`);
       await helper.createFile(
         `${helper.getDefaultClaudeDir()}/plugins/nested/deep/deep.json`,
@@ -607,7 +559,6 @@ describe("copyAllFromDefault", () => {
 
   describe("error handling", () => {
     it("should throw error if default Claude directory doesn't exist", async () => {
-      // Remove the default directory
       const { rmSync } = await import("node:fs");
       rmSync(helper.getDefaultClaudeDir()!, { recursive: true, force: true });
 
@@ -642,17 +593,14 @@ describe("Integration tests", () => {
     it("should successfully sync then unsync", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Sync
       await syncPluginsAndSkills(instanceConfigDir);
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
       helper.assertSymlink(`${instanceConfigDir}/skills`);
 
-      // Unsync
       await unsyncPluginsAndSkills(instanceConfigDir);
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
       helper.assertRegularDirectory(`${instanceConfigDir}/skills`);
 
-      // Verify files are still accessible
       const content = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(content)).toEqual({ name: "plugin1" });
     });
@@ -660,11 +608,9 @@ describe("Integration tests", () => {
     it("should handle multiple sync → unsync cycles", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // First cycle
       await syncPluginsAndSkills(instanceConfigDir);
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // Second cycle
       await syncPluginsAndSkills(instanceConfigDir);
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
 
@@ -675,28 +621,22 @@ describe("Integration tests", () => {
 
   describe("auto-sync toggle on/off", () => {
     it("should simulate toggling auto-sync off", async () => {
-      // Start with auto-sync enabled (copyAllFromDefault with autoSync=true)
       await copyAllFromDefault(instanceConfigDir, true);
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
 
-      // Toggle off (unsync)
       await unsyncPluginsAndSkills(instanceConfigDir);
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
 
-      // Files should still be accessible
       helper.assertExists(`${instanceConfigDir}/plugins/plugin1.json`);
     });
 
     it("should simulate toggling auto-sync on", async () => {
-      // Start with auto-sync disabled (copyAllFromDefault with autoSync=false)
       await copyAllFromDefault(instanceConfigDir, false);
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
 
-      // Toggle on (sync)
       await syncPluginsAndSkills(instanceConfigDir);
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
 
-      // Files should still be accessible
       const content = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(content)).toEqual({ name: "plugin1" });
     });
@@ -706,19 +646,15 @@ describe("Integration tests", () => {
     it("should handle sync → unsync → sync → unsync", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Sync
       await syncPluginsAndSkills(instanceConfigDir);
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
 
-      // Unsync
       await unsyncPluginsAndSkills(instanceConfigDir);
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
 
-      // Sync again
       await syncPluginsAndSkills(instanceConfigDir);
       helper.assertSymlink(`${instanceConfigDir}/plugins`);
 
-      // Unsync again
       await unsyncPluginsAndSkills(instanceConfigDir);
       helper.assertRegularDirectory(`${instanceConfigDir}/plugins`);
     });
@@ -728,17 +664,13 @@ describe("Integration tests", () => {
     it("should preserve file modifications when unsyncing", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Sync
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Modify a file through the symlink
       const modifiedContent = JSON.stringify({ name: "plugin1-modified" });
       await helper.createFile(`${instanceConfigDir}/plugins/plugin1.json`, modifiedContent);
 
-      // Unsync
       await unsyncPluginsAndSkills(instanceConfigDir);
 
-      // The modified file should still be there
       const content = await helper.readFile(`${instanceConfigDir}/plugins/plugin1.json`);
       expect(JSON.parse(content)).toEqual({ name: "plugin1-modified" });
     });
@@ -764,7 +696,6 @@ describe("detectBrokenSymlinks", () => {
     it("should detect broken symlinks", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Create a broken symlink
       const { symlink } = await import("node:fs/promises");
       await symlink("/nonexistent/path", `${instanceConfigDir}/skills`, "dir");
 
@@ -794,10 +725,8 @@ describe("detectBrokenSymlinks", () => {
     it("should detect only broken symlinks when mix exists", async () => {
       await helper.createDirectory(instanceConfigDir);
 
-      // Create valid symlink for plugins
       await syncPluginsAndSkills(instanceConfigDir);
 
-      // Create broken symlink for skills
       const { rmSync } = await import("node:fs");
       const { symlink } = await import("node:fs/promises");
       rmSync(`${instanceConfigDir}/skills`, { force: true });

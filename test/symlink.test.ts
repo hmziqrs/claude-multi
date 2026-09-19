@@ -9,7 +9,6 @@ const targetDir = join(testDir, "target");
 const linkedDir = join(testDir, "linked-dir");
 
 async function runTest() {
-  // Clean up first
   if (existsSync(testDir)) {
     rmSync(testDir, { force: true, recursive: true });
   }
@@ -31,7 +30,6 @@ async function runTest() {
   console.log(`   File content: "${content1}"`);
   console.log("\n✅ Relative symlink test passed!\n");
 
-  // Clean up for next test
   await unlink(linkedDir);
 
   console.log("=== Test 2: Absolute Symlink (Like the fix) ===\n");
@@ -82,7 +80,6 @@ async function runTest() {
     console.log("\n⚠️  Target ~/.claude/skills doesn't exist (but symlink is correct)");
   }
 
-  // Cleanup
   try {
     await unlink(nestedSkillsLink);
   } catch {}

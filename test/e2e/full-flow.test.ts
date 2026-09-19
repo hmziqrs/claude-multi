@@ -22,26 +22,21 @@ describe("E2E: Full Instance Lifecycle", () => {
     })`bun run src/cli.ts ${args}`;
 
   it("add -> list -> info -> remove flow", async () => {
-    // 1. Add instance
     const addResult = await runCli(["add", "lifecycle-test", "--skip-prompts"]);
     expect(addResult.exitCode).toBe(0);
     expect(addResult.stdout).toContain("created successfully");
 
-    // 2. List - should show it
     const listResult = await runCli(["list"]);
     expect(listResult.stdout).toContain("lifecycle-test");
     expect(listResult.stdout).toContain("1 instance");
 
-    // 3. Info - should show details
     const infoResult = await runCli(["info", "lifecycle-test"]);
     expect(infoResult.stdout).toContain("lifecycle-test");
     expect(infoResult.stdout).toContain("Auto-sync");
 
-    // 4. Remove
     const removeResult = await runCli(["remove", "lifecycle-test", "--force"]);
     expect(removeResult.stdout).toContain("removed successfully");
 
-    // 5. Verify gone
     const finalList = await runCli(["list"]);
     expect(finalList.stdout).toContain("No instances found");
   });
@@ -56,7 +51,6 @@ describe("E2E: Full Instance Lifecycle", () => {
     expect(exitCode).toBe(0);
     expect(stdout).toContain("created successfully");
 
-    // Cleanup
     await runCli(["remove", "glm-test", "--force"]);
   });
 
@@ -65,7 +59,6 @@ describe("E2E: Full Instance Lifecycle", () => {
     const { exitCode } = await runCli(["add", "dup-test", "--skip-prompts"]);
     expect(exitCode).not.toBe(0);
 
-    // Cleanup
     await runCli(["remove", "dup-test", "--force"]);
   });
 
@@ -81,7 +74,6 @@ describe("E2E: Full Instance Lifecycle", () => {
   it("auto-sync toggle", async () => {
     await runCli(["add", "sync-test", "--skip-prompts"]);
 
-    // Turn off (maps to full-manual)
     const offResult = await runCli(["auto-sync", "sync-test", "off"]);
     expect(offResult.stdout).toContain("Full-manual");
 
@@ -90,7 +82,6 @@ describe("E2E: Full Instance Lifecycle", () => {
     expect(onResult.exitCode).not.toBe(0);
     expect(onResult.stderr).toContain("Cannot convert");
 
-    // Cleanup
     await runCli(["remove", "sync-test", "--force"]);
   });
 });

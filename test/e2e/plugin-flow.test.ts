@@ -27,7 +27,6 @@ describe("E2E: Plugin Management", () => {
     })`bun run src/cli.ts ${args}`;
 
   async function createMockDefaultPlugins() {
-    // Create default Claude dir with plugin structure
     for (const subDir of ["plugins", "external_plugins"]) {
       const dir = join(defaultClaudeDir, MKT, subDir, "test-plugin");
       mkdirSync(dir, { recursive: true });
@@ -40,14 +39,12 @@ describe("E2E: Plugin Management", () => {
       writeSync(join(dir, "README.md"), "# test-plugin");
     }
 
-    // External plugin with MCP
     const extMcp = join(defaultClaudeDir, MKT, "external_plugins", "test-plugin");
     writeSync(
       join(extMcp, ".mcp.json"),
       JSON.stringify({ "test-server": { command: "npx", args: ["test"] } }),
     );
 
-    // Settings with enabledPlugins
     writeSync(
       join(defaultClaudeDir, "settings.json"),
       JSON.stringify({
@@ -55,7 +52,6 @@ describe("E2E: Plugin Management", () => {
       }),
     );
 
-    // Create installed_plugins.json
     mkdirSync(join(defaultClaudeDir, "plugins"), { recursive: true });
     writeSync(
       join(defaultClaudeDir, "plugins", "installed_plugins.json"),
@@ -78,11 +74,9 @@ describe("E2E: Plugin Management", () => {
     ]);
     expect(exitCode).toBe(0);
 
-    // Verify instance was created
     const { stdout: listOut } = await runCli(["list"]);
     expect(listOut).toContain("plugin-test");
 
-    // Cleanup
     await runCli(["remove", "plugin-test", "--force"]);
   });
 
@@ -96,7 +90,6 @@ describe("E2E: Plugin Management", () => {
     ]);
     expect(exitCode).toBe(0);
 
-    // Verify settings.json has provider env
     const settingsPath = join(testHome, ".claude-provider-test", "settings.json");
     if (existsSync(settingsPath)) {
       const settings = JSON.parse(await readFile(settingsPath, "utf-8"));
@@ -104,7 +97,6 @@ describe("E2E: Plugin Management", () => {
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("test-key-456");
     }
 
-    // Cleanup
     await runCli(["remove", "provider-test", "--force"]);
   });
 
@@ -130,7 +122,6 @@ describe("E2E: Plugin Management", () => {
 
   it("remove non-existent instance handled gracefully", async () => {
     const { exitCode, stdout } = await runCli(["remove", "ghost", "--force"]);
-    // Should not crash
     expect(exitCode).toBeDefined();
   });
 });

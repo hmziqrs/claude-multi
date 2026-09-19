@@ -12,7 +12,6 @@ describe("Ink Visual Snapshot Tests", () => {
     const { lastFrame } = render(<Header title="🤖 Claude Multi" />);
     const output = lastFrame();
     expect(output).toContain("🤖 Claude Multi");
-    // Should have border characters
     expect(output).toMatch(/[│┌┐└┘─]/);
   });
 

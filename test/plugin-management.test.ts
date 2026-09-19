@@ -59,7 +59,6 @@ function createMockPlugin(
     }
   }
 
-  // Some content
   writeFileSync(join(dir, "README.md"), `# ${name}`);
   return dir;
 }
@@ -209,10 +208,8 @@ describe("Plugin Management", () => {
       mkdirSync(freshInstance, { recursive: true });
       writeFileSync(join(freshInstance, "settings.json"), "{}");
 
-      // Create a good plugin in default
       createMockPlugin(rbDefault, "external_plugins", "good-plugin");
 
-      // Override default dir for this test
       setTestDefaultClaudeDir(rbDefault);
 
       try {
@@ -226,7 +223,6 @@ describe("Plugin Management", () => {
         expect((err as Error).message).toContain("not found");
       }
 
-      // Restore default dir
       setTestDefaultClaudeDir(defaultDir);
       try { rmSync(rbBase, { recursive: true, force: true }); } catch {}
     });
@@ -239,7 +235,6 @@ describe("Plugin Management", () => {
       const target = join(instanceDir, MKT, "external_plugins", "flat-mcp");
       expect(existsSync(target)).toBe(false);
 
-      // Verify installed_plugins.json was updated
       const ipFile = join(instanceDir, "plugins", "installed_plugins.json");
       if (existsSync(ipFile)) {
         const data = JSON.parse(readFileSync(ipFile, "utf-8"));
@@ -307,9 +302,7 @@ describe("Plugin Management", () => {
         JSON.stringify({ "shared-name": { command: "existing" } }),
       );
 
-      // Create a new plugin in default that has the same MCP server name
       createMockPlugin(defaultDir, "external_plugins", "new-plugin", { hasMcp: true });
-      // Override its .mcp.json to use the same server name
       writeFileSync(
         join(defaultDir, MKT, "external_plugins", "new-plugin", ".mcp.json"),
         JSON.stringify({ "shared-name": { command: "new" } }),
@@ -342,7 +335,6 @@ describe("Plugin Management", () => {
       expect(read!.enabledPlugins).toEqual({ test: true });
       expect(read!.custom).toBe("data");
 
-      // Verify the file is valid JSON
       const raw = readFileSync(join(testDir, "settings.json"), "utf-8");
       expect(() => JSON.parse(raw)).not.toThrow();
 
