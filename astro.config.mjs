@@ -29,9 +29,8 @@ const BLOG_DATES = new Map(
 );
 
 /**
- * Astro integration: injects the site footer at body level for docs pages.
- * - Dev mode: handled by src/web/middleware.ts
- * - Static build: this integration's buildDone hook transforms HTML files
+ * Dev-vs-build split: dev pages get the footer via src/web/middleware.ts;
+ * static builds get it here via this integration's astro:build:done hook.
  */
 function injectSiteFooterIntegration() {
   return {
@@ -95,9 +94,8 @@ export default defineConfig({
     sitemap({
       filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/') && !page.endsWith('/feed.xml'),
       serialize(item) {
-        // Only emit lastmod where a real modification date exists (blog frontmatter).
-        // A synthetic build-time date on every URL makes crawlers distrust the field
-        // site-wide, so pages without a known date get none.
+        // Only emit lastmod where a real modification date exists (blog frontmatter);
+        // a synthetic build-time date on every URL makes crawlers distrust the field site-wide.
         const slug = new URL(item.url).pathname.match(/^\/blog\/([^/]+)\/$/)?.[1];
         const date = slug && BLOG_DATES.get(slug);
         if (date) item.lastmod = date;
@@ -176,9 +174,8 @@ export default defineConfig({
           tag: 'link',
           attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: '/fonts/JetBrainsMonoVariable.woff2' },
         },
-        // Starlight already emits og:title, og:description, og:type, og:url,
-        // og:locale and twitter:card per page; only the tags it omits are added
-        // here so docs pages match the custom layouts' social cards.
+        // Starlight already emits og:title, og:description, og:type, og:url, og:locale
+        // and twitter:card per page; only the tags it omits are added here.
         {
           tag: 'meta',
           attrs: { property: 'og:site_name', content: 'claude-multi' },
