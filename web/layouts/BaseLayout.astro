@@ -170,7 +170,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           );
           revealEls.forEach((el) => io.observe(el));
 
-          // Fail-safe: reveal all sections shortly after load — below-fold .reveal nodes start
+          // Fail-safe: reveal all sections shortly after load; below-fold .reveal nodes start
           // at opacity:0, leaving them blank in captured screenshots and fast-scroll/no-IO cases.
           const revealAll = () =>
             revealEls.forEach((el) => el.classList.add('visible'));
