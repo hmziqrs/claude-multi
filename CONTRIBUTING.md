@@ -46,11 +46,8 @@ web/                    # Astro docs site (this site)
 ## Build
 
 ```bash
-# Build the CLI
+# Build the CLI (the Ink TUI is bundled into the same build)
 bun run build
-
-# Build the Ink TUI (separate bundle)
-bun run build:ink
 
 # Build the docs site
 bun run docs:build
@@ -60,7 +57,7 @@ bun run docs:build
 
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Run a specific test file
 bun test test/config.test.ts
@@ -69,18 +66,26 @@ bun test test/config.test.ts
 bun test --grep "symlink"
 ```
 
-The test suite has 155+ tests across 16 files covering config management, plugin operations, health checks, migration, wrapper generation, Ink components, CLI commands, and end-to-end flows.
+The test suite has 244 tests across 16 files covering config management, plugin operations, health checks, migration, wrapper generation, Ink components, CLI commands, and end-to-end flows.
 
 Tests use `CLAUDE_MULTI_HOME` to isolate from your real config, they create temporary directories and clean up after themselves.
 
-## Lint and typecheck
+## Lint, format, and typecheck
 
 ```bash
 # TypeScript check
 bun run typecheck
 
-# Lint
+# Docs site typecheck (astro check)
+bun run docs:typecheck
+
+# Lint (vp lint)
 bun run lint
+bun run lint:fix
+
+# Format (vp fmt; web/content is excluded)
+bun run format
+bun run format:check
 ```
 
 ## Run locally
