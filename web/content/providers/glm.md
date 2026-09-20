@@ -66,7 +66,7 @@ Usage is metered in credits: `(input x input_mult + cached_input x cached_mult +
 
 GLM-5.3-Flash is available on the Coding Plan and bills through the same points system rather than its own multiplier row. It carries 3x the GLM-5.3 quota, so sonnet-tier day-to-day usage drains the balance more slowly. Off-peak calls cost 50% of the standard rate, same as every other model on the plan.
 
-Off-peak requests count at 50% of the standard credit rate. Peak is only Monday-Friday 14:00-18:00 UTC+8, so nights, weekends, and weekday mornings all bill at the off-peak rate.
+Peak is only Monday-Friday 14:00-18:00 UTC+8, so nights, weekends, and weekday mornings all bill at the off-peak rate.
 
 | Plan | 5-hour quota | Weekly quota |
 |------|--------------|--------------|
