@@ -1,5 +1,5 @@
 {
-  "include": ["src", "web"],
+  "include": [".astro/types.d.ts", "src", "web"],
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["ESNext"],

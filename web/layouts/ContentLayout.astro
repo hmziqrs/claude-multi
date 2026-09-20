@@ -95,6 +95,7 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
       href={`${SITE}/feed.xml`}
     />
     <script
+      is:inline
       type="application/ld+json"
       set:html={JSON.stringify([
         {

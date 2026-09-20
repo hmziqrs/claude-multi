@@ -75,7 +75,7 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
   }
 </style>
 
-<script define:vars={{ id }}>
+<script is:inline define:vars={{ id }}>
   const root = document.querySelector(`[data-player="${id}"]`);
   const audio = root.querySelector('.audio-el');
   const playBtn = root.querySelector('.play-btn');

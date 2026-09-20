@@ -23,6 +23,7 @@ const styles: Record<string, Style> = {
 const fallback: Style = { dot: 'bg-white/40', text: 'text-text-mute', chip: 'bg-white/5 border-white/10', ring: 'ring-white/10' };
 
 const latest = releases[0];
+if (!latest) throw new Error('changelog: no releases parsed from CHANGELOG.md');
 const past = releases.slice(1);
 const total = releases.length;
 const totalAdds = releases.reduce((n, r) => n + (r.sections.find((s) => s.label === 'Added')?.items.length || 0) + (r.sections.find((s) => s.label === 'Features')?.items.length || 0), 0);

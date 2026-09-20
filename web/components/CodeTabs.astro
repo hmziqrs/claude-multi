@@ -184,20 +184,20 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
           e.preventDefault();
           const n = (i + 1) % tabs.length;
           activate(n);
-          tabs[n].focus();
+          tabs[n]?.focus();
         } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
           e.preventDefault();
           const n = (i - 1 + tabs.length) % tabs.length;
           activate(n);
-          tabs[n].focus();
+          tabs[n]?.focus();
         } else if (e.key === 'Home') {
           e.preventDefault();
           activate(0);
-          tabs[0].focus();
+          tabs[0]?.focus();
         } else if (e.key === 'End') {
           e.preventDefault();
           activate(last);
-          tabs[last].focus();
+          tabs[last]?.focus();
         }
       });
     });

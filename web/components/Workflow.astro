@@ -4,10 +4,28 @@
  */
 import Icon from './Icon.astro';
 
+interface WorkflowNode {
+  icon?: string;
+  label?: string;
+  sublabel?: string;
+  status?: string;
+  tone?: string;
+}
+
+interface WorkflowBranch {
+  active?: boolean;
+  chain?: WorkflowNode[];
+}
+
+interface Props {
+  root?: { icon?: string; label?: string; sublabel?: string };
+  branches?: WorkflowBranch[];
+  animated?: boolean;
+}
+
 const { root = {}, branches = [], animated = true } = Astro.props;
 const branchList = Array.isArray(branches) ? branches : [];
 const hasActive = branchList.some((b) => b && b.active);
-const flowColor = 'var(--accent-border)';
 ---
 
 <div class="rd-workflow">

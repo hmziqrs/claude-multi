@@ -4,7 +4,7 @@ import { latestVersion } from "./util/changelog";
 
 const footerHtml = getSiteFooterHtml(latestVersion);
 
-export const onRequest = defineMiddleware(async (context, next) => {
+export const onRequest = defineMiddleware(async (_context, next) => {
   const response = await next();
 
   const contentType = response.headers.get("content-type") || "";
