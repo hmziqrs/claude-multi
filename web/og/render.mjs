@@ -1,4 +1,4 @@
-// Renders src/web/og/og-image.html to public/og-image.jpg (1200x630). Run with: node src/web/og/render.mjs
+// Renders web/og/og-image.html to public/og-image.jpg (1200x630). Run with: node web/og/render.mjs
 import { chromium } from 'playwright';
 import sharp from 'sharp';
 import { fileURLToPath, pathToFileURL } from 'node:url';
