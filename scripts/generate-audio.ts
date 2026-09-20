@@ -4,7 +4,8 @@ import { join, basename } from "path";
 
 const BLOG_DIR = join(import.meta.dir, "../web/content/blog");
 const OUTPUT_DIR = join(import.meta.dir, "../audio");
-const API_URL = "http://localhost:8880/v1/audio/speech";
+const TTS_BASE_URL = process.env.TTS_BASE_URL ?? "http://localhost:8880";
+const API_URL = `${TTS_BASE_URL}/v1/audio/speech`;
 const VOICE = "af_heart";
 const GITHUB_RAW = "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio";
 
@@ -70,7 +71,7 @@ async function main() {
   await mkdir(OUTPUT_DIR, { recursive: true });
 
   try {
-    await fetch("http://localhost:8880/health");
+    await fetch(`${TTS_BASE_URL}/health`);
   } catch {
     console.error("kokoro server not running. Start it first:\n  bun run tts-server");
     process.exit(1);
@@ -84,7 +85,7 @@ async function main() {
   for (const file of files) await generateAudio(file);
 
   try {
-    await fetch("http://localhost:8880/shutdown");
+    await fetch(`${TTS_BASE_URL}/shutdown`);
     console.log("\nTTS server shut down, model unloaded.");
   } catch {
     console.log("\nDone. (TTS server already stopped)");
