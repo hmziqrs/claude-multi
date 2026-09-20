@@ -7,7 +7,7 @@ import type { ProviderTemplate, ProviderEnvSyncResult } from "@/templates";
 import { applyProviderTemplate, syncProviderEnvToSettings } from "@/templates";
 import { writeJsonFileAtomic } from "@/util/json-file";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
-import { MigrationStatus, PluginCategory, McpServerType, PluginAction, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
+import { MigrationStatus, PluginCategory, McpServerType, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
 import chalk from "chalk";
 
 export interface McpServer {
@@ -1311,56 +1311,6 @@ export function detectMcpCollisions(
 }
 
 // ── Individual Plugin Copy / Remove ───────────────────────────────
-
-export interface ValidationResult {
-  canProceed: boolean;
-  errors: string[];
-  warnings: string[];
-}
-
-export function validatePluginOperation(
-  configDir: string,
-  operation: PluginAction,
-  pluginId?: string,
-): ValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
-
-  if (!existsSync(configDir)) {
-    errors.push("Instance config directory does not exist");
-  }
-
-  if (existsSync(configDir) && isPluginsSymlinked(configDir)) {
-    errors.push("Plugins directory is symlinked (auto-sync). Disable auto-sync first.");
-  }
-
-  if (existsSync(configDir) && !isPluginsSymlinked(configDir) && isHalfManualSync(configDir)) {
-    errors.push("Plugins are individually symlinked (half-manual). Switch to full-manual first to manage individual plugins.");
-  }
-
-  if (operation === PluginAction.Install && pluginId) {
-    const defaults = listDefaultPlugins();
-    if (!defaults.find(p => p.id === pluginId)) {
-      errors.push(`Plugin '${pluginId}' not found in default installation`);
-    }
-  }
-
-  if (operation === PluginAction.Remove && pluginId) {
-    const installed = listInstancePlugins(configDir);
-    if (!installed.find(p => p.id === pluginId)) {
-      errors.push(`Plugin '${pluginId}' not installed in this instance`);
-    }
-  }
-
-  if (operation === PluginAction.Install && pluginId && existsSync(configDir)) {
-    const collisions = detectMcpCollisions(configDir, [pluginId]);
-    for (const c of collisions) {
-      warnings.push(`MCP server name collision: '${c.serverName}'`);
-    }
-  }
-
-  return { canProceed: errors.length === 0, errors, warnings };
-}
 
 export async function copySinglePlugin(
   targetConfigDir: string,

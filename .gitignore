@@ -56,5 +56,5 @@ redesign/.audit/
 # z-proflow session state
 .z-proflow/
 
-# TUI screenshot review artifacts (scripts/capture-screens.tsx output)
+# TUI screenshot review artifacts
 screenshots-review/
