@@ -12,12 +12,12 @@ If you already have a Kimi instance, run `claude-multi doctor fix` to sync.
 
 ## What changed
 
-| Role       | Previous model | New model        |
-| ---------- | -------------- | ---------------- |
-| Opus       | `kimi-k2.5`    | `kimi-k2.7-code` |
-| Sonnet     | `kimi-k2.5`    | `kimi-k2.6`      |
-| Haiku      | `kimi-k2.5`    | `kimi-k2.5`      |
-| Small/Fast | `kimi-k2.5`    | `kimi-k2.5`      |
+| Role | Previous model | New model |
+|------|---------------|-----------|
+| Opus | `kimi-k2.5` | `kimi-k2.7-code` |
+| Sonnet | `kimi-k2.5` | `kimi-k2.6` |
+| Haiku | `kimi-k2.5` | `kimi-k2.5` |
+| Small/Fast | `kimi-k2.5` | `kimi-k2.5` |
 
 The previous template used K2.5 across all roles. Now Claude Code gets K2.7 Code for heavy reasoning, K2.6 for balanced work, and K2.5 for fast lightweight operations.
 
@@ -31,11 +31,11 @@ These numbers come from the [official model card on HuggingFace](https://hugging
 
 ### Coding benchmarks
 
-| Benchmark          | K2.6 | K2.7 Code | GPT-5.5 | Opus 4.8 |
-| ------------------ | ---- | --------- | ------- | -------- |
-| Kimi Code Bench v2 | 50.9 | **62.0**  | 69.0    | 67.4     |
-| Program Bench      | 48.3 | **53.6**  | 69.1    | 63.8     |
-| MLS Bench Lite     | 26.7 | **35.1**  | 35.5    | 42.8     |
+| Benchmark | K2.6 | K2.7 Code | GPT-5.5 | Opus 4.8 |
+|---|---|---|---|---|
+| Kimi Code Bench v2 | 50.9 | **62.0** | 69.0 | 67.4 |
+| Program Bench | 48.3 | **53.6** | 69.1 | 63.8 |
+| MLS Bench Lite | 26.7 | **35.1** | 35.5 | 42.8 |
 
 K2.7 Code improves over K2.6 on every coding benchmark. On Kimi Code Bench v2 (Moonshot's internal benchmark for realistic coding tasks across 10+ languages), it jumps from 50.9 to 62.0. That closes most of the gap with Opus 4.8 at 67.4.
 
@@ -43,11 +43,11 @@ Program Bench asks the model to recreate a program's behavior from a compiled bi
 
 ### Agentic benchmarks
 
-| Benchmark            | K2.6 | K2.7 Code | GPT-5.5 | Opus 4.8 |
-| -------------------- | ---- | --------- | ------- | -------- |
-| Kimi Claw 24/7 Bench | 42.9 | **46.9**  | 52.8    | 50.4     |
-| MCP Atlas            | 69.4 | **76.0**  | 79.4    | 81.3     |
-| MCP Mark Verified    | 72.8 | **81.1**  | 92.9    | 76.4     |
+| Benchmark | K2.6 | K2.7 Code | GPT-5.5 | Opus 4.8 |
+|---|---|---|---|---|
+| Kimi Claw 24/7 Bench | 42.9 | **46.9** | 52.8 | 50.4 |
+| MCP Atlas | 69.4 | **76.0** | 79.4 | 81.3 |
+| MCP Mark Verified | 72.8 | **81.1** | 92.9 | 76.4 |
 
 The agentic numbers matter most for Claude Code users. MCP Mark Verified is a human-verified benchmark for MCP tool-use tasks across Notion, GitHub, Filesystem, Postgres, and Playwright. K2.7 Code jumps from 72.8 to 81.1, which beats Opus 4.8's 76.4.
 

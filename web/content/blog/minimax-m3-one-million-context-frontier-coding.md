@@ -32,35 +32,35 @@ The coding and agentic benchmarks are what matter most for Claude Code users.
 
 ### Coding
 
-| Benchmark          | M3       | Opus 4.7 | GPT-5.5  | Gemini 3.1 Pro | M2.7 |
-| ------------------ | -------- | -------- | -------- | -------------- | ---- |
-| SWE-Bench Pro      | 59.0     | **64.3** | 58.6     | 54.2           | 56.2 |
-| SWE-Bench Verified | 80.5     | **87.6** | 82.9     | 80.6           | 79.9 |
-| Terminal-Bench 2.1 | 66.0     | 66.1     | **78.2** | 70.3           | 51.1 |
-| SVG-Bench          | **63.7** | 62.3     | 58.2     | 59.2           | 48.0 |
-| KernelBench Hard   | 28.8     | **30.7** | 20.9     | 18.6           | 10.5 |
-| PaperBench         | 52.6     | **58.5** | 57.5     | 46.7           | 30.6 |
+| Benchmark | M3 | Opus 4.7 | GPT-5.5 | Gemini 3.1 Pro | M2.7 |
+|---|---|---|---|---|---|
+| SWE-Bench Pro | 59.0 | **64.3** | 58.6 | 54.2 | 56.2 |
+| SWE-Bench Verified | 80.5 | **87.6** | 82.9 | 80.6 | 79.9 |
+| Terminal-Bench 2.1 | 66.0 | 66.1 | **78.2** | 70.3 | 51.1 |
+| SVG-Bench | **63.7** | 62.3 | 58.2 | 59.2 | 48.0 |
+| KernelBench Hard | 28.8 | **30.7** | 20.9 | 18.6 | 10.5 |
+| PaperBench | 52.6 | **58.5** | 57.5 | 46.7 | 30.6 |
 
 M3 beats GPT-5.5 on SWE-Bench Pro (59.0 vs 58.6) and edges past Opus 4.7 on SVG-Bench (63.7 vs 62.3). Opus still leads the main SWE-Bench scores. But M3 went from mid-pack with M2.7 to second place on most coding benchmarks, and the gap to Opus is narrower than the gap between Opus and the rest.
 
 ### Agentic
 
-| Benchmark       | M3       | Opus 4.7 | GPT-5.5 | M2.7 |
-| --------------- | -------- | -------- | ------- | ---- |
-| Claw-Eval       | **74.5** | 71.6     | --      | 49.7 |
-| MCP Atlas       | 74.2     | **77.0** | 75.3    | 49.4 |
-| DRACO           | 73.2     | **77.7** | --      | 66.8 |
-| BankerToolBench | 76.1     | **81.3** | 70.0    | 63.9 |
+| Benchmark | M3 | Opus 4.7 | GPT-5.5 | M2.7 |
+|---|---|---|---|---|
+| Claw-Eval | **74.5** | 71.6 | -- | 49.7 |
+| MCP Atlas | 74.2 | **77.0** | 75.3 | 49.4 |
+| DRACO | 73.2 | **77.7** | -- | 66.8 |
+| BankerToolBench | 76.1 | **81.3** | 70.0 | 63.9 |
 
 Claw-Eval is the end-to-end autonomous agent evaluation. M3 takes the top spot at 74.5, ahead of Opus 4.7 at 71.6. This is the benchmark that most closely matches what Claude Code does: sustained multi-step tool use in a real environment. M3 was trained for multi-turn production-like collaboration using an interactive user-simulator framework.
 
 ### Multimodal
 
-| Benchmark    | M3       | Opus 4.7 | GPT-5.5  | Gemini 3.1 Pro |
-| ------------ | -------- | -------- | -------- | -------------- |
-| OmniDocBench | **91.6** | 89.3     | 87.5     | 88.1           |
-| MMMU-Pro     | 78.1     | 77.0     | **81.2** | 80.5           |
-| Video-MMMU   | 84.6     | 83.0     | 86.4     | **87.9**       |
+| Benchmark | M3 | Opus 4.7 | GPT-5.5 | Gemini 3.1 Pro |
+|---|---|---|---|---|
+| OmniDocBench | **91.6** | 89.3 | 87.5 | 88.1 |
+| MMMU-Pro | 78.1 | 77.0 | **81.2** | 80.5 |
+| Video-MMMU | 84.6 | 83.0 | 86.4 | **87.9** |
 
 OmniDocBench measures multimodal document understanding across text, tables, charts, and images. M3 leads at 91.6. If you use Claude Code for document-heavy workflows, M3 can ingest the paper, figures, tables, and formulas all at once within its 1M context window.
 
@@ -72,11 +72,11 @@ The upgrade from M2.7 to M3 is huge. On SWE-Bench Pro, M3 jumps from 56.2 to 59.
 
 Through the MiniMax API:
 
-| Tier                      | Input (per 1M) | Output (per 1M) | Context    |
-| ------------------------- | -------------- | --------------- | ---------- |
-| Standard (up to 512K)     | $0.60          | $2.40           | up to 512K |
-| Long context (512K to 1M) | $1.20          | $4.80           | 512K to 1M |
-| Cache read                | $0.12          | --              | --         |
+| Tier | Input (per 1M) | Output (per 1M) | Context |
+|---|---|---|---|
+| Standard (up to 512K) | $0.60 | $2.40 | up to 512K |
+| Long context (512K to 1M) | $1.20 | $4.80 | 512K to 1M |
+| Cache read | $0.12 | -- | -- |
 
 For comparison, Claude Opus 4.7 runs about $15/M input and $75/M output. M3 at $2.40/M output is roughly 1/30th the cost. Even at the long-context tier ($4.80/M output), it is still a fraction of what Opus charges.
 

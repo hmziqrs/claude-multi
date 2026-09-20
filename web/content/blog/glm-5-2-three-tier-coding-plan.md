@@ -12,11 +12,11 @@ The old template did not really have a middle tier. It put GLM-5.1 in the opus s
 
 ## The three-tier mapping
 
-| Claude Code tier | GLM model   | Context window | Role                          |
-| ---------------- | ----------- | -------------- | ----------------------------- |
-| Opus             | GLM-5.2     | 1M             | Long, hard, multi-file work   |
-| Sonnet           | GLM-5.1     | 200K           | Day-to-day coding             |
-| Haiku            | GLM-5-Turbo | 200K           | Quick edits, shell, subagents |
+| Claude Code tier | GLM model | Context window | Role |
+|---|---|---|---|
+| Opus | GLM-5.2 | 1M | Long, hard, multi-file work |
+| Sonnet | GLM-5.1 | 200K | Day-to-day coding |
+| Haiku | GLM-5-Turbo | 200K | Quick edits, shell, subagents |
 
 Thinking stays on. The template keeps `REASONING_EFFORT` at high with 8,000 thinking tokens, which is enough for most code work without eating the context budget.
 
@@ -34,10 +34,10 @@ Here is the honest part. Z.ai has not published benchmark numbers for GLM-5.2. I
 
 The closest fully documented flagship is GLM-5.1, which Z.ai describes as aligned with Claude Opus 4.6 and able to run unattended for up to eight hours. Its published scores are the best available read on where the family sits. Every number below comes from Z.ai's own tables, and the competitor labels are theirs.
 
-| Benchmark     | GLM-5.1 | Closest competitor (Z.ai's table) |
-| ------------- | ------- | --------------------------------- |
-| SWE-Bench Pro | 58.4    | GPT-5.4, 57.7                     |
-| NL2Repo       | 42.7    | Claude Opus 4.6, 40.1             |
+| Benchmark | GLM-5.1 | Closest competitor (Z.ai's table) |
+|---|---|---|
+| SWE-Bench Pro | 58.4 | GPT-5.4, 57.7 |
+| NL2Repo | 42.7 | Claude Opus 4.6, 40.1 |
 
 GLM-5.1 also posted 95.3 on AIME 2026, 86.2 on GPQA-Diamond, and 63.5 on Terminal-Bench 2.0, with no competitor figures published alongside them.
 
@@ -47,11 +47,11 @@ The generation before that, GLM-5, is a 744-billion-parameter Mixture-of-Experts
 
 The GLM models reach Claude Code through Z.ai's Coding Plan, a monthly subscription. The Anthropic-compatible endpoint at `api.z.ai/api/anthropic` is gated to the plan. There is no pay-per-token Anthropic URL for GLM.
 
-| Plan | Price per month | Usage       |
-| ---- | --------------- | ----------- |
-| Lite | $18             | 1x baseline |
-| Pro  | $72             | ~5x         |
-| Max  | $160            | ~20x        |
+| Plan | Price per month | Usage |
+|---|---|---|
+| Lite | $18 | 1x baseline |
+| Pro | $72 | ~5x |
+| Max | $160 | ~20x |
 
 Quota runs on a rolling five-hour window plus a weekly cap. Opus-tier models, which includes GLM-5.2, GLM-5.1, and GLM-5-Turbo, count at 3x during peak hours and 2x off-peak. A limited promo drops that to 1x off-peak through the end of September.
 

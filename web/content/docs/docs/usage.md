@@ -25,20 +25,20 @@ CLAUDE_MULTI_INK=false claude-multi
 claude-multi add <name> [options]
 ```
 
-| Flag                 | Description                                                                                                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `--provider <name>`  | Provider template to use (`glm`, `minimax`, `deepseek`, `mimo`, `mimo-token`, `kimi`, `qwen`, `qwen-coding`) |
-| `--api-key <key>`    | API key for the provider                                                                                     |
-| `--config <path>`    | Custom config directory (default: `~/.claude-<name>/`)                                                       |
-| `--binary <path>`    | Custom binary path (default: `~/.local/bin/claude-<name>`)                                                   |
-| `--copy-settings`    | Copy settings from `~/.claude`                                                                               |
-| `--copy-all`         | Copy all files from `~/.claude` (settings, plugins, skills, CLAUDE.md)                                       |
-| `--copy-mcp`         | Copy MCP server configs from `~/.claude`                                                                     |
-| `--skip-prompts`     | Skip interactive prompts (use with `--provider` and `--api-key`)                                             |
-| `--sync-mode <mode>` | Set sync mode at creation: `auto`, `half-manual`, or `full-manual`                                           |
-| `--auto-sync`        | Shortcut for `--sync-mode auto`                                                                              |
-| `--half-manual`      | Shortcut for `--sync-mode half-manual`                                                                       |
-| `--manual`           | Shortcut for `--sync-mode full-manual`                                                                       |
+| Flag | Description |
+|------|-------------|
+| `--provider <name>` | Provider template to use (`glm`, `minimax`, `deepseek`, `mimo`, `mimo-token`, `kimi`, `qwen`, `qwen-coding`) |
+| `--api-key <key>` | API key for the provider |
+| `--config <path>` | Custom config directory (default: `~/.claude-<name>/`) |
+| `--binary <path>` | Custom binary path (default: `~/.local/bin/claude-<name>`) |
+| `--copy-settings` | Copy settings from `~/.claude` |
+| `--copy-all` | Copy all files from `~/.claude` (settings, plugins, skills, CLAUDE.md) |
+| `--copy-mcp` | Copy MCP server configs from `~/.claude` |
+| `--skip-prompts` | Skip interactive prompts (use with `--provider` and `--api-key`) |
+| `--sync-mode <mode>` | Set sync mode at creation: `auto`, `half-manual`, or `full-manual` |
+| `--auto-sync` | Shortcut for `--sync-mode auto` |
+| `--half-manual` | Shortcut for `--sync-mode half-manual` |
+| `--manual` | Shortcut for `--sync-mode full-manual` |
 
 **Examples:**
 
@@ -61,8 +61,8 @@ claude-multi remove <name>
 
 This removes the instance from the registry and deletes the wrapper script. It leaves the config directory on disk and prints a hint so you can delete it yourself.
 
-| Flag          | Description              |
-| ------------- | ------------------------ |
+| Flag | Description |
+|------|-------------|
 | `-f, --force` | Skip confirmation prompt |
 
 ### `list`, List all instances
@@ -89,17 +89,17 @@ All plugin commands use the `plugins` subcommand:
 claude-multi plugins <action> [args]
 ```
 
-| Action                                 | Description                                           |
-| -------------------------------------- | ----------------------------------------------------- |
-| `list`                                 | List all available plugins across all instances       |
-| `enable <instance> <plugin-id>`        | Enable a plugin for an instance                       |
-| `disable <instance> <plugin-id>`       | Disable a plugin for an instance                      |
-| `install <instance> <ids...>`          | Install plugins with collision detection              |
-| `remove <instance> <ids...>`           | Remove plugins (guards against auto-sync conflicts)   |
-| `copy <source> <dest> <ids...>`        | Copy plugins between instances                        |
-| `list-defaults`                        | List all default plugins with category and MCP badges |
-| `list-installed [instance]`            | List installed plugins per instance                   |
-| `check-collisions <instance> <ids...>` | Detect MCP server name conflicts                      |
+| Action | Description |
+|--------|-------------|
+| `list` | List all available plugins across all instances |
+| `enable <instance> <plugin-id>` | Enable a plugin for an instance |
+| `disable <instance> <plugin-id>` | Disable a plugin for an instance |
+| `install <instance> <ids...>` | Install plugins with collision detection |
+| `remove <instance> <ids...>` | Remove plugins (guards against auto-sync conflicts) |
+| `copy <source> <dest> <ids...>` | Copy plugins between instances |
+| `list-defaults` | List all default plugins with category and MCP badges |
+| `list-installed [instance]` | List installed plugins per instance |
+| `check-collisions <instance> <ids...>` | Detect MCP server name conflicts |
 
 ## MCP server management
 
@@ -107,10 +107,10 @@ claude-multi plugins <action> [args]
 claude-multi mcp <action> [args]
 ```
 
-| Action   | Description                                             |
-| -------- | ------------------------------------------------------- |
-| `list`   | List MCP server configs across all instances            |
-| `copy`   | Copy MCP server configs between instances               |
+| Action | Description |
+|--------|-------------|
+| `list` | List MCP server configs across all instances |
+| `copy` | Copy MCP server configs between instances |
 | `verify` | Check that referenced executables and paths still exist |
 
 ## Sync modes
@@ -124,11 +124,11 @@ claude-multi auto-sync <name> <auto|half-manual|full-manual>
 
 Legacy `on`/`off` still work with `auto-sync` (`on` maps to `auto`, `off` maps to `full-manual`).
 
-| Mode          | Behavior                                                                                                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auto`        | `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Any change there is instantly visible to the instance.                                                                              |
+| Mode | Behavior |
+|------|----------|
+| `auto` | `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Any change there is instantly visible to the instance. |
 | `half-manual` | Real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing plugins, but new installs in `~/.claude` don't appear until you re-sync. |
-| `full-manual` | Independent copies of everything. No symlinks. The instance can drift freely from `~/.claude`.                                                                                                    |
+| `full-manual` | Independent copies of everything. No symlinks. The instance can drift freely from `~/.claude`. |
 
 Conversions are one-way: `auto` → `half-manual` → `full-manual`. You can't step back up, because reconciling directories that have diverged is a data-loss problem. The TUI Sync Mode screen shows the current mode (color-coded) and which downgrades are available, plus a **Force re-sync** option that rebuilds the symlinks without changing the mode. In half-manual mode, `plugin install` and `remove` are blocked, since individually symlinked plugins can't be individually managed.
 
@@ -142,8 +142,8 @@ Fix broken symlinks across instances:
 claude-multi fix-symlinks [names...]
 ```
 
-| Flag        | Description               |
-| ----------- | ------------------------- |
+| Flag | Description |
+|------|-------------|
 | `-a, --all` | Fix all instances at once |
 
 Without arguments, claude-multi asks which instances to repair.
@@ -175,11 +175,11 @@ These commands manage the `@anthropic-ai/claude-code` package. To update claude-
 
 ## Environment variables
 
-| Variable                    | Default | Description                                                       |
-| --------------------------- | ------- | ----------------------------------------------------------------- |
-| `CLAUDE_MULTI_INK`          | `true`  | Set to `false` to use the simpler prompts-based UI instead of Ink |
-| `CLAUDE_MULTI_HOME`         | `~`     | Override the base directory for config (useful for testing)       |
-| `CLAUDE_MULTI_UPDATE_CHECK` | `false` | Set to `true` to check for updates on launch                      |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAUDE_MULTI_INK` | `true` | Set to `false` to use the simpler prompts-based UI instead of Ink |
+| `CLAUDE_MULTI_HOME` | `~` | Override the base directory for config (useful for testing) |
+| `CLAUDE_MULTI_UPDATE_CHECK` | `false` | Set to `true` to check for updates on launch |
 
 See [Environment Variables](/docs/environment-variables/) for the full reference including provider env vars.
 

@@ -2,18 +2,7 @@
 title: "How MCP lets Claude Code actually do the rest of your job"
 description: "MCP gives Claude Code a way to talk to the tools you already use: Jira, GitHub, Slack, your databases. Here is what that buys you and where it breaks down."
 date: 2026-05-27
-tags:
-  [
-    Claude Code,
-    Model Context Protocol,
-    MCP,
-    workflow automation,
-    AI co-engineer,
-    developer productivity,
-    tool integration,
-    AI in software development,
-    claude-multi,
-  ]
+tags: [Claude Code, Model Context Protocol, MCP, workflow automation, AI co-engineer, developer productivity, tool integration, AI in software development, claude-multi]
 audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/claude-code-mcp-workflow-automation.mp3"
 ---
 
@@ -47,17 +36,17 @@ If you have the relevant MCP servers configured, Claude Code can read the ticket
 
 A few other things it is good at once MCP is in place:
 
-- Code review with context. Pulling the original ticket, the design doc, and the diff into the same review pass changes what the model can spot. Most "missed it in review" bugs are missed because the reviewer did not have the surrounding context, not because they could not read the diff.
-- Triage. Reading open issues, grouping them by label or area, suggesting which ones look like duplicates. You still own the call, but the first pass is free.
-- Reacting to events. An MCP server can push messages into a session, so the model can act on a webhook, a Telegram message, a Discord ping, without you re-prompting.
+* Code review with context. Pulling the original ticket, the design doc, and the diff into the same review pass changes what the model can spot. Most "missed it in review" bugs are missed because the reviewer did not have the surrounding context, not because they could not read the diff.
+* Triage. Reading open issues, grouping them by label or area, suggesting which ones look like duplicates. You still own the call, but the first pass is free.
+* Reacting to events. An MCP server can push messages into a session, so the model can act on a webhook, a Telegram message, a Discord ping, without you re-prompting.
 
 ### Where it falls down
 
 A few honest caveats.
 
-- MCP is only as good as the servers you connect. A flaky Jira server gives you flaky Jira behavior. Pick servers you trust, or write your own.
-- The model still hallucinates calls sometimes. Tool definitions help, but it can still try to call something that does not exist or pass a malformed argument. Tests and reviews are not optional.
-- Permissions are a real problem. An agent with write access to your repo, your tracker, and your team chat is an agent that can do real damage if you point it at the wrong thing. Start read-only.
+* MCP is only as good as the servers you connect. A flaky Jira server gives you flaky Jira behavior. Pick servers you trust, or write your own.
+* The model still hallucinates calls sometimes. Tool definitions help, but it can still try to call something that does not exist or pass a malformed argument. Tests and reviews are not optional.
+* Permissions are a real problem. An agent with write access to your repo, your tracker, and your team chat is an agent that can do real damage if you point it at the wrong thing. Start read-only.
 
 ### Where claude-multi fits
 
@@ -67,6 +56,6 @@ Running that loop against a single provider is fine until it isn't. The provider
 
 ### References
 
-- OrbilonTech: Claude Code as Co-Engineer 2026: Powerful Reasons It Wins: [https://orbilontech.com/claude-code-as-co-engineer-2026/](https://orbilontech.com/claude-code-as-co-engineer-2026/)
-- Claude Help Center: Use Claude for Microsoft 365 with third-party platforms: [https://support.claude.com/en/articles/13945233-use-claude-for-microsoft-365-with-third-party-platforms](https://support.claude.com/en/articles/13945233-use-claude-for-microsoft-365-with-third-party-platforms)
-- PRABHAT.DEV: Claude Code: Zero to Hero - The Complete 2026 Field Guide: [https://prabhat.dev/claude-code-zero-to-hero-the-complete-2026-field-guide/](https://prabhat.dev/claude-code-zero-to-hero-the-complete-2026-field-guide/)
+*   OrbilonTech: Claude Code as Co-Engineer 2026: Powerful Reasons It Wins: [https://orbilontech.com/claude-code-as-co-engineer-2026/](https://orbilontech.com/claude-code-as-co-engineer-2026/)
+*   Claude Help Center: Use Claude for Microsoft 365 with third-party platforms: [https://support.claude.com/en/articles/13945233-use-claude-for-microsoft-365-with-third-party-platforms](https://support.claude.com/en/articles/13945233-use-claude-for-microsoft-365-with-third-party-platforms)
+*   PRABHAT.DEV: Claude Code: Zero to Hero - The Complete 2026 Field Guide: [https://prabhat.dev/claude-code-zero-to-hero-the-complete-2026-field-guide/](https://prabhat.dev/claude-code-zero-to-hero-the-complete-2026-field-guide/)

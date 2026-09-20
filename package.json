@@ -30,8 +30,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
-    "format": "vp fmt src web scripts test",
-    "format:check": "vp fmt src web scripts test --check"
+    "format": "vp fmt src web scripts test '!web/content/**'",
+    "format:check": "vp fmt src web scripts test '!web/content/**' --check"
   },
   "keywords": [
     "claude",

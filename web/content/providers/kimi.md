@@ -17,11 +17,11 @@ Kimi K2.7 Code is Moonshot AI's coding model. K2.6 and K2.5 fill out the sonnet 
 
 ## Model specs
 
-| Role   | Model          | Context | Max output |
-| ------ | -------------- | ------- | ---------- |
-| Opus   | Kimi K2.7 Code | 256K    | 65,536     |
-| Sonnet | Kimi K2.6      | 256K    | 65,536     |
-| Haiku  | Kimi K2.5      | 256K    | 65,536     |
+| Role | Model | Context | Max output |
+|------|-------|---------|------------|
+| Opus | Kimi K2.7 Code | 256K | 65,536 |
+| Sonnet | Kimi K2.6 | 256K | 65,536 |
+| Haiku | Kimi K2.5 | 256K | 65,536 |
 
 K2.7 Code maps to opus for heavy reasoning, K2.6 to sonnet, and K2.5 to haiku for fast operations. All three have 256K context and 65,536 max output.
 

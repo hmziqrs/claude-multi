@@ -9,12 +9,12 @@ Your global binary directory is not on `PATH`. The exact location depends on you
 
 **Common locations:**
 
-| Runtime           | Binary directory                     |
-| ----------------- | ------------------------------------ |
-| Bun               | `~/.bun/bin/`                        |
+| Runtime | Binary directory |
+|---------|-----------------|
+| Bun | `~/.bun/bin/` |
 | npm (Linux/macOS) | `~/.local/bin/` or `/usr/local/bin/` |
-| pnpm              | `~/.local/share/pnpm/`               |
-| Deno              | `~/.deno/bin/`                       |
+| pnpm | `~/.local/share/pnpm/` |
+| Deno | `~/.deno/bin/` |
 
 **Fix:**
 
@@ -56,13 +56,13 @@ A yellow or red banner at the top of the main menu means claude-multi found prob
 
 **Common health issues:**
 
-| Problem                  | Cause                                         | Fix                                             |
-| ------------------------ | --------------------------------------------- | ----------------------------------------------- |
-| Config directory missing | Instance dir was deleted outside claude-multi | Remove the instance or recreate the directory   |
-| Binary not found         | Wrapper script was deleted                    | Re-create the instance                          |
-| Corrupted settings.json  | Invalid JSON in the config file               | Fix or delete the corrupted file, then recreate |
-| Broken symlinks          | Plugin/skill links point to missing targets   | Run `fix-symlinks`                              |
-| Migration failed         | Config schema migration was interrupted       | Health screen offers retry/restore from backup  |
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Config directory missing | Instance dir was deleted outside claude-multi | Remove the instance or recreate the directory |
+| Binary not found | Wrapper script was deleted | Re-create the instance |
+| Corrupted settings.json | Invalid JSON in the config file | Fix or delete the corrupted file, then recreate |
+| Broken symlinks | Plugin/skill links point to missing targets | Run `fix-symlinks` |
+| Migration failed | Config schema migration was interrupted | Health screen offers retry/restore from backup |
 
 ---
 
@@ -99,11 +99,11 @@ cat ~/.claude-multi/deepseek/settings.json | jq .env
 
 Some providers use different base URLs for pay-per-token vs. subscription plans:
 
-| Provider     | Pay-per-token               | Subscription                                 |
-| ------------ | --------------------------- | -------------------------------------------- |
-| Xiaomi MiMo  | `mimo` template             | `mimo-token` template (different domain)     |
-| Alibaba Qwen | `qwen` template             | `qwen-coding` template (different subdomain) |
-| GLM (Z.ai)   | No Anthropic-compatible URL | `glm` template (coding plan only)            |
+| Provider | Pay-per-token | Subscription |
+|----------|--------------|--------------|
+| Xiaomi MiMo | `mimo` template | `mimo-token` template (different domain) |
+| Alibaba Qwen | `qwen` template | `qwen-coding` template (different subdomain) |
+| GLM (Z.ai) | No Anthropic-compatible URL | `glm` template (coding plan only) |
 
 If you are on a subscription plan but used the pay-per-token template, or the other way around, your API key will not authenticate. Remove the instance and recreate it with the correct template.
 

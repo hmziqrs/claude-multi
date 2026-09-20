@@ -2,17 +2,7 @@
 title: "Stop paying Opus prices for a git status"
 description: "If you're sending every request to a flagship model, you're overpaying by a lot. A look at how LLM routing actually works, what kind of savings to expect, and how to set it up."
 date: 2026-05-27
-tags:
-  [
-    LLM cost optimization,
-    AI development,
-    LLM routing,
-    claude-code-llm-router,
-    tiered models,
-    cost savings,
-    AI engineering,
-    developer tools,
-  ]
+tags: [LLM cost optimization, AI development, LLM routing, claude-code-llm-router, tiered models, cost savings, AI engineering, developer tools]
 audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/llm-cost-optimization-routing.mp3"
 ---
 
@@ -76,6 +66,6 @@ You won't get the routing right on day one. You'll get it 80% right, save most o
 
 ### References
 
-- [1] TokenMix Blog: Claude Code Router: Configuration + Troubleshooting 2026: [https://tokenmix.ai/blog/claude-code-router-guide-2026](https://tokenmix.ai/blog/claude-code-router-guide-2026)
-- [2] MostafaGalal1/claude-code-smart-router GitHub: [https://github.com/MostafaGalal1/claude-code-smart-router](https://github.com/MostafaGalal1/claude-code-smart-router)
-- [3] rmb/maestro-router GitHub: [https://github.com/rmb/maestro-router](https://github.com/rmb/maestro-router)
+*   [1] TokenMix Blog: Claude Code Router: Configuration + Troubleshooting 2026: [https://tokenmix.ai/blog/claude-code-router-guide-2026](https://tokenmix.ai/blog/claude-code-router-guide-2026)
+*   [2] MostafaGalal1/claude-code-smart-router GitHub: [https://github.com/MostafaGalal1/claude-code-smart-router](https://github.com/MostafaGalal1/claude-code-smart-router)
+*   [3] rmb/maestro-router GitHub: [https://github.com/rmb/maestro-router](https://github.com/rmb/maestro-router)
