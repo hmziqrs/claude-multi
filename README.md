@@ -29,153 +29,46 @@ Claude Code is great. Switching between providers and model setups is not.
 
 If you want to try GLM today and DeepSeek tomorrow, you usually end up editing `settings.json` by hand, juggling env vars, swapping keys, or maintaining a bunch of shell aliases nobody asked for.
 
-The other option is to use each provider's own CLI tool. That sounds clean until you realize every tool has its own workflow, its own flags, its own way of doing things. Learning a new harness for every model gets old fast.
+The other option is each provider's own CLI tool. That sounds clean until you realize every tool has its own workflow, its own flags, its own way of doing things. Learning a new harness for every model gets old fast.
 
-So I went the other way: keep one harness I already like, and put the providers behind it. That's claude-multi. One workflow, many providers.
-
-And because it's still Claude Code under the hood, you keep everything you already use. `/loop`, `/goal`, skills, MCP servers, plugins, all of it. Switching providers does not mean rebuilding your setup from scratch.
+So I went the other way: keep one harness I already like, and put the providers behind it. It's still Claude Code under the hood, so `/loop`, `/goal`, skills, MCP servers, and plugins all keep working.
 
 ```bash
-claude          # your normal Claude Code setup
-claude-glm      # Claude Code using GLM / Z.ai config
-claude-deepseek # Claude Code using DeepSeek config
-claude-minimax  # Claude Code using MiniMax config
-```
-
-Each instance is isolated. All of them run the normal, unmodified Claude Code binary.
-
----
-
-## Features
-
-* Multiple Claude Code instances, one `claude-<name>` command each.
-* Provider templates for GLM/Z.ai, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Qwen.
-* Isolated config directories. Every instance gets its own `~/.claude-<name>/`.
-* A full terminal UI that covers adding, listing, plugins, MCP, and sync.
-* Plugin management per instance: enable, disable, install, copy, remove.
-* MCP management: list and copy server configs between instances.
-* Optional auto-sync that symlinks plugins and skills from your default `~/.claude`.
-* `doctor` reports provider template updates for existing instances and can apply them after making a backup.
-* It wraps your existing `claude` binary instead of patching it, so there is no fork to maintain.
-
----
-
-## Requirements
-
-* Node.js 18+ or Bun 1+
-* Claude Code installed globally
-
-If you don't have Claude Code yet:
-
-```bash
-npm install -g @anthropic-ai/claude-code
+claude          # your normal setup
+claude-glm      # GLM / Z.ai config
+claude-deepseek # DeepSeek config
+claude-minimax  # MiniMax config
 ```
 
 ---
 
 ## Install
 
-Bun:
+Requires Node.js 18+ or Bun 1+, and Claude Code installed globally (`npm install -g @anthropic-ai/claude-code`).
 
 ```bash
 bun add -g claude-multi
-```
-
-npm:
-
-```bash
-npm install -g claude-multi
-```
-
-pnpm:
-
-```bash
-pnpm add -g claude-multi
-```
-
-Deno:
-
-```bash
-deno install -g -A -n claude-multi npm:claude-multi
+# or: npm install -g claude-multi
+# or: pnpm add -g claude-multi
+# or: deno install -g -A -n claude-multi npm:claude-multi
 ```
 
 ---
 
-## Getting started
-
-Launch the TUI:
+## Quick start
 
 ```bash
 claude-multi
 ```
 
-That's the only command you need to remember. Everything else lives inside the terminal UI. The main menu looks like this:
+That's the only command to remember. Everything else happens in the terminal UI: pick Add new instance, and the wizard walks you through a name, a provider template, and an API key. When it finishes you have a `claude-<name>` command running real Claude Code against an isolated `~/.claude-<name>/` config.
 
-```
-🤖 Claude Multi  -  Interactive Mode
+Two things worth knowing:
 
-  ➕ Add new instance
-  📋 List all instances
-  ℹ️  Instance details
-  🔌 Manage plugins
-  🔄 Toggle auto-sync
-  🔗 Re-sync symlinks
-  🗑️  Remove instance
-  ⚙️  MCP servers
-  🚪 Exit
-```
+- If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
+- After upgrading claude-multi, run `claude-multi doctor check` to apply provider template updates. It backs up `settings.json` first and keeps any values you changed yourself.
 
-Arrow keys to move. `Enter` to pick. `ESC` to go back. `q` to quit.
-
-### Adding your first instance
-
-Pick Add new instance. The wizard asks for:
-
-1. A name. Something short like `glm`, `deepseek`, or `work`. Letters, numbers, hyphens, and underscores only. The name becomes your command, so `glm` gives you `claude-glm`.
-2. A provider template: `glm` (GLM / Z.ai), `minimax`, `deepseek`, or `None / Custom` if you want to set things up by hand later.
-3. An API key, if you picked a provider. The prompt masks it while you type and writes it into the instance's `settings.json`.
-4. A path confirmation. Config goes to `~/.claude-<name>/`, the wrapper to `~/.local/bin/claude-<name>`. Hit `y`. The defaults are fine for almost everyone.
-5. What to copy from your existing `~/.claude`, if you have one: nothing, just `settings.json`, specific plugins (a multi-select list; `space` toggles, `enter` confirms), or everything including `CLAUDE.md`, plugins, and skills.
-6. Whether to auto-sync, if you copied everything. Auto-sync symlinks `plugins/` and `skills/` back to `~/.claude`, so a plugin you install once shows up in every instance. Say `n` if you want this instance fully independent.
-
-Then it prints the result:
-
-```
-✓ Instance 'glm' created successfully!
-  ├─ Binary: /Users/you/.local/bin/claude-glm
-  └─ Config: /Users/you/.claude-glm
-```
-
-Run it:
-
-```bash
-claude-glm
-```
-
-Same `claude` you already know, pointed at a different model.
-
-### The rest of the menu
-
-* List all instances shows each instance's provider, paths, and sync status.
-* Instance details inspects one instance's full config.
-* Manage plugins enables, disables, installs, copies, or removes plugins for a chosen instance.
-* Toggle auto-sync flips symlink syncing on or off per instance.
-* Re-sync symlinks rebuilds broken plugin or skill links after you've moved `~/.claude` around.
-* Remove instance deletes the wrapper and optionally the config dir.
-* MCP servers views MCP configs and copies them between instances.
-
-If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
-
-### Updating instances after an upgrade
-
-Provider templates change as providers ship new models or revise their settings. After updating claude-multi, check existing instances:
-
-```bash
-claude-multi doctor check
-claude-multi doctor fix
-```
-
-The TUI also shows Run instance migrations when an update is available. The sync updates model names and other template settings, keeps API keys and values you changed yourself, and creates a backup before writing `settings.json`.
+Full documentation: **https://claude-multi.hmziq.xyz**
 
 ---
 
@@ -192,13 +85,13 @@ The TUI also shows Run instance migrations when an update is available. The sync
 | Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen` |
 | Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen-coding` |
 
-The templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. If you edit a setting, provider sync keeps the values you changed yourself but restores model slots to the current template.
+Templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. Provider sync keeps values you changed yourself and restores model slots to the current template.
 
 ---
 
 ## How it works
 
-Every instance gets a config dir at `~/.claude-<name>/` and a wrapper script at `~/.local/bin/claude-<name>`. The wrapper sets `CLAUDE_CONFIG_DIR` and then runs the unmodified `claude` binary. No fork, no patch.
+Each instance is a config dir at `~/.claude-<name>/` plus a wrapper script at `~/.local/bin/claude-<name>` that sets `CLAUDE_CONFIG_DIR` and runs the unmodified `claude` binary. No fork, no patch. The instance registry lives in `~/.claude-multi/config.json`.
 
 ```js
 #!/usr/bin/env bun
@@ -206,79 +99,24 @@ process.env.CLAUDE_CONFIG_DIR = "/Users/you/.claude-glm"
 spawn("claude", process.argv.slice(2), { stdio: "inherit", env: process.env })
 ```
 
-Instance metadata sits in `~/.claude-multi/config.json`. When auto-sync is on, `plugins/` and `skills/` are symlinks back to `~/.claude/`, so installing a plugin once makes it show up everywhere.
-
----
-
-## File locations
-
-| Path | Purpose |
-|---|---|
-| `~/.claude-multi/config.json` | claude-multi instance registry |
-| `~/.claude-<name>/` | config directory for one instance |
-| `~/.local/bin/claude-<name>` | generated wrapper command on Linux/macOS |
-| `~/.claude/` | your default Claude Code config. claude-multi reads it as the source for copy and sync operations. |
-
----
-
-## Auto-sync vs manual mode
-
-With auto-sync on, `plugins/` and `skills/` are symlinks pointing at your default `~/.claude/`. Install a plugin once and every instance that opted in picks it up.
-
-Use manual mode when you want an instance that's fully independent. Say `n` at the auto-sync step in the wizard, or flip it later from the main menu with Toggle auto-sync.
+Auto-sync symlinks `plugins/` and `skills/` back to `~/.claude/`, so a plugin you install once shows up in every instance that opted in. Skip it (or toggle it later in the menu) if you want an instance fully independent.
 
 ---
 
 ## Troubleshooting
 
-### `claude-<name>` command not found
-
-Your global binary directory probably isn't on `PATH`.
-
-For zsh on Linux/macOS:
+**`claude-<name>` command not found.** Your `~/.local/bin` probably isn't on `PATH`:
 
 ```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
 ```
 
-For Bash:
+**Broken plugin or skill symlinks.** Pick Re-sync symlinks in the TUI.
 
-```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-### Broken plugin or skill symlinks
-
-Open the TUI and pick Re-sync symlinks. Choose the broken instance (or all of them) and it rebuilds the links.
-
-### Health warnings in the menu
-
-If the main menu shows a yellow or red banner, hit `!` to open the health screen. It lists what's wrong (missing binary, broken symlinks, stale registry entries, that kind of thing) and offers fixes for each one.
-
-### Force the simpler prompts UI
-
-If the Ink TUI doesn't render right on your terminal:
-
-```bash
-CLAUDE_MULTI_INK=false claude-multi
-```
-
-You get a basic prompt-based UI with the same flows.
-
----
-
-## Roadmap ideas
-
-* More provider templates
-* Better docs for provider-specific models
-* Import and export instance profiles
-* Safer API key management
-* Preset workflows for coding, planning, review, and cheap exploration models
+**The Ink TUI renders wrong.** `CLAUDE_MULTI_INK=false claude-multi` gets you the plain prompts UI with the same flows.
 
 ---
 
 ## License
 
-MIT. See [LICENSE](./LICENSE) for the full text. Copyright (c) 2026 hmziqrs.
+MIT. See [LICENSE](./LICENSE). Copyright (c) 2026 hmziqrs.
