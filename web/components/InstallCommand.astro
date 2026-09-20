@@ -86,23 +86,23 @@ const cmd = typeof command === 'string' ? command : String(command ?? '');
 </style>
 
 <script>
+  const fallback = (text: string, done: () => void) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      done();
+    } catch (e) {
+      /* noop */
+    }
+    ta.remove();
+  };
   if (!(window as any).__rdCopyInit) {
     (window as any).__rdCopyInit = true;
-    const fallback = (text: string, done: () => void) => {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        document.execCommand('copy');
-        done();
-      } catch (e) {
-        /* noop */
-      }
-      ta.remove();
-    };
     const copy = (text: string, btn: HTMLElement) => {
       const done = () => {
         btn.classList.add('is-copied');

@@ -1,5 +1,7 @@
 ---
+// oxlint-disable-next-line import/no-unassigned-import -- Astro global CSS: loaded for its side effect (Vite bundles it into the page's linked stylesheets). Plain CSS has no export to assign; `import x from` is invalid for Astro global styles and would only trade this warning for an unused-var warning.
 import '../styles/globals.css';
+// oxlint-disable-next-line import/no-unassigned-import -- same intentional side-effect import as globals.css above (layered site theme).
 import '../styles/theme.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
