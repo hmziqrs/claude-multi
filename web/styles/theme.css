@@ -1,8 +1,8 @@
-/* redesign.css — homepage redesign design system (coral/dark); all tokens scoped under .redesign-root so they
+/* theme.css — site design system (coral/dark); all tokens scoped under .site-root so they
    never clash with globals.css; plain CSS only; fonts self-hosted via globals.css @font-face (no Google Fonts @import). */
 
-/* ===================== TOKENS (scoped to .redesign-root) ===================== */
-.redesign-root {
+/* ===================== TOKENS (scoped to .site-root) ===================== */
+.site-root {
   /* ---- Surfaces ---- */
   --surface-page: #0b0c0e;
   --surface-1: #101216;
@@ -141,84 +141,84 @@
 }
 
 /* ===================== BASE RESETS ===================== */
-.redesign-root *,
-.redesign-root *::before,
-.redesign-root *::after {
+.site-root *,
+.site-root *::before,
+.site-root *::after {
   box-sizing: border-box;
 }
 
-.redesign-root h1,
-.redesign-root h2,
-.redesign-root h3,
-.redesign-root h4,
-.redesign-root h5,
-.redesign-root h6,
-.redesign-root p,
-.redesign-root figure,
-.redesign-root blockquote {
+.site-root h1,
+.site-root h2,
+.site-root h3,
+.site-root h4,
+.site-root h5,
+.site-root h6,
+.site-root p,
+.site-root figure,
+.site-root blockquote {
   margin: 0;
 }
 
-.redesign-root ul,
-.redesign-root ol {
+.site-root ul,
+.site-root ol {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.redesign-root button,
-.redesign-root input,
-.redesign-root select,
-.redesign-root textarea {
+.site-root button,
+.site-root input,
+.site-root select,
+.site-root textarea {
   font: inherit;
   color: inherit;
 }
 
-.redesign-root img,
-.redesign-root svg,
-.redesign-root canvas,
-.redesign-root video {
+.site-root img,
+.site-root svg,
+.site-root canvas,
+.site-root video {
   display: block;
   max-width: 100%;
 }
 
-.redesign-root a {
+.site-root a {
   color: inherit;
   text-decoration: none;
 }
 
-.redesign-root ::selection {
+.site-root ::selection {
   background: var(--accent-border);
   color: var(--text-primary);
 }
 
 /* ===================== SCROLLBARS ===================== */
-.redesign-root,
-.redesign-root * {
+.site-root,
+.site-root * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
 
-.redesign-root ::-webkit-scrollbar {
+.site-root ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.redesign-root ::-webkit-scrollbar-track {
+.site-root ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.redesign-root ::-webkit-scrollbar-thumb {
+.site-root ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: var(--radius-full);
 }
 
-.redesign-root ::-webkit-scrollbar-thumb:hover {
+.site-root ::-webkit-scrollbar-thumb:hover {
   background: var(--text-faint);
 }
 
 /* ===================== FOCUS RING ===================== */
-.redesign-root :focus-visible {
+.site-root :focus-visible {
   outline: 2px solid var(--accent-border);
   outline-offset: 2px;
 }
@@ -235,7 +235,7 @@
   }
 }
 
-.redesign-root .rd-caret {
+.site-root .rd-caret {
   display: inline-block;
   width: 8px;
   height: 1.1em;
@@ -246,12 +246,12 @@
 }
 
 /* ===================== SECTION PRIMITIVES ===================== */
-.redesign-root .rd-section {
+.site-root .rd-section {
   position: relative;
   padding: 128px 32px;
   border-top: 1px solid var(--border-subtle);
 }
-.redesign-root .rd-section__inner {
+.site-root .rd-section__inner {
   width: 100%;
   max-width: var(--container-xl);
   margin-inline: auto;
@@ -259,20 +259,20 @@
   flex-direction: column;
   gap: 40px;
 }
-.redesign-root .rd-section__head {
+.site-root .rd-section__head {
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-width: 640px;
 }
-.redesign-root .rd-eyebrow {
+.site-root .rd-eyebrow {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--accent);
 }
-.redesign-root .rd-section-title {
+.site-root .rd-section-title {
   margin: 0;
   font-size: 36px;
   line-height: 1.15;
@@ -281,21 +281,21 @@
   color: var(--text-primary);
   text-wrap: balance;
 }
-.redesign-root .rd-section-sub {
+.site-root .rd-section-sub {
   margin: 0;
   font-size: 18px;
   line-height: 1.65;
   color: var(--text-secondary);
   max-width: 640px;
 }
-.redesign-root .rd-inline-code {
+.site-root .rd-inline-code {
   font-family: var(--font-mono);
   font-size: 15px;
   color: var(--text-primary);
 }
 
-/* Reveal-on-scroll (toggled by RedesignLayout's IntersectionObserver) */
-.redesign-root .reveal {
+/* Reveal-on-scroll (toggled by BaseLayout's IntersectionObserver) */
+.site-root .reveal {
   opacity: 0;
   transform: translateY(18px);
   transition:
@@ -303,32 +303,32 @@
     transform var(--duration-slow) var(--ease-out);
   will-change: opacity, transform;
 }
-.redesign-root .reveal.visible {
+.site-root .reveal.visible {
   opacity: 1;
   transform: none;
 }
 
 @media (max-width: 640px) {
-  .redesign-root .rd-section {
+  .site-root .rd-section {
     padding: 80px 16px;
   }
-  .redesign-root .rd-section-title {
+  .site-root .rd-section-title {
     font-size: 28px;
   }
-  .redesign-root .rd-section-sub {
+  .site-root .rd-section-sub {
     font-size: 16px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .redesign-root .reveal {
+  .site-root .reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .redesign-root {
+  .site-root {
     --duration-instant: 0ms;
     --duration-fast: 0ms;
     --duration-normal: 0ms;
@@ -336,9 +336,9 @@
     --duration-slower: 0ms;
   }
 
-  .redesign-root *,
-  .redesign-root *::before,
-  .redesign-root *::after {
+  .site-root *,
+  .site-root *::before,
+  .site-root *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -347,43 +347,43 @@
 }
 
 /* ===================== CORAL CONTENT PROSE ===================== */
-/* Remap legacy lime Tailwind utilities/variables to coral inside .redesign-root so existing
+/* Remap legacy lime Tailwind utilities/variables to coral inside .site-root so existing
    page content (about, blog, providers) stays on-theme without editing every class. */
 
 /* ---- Remap lime text/bg/border Tailwind utilities ---- */
-.redesign-root .text-lime {
+.site-root .text-lime {
   color: var(--accent) !important;
 }
-.redesign-root .bg-lime {
+.site-root .bg-lime {
   background-color: var(--accent) !important;
 }
-.redesign-root .bg-lime\/10 {
+.site-root .bg-lime\/10 {
   background-color: var(--accent-soft) !important;
 }
-.redesign-root .bg-lime\/\[0\.03\] {
+.site-root .bg-lime\/\[0\.03\] {
   background-color: rgba(217, 119, 87, 0.03) !important;
 }
-.redesign-root .bg-lime\/\[0\.04\] {
+.site-root .bg-lime\/\[0\.04\] {
   background-color: rgba(217, 119, 87, 0.04) !important;
 }
-.redesign-root .bg-lime\/\[0\.06\] {
+.site-root .bg-lime\/\[0\.06\] {
   background-color: rgba(217, 119, 87, 0.06) !important;
 }
-.redesign-root .border-lime\/30 {
+.site-root .border-lime\/30 {
   border-color: rgba(217, 119, 87, 0.3) !important;
 }
-.redesign-root .ring-lime\/40 {
+.site-root .ring-lime\/40 {
   --tw-ring-color: rgba(217, 119, 87, 0.4) !important;
 }
-.redesign-root .text-lime\/30 {
+.site-root .text-lime\/30 {
   color: rgba(217, 119, 87, 0.3) !important;
 }
-.redesign-root .shadow-\[0_0_10px_var\(--color-lime\)\] {
+.site-root .shadow-\[0_0_10px_var\(--color-lime\)\] {
   box-shadow: 0 0 10px var(--accent) !important;
 }
 
 /* ---- Remap legacy lime CSS variable references ---- */
-.redesign-root {
+.site-root {
   --color-lime: var(--accent);
   --color-lime-bright: var(--accent-hover);
   --color-lime-deep: #b85a3e;
@@ -401,21 +401,21 @@
 }
 
 /* ---- Remap legacy lime utility classes ---- */
-.redesign-root .gradient-text {
+.site-root .gradient-text {
   color: var(--accent);
 }
 
-.redesign-root .headline-glow {
+.site-root .headline-glow {
   text-shadow: 0 0 40px rgba(217, 119, 87, 0.25);
 }
 
-.redesign-root .stat-num {
+.site-root .stat-num {
   font-family: var(--font-sans);
   font-weight: 800;
   color: var(--accent);
 }
 
-.redesign-root .icon-box {
+.site-root .icon-box {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -427,7 +427,7 @@
   color: var(--accent);
 }
 
-.redesign-root .eyebrow {
+.site-root .eyebrow {
   display: inline-block;
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -441,7 +441,7 @@
   background: rgba(217, 119, 87, 0.04);
 }
 
-.redesign-root .badge {
+.site-root .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -455,7 +455,7 @@
   backdrop-filter: blur(8px);
 }
 
-.redesign-root .btn-primary {
+.site-root .btn-primary {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -471,12 +471,12 @@
     transform 0.2s ease,
     filter 0.2s ease;
 }
-.redesign-root .btn-primary:hover {
+.site-root .btn-primary:hover {
   transform: translateY(-1px);
   filter: brightness(1.08);
 }
 
-.redesign-root .btn-secondary {
+.site-root .btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -491,13 +491,13 @@
   backdrop-filter: blur(12px);
   transition: all 0.25s ease;
 }
-.redesign-root .btn-secondary:hover {
+.site-root .btn-secondary:hover {
   border-color: var(--accent-border);
   background: rgba(20, 20, 28, 0.9);
   color: var(--accent);
 }
 
-.redesign-root .glass {
+.site-root .glass {
   position: relative;
   background: var(--surface-1);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
@@ -509,13 +509,13 @@
     transform 0.4s ease,
     box-shadow 0.4s ease;
 }
-.redesign-root .glass:hover {
+.site-root .glass:hover {
   background: var(--background-elevated);
   border-color: var(--accent-border);
   transform: translateY(-2px);
 }
 
-.redesign-root .terminal {
+.site-root .terminal {
   position: relative;
   background: linear-gradient(180deg, rgba(13, 15, 19, 0.95), rgba(11, 12, 14, 0.95));
   border: 1px solid var(--border);
@@ -528,17 +528,17 @@
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
 }
 
-.redesign-root .prose-blog,
-.redesign-root .prose-faq,
-.redesign-root .prose-provider {
+.site-root .prose-blog,
+.site-root .prose-faq,
+.site-root .prose-provider {
   color: var(--text-secondary);
   font-size: 1.05rem;
   line-height: 1.75;
 }
 
-.redesign-root .prose-blog h2,
-.redesign-root .prose-faq h2,
-.redesign-root .prose-provider h2 {
+.site-root .prose-blog h2,
+.site-root .prose-faq h2,
+.site-root .prose-provider h2 {
   color: var(--text-primary);
   font-size: 1.75rem;
   font-weight: 700;
@@ -547,9 +547,9 @@
   margin-bottom: 1rem;
 }
 
-.redesign-root .prose-blog h3,
-.redesign-root .prose-faq h3,
-.redesign-root .prose-provider h3 {
+.site-root .prose-blog h3,
+.site-root .prose-faq h3,
+.site-root .prose-provider h3 {
   color: var(--text-primary);
   font-size: 1.3rem;
   font-weight: 600;
@@ -557,29 +557,29 @@
   margin-bottom: 0.85rem;
 }
 
-.redesign-root .prose-blog p,
-.redesign-root .prose-faq p,
-.redesign-root .prose-provider p {
+.site-root .prose-blog p,
+.site-root .prose-faq p,
+.site-root .prose-provider p {
   margin-bottom: 1.25rem;
 }
 
-.redesign-root .prose-blog a,
-.redesign-root .prose-faq a,
-.redesign-root .prose-provider a {
+.site-root .prose-blog a,
+.site-root .prose-faq a,
+.site-root .prose-provider a {
   color: var(--accent);
   text-decoration: none;
   border-bottom: 1px solid rgba(217, 119, 87, 0.3);
   transition: border-color 0.15s;
 }
-.redesign-root .prose-blog a:hover,
-.redesign-root .prose-faq a:hover,
-.redesign-root .prose-provider a:hover {
+.site-root .prose-blog a:hover,
+.site-root .prose-faq a:hover,
+.site-root .prose-provider a:hover {
   border-bottom-color: var(--accent);
 }
 
-.redesign-root .prose-blog code,
-.redesign-root .prose-faq code,
-.redesign-root .prose-provider code {
+.site-root .prose-blog code,
+.site-root .prose-faq code,
+.site-root .prose-provider code {
   font-family: var(--font-mono);
   font-size: 0.92em;
   color: var(--accent);
@@ -588,9 +588,9 @@
   border-radius: 0.3rem;
 }
 
-.redesign-root .prose-blog pre,
-.redesign-root .prose-faq pre,
-.redesign-root .prose-provider pre {
+.site-root .prose-blog pre,
+.site-root .prose-faq pre,
+.site-root .prose-provider pre {
   background: rgba(13, 15, 19, 0.85);
   border: 1px solid var(--border);
   border-radius: 0.85rem;
@@ -601,34 +601,34 @@
   line-height: 1.6;
 }
 
-.redesign-root .prose-blog pre code,
-.redesign-root .prose-faq pre code,
-.redesign-root .prose-provider pre code {
+.site-root .prose-blog pre code,
+.site-root .prose-faq pre code,
+.site-root .prose-provider pre code {
   background: none;
   padding: 0;
   color: inherit;
   font-size: inherit;
 }
 
-.redesign-root .prose-blog ul,
-.redesign-root .prose-blog ol,
-.redesign-root .prose-faq ul,
-.redesign-root .prose-faq ol,
-.redesign-root .prose-provider ul,
-.redesign-root .prose-provider ol {
+.site-root .prose-blog ul,
+.site-root .prose-blog ol,
+.site-root .prose-faq ul,
+.site-root .prose-faq ol,
+.site-root .prose-provider ul,
+.site-root .prose-provider ol {
   padding-left: 1.5rem;
   margin-bottom: 1.25rem;
 }
 
-.redesign-root .prose-blog li,
-.redesign-root .prose-faq li,
-.redesign-root .prose-provider li {
+.site-root .prose-blog li,
+.site-root .prose-faq li,
+.site-root .prose-provider li {
   margin-bottom: 0.4rem;
 }
 
-.redesign-root .prose-blog blockquote,
-.redesign-root .prose-faq blockquote,
-.redesign-root .prose-provider blockquote {
+.site-root .prose-blog blockquote,
+.site-root .prose-faq blockquote,
+.site-root .prose-provider blockquote {
   border-left: 3px solid var(--accent);
   padding-left: 1rem;
   margin: 1.5rem 0;
@@ -636,33 +636,33 @@
   font-style: italic;
 }
 
-.redesign-root .prose-blog hr,
-.redesign-root .prose-faq hr,
-.redesign-root .prose-provider hr {
+.site-root .prose-blog hr,
+.site-root .prose-faq hr,
+.site-root .prose-provider hr {
   border: none;
   border-top: 1px solid var(--border);
   margin: 2.5rem 0;
 }
 
-.redesign-root .prose-blog strong,
-.redesign-root .prose-faq strong,
-.redesign-root .prose-provider strong {
+.site-root .prose-blog strong,
+.site-root .prose-faq strong,
+.site-root .prose-provider strong {
   color: var(--text-primary);
   font-weight: 600;
 }
 
-.redesign-root .prose-blog table,
-.redesign-root .prose-faq table,
-.redesign-root .prose-provider table {
+.site-root .prose-blog table,
+.site-root .prose-faq table,
+.site-root .prose-provider table {
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: 0.92rem;
 }
 
-.redesign-root .prose-blog th,
-.redesign-root .prose-faq th,
-.redesign-root .prose-provider th {
+.site-root .prose-blog th,
+.site-root .prose-faq th,
+.site-root .prose-provider th {
   color: var(--text-primary);
   font-weight: 600;
   text-align: left;
@@ -673,21 +673,21 @@
   letter-spacing: 0.04em;
 }
 
-.redesign-root .prose-blog td,
-.redesign-root .prose-faq td,
-.redesign-root .prose-provider td {
+.site-root .prose-blog td,
+.site-root .prose-faq td,
+.site-root .prose-provider td {
   padding: 0.55rem 0.85rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
 
-.redesign-root .prose-blog tr:last-child td,
-.redesign-root .prose-faq tr:last-child td,
-.redesign-root .prose-provider tr:last-child td {
+.site-root .prose-blog tr:last-child td,
+.site-root .prose-faq tr:last-child td,
+.site-root .prose-provider tr:last-child td {
   border-bottom: none;
 }
 
-.redesign-root .divider-glow {
+.site-root .divider-glow {
   height: 1px;
   background: var(--border);
 }

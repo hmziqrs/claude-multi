@@ -1,6 +1,6 @@
 ---
 import '../styles/globals.css';
-import '../styles/redesign.css';
+import '../styles/theme.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import {
@@ -14,18 +14,36 @@ import {
 interface Props {
   title?: string;
   description?: string;
+  ogType?: 'website' | 'article';
   ogImage?: string;
+  articlePublishedTime?: Date;
+  articleTags?: string[];
+  jsonLd?: Record<string, unknown>;
   noindex?: boolean;
 }
 
 const {
   title = DEFAULT_TITLE,
   description = DEFAULT_DESC,
+  ogType = 'website',
   ogImage = DEFAULT_OG_IMAGE,
+  articlePublishedTime,
+  articleTags,
+  jsonLd,
   noindex = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE).toString();
+const pathSegments = Astro.url.pathname.replace(/^\/|\/$/g, '').split('/');
+const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
+  ? [
+      { name: 'Home', url: SITE },
+      ...pathSegments.map((seg, i) => ({
+        name: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/[-_]/g, ' '),
+        url: `${SITE}/${pathSegments.slice(0, i + 1).join('/')}/`,
+      })),
+    ]
+  : [{ name: 'Home', url: SITE }];
 ---
 
 <!doctype html>
@@ -48,7 +66,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/JetBrainsMonoVariable.woff2" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="claude-multi" />
     <meta property="og:locale" content="en_US" />
@@ -64,6 +82,12 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={DEFAULT_OG_IMAGE_ALT} />
+    {ogType === 'article' && articlePublishedTime && (
+      <meta property="article:published_time" content={articlePublishedTime.toISOString()} />
+    )}
+    {ogType === 'article' && articleTags?.map((tag) => (
+      <meta property="article:tag" content={tag} />
+    ))}
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -88,27 +112,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           programmingLanguage: 'TypeScript',
           installUrl: 'https://www.npmjs.com/package/claude-multi',
         },
-        {
-          '@context': 'https://schema.org',
-          '@type': 'WebSite',
-          name: 'claude-multi',
-          url: SITE,
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: `${SITE}/blog/?q={search_term_string}`,
-            'query-input': 'required name=search_term_string',
-          },
-        },
-        {
-          '@context': 'https://schema.org',
-          '@type': 'Organization',
-          name: 'hmziqrs',
-          url: 'https://hmziq.rs',
-          sameAs: [
-            'https://github.com/hmziqrs/claude-multi',
-            'https://twitter.com/hmziqrs',
-          ],
-        },
+        ...(jsonLd ? [jsonLd] : []),
+        ...(pathSegments.length > 0 && pathSegments[0] !== '' ? [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbs.map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, name: crumb.name, item: crumb.url })) }] : []),
       ])}
     />
     <script is:inline>
@@ -123,10 +128,8 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
   </head>
 
   <body>
-    <div class="redesign-root">
+    <div class="site-root">
       <script is:inline>
-        // Mark JS as available as early as possible so reveal content is only
-        // hidden when scripting is on (see the .no-js fallback in <style>).
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js');
       </script>
@@ -167,8 +170,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           );
           revealEls.forEach((el) => io.observe(el));
 
-          // Fail-safe: reveal all sections shortly after load — below-fold .reveal nodes start
-          // at opacity:0, leaving them blank in captured screenshots and fast-scroll/no-IO cases.
           const revealAll = () =>
             revealEls.forEach((el) => el.classList.add('visible'));
           if (document.readyState === 'loading') {
@@ -190,13 +191,12 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     overflow-x: hidden;
   }
 
-  /* No-JS fallback: never hide reveal content when scripting is unavailable. */
   :global(html:not(.js) .reveal) {
     opacity: 1 !important;
     transform: none !important;
   }
 
-  .redesign-root {
+  .site-root {
     position: relative;
     isolation: isolate;
     z-index: 0;
@@ -207,8 +207,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* The shared SiteFooter uses the legacy lime theme tokens; remap them to
-       coral/neutral tokens so it stays on-theme inside the redesign shell. */
     --color-lime: var(--accent);
     --color-lime-bright: var(--accent-hover);
     --color-edge: var(--border-subtle);
@@ -218,12 +216,11 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     --color-text-mute: var(--text-muted);
   }
 
-  /* Neutralize the legacy footer's hardcoded lime gradients inside the redesign. */
-  .redesign-root :global(.site-footer) {
+  .site-root :global(.site-footer) {
     border-top-color: var(--border-subtle);
     background: var(--surface-page);
   }
-  .redesign-root :global(.footer-divider) {
+  .site-root :global(.footer-divider) {
     background: var(--border);
   }
 
