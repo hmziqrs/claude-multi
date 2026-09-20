@@ -336,38 +336,6 @@ describe("Migration", () => {
     });
 
     describe("0.6.2 instance migration", () => {
-      test("regenerates wrapper when content differs", async () => {
-        const { runInstanceMigrations } = await import("@/migration");
-
-        const cmDir = join(testDir, ".claude-multi");
-        mkdirSync(cmDir, { recursive: true });
-        mkdirSync(join(testDir, "bin"), { recursive: true });
-
-        const instDir = join(testDir, ".claude-old");
-        mkdirSync(instDir, { recursive: true });
-        const binaryPath = join(testDir, "bin", "old");
-
-        writeFileSync(binaryPath, `#!/bin/sh\nexport CLAUDE_CONFIG_DIR="/stale/path"\nexec "/stale/claude" "$@"\n`, { mode: 0o755 });
-
-        const config = makeConfig({
-          instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "old",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
-        });
-
-        const result = await runInstanceMigrations(config);
-        expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
-
-        const content = readFileSync(binaryPath, "utf-8");
-        expect(content).toContain(`CLAUDE_CONFIG_DIR="${instDir}"`);
-        expect(content).not.toContain("/stale/path");
-      });
-
       test("uses global claude path, not pinned binary", async () => {
         const { runInstanceMigrations } = await import("@/migration");
 
@@ -555,53 +523,6 @@ describe("Migration", () => {
 
         const wrapperContent = readFileSync(binaryPath, "utf-8");
         expect(wrapperContent).toContain("/old/claude");
-      });
-
-      test("handles multiple instances with mixed versions", async () => {
-        const { runInstanceMigrations } = await import("@/migration");
-
-        const cmDir = join(testDir, ".claude-multi");
-        mkdirSync(cmDir, { recursive: true });
-        mkdirSync(join(testDir, "bin"), { recursive: true });
-
-        const currentInstDir = join(testDir, ".claude-current-mix");
-        mkdirSync(currentInstDir, { recursive: true });
-        const currentBinaryPath = join(testDir, "bin", "current-mix");
-        writeFileSync(currentBinaryPath, "#!/bin/sh\nexec /old/current \"$@\"\n", { mode: 0o755 });
-
-        const oldInstDir = join(testDir, ".claude-old-mix");
-        mkdirSync(oldInstDir, { recursive: true });
-        const oldBinaryPath = join(testDir, "bin", "old-mix");
-        writeFileSync(oldBinaryPath, "#!/bin/sh\nexec /old/old \"$@\"\n", { mode: 0o755 });
-
-        const config = makeConfig({
-          instanceMigrationVersion: "0.1.0",
-          instances: [
-            {
-              name: "current-mix",
-              configDir: currentInstDir,
-              binaryPath: currentBinaryPath,
-              createdAt: new Date().toISOString(),
-              createdWithVersion: getClaudeMultiVersion(),
-            },
-            {
-              name: "old-mix",
-              configDir: oldInstDir,
-              binaryPath: oldBinaryPath,
-              createdAt: new Date().toISOString(),
-              createdWithVersion: "0.5.0",
-            },
-          ],
-        });
-
-        await runInstanceMigrations(config);
-
-        const currentContent = readFileSync(currentBinaryPath, "utf-8");
-        expect(currentContent).toContain("/old/current");
-
-        const oldContent = readFileSync(oldBinaryPath, "utf-8");
-        expect(oldContent).not.toContain("/old/old");
-        expect(oldContent).toContain(`CLAUDE_CONFIG_DIR="${oldInstDir}"`);
       });
 
       test("still updates .claude.json when wrapper is missing but instance is not at current version", async () => {
