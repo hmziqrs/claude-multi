@@ -1,4 +1,4 @@
-/* theme.css — site design system (coral/dark); all tokens scoped under .site-root so they
+/* theme.css: site design system (coral/dark); all tokens scoped under .site-root so they
    never clash with globals.css; plain CSS only; fonts self-hosted via globals.css @font-face (no Google Fonts @import). */
 
 /* ===================== TOKENS (scoped to .site-root) ===================== */

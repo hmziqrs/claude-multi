@@ -1,5 +1,5 @@
 /**
- * Shared SEO constants. DEFAULT_DESC mirrors the homepage hero copy — keep it 150–160 chars
+ * Shared SEO constants. DEFAULT_DESC mirrors the homepage hero copy: keep it 150-160 chars
  * (Google truncates beyond that) and update it here only, so the site layouts cannot drift.
  */
 export const SITE_URL = "https://claude-multi.hmziq.xyz";

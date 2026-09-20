@@ -1,4 +1,4 @@
-/* claude-multi Starlight theme (coral · dark · glass) — overrides Starlight via
+/* claude-multi Starlight theme (coral · dark · glass): overrides Starlight via
    --sl-* tokens + class targeting; single source for all docs styling. */
 
 :root,
@@ -71,7 +71,7 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-/* ===== GLOBAL CANVAS — subtle ambient layers ===== */
+/* ===== GLOBAL CANVAS: subtle ambient layers ===== */
 
 html {
   scroll-behavior: smooth;
@@ -111,7 +111,7 @@ header.header {
   z-index: 10;
 }
 
-/* ===== TOP HEADER — frosted, lime accents ===== */
+/* ===== TOP HEADER: frosted, lime accents ===== */
 
 header.header {
   background: rgba(11, 12, 14, 0.72) !important;
@@ -168,7 +168,7 @@ site-search button:hover,
   background: rgba(28, 28, 38, 0.7) !important;
 }
 
-/* ===== SIDEBAR — glass + glowing active state ===== */
+/* ===== SIDEBAR: glass + glowing active state ===== */
 
 /* Desktop (≥72rem): nav.sidebar and .main-frame share one grid cell and overlap; sticky
    .sidebar-pane stays visible but stops at .page's bottom. Mobile keeps Starlight's flex-column. */
@@ -255,7 +255,7 @@ nav.sidebar {
   color: var(--sl-color-white) !important;
 }
 
-/* ===== CONTENT — typography + flow ===== */
+/* ===== CONTENT: typography + flow ===== */
 
 .content-panel {
   font-size: 1rem;
@@ -624,7 +624,7 @@ footer .meta a:hover {
   color: var(--sl-color-accent);
 }
 
-/* Site footer — injected at body level by Vite plugin (SSR),
+/* Site footer: injected at body level by Vite plugin (SSR),
    so it naturally spans full viewport width with no sidebar overlap. */
 footer.site-footer {
   position: relative;
@@ -802,7 +802,7 @@ footer.site-footer .footer-bottom-links {
   background: rgba(217, 119, 87, 0.3);
 }
 
-/* ===== PRINT — strip ambient layers ===== */
+/* ===== PRINT: strip ambient layers ===== */
 
 @media print {
   body::before,
