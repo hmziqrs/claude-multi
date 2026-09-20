@@ -75,12 +75,12 @@
       /* ── provider color cycle (6 providers, 12s total, 2s each) ── */
       @keyframes provider-cycle {
         0%        { stroke: #6dd9a1; } /* GLM       */
-        16.6667%  { stroke: #00d4aa; } /* Qwen      */
-        33.3333%  { stroke: #e040fb; } /* Kimi      */
-        50%       { stroke: #ff8c42; } /* MiniMax   */
-        66.6667%  { stroke: #ff6900; } /* MiMo      */
-        83.3333%  { stroke: #4f8ef7; } /* DeepSeek  */
-        100%      { stroke: #4f8ef7; } /* DeepSeek (hold for wrap) */
+        16.6667%  { stroke: #7aa7ff; } /* Qwen      */
+        33.3333%  { stroke: #c79bff; } /* Kimi      */
+        50%       { stroke: #d97757; } /* MiniMax   */
+        66.6667%  { stroke: #f2c4b3; } /* MiMo      */
+        83.3333%  { stroke: #6dd9a1; } /* DeepSeek  */
+        100%      { stroke: #6dd9a1; } /* GLM (hold for wrap) */
       }
 
       /* ── opacity pulse keyframes ── */
@@ -123,8 +123,8 @@
         animation: provider-cycle 12s steps(6) infinite;
       }
       .layer-back .provider-cycle  { animation-delay: 0s;   } /* starts on GLM     */
-      .layer-mid .provider-cycle   { animation-delay: -4s;  } /* starts on Kimi    */
-      .layer-front .provider-cycle { animation-delay: -10s; } /* starts on DeepSeek */
+      .layer-mid .provider-cycle   { animation-delay: -4s;  } /* starts on MiniMax */
+      .layer-front .provider-cycle { animation-delay: -10s; } /* starts on Qwen    */
 
       .ambient {
         animation: glow-pulse 3s ease-in-out infinite;
@@ -144,10 +144,10 @@
     <rect class="provider-cycle" x="10" y="22" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#6dd9a1" stroke-opacity=".6"/>
   </g>
   <g class="layer-mid">
-    <rect class="provider-cycle" x="14" y="18" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#e040fb" stroke-opacity=".7"/>
+    <rect class="provider-cycle" x="14" y="18" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#c79bff" stroke-opacity=".7"/>
   </g>
   <g class="layer-front" filter="url(#shadow)">
-    <rect class="provider-cycle" x="18" y="14" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#4f8ef7" stroke-opacity=".8"/>
+    <rect class="provider-cycle" x="18" y="14" width="36" height="28" rx="5" fill="#0c0c0f" stroke="#7aa7ff" stroke-opacity=".8"/>
   </g>
 
   <!-- brand card -->
