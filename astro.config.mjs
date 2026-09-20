@@ -5,9 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 import { readFileSync, readdirSync } from 'fs';
 import { join, dirname, basename } from 'path';
-import { getSiteFooterHtml } from './src/web/util/site-footer-html';
-import { latestVersion } from './src/web/util/changelog';
-import { DEFAULT_OG_IMAGE_ALT as OG_IMAGE_ALT } from './src/web/util/seo';
+import { getSiteFooterHtml } from './web/util/site-footer-html';
+import { latestVersion } from './web/util/changelog';
+import { DEFAULT_OG_IMAGE_ALT as OG_IMAGE_ALT } from './web/util/seo';
 import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
@@ -17,10 +17,10 @@ const FOOTER_HTML = getSiteFooterHtml(latestVersion);
  * Used for sitemap <lastmod>; astro:content is not available in this file.
  */
 const BLOG_DATES = new Map(
-  readdirSync('./src/web/content/blog')
+  readdirSync('./web/content/blog')
     .filter((f) => f.endsWith('.md'))
     .flatMap((f) => {
-      const raw = readFileSync(join('./src/web/content/blog', f), 'utf-8');
+      const raw = readFileSync(join('./web/content/blog', f), 'utf-8');
       const date = raw.match(/^date:\s*(.+)$/m)?.[1].trim().replace(/^["']|["']$/g, '');
       const parsed = date ? new Date(date) : null;
       if (!parsed || Number.isNaN(parsed.valueOf())) return [];
@@ -29,7 +29,7 @@ const BLOG_DATES = new Map(
 );
 
 /**
- * Dev-vs-build split: dev pages get the footer via src/web/middleware.ts;
+ * Dev-vs-build split: dev pages get the footer via web/middleware.ts;
  * static builds get it here via this integration's astro:build:done hook.
  */
 function injectSiteFooterIntegration() {
@@ -79,7 +79,7 @@ function serveLocalAudio() {
 
 export default defineConfig({
   site: 'https://claude-multi.hmziq.xyz',
-  srcDir: './src/web',
+  srcDir: './web',
   vite: {
     plugins: [tailwindcss(), serveLocalAudio()],
   },
@@ -151,14 +151,14 @@ export default defineConfig({
         },
       ],
       components: {
-        Default: './src/web/layouts/StarlightLayout.astro',
-        Header: './src/web/components/StarlightHeader.astro',
-        Footer: './src/web/components/StarlightFooter.astro',
+        Default: './web/layouts/StarlightLayout.astro',
+        Header: './web/components/StarlightHeader.astro',
+        Footer: './web/components/StarlightFooter.astro',
       },
-      customCss: ['/src/web/styles/starlight.css'],
+      customCss: ['/web/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',
-      // The site ships its own branded 404 at src/web/pages/404.astro;
+      // The site ships its own branded 404 at web/pages/404.astro;
       // disable Starlight's default /404 to avoid a route collision.
       disable404Route: true,
       head: [

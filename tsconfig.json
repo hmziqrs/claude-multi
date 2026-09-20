@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "web"],
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["ESNext"],
@@ -12,7 +12,7 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "paths": { "@/*": ["./src/*"] },
+    "paths": { "@/*": ["./src/*"], "@/web/*": ["./web/*"] },
     "verbatimModuleSyntax": true,
     "noEmit": true,
 

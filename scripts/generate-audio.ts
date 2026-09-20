@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import { join, basename } from "path";
 
-const BLOG_DIR = join(import.meta.dir, "../src/web/content/blog");
+const BLOG_DIR = join(import.meta.dir, "../web/content/blog");
 const OUTPUT_DIR = join(import.meta.dir, "../audio");
 const API_URL = "http://localhost:8880/v1/audio/speech";
 const VOICE = "af_heart";

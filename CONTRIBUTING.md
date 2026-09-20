@@ -31,15 +31,16 @@ src/
 ├── util/
 │   ├── json-file.ts    # Atomic JSON file writes
 │   └── runtime.ts      # Package manager detection
-├── ink/                # Ink-based Terminal UI
-│   ├── App.tsx         # Root app: menu, screen routing, keyboard input
-│   ├── main.tsx        # Ink render entry point
-│   ├── components/     # Reusable UI components
-│   ├── screens/        # TUI screens (AddInstance, ListInstances, etc.)
-│   └── hooks/          # Custom hooks (useConfig, useHealthCheck, etc.)
-└── web/                # Astro docs site (this site)
-    ├── content/        # Starlight docs + blog + FAQ
-    └── pages/          # Marketing page, static pages
+└── ink/                # Ink-based Terminal UI
+    ├── App.tsx         # Root app: menu, screen routing, keyboard input
+    ├── main.tsx        # Ink render entry point
+    ├── components/     # Reusable UI components
+    ├── screens/        # TUI screens (AddInstance, ListInstances, etc.)
+    └── hooks/          # Custom hooks (useConfig, useHealthCheck, etc.)
+
+web/                    # Astro docs site (this site)
+├── content/            # Starlight docs + blog + FAQ
+└── pages/              # Marketing page, static pages
 ```
 
 ## Build
@@ -122,7 +123,7 @@ The project uses GitHub Actions for:
 2. Add a new entry to the `providerTemplates` object following the existing pattern
 3. Set `name`, `displayName`, `description`, and the `settings.env` block
 4. Run tests: `bun test`
-5. Update the provider table in `src/web/pages/providers/index.astro` and add a matching entry to `src/web/content/providers/`
+5. Update the provider table in `web/pages/providers/index.astro` and add a matching entry to `web/content/providers/`
 
 ## Submitting changes
 
