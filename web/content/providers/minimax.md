@@ -17,9 +17,9 @@ MiniMax-M3 has a 1 million token context window and a 512K max output. That size
 
 ## Model specs
 
-| Role | Model | Context | Max Output |
-|------|-------|---------|------------|
-| All roles | MiniMax-M3 | 1M | 512K |
+| Role      | Model      | Context | Max Output |
+| --------- | ---------- | ------- | ---------- |
+| All roles | MiniMax-M3 | 1M      | 512K       |
 
 The template maps MiniMax-M3 to every role (Opus, Sonnet, Haiku, small/fast). There is only one model, so quick shell commands and complex multi-step reasoning both go to it.
 
@@ -50,11 +50,11 @@ For shorter, more interactive sessions, DeepSeek or GLM may cost you less.
 
 MiniMax bills per token through [minimax.io](https://minimax.io) with no monthly commitment. Token Plan subscriptions are also available (Plus / Max / Ultra monthly tiers). Both routes share the same `api.minimax.io` endpoint, and your API key type decides which quota gets consumed.
 
-| Tier | Input / 1M | Output / 1M |
-|------|-----------|-------------|
-| Standard (up to 512K context) | $0.60 | $2.40 |
-| Long context (512K to 1M) | $1.20 | $4.80 |
-| Cache read | $0.12 | n/a |
+| Tier                          | Input / 1M | Output / 1M |
+| ----------------------------- | ---------- | ----------- |
+| Standard (up to 512K context) | $0.60      | $2.40       |
+| Long context (512K to 1M)     | $1.20      | $4.80       |
+| Cache read                    | $0.12      | n/a         |
 
 For benchmark comparisons vs Opus 4.7 and GPT-5.5, see the [MiniMax M3 announcement post](/blog/minimax-m3-one-million-context-frontier-coding/).
 

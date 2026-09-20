@@ -1,5 +1,15 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readdirSync, readFileSync, statSync, utimesSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  mkdirSync,
+  writeFileSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  utimesSync,
+} from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Config } from "@/config";
@@ -20,21 +30,24 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 // glm-5.2-era settings as shipped by pre-0.11.0 templates
 function writeGlmSettings(instDir: string, env: Record<string, string> = {}) {
   mkdirSync(instDir, { recursive: true });
-  writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-    env: {
-      ANTHROPIC_AUTH_TOKEN: "sk-glm-secret",
-      ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic",
-      ANTHROPIC_MODEL: "glm-5.2[1m]",
-      ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.2[1m]",
-      ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.1",
-      ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5-turbo",
-      ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
-      MAX_OUTPUT_TOKENS: "64000",
-      ...env,
-    },
-    includeCoAuthoredBy: false,
-    alwaysThinkingEnabled: false,
-  }));
+  writeFileSync(
+    join(instDir, "settings.json"),
+    JSON.stringify({
+      env: {
+        ANTHROPIC_AUTH_TOKEN: "sk-glm-secret",
+        ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic",
+        ANTHROPIC_MODEL: "glm-5.2[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.2[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.1",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5-turbo",
+        ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
+        MAX_OUTPUT_TOKENS: "64000",
+        ...env,
+      },
+      includeCoAuthoredBy: false,
+      alwaysThinkingEnabled: false,
+    }),
+  );
 }
 
 describe("Migration", () => {
@@ -45,7 +58,9 @@ describe("Migration", () => {
 
   afterEach(() => {
     process.env.CLAUDE_MULTI_HOME = originalEnv;
-    try { rmSync(testDir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(testDir, { recursive: true, force: true });
+    } catch {}
   });
 
   describe("needsMigration", () => {
@@ -68,7 +83,12 @@ describe("Migration", () => {
           migrationStatus: "failed",
           lastMigrationAt: new Date().toISOString(),
           migratedFromVersion: "1.0.0",
-          failureInfo: { failedAt: new Date().toISOString(), error: "test", step: "migration", canRetry: true },
+          failureInfo: {
+            failedAt: new Date().toISOString(),
+            error: "test",
+            step: "migration",
+            canRetry: true,
+          },
         },
       });
       expect(needsMigration(config)).toBe(false);
@@ -83,7 +103,12 @@ describe("Migration", () => {
           migrationStatus: "failed",
           lastMigrationAt: new Date().toISOString(),
           migratedFromVersion: "1.0.0",
-          failureInfo: { failedAt: new Date().toISOString(), error: "test", step: "migration", canRetry: true },
+          failureInfo: {
+            failedAt: new Date().toISOString(),
+            error: "test",
+            step: "migration",
+            canRetry: true,
+          },
         },
       });
       const cleared = clearMigrationFailure(config);
@@ -144,13 +169,15 @@ describe("Migration", () => {
       mkdirSync(cmDir, { recursive: true });
 
       const config = makeConfig({
-        instances: [{
-          name: "testinst",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "testinst"),
-          createdAt: new Date().toISOString(),
-          autoSync: false,
-        }],
+        instances: [
+          {
+            name: "testinst",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "testinst"),
+            createdAt: new Date().toISOString(),
+            autoSync: false,
+          },
+        ],
       });
       writeFileSync(join(cmDir, "config.json"), JSON.stringify(config));
 
@@ -166,13 +193,15 @@ describe("Migration", () => {
       const { runMigration } = await import("@/migration");
 
       const config = makeConfig({
-        instances: [{
-          name: "ghost",
-          configDir: join(testDir, "nonexistent"),
-          binaryPath: join(testDir, "bin", "ghost"),
-          createdAt: new Date().toISOString(),
-          autoSync: false,
-        }],
+        instances: [
+          {
+            name: "ghost",
+            configDir: join(testDir, "nonexistent"),
+            binaryPath: join(testDir, "bin", "ghost"),
+            createdAt: new Date().toISOString(),
+            autoSync: false,
+          },
+        ],
       });
 
       const cmDir = join(testDir, ".claude-multi");
@@ -264,10 +293,13 @@ describe("Migration", () => {
       mkdirSync(cmDir, { recursive: true });
 
       const lockFile = join(cmDir, ".migration.lock");
-      writeFileSync(lockFile, JSON.stringify({
-        pid: process.pid,
-        startedAt: new Date().toISOString(),
-      }));
+      writeFileSync(
+        lockFile,
+        JSON.stringify({
+          pid: process.pid,
+          startedAt: new Date().toISOString(),
+        }),
+      );
 
       const config = makeConfig();
       const result = await runMigration(config);
@@ -314,17 +346,21 @@ describe("Migration", () => {
         mkdirSync(instDir, { recursive: true });
         const binaryPath = join(testDir, "bin", "skip-test");
 
-        writeFileSync(binaryPath, "#!/bin/sh\n# old wrapper\nexec /old/claude \"$@\"\n", { mode: 0o755 });
+        writeFileSync(binaryPath, '#!/bin/sh\n# old wrapper\nexec /old/claude "$@"\n', {
+          mode: 0o755,
+        });
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "skip-test",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: getClaudeMultiVersion(),
-          }],
+          instances: [
+            {
+              name: "skip-test",
+              configDir: instDir,
+              binaryPath,
+              createdAt: new Date().toISOString(),
+              createdWithVersion: getClaudeMultiVersion(),
+            },
+          ],
         });
 
         const result = await runInstanceMigrations(config);
@@ -349,17 +385,19 @@ describe("Migration", () => {
         const instDir = join(testDir, ".claude-global");
         mkdirSync(instDir, { recursive: true });
         const binaryPath = join(testDir, "bin", "global");
-        writeFileSync(binaryPath, "#!/bin/sh\nexec /old/claude \"$@\"\n", { mode: 0o755 });
+        writeFileSync(binaryPath, '#!/bin/sh\nexec /old/claude "$@"\n', { mode: 0o755 });
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "global",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
+          instances: [
+            {
+              name: "global",
+              configDir: instDir,
+              binaryPath,
+              createdAt: new Date().toISOString(),
+              createdWithVersion: "0.5.0",
+            },
+          ],
         });
 
         await runInstanceMigrations(config);
@@ -389,13 +427,15 @@ describe("Migration", () => {
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "same",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
+          instances: [
+            {
+              name: "same",
+              configDir: instDir,
+              binaryPath,
+              createdAt: new Date().toISOString(),
+              createdWithVersion: "0.5.0",
+            },
+          ],
         });
 
         await runInstanceMigrations(config);
@@ -416,13 +456,15 @@ describe("Migration", () => {
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "nowrapper",
-            configDir: instDir,
-            binaryPath: join(testDir, "bin", "nowrapper"),
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
+          instances: [
+            {
+              name: "nowrapper",
+              configDir: instDir,
+              binaryPath: join(testDir, "bin", "nowrapper"),
+              createdAt: new Date().toISOString(),
+              createdWithVersion: "0.5.0",
+            },
+          ],
         });
 
         const result = await runInstanceMigrations(config);
@@ -441,17 +483,19 @@ describe("Migration", () => {
         writeFileSync(join(instDir, ".claude.json"), JSON.stringify({ migrationVersion: 10 }));
 
         const binaryPath = join(testDir, "bin", "stale-json");
-        writeFileSync(binaryPath, "#!/bin/sh\nexec /claude \"$@\"\n", { mode: 0o755 });
+        writeFileSync(binaryPath, '#!/bin/sh\nexec /claude "$@"\n', { mode: 0o755 });
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "stale-json",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
+          instances: [
+            {
+              name: "stale-json",
+              configDir: instDir,
+              binaryPath,
+              createdAt: new Date().toISOString(),
+              createdWithVersion: "0.5.0",
+            },
+          ],
         });
 
         await runInstanceMigrations(config);
@@ -472,17 +516,19 @@ describe("Migration", () => {
         writeFileSync(join(instDir, ".claude.json"), JSON.stringify({ migrationVersion: 13 }));
 
         const binaryPath = join(testDir, "bin", "ok-json");
-        writeFileSync(binaryPath, "#!/bin/sh\nexec /claude \"$@\"\n", { mode: 0o755 });
+        writeFileSync(binaryPath, '#!/bin/sh\nexec /claude "$@"\n', { mode: 0o755 });
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "ok-json",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
+          instances: [
+            {
+              name: "ok-json",
+              configDir: instDir,
+              binaryPath,
+              createdAt: new Date().toISOString(),
+              createdWithVersion: "0.5.0",
+            },
+          ],
         });
 
         await runInstanceMigrations(config);
@@ -503,17 +549,19 @@ describe("Migration", () => {
         writeFileSync(join(instDir, ".claude.json"), JSON.stringify({ migrationVersion: 5 }));
 
         const binaryPath = join(testDir, "bin", "fastpath-json");
-        writeFileSync(binaryPath, "#!/bin/sh\nexec /old/claude \"$@\"\n", { mode: 0o755 });
+        writeFileSync(binaryPath, '#!/bin/sh\nexec /old/claude "$@"\n', { mode: 0o755 });
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "fastpath-json",
-            configDir: instDir,
-            binaryPath,
-            createdAt: new Date().toISOString(),
-            createdWithVersion: getClaudeMultiVersion(),
-          }],
+          instances: [
+            {
+              name: "fastpath-json",
+              configDir: instDir,
+              binaryPath,
+              createdAt: new Date().toISOString(),
+              createdWithVersion: getClaudeMultiVersion(),
+            },
+          ],
         });
 
         await runInstanceMigrations(config);
@@ -537,13 +585,15 @@ describe("Migration", () => {
 
         const config = makeConfig({
           instanceMigrationVersion: "0.1.0",
-          instances: [{
-            name: "no-wrapper-json",
-            configDir: instDir,
-            binaryPath: join(testDir, "bin", "no-wrapper-json"),
-            createdAt: new Date().toISOString(),
-            createdWithVersion: "0.5.0",
-          }],
+          instances: [
+            {
+              name: "no-wrapper-json",
+              configDir: instDir,
+              binaryPath: join(testDir, "bin", "no-wrapper-json"),
+              createdAt: new Date().toISOString(),
+              createdWithVersion: "0.5.0",
+            },
+          ],
         });
 
         await runInstanceMigrations(config);
@@ -563,12 +613,14 @@ describe("Migration", () => {
 
       const config = {
         version: "2.0.0",
-        instances: [{
-          name: "old",
-          configDir: join(testDir, ".claude-old"),
-          binaryPath: join(testDir, "bin", "old"),
-          createdAt: new Date().toISOString(),
-        }],
+        instances: [
+          {
+            name: "old",
+            configDir: join(testDir, ".claude-old"),
+            binaryPath: join(testDir, "bin", "old"),
+            createdAt: new Date().toISOString(),
+          },
+        ],
       };
       writeFileSync(join(testDir, "config.json"), JSON.stringify(config));
 
@@ -588,13 +640,15 @@ describe("Migration", () => {
 
       const config = {
         version: "2.0.0",
-        instances: [{
-          name: "new",
-          configDir: join(testDir, ".claude-new"),
-          binaryPath: join(testDir, "bin", "new"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.6.1",
-        }],
+        instances: [
+          {
+            name: "new",
+            configDir: join(testDir, ".claude-new"),
+            binaryPath: join(testDir, "bin", "new"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.6.1",
+          },
+        ],
       };
       writeFileSync(join(testDir, "config.json"), JSON.stringify(config));
 
@@ -618,24 +672,29 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-mimo-sync");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-test-key-123",
-          ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-          ANTHROPIC_SMALL_FAST_MODEL: "mimo-v2.5",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-test-key-123",
+            ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+            ANTHROPIC_SMALL_FAST_MODEL: "mimo-v2.5",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "mimo-sync",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "mimo-sync"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "mimo-sync",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "mimo-sync"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -656,23 +715,28 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-key-preserve");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-my-secret-key",
-          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
-          ANTHROPIC_MODEL: "deepseek-v4-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-my-secret-key",
+            ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+            ANTHROPIC_MODEL: "deepseek-v4-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "key-preserve",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "key-preserve"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "key-preserve",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "key-preserve"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -690,23 +754,28 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-custom");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-test",
-          ANTHROPIC_BASE_URL: "https://custom.api.com/anthropic",
-          ANTHROPIC_MODEL: "custom-model",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-test",
+            ANTHROPIC_BASE_URL: "https://custom.api.com/anthropic",
+            ANTHROPIC_MODEL: "custom-model",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "custom",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "custom"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "custom",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "custom"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -724,23 +793,28 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-backfill");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-test",
-          ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
-          ANTHROPIC_MODEL: "kimi-k2.5",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-test",
+            ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
+            ANTHROPIC_MODEL: "kimi-k2.5",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "backfill",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "backfill"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "backfill",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "backfill"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
@@ -758,13 +832,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "no-settings",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "no-settings"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "no-settings",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "no-settings"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
@@ -780,29 +856,36 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-mimo-sgp");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-sgp-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-sgp-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "mimo-sgp",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "mimo-sgp"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "mimo-sgp",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "mimo-sgp"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-sgp.xiaomimimo.com/anthropic",
+      );
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-sgp-key");
     });
@@ -816,29 +899,36 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-mimo-ams");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-ams-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-ams.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-ams-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-ams.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "mimo-ams",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "mimo-ams"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "mimo-ams",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "mimo-ams"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-ams.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-ams.xiaomimimo.com/anthropic",
+      );
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-ams-key");
     });
@@ -852,29 +942,36 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-mimo-cn");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-cn-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-cn.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-cn-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-cn.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "mimo-cn",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "mimo-cn"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "mimo-cn",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "mimo-cn"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-cn.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-cn.xiaomimimo.com/anthropic",
+      );
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
     });
 
@@ -887,23 +984,28 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-region-backfill");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "region-backfill",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "region-backfill"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "region-backfill",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "region-backfill"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
@@ -920,31 +1022,38 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-stored-region");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "stored-region",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "stored-region"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-          providerTemplate: "mimo-token",
-          providerRegion: "sgp",
-        }],
+        instances: [
+          {
+            name: "stored-region",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "stored-region"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+            providerTemplate: "mimo-token",
+            providerRegion: "sgp",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-sgp.xiaomimimo.com/anthropic",
+      );
       expect(result.instances[0]!.providerRegion).toBe("sgp");
     });
 
@@ -957,31 +1066,38 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-url-priority");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-ams.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-ams.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "url-priority",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "url-priority"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-          providerTemplate: "mimo-token",
-          providerRegion: "sgp",
-        }],
+        instances: [
+          {
+            name: "url-priority",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "url-priority"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+            providerTemplate: "mimo-token",
+            providerRegion: "sgp",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-ams.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-ams.xiaomimimo.com/anthropic",
+      );
       expect(result.instances[0]!.providerRegion).toBe("ams");
     });
 
@@ -994,29 +1110,36 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-trailing-slash");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic/",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic/",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "trailing-slash",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "trailing-slash"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "trailing-slash",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "trailing-slash"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-sgp.xiaomimimo.com/anthropic",
+      );
     });
 
     test("preserves base URL when region is unrecognizable (V02/V04)", async () => {
@@ -1028,31 +1151,38 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-unknown-region");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-custom.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-custom.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "unknown-region",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "unknown-region"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-          providerTemplate: "mimo-token", // stored provider so detectProvider is bypassed
-        }],
+        instances: [
+          {
+            name: "unknown-region",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "unknown-region"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+            providerTemplate: "mimo-token", // stored provider so detectProvider is bypassed
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       // providerTemplate is stored so the migration runs; region detection fails → fallback preserves the custom URL
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-custom.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-custom.xiaomimimo.com/anthropic",
+      );
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
     });
 
@@ -1065,31 +1195,38 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-invalid-region");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "invalid-region",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "invalid-region"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-          providerTemplate: "mimo-token",
-          providerRegion: "us", // invalid — not in MIMO_TOKEN_REGIONS
-        }],
+        instances: [
+          {
+            name: "invalid-region",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "invalid-region"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+            providerTemplate: "mimo-token",
+            providerRegion: "us", // invalid — not in MIMO_TOKEN_REGIONS
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-sgp.xiaomimimo.com/anthropic",
+      );
       expect(result.instances[0]!.providerRegion).toBe("sgp");
     });
 
@@ -1102,26 +1239,31 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-tunable");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_test-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-          MAX_OUTPUT_TOKENS: "32000",
-          REASONING_EFFORT: "low",
-          ENABLE_THINKING: "false",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+            MAX_OUTPUT_TOKENS: "32000",
+            REASONING_EFFORT: "low",
+            ENABLE_THINKING: "false",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "tunable",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "tunable"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.5.0",
-        }],
+        instances: [
+          {
+            name: "tunable",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "tunable"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.5.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -1142,23 +1284,28 @@ describe("Migration", () => {
       const instDir = join(testDir, ".claude-fastpath-063");
       mkdirSync(instDir, { recursive: true });
 
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-test",
-          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
-          ANTHROPIC_MODEL: "deepseek-v4-pro",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-test",
+            ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
+            ANTHROPIC_MODEL: "deepseek-v4-pro",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.1.0",
-        instances: [{
-          name: "fastpath-063",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "fastpath-063"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: getClaudeMultiVersion(),
-        }],
+        instances: [
+          {
+            name: "fastpath-063",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "fastpath-063"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: getClaudeMultiVersion(),
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -1177,13 +1324,15 @@ describe("Migration", () => {
     function glmConfig(instDir: string, overrides: Partial<Config> = {}): Config {
       return makeConfig({
         instanceMigrationVersion: "0.6.3", // 0.6.3 already applied — only 0.11.1 should run
-        instances: [{
-          name: "glm-old",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-old"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.10.0",
-        }],
+        instances: [
+          {
+            name: "glm-old",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-old"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.10.0",
+          },
+        ],
         ...overrides,
       });
     }
@@ -1284,13 +1433,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: "0.6.3",
-        instances: [{
-          name: "unknown-prov",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "unknown-prov"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.10.0",
-        }],
+        instances: [
+          {
+            name: "unknown-prov",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "unknown-prov"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.10.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -1307,13 +1458,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: "0.6.3",
-        instances: [{
-          name: "glm-fastpath",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-fastpath"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: getClaudeMultiVersion(),
-        }],
+        instances: [
+          {
+            name: "glm-fastpath",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-fastpath"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: getClaudeMultiVersion(),
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -1332,13 +1485,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: "0.11.0",
-        instances: [{
-          name: "glm-stored-0110",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-stored-0110"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.11.0",
-        }],
+        instances: [
+          {
+            name: "glm-stored-0110",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-stored-0110"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.11.0",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
@@ -1363,13 +1518,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: getClaudeMultiVersion(),
-        instances: [{
-          name: "glm-current",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-current"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.10.0",
-        }],
+        instances: [
+          {
+            name: "glm-current",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-current"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.10.0",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
@@ -1416,7 +1573,10 @@ describe("Migration", () => {
       const entries = readdirSync(backupsRoot);
       expect(entries.length).toBeGreaterThan(0);
       const backupSettings = JSON.parse(
-        readFileSync(join(backupsRoot, entries[0]!, "instances", "glm-old", "settings.json"), "utf-8"),
+        readFileSync(
+          join(backupsRoot, entries[0]!, "instances", "glm-old", "settings.json"),
+          "utf-8",
+        ),
       );
       expect(backupSettings.env.ANTHROPIC_MODEL).toBe("glm-5.2[1m]");
       expect(backupSettings.env.MAX_OUTPUT_TOKENS).toBe("64000");
@@ -1428,30 +1588,37 @@ describe("Migration", () => {
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
       const instDir = join(testDir, ".claude-mimo-token-sgp");
       mkdirSync(instDir, { recursive: true });
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "tp_sgp-key",
-          ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-          MAX_OUTPUT_TOKENS: "32000",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "tp_sgp-key",
+            ANTHROPIC_BASE_URL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+            MAX_OUTPUT_TOKENS: "32000",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.6.3",
-        instances: [{
-          name: "mimo-sgp",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "mimo-sgp"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.10.0",
-        }],
+        instances: [
+          {
+            name: "mimo-sgp",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "mimo-sgp"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.10.0",
+          },
+        ],
       });
 
       const result = await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe("https://token-plan-sgp.xiaomimimo.com/anthropic");
+      expect(settings.env.ANTHROPIC_BASE_URL).toBe(
+        "https://token-plan-sgp.xiaomimimo.com/anthropic",
+      );
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
       // mimo-token has no legacy defaults — custom tunable survives
       expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
@@ -1465,24 +1632,29 @@ describe("Migration", () => {
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
       const instDir = join(testDir, ".claude-kimi-tunables");
       mkdirSync(instDir, { recursive: true });
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-kimi",
-          ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
-          ANTHROPIC_MODEL: "kimi-k2.5",
-          MAX_OUTPUT_TOKENS: "32000",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-kimi",
+            ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
+            ANTHROPIC_MODEL: "kimi-k2.5",
+            MAX_OUTPUT_TOKENS: "32000",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: "0.6.3",
-        instances: [{
-          name: "kimi-tunables",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "kimi-tunables"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.10.0",
-        }],
+        instances: [
+          {
+            name: "kimi-tunables",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "kimi-tunables"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.10.0",
+          },
+        ],
       });
 
       await runInstanceMigrations(config);
@@ -1513,25 +1685,30 @@ describe("Migration", () => {
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
       const instDir = join(testDir, ".claude-minimax-template-drift");
       mkdirSync(instDir, { recursive: true });
-      writeFileSync(join(instDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-minimax",
-          ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
-          ANTHROPIC_MODEL: "MiniMax-M2",
-          ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2",
-          MAX_OUTPUT_TOKENS: "64000",
-        },
-      }));
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-minimax",
+            ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
+            ANTHROPIC_MODEL: "MiniMax-M2",
+            ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M2",
+            MAX_OUTPUT_TOKENS: "64000",
+          },
+        }),
+      );
 
       const config = makeConfig({
         instanceMigrationVersion: getClaudeMultiVersion(),
-        instances: [{
-          name: "minimax-template-drift",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "minimax-template-drift"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.11.0",
-        }],
+        instances: [
+          {
+            name: "minimax-template-drift",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "minimax-template-drift"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.11.0",
+          },
+        ],
       });
 
       expect(needsInstanceMigration(config)).toBe(true);
@@ -1548,13 +1725,15 @@ describe("Migration", () => {
     function glmConfig(instDir: string, overrides: Partial<Config> = {}): Config {
       return makeConfig({
         instanceMigrationVersion: "0.11.1", // 0.11.1 already applied — only 0.12.0 should run
-        instances: [{
-          name: "glm-old",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-old"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: "0.11.0",
-        }],
+        instances: [
+          {
+            name: "glm-old",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-old"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: "0.11.0",
+          },
+        ],
         ...overrides,
       });
     }
@@ -1603,13 +1782,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: getClaudeMultiVersion(),
-        instances: [{
-          name: "glm-missing-sonnet",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-missing-sonnet"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: getClaudeMultiVersion(),
-        }],
+        instances: [
+          {
+            name: "glm-missing-sonnet",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-missing-sonnet"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: getClaudeMultiVersion(),
+          },
+        ],
       });
 
       expect(needsInstanceMigration(config)).toBe(true);
@@ -1644,13 +1825,15 @@ describe("Migration", () => {
 
       const config = makeConfig({
         instanceMigrationVersion: getClaudeMultiVersion(),
-        instances: [{
-          name: "glm-current-fastpath",
-          configDir: instDir,
-          binaryPath: join(testDir, "bin", "glm-current-fastpath"),
-          createdAt: new Date().toISOString(),
-          createdWithVersion: getClaudeMultiVersion(),
-        }],
+        instances: [
+          {
+            name: "glm-current-fastpath",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "glm-current-fastpath"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: getClaudeMultiVersion(),
+          },
+        ],
       });
 
       expect(needsInstanceMigration(config)).toBe(false);

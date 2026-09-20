@@ -26,8 +26,7 @@ export function getClaudePath(): string {
   }
 
   try {
-    const command =
-      process.platform === "win32" ? "where claude" : "which claude";
+    const command = process.platform === "win32" ? "where claude" : "which claude";
     const claudePath = execSync(command, { encoding: "utf-8" }).trim();
     const firstPath = claudePath.split(/\r?\n/)[0];
     if (!firstPath) {
@@ -36,7 +35,11 @@ export function getClaudePath(): string {
     return firstPath.trim();
   } catch (err) {
     if (err instanceof ClaudeMultiError) throw err;
-    throw new ClaudeMultiError(ErrorCode.CLAUDE_NOT_FOUND, "Claude Code is not installed. Please install @anthropic-ai/claude-code first.", { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.CLAUDE_NOT_FOUND,
+      "Claude Code is not installed. Please install @anthropic-ai/claude-code first.",
+      { cause: err },
+    );
   }
 }
 
@@ -127,7 +130,6 @@ export function getDefaultBinaryPath(name: string): string {
     binDir = resolve(process.env.HOME || "", ".local", "bin");
   }
 
-  const binaryName =
-    process.platform === "win32" ? `claude-${name}.cmd` : `claude-${name}`;
+  const binaryName = process.platform === "win32" ? `claude-${name}.cmd` : `claude-${name}`;
   return resolve(binDir, binaryName);
 }

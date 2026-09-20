@@ -4,31 +4,31 @@
 :root,
 [data-theme="dark"] {
   /* ---------- Brand ---------- */
-  --sl-color-accent-low:  rgba(217, 119, 87, 0.12);
-  --sl-color-accent:      #d97757;
+  --sl-color-accent-low: rgba(217, 119, 87, 0.12);
+  --sl-color-accent: #d97757;
   --sl-color-accent-high: #e08a6d;
 
-  --sl-color-bg-accent:        #d97757;
-  --sl-color-bg-accent-hover:  #c4664a;
-  --sl-color-text-accent:      #d97757;
-  --sl-color-text-action:      #d97757;
+  --sl-color-bg-accent: #d97757;
+  --sl-color-bg-accent-hover: #c4664a;
+  --sl-color-text-accent: #d97757;
+  --sl-color-text-action: #d97757;
 
   /* ---------- Surface ---------- */
-  --sl-color-bg:          #0b0c0e;
-  --sl-color-bg-nav:      rgba(11, 12, 14, 0.72);
-  --sl-color-bg-sidebar:  rgba(13, 15, 19, 0.65);
-  --sl-color-bg-code:     rgba(13, 15, 19, 0.85);
+  --sl-color-bg: #0b0c0e;
+  --sl-color-bg-nav: rgba(11, 12, 14, 0.72);
+  --sl-color-bg-sidebar: rgba(13, 15, 19, 0.65);
+  --sl-color-bg-code: rgba(13, 15, 19, 0.85);
   --sl-color-bg-inline-code: rgba(217, 119, 87, 0.1);
 
   /* ---------- Text ---------- */
-  --sl-color-white:       #ffffff;
-  --sl-color-text:        #f2f3f5;
+  --sl-color-white: #ffffff;
+  --sl-color-text: #f2f3f5;
   --sl-color-text-invert: #0b0c0e;
 
   /* ---------- Borders ---------- */
-  --sl-color-hairline:        rgba(217, 119, 87, 0.08);
-  --sl-color-hairline-light:  rgba(217, 119, 87, 0.18);
-  --sl-color-hairline-shade:  rgba(255, 255, 255, 0.04);
+  --sl-color-hairline: rgba(217, 119, 87, 0.08);
+  --sl-color-hairline-light: rgba(217, 119, 87, 0.18);
+  --sl-color-hairline-shade: rgba(255, 255, 255, 0.04);
 
   /* ---------- Gray ramp ---------- */
   --sl-color-gray-1: #d4d4dc;
@@ -144,7 +144,9 @@ mobile-starlight-toc .dropdown {
 
 .social-icons a {
   color: var(--sl-color-gray-2);
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 .social-icons a:hover {
   color: var(--sl-color-accent) !important;
@@ -156,7 +158,9 @@ site-search button,
   background: rgba(20, 20, 28, 0.55) !important;
   border: 1px solid var(--sl-color-hairline) !important;
   backdrop-filter: blur(8px);
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 site-search button:hover,
 .sl-search button:hover {
@@ -233,7 +237,10 @@ nav.sidebar {
   padding: 0.4rem 0.75rem !important;
   font-size: 0.9rem;
   color: var(--sl-color-gray-1) !important;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .sidebar-content a:hover {
@@ -313,7 +320,9 @@ header h1 {
 .sl-markdown-content .heading-wrapper a {
   color: var(--sl-color-gray-3);
   opacity: 0;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
 }
 .sl-markdown-content .heading-wrapper:hover a {
   opacity: 1;
@@ -339,7 +348,9 @@ header h1 {
   background-repeat: no-repeat;
   background-size: 0% 1px;
   background-position: 0 100%;
-  transition: background-size 0.3s ease, color 0.2s ease;
+  transition:
+    background-size 0.3s ease,
+    color 0.2s ease;
 }
 .sl-markdown-content a:not(.btn):hover {
   background-size: 100% 1px;
@@ -485,27 +496,51 @@ header h1 {
   width: 3px;
 }
 
-.starlight-aside--note          { border-color: rgba(125, 211, 252, 0.25) !important; }
-.starlight-aside--note::before  { background: #38bdf8; }
+.starlight-aside--note {
+  border-color: rgba(125, 211, 252, 0.25) !important;
+}
+.starlight-aside--note::before {
+  background: #38bdf8;
+}
 
-.starlight-aside--tip           { border-color: rgba(217, 119, 87, 0.3) !important; }
-.starlight-aside--tip::before   { background: var(--sl-color-accent); }
+.starlight-aside--tip {
+  border-color: rgba(217, 119, 87, 0.3) !important;
+}
+.starlight-aside--tip::before {
+  background: var(--sl-color-accent);
+}
 
-.starlight-aside--caution       { border-color: rgba(251, 191, 36, 0.3) !important; }
-.starlight-aside--caution::before { background: #fbbf24; }
+.starlight-aside--caution {
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+.starlight-aside--caution::before {
+  background: #fbbf24;
+}
 
-.starlight-aside--danger        { border-color: rgba(248, 113, 113, 0.3) !important; }
-.starlight-aside--danger::before { background: #f87171; }
+.starlight-aside--danger {
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+.starlight-aside--danger::before {
+  background: #f87171;
+}
 
 .starlight-aside__title {
   font-weight: 700;
   letter-spacing: -0.01em;
   margin-bottom: 0.35rem !important;
 }
-.starlight-aside--note .starlight-aside__title    { color: #7dd3fc !important; }
-.starlight-aside--tip .starlight-aside__title     { color: var(--sl-color-accent) !important; }
-.starlight-aside--caution .starlight-aside__title { color: #fcd34d !important; }
-.starlight-aside--danger .starlight-aside__title  { color: #fca5a5 !important; }
+.starlight-aside--note .starlight-aside__title {
+  color: #7dd3fc !important;
+}
+.starlight-aside--tip .starlight-aside__title {
+  color: var(--sl-color-accent) !important;
+}
+.starlight-aside--caution .starlight-aside__title {
+  color: #fcd34d !important;
+}
+.starlight-aside--danger .starlight-aside__title {
+  color: #fca5a5 !important;
+}
 
 /* ===== TABLE OF CONTENTS (right sidebar) ===== */
 
@@ -514,7 +549,9 @@ starlight-toc nav a {
   font-size: 0.82rem;
   padding: 0.35rem 0.5rem !important;
   border-radius: 0.4rem;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 starlight-toc nav a:hover {
   color: var(--sl-color-accent) !important;
@@ -546,7 +583,11 @@ starlight-toc nav a[aria-current="true"] {
   border-radius: 12px !important;
   padding: 1rem 1.25rem !important;
   backdrop-filter: blur(10px);
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.3s ease, background 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.3s ease,
+    background 0.25s ease;
 }
 .pagination-links a:hover {
   border-color: var(--sl-color-hairline-light) !important;
@@ -726,7 +767,9 @@ footer.site-footer .footer-bottom-links {
   background: rgba(20, 20, 28, 0.45);
   backdrop-filter: blur(8px);
   margin: 1.25rem 0;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
 }
 .sl-markdown-content details[open] {
   border-color: var(--sl-color-hairline-light);
@@ -763,5 +806,7 @@ footer.site-footer .footer-bottom-links {
 
 @media print {
   body::before,
-  body::after { display: none; }
+  body::after {
+    display: none;
+  }
 }

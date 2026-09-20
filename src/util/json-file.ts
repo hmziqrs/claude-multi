@@ -9,7 +9,9 @@ export async function writeJsonFileAtomic<T>(filePath: string, data: T): Promise
     JSON.parse(content);
     await rename(tmpPath, filePath);
   } catch (err) {
-    try { await unlink(tmpPath); } catch {}
+    try {
+      await unlink(tmpPath);
+    } catch {}
     throw err;
   }
 }

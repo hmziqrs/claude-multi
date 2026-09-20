@@ -17,10 +17,10 @@ DeepSeek-V4-Pro is a coding model with a 1M token context window. DeepSeek-V4-Fl
 
 ## Model specs
 
-| Role | Model | Context | Max Output |
-|------|-------|---------|------------|
-| Primary (Opus/Sonnet) | DeepSeek-V4-Pro | 1M | 128K |
-| Fast (Haiku) | DeepSeek-V4-Flash | 1M | 128K |
+| Role                  | Model             | Context | Max Output |
+| --------------------- | ----------------- | ------- | ---------- |
+| Primary (Opus/Sonnet) | DeepSeek-V4-Pro   | 1M      | 128K       |
+| Fast (Haiku)          | DeepSeek-V4-Flash | 1M      | 128K       |
 
 The template maps V4-Pro to the Opus and Sonnet roles, and V4-Flash to the Haiku and small/fast roles. Subagent work also runs on V4-Flash, so background calls bill at the cheaper rate.
 

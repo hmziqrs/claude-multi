@@ -20,7 +20,11 @@ export interface ClaudeMultiUpdateInfo {
 export function getClaudeMultiVersion(): string {
   const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
   const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as unknown;
-  if (typeof pkg !== "object" || pkg === null || typeof (pkg as { version?: unknown }).version !== "string") {
+  if (
+    typeof pkg !== "object" ||
+    pkg === null ||
+    typeof (pkg as { version?: unknown }).version !== "string"
+  ) {
     throw new ClaudeMultiError(ErrorCode.CONFIG_CORRUPTED, "Could not read package version");
   }
   return (pkg as { version: string }).version;
@@ -68,14 +72,14 @@ export function upgradeClaudeMulti(): void {
 function getCurrentVersion(): string | null {
   const pm = detectPackageManager();
   try {
-    if (pm === 'deno') return null;
+    if (pm === "deno") return null;
 
-    const commands: Record<Exclude<typeof pm, 'deno'>, string> = {
+    const commands: Record<Exclude<typeof pm, "deno">, string> = {
       bun: "bun pm ls -g --json",
       npm: "npm ls -g --json @anthropic-ai/claude-code",
       pnpm: "pnpm ls -g --json",
     };
-    const output = execSync(commands[pm as Exclude<typeof pm, 'deno'>], {
+    const output = execSync(commands[pm as Exclude<typeof pm, "deno">], {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "ignore"],
     });
@@ -91,10 +95,14 @@ function getCurrentVersion(): string | null {
 async function getLatestVersion(): Promise<string> {
   try {
     const response = await fetch("https://registry.npmjs.org/@anthropic-ai/claude-code/latest");
-    const data = await response.json() as { version: string };
+    const data = (await response.json()) as { version: string };
     return data.version;
   } catch (err: unknown) {
-    throw new ClaudeMultiError(ErrorCode.VERSION_CHECK_FAILED, `Failed to fetch latest version from npm registry: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.VERSION_CHECK_FAILED,
+      `Failed to fetch latest version from npm registry: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
   }
 }
 
@@ -125,6 +133,10 @@ export function updateClaudeCode(): void {
     execSync(commands[pm], { stdio: "inherit" });
     console.log("Update completed successfully!");
   } catch (err: unknown) {
-    throw new ClaudeMultiError(ErrorCode.UPDATE_FAILED, `Failed to update @anthropic-ai/claude-code: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.UPDATE_FAILED,
+      `Failed to update @anthropic-ai/claude-code: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
   }
 }

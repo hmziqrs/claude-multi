@@ -22,6 +22,7 @@ From the TUI, select **Remove instance** and pick which one.
 ## What gets removed
 
 The remove command does two things:
+
 1. Removes the instance from claude-multi's registry (`~/.claude-multi/config.json`)
 2. Deletes the wrapper script (e.g. `~/.local/bin/claude-deepseek`)
 

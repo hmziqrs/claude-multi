@@ -12,6 +12,7 @@ claude-multi is free. It's MIT-licensed, published on npm, and takes no commissi
 When you run `claude-deepseek`, you're hitting DeepSeek's API directly. When you run `claude-glm`, you're hitting GLM's API directly. claude-multi doesn't sit in the middle, it just configures which endpoint Claude Code talks to.
 
 So your bill depends on:
+
 - Which provider you're using
 - How many tokens you consume
 - That provider's pricing model (pay-per-token vs. subscription)

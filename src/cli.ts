@@ -37,11 +37,7 @@ import {
   detectMcpCollisions,
   type Instance,
 } from "@/config";
-import {
-  createWrapper,
-  removeWrapper,
-  getDefaultBinaryPath,
-} from "@/wrapper";
+import { createWrapper, removeWrapper, getDefaultBinaryPath } from "@/wrapper";
 import {
   checkForUpdates,
   updateClaudeCode,
@@ -49,10 +45,25 @@ import {
   upgradeClaudeMulti,
   getClaudeMultiVersion,
 } from "@/version";
-import { getAvailableProviders, getProviderTemplate, providerHasRegions, resolveRegionTemplate, getProviderRegions } from "@/templates";
+import {
+  getAvailableProviders,
+  getProviderTemplate,
+  providerHasRegions,
+  resolveRegionTemplate,
+  getProviderRegions,
+} from "@/templates";
 import { LEGACY_INSTANCE_VERSION } from "@/migration";
 import { toMessage } from "@/errors";
-import { CopyOption, PluginAction, McpAction, PluginCategory, McpServerType, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
+import {
+  CopyOption,
+  PluginAction,
+  McpAction,
+  PluginCategory,
+  McpServerType,
+  SyncMode,
+  type SyncMode as SyncModeType,
+  canConvertSyncMode,
+} from "@/constants";
 import type { ProviderTemplate } from "@/templates";
 
 function exitWithCode(code: 0 | 1): never {
@@ -93,15 +104,15 @@ program
   .option("-c, --config <dir>", "Config directory path", (name: string) =>
     join(homedir(), `.claude-${name}`),
   )
-  .option(
-    "-b, --binary <path>",
-    "Binary path (default: ~/.local/bin/claude-<name>)",
-  )
+  .option("-b, --binary <path>", "Binary path (default: ~/.local/bin/claude-<name>)")
   .option("--copy-settings", "Copy settings.json from default Claude")
   .option("--copy-all", "Copy all files from default Claude")
   .option("--copy-mcp", "Copy MCP server configurations from default Claude")
   .option("--skip-prompts", "Skip interactive prompts (start fresh)")
-  .option("--provider <name>", "Use a provider template (glm, minimax, deepseek, mimo, mimo-token, kimi, qwen, qwen-coding)")
+  .option(
+    "--provider <name>",
+    "Use a provider template (glm, minimax, deepseek, mimo, mimo-token, kimi, qwen, qwen-coding)",
+  )
   .option("--api-key <key>", "API key for the provider")
   .option("--region <region>", "Region for regional providers (e.g., cn, sgp, ams for mimo-token)")
   .option("--auto-sync", "Auto-sync plugins/skills via symlinks (default)")
@@ -142,15 +153,26 @@ program
         let apiKey = "";
 
         let effectiveSyncMode: SyncModeType;
-        const flagCount = [options.syncMode, options.autoSync, options.halfManual, options.manual].filter(Boolean).length;
+        const flagCount = [
+          options.syncMode,
+          options.autoSync,
+          options.halfManual,
+          options.manual,
+        ].filter(Boolean).length;
         if (flagCount > 1) {
-          console.error(chalk.red("✗ Conflicting sync mode flags. Use only one of: --sync-mode, --auto-sync, --half-manual, --manual"));
+          console.error(
+            chalk.red(
+              "✗ Conflicting sync mode flags. Use only one of: --sync-mode, --auto-sync, --half-manual, --manual",
+            ),
+          );
           exitWithCode(1);
         }
         if (options.syncMode) {
           const valid = [SyncMode.Auto, SyncMode.HalfManual, SyncMode.FullManual];
           if (!valid.includes(options.syncMode as SyncModeType)) {
-            console.error(chalk.red(`✗ Invalid sync mode '${options.syncMode}'. Use: ${valid.join(", ")}`));
+            console.error(
+              chalk.red(`✗ Invalid sync mode '${options.syncMode}'. Use: ${valid.join(", ")}`),
+            );
             exitWithCode(1);
           }
           effectiveSyncMode = options.syncMode as SyncModeType;
@@ -173,16 +195,16 @@ program
           if (!providerTemplate) {
             console.error(
               chalk.red(
-                `✗ Unknown provider '${options.provider}'. Available: ${getAvailableProviders().map((p) => p.name).join(", ")}`,
+                `✗ Unknown provider '${options.provider}'. Available: ${getAvailableProviders()
+                  .map((p) => p.name)
+                  .join(", ")}`,
               ),
             );
             exitWithCode(1);
           }
 
           if (!options.apiKey) {
-            console.error(
-              chalk.red("✗ --api-key is required when using --provider"),
-            );
+            console.error(chalk.red("✗ --api-key is required when using --provider"));
             exitWithCode(1);
           }
 
@@ -193,7 +215,11 @@ program
             const region = options.region || "cn";
             if (!options.region) {
               const regions = getProviderRegions(providerTemplate.name);
-              console.log(chalk.yellow(`⚠ No --region specified, defaulting to cn. Available: ${regions ? Object.keys(regions).join(", ") : "cn"}`));
+              console.log(
+                chalk.yellow(
+                  `⚠ No --region specified, defaulting to cn. Available: ${regions ? Object.keys(regions).join(", ") : "cn"}`,
+                ),
+              );
             }
             providerRegion = region;
             try {
@@ -203,7 +229,11 @@ program
               exitWithCode(1);
             }
           } else if (options.region) {
-            console.log(chalk.yellow(`⚠ --region is ignored for non-regional provider '${providerTemplate.name}'`));
+            console.log(
+              chalk.yellow(
+                `⚠ --region is ignored for non-regional provider '${providerTemplate.name}'`,
+              ),
+            );
           }
         }
 
@@ -235,39 +265,60 @@ program
                 import("./ink/screens/AddInstance.js"),
               ]);
               const { waitUntilExit } = render(
-                React.createElement(AddInstance, { onBack: () => process.exit(0), initialName: name }),
+                React.createElement(AddInstance, {
+                  onBack: () => process.exit(0),
+                  initialName: name,
+                }),
               );
               await waitUntilExit();
               return;
             } catch (inkError: unknown) {
-              console.error(chalk.yellow(`Ink UI unavailable, falling back to prompts: ${toMessage(inkError)}`));
+              console.error(
+                chalk.yellow(`Ink UI unavailable, falling back to prompts: ${toMessage(inkError)}`),
+              );
             }
           }
 
           if (hasDefaultConfig || hasDefaultMcp) {
             console.log(chalk.gray("\nFound existing Claude Code configuration at ~/.claude"));
 
-            const choices: { title: string; value: CopyOption }[] = [{ title: "Nothing - start fresh", value: CopyOption.None }];
-            if (hasDefaultConfig) choices.push({ title: "Only settings.json", value: CopyOption.Settings });
+            const choices: { title: string; value: CopyOption }[] = [
+              { title: "Nothing - start fresh", value: CopyOption.None },
+            ];
+            if (hasDefaultConfig)
+              choices.push({ title: "Only settings.json", value: CopyOption.Settings });
             if (hasDefaultMcp) choices.push({ title: "Only MCP servers", value: CopyOption.Mcp });
-            if (hasDefaultConfig && hasDefaultMcp) choices.push({ title: "Settings + MCP servers", value: CopyOption.SettingsAndMcp });
-            if (hasDefaultConfig) choices.push({ title: "All files (settings, CLAUDE.md, plugins, etc.)", value: CopyOption.All });
+            if (hasDefaultConfig && hasDefaultMcp)
+              choices.push({ title: "Settings + MCP servers", value: CopyOption.SettingsAndMcp });
+            if (hasDefaultConfig)
+              choices.push({
+                title: "All files (settings, CLAUDE.md, plugins, etc.)",
+                value: CopyOption.All,
+              });
 
-            const response = await prompts([{
-              type: "select",
-              name: "copyOption",
-              message: "What would you like to copy from default Claude?",
-              choices,
-              initial: 1,
-            }]);
+            const response = await prompts([
+              {
+                type: "select",
+                name: "copyOption",
+                message: "What would you like to copy from default Claude?",
+                choices,
+                initial: 1,
+              },
+            ]);
 
             if (response.copyOption === undefined) {
               console.log(chalk.yellow("\n✗ Cancelled"));
               exitWithCode(0);
             }
 
-            copySettings = response.copyOption === CopyOption.Settings || response.copyOption === CopyOption.SettingsAndMcp || response.copyOption === CopyOption.All;
-            copyMcpServers = response.copyOption === CopyOption.Mcp || response.copyOption === CopyOption.SettingsAndMcp || response.copyOption === CopyOption.All;
+            copySettings =
+              response.copyOption === CopyOption.Settings ||
+              response.copyOption === CopyOption.SettingsAndMcp ||
+              response.copyOption === CopyOption.All;
+            copyMcpServers =
+              response.copyOption === CopyOption.Mcp ||
+              response.copyOption === CopyOption.SettingsAndMcp ||
+              response.copyOption === CopyOption.All;
             copyAllFiles = response.copyOption === CopyOption.All;
           }
         }
@@ -280,7 +331,9 @@ program
           autoSync,
           syncMode: effectiveSyncMode,
           createdWithVersion: getClaudeMultiVersion(),
-          ...(useProviderTemplate && providerTemplate ? { providerTemplate: providerTemplate.name } : {}),
+          ...(useProviderTemplate && providerTemplate
+            ? { providerTemplate: providerTemplate.name }
+            : {}),
           ...(providerRegion ? { providerRegion } : {}),
         };
 
@@ -299,18 +352,22 @@ program
               await copyMcpServersFromDefault(configDir);
               console.log(chalk.green("✓ Copied MCP server configurations"));
             } catch (error: unknown) {
-              console.log(
-                chalk.yellow(`⚠ Warning: ${toMessage(error)}`),
-              );
+              console.log(chalk.yellow(`⚠ Warning: ${toMessage(error)}`));
             }
           }
 
           if (copyAllFiles) {
             await copyAllFromDefault(configDir, effectiveSyncMode);
             if (effectiveSyncMode === SyncMode.Auto) {
-              console.log(chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"));
+              console.log(
+                chalk.green("✓ Copied all files with auto-sync (plugins/skills symlinked)"),
+              );
             } else if (effectiveSyncMode === SyncMode.HalfManual) {
-              console.log(chalk.green("✓ Copied all files with half-manual sync (individual plugins/skills symlinked)"));
+              console.log(
+                chalk.green(
+                  "✓ Copied all files with half-manual sync (individual plugins/skills symlinked)",
+                ),
+              );
             } else {
               console.log(chalk.green("✓ Copied all files from default Claude (full-manual mode)"));
             }
@@ -318,9 +375,7 @@ program
 
           if (useProviderTemplate && providerTemplate) {
             await mergeProviderEnv(configDir, providerTemplate, apiKey);
-            console.log(
-              chalk.green(`✓ Applied ${providerTemplate.displayName} template`),
-            );
+            console.log(chalk.green(`✓ Applied ${providerTemplate.displayName} template`));
           }
         } catch (err: unknown) {
           await removeInstance(name).catch(() => {});
@@ -328,9 +383,7 @@ program
           throw err;
         }
 
-        console.log(
-          chalk.green(`\n✓ Instance '${name}' created successfully!`),
-        );
+        console.log(chalk.green(`\n✓ Instance '${name}' created successfully!`));
         console.log(chalk.gray(`  Binary: ${binaryPath}`));
         console.log(chalk.gray(`  Config: ${configDir}`));
         console.log();
@@ -340,15 +393,9 @@ program
         const isInPath = pathEnv.split(delimiter).some((p) => p === binDir);
 
         if (!isInPath) {
-          console.log(
-            chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`),
-          );
+          console.log(chalk.yellow(`⚠ Warning: ${binDir} is not in your PATH`));
           console.log(chalk.gray(`Add to PATH by running:`));
-          console.log(
-            chalk.cyan(
-              `  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`,
-            ),
-          );
+          console.log(chalk.cyan(`  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc`));
           console.log(chalk.cyan(`  source ~/.zshrc`));
           console.log();
           console.log(chalk.gray(`Or run directly: ${binaryPath} --help`));
@@ -376,16 +423,8 @@ program
         console.log(chalk.gray(`  Binary: ${instance.binaryPath}`));
         console.log(chalk.gray(`  Config: ${instance.configDir}`));
         console.log();
-        console.log(
-          chalk.yellow(
-            "Note: Config directory will NOT be deleted automatically.",
-          ),
-        );
-        console.log(
-          chalk.gray(
-            "Run with --force to skip this confirmation, or Ctrl+C to cancel.",
-          ),
-        );
+        console.log(chalk.yellow("Note: Config directory will NOT be deleted automatically."));
+        console.log(chalk.gray("Run with --force to skip this confirmation, or Ctrl+C to cancel."));
         console.log();
       }
 
@@ -394,9 +433,7 @@ program
 
       console.log(chalk.green(`✓ Instance '${name}' removed successfully!`));
       console.log();
-      console.log(
-        chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`),
-      );
+      console.log(chalk.gray(`To remove config files, run: rm -rf ${instance.configDir}`));
     } catch (error: unknown) {
       console.error(chalk.red(`✗ Error: ${toMessage(error)}`));
       exitWithCode(1);
@@ -424,18 +461,19 @@ program
         console.log(chalk.cyan(`● ${instance.name}`));
         console.log(chalk.gray(`  Binary:  ${instance.binaryPath}`));
         console.log(chalk.gray(`  Config:  ${instance.configDir}`));
-        console.log(
-          chalk.gray(
-            `  Created: ${new Date(instance.createdAt).toLocaleString()}`,
-          ),
-        );
+        console.log(chalk.gray(`  Created: ${new Date(instance.createdAt).toLocaleString()}`));
         if (instance.providerTemplate) {
           const region = instance.providerRegion ? ` (${instance.providerRegion})` : "";
           console.log(chalk.gray(`  Provider: ${instance.providerTemplate}${region}`));
         }
         const mode = getSyncMode(instance);
         const label = syncModeLabel(mode);
-        const modeColor = mode === SyncMode.Auto ? chalk.green : mode === SyncMode.HalfManual ? chalk.cyan : chalk.yellow;
+        const modeColor =
+          mode === SyncMode.Auto
+            ? chalk.green
+            : mode === SyncMode.HalfManual
+              ? chalk.cyan
+              : chalk.yellow;
         console.log(chalk.gray(`  Sync mode: ${modeColor(label)}`));
         console.log(chalk.gray(`  Version:  ${formatVersionLabel(instance.createdWithVersion)}`));
         console.log();
@@ -456,11 +494,14 @@ program
       console.log(chalk.bold(`Instance: ${chalk.cyan(instance.name)}\n`));
       console.log(`${chalk.gray("Binary:")}  ${instance.binaryPath}`);
       console.log(`${chalk.gray("Config:")}  ${instance.configDir}`);
-      console.log(
-        `${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`,
-      );
+      console.log(`${chalk.gray("Created:")} ${new Date(instance.createdAt).toLocaleString()}`);
       const mode = getSyncMode(instance);
-      const modeColor = mode === SyncMode.Auto ? chalk.green : mode === SyncMode.HalfManual ? chalk.cyan : chalk.yellow;
+      const modeColor =
+        mode === SyncMode.Auto
+          ? chalk.green
+          : mode === SyncMode.HalfManual
+            ? chalk.cyan
+            : chalk.yellow;
       console.log(`${chalk.gray("Sync mode:")} ${modeColor(syncModeLabel(mode))}`);
       console.log(`${chalk.gray("Version:")}  ${formatVersionLabel(instance.createdWithVersion)}`);
       if (instance.providerTemplate) {
@@ -483,16 +524,12 @@ program
       const versionInfo = await checkForUpdates();
 
       if (versionInfo.current) {
-        console.log(
-          `${chalk.gray("Installed:")} ${chalk.cyan(versionInfo.current)}`,
-        );
+        console.log(`${chalk.gray("Installed:")} ${chalk.cyan(versionInfo.current)}`);
       } else {
         console.log(chalk.yellow("Claude Code is not installed globally"));
       }
 
-      console.log(
-        `${chalk.gray("Latest:")}    ${chalk.cyan(versionInfo.latest)}`,
-      );
+      console.log(`${chalk.gray("Latest:")}    ${chalk.cyan(versionInfo.latest)}`);
       console.log();
 
       if (versionInfo.updateAvailable) {
@@ -515,9 +552,7 @@ program
       const versionInfo = await checkForUpdates();
 
       if (!versionInfo.updateAvailable && versionInfo.current) {
-        console.log(
-          chalk.green(`✓ Already up to date (${versionInfo.current})`),
-        );
+        console.log(chalk.green(`✓ Already up to date (${versionInfo.current})`));
         return;
       }
 
@@ -543,28 +578,40 @@ program
         newMode = SyncMode.Auto;
       } else if (normalized === "off" || normalized === "false" || status === "0") {
         newMode = SyncMode.FullManual;
-      } else if (normalized === SyncMode.Auto || normalized === SyncMode.HalfManual || normalized === SyncMode.FullManual) {
+      } else if (
+        normalized === SyncMode.Auto ||
+        normalized === SyncMode.HalfManual ||
+        normalized === SyncMode.FullManual
+      ) {
         newMode = normalized as SyncModeType;
       } else {
-        console.error(chalk.red(`✗ Unknown sync mode '${status}'. Use: auto, half-manual, full-manual, on, off`));
+        console.error(
+          chalk.red(
+            `✗ Unknown sync mode '${status}'. Use: auto, half-manual, full-manual, on, off`,
+          ),
+        );
         exitWithCode(1);
       }
 
       if (currentMode === newMode) {
-        console.log(
-          chalk.yellow(`Sync mode is already '${syncModeLabel(newMode)}' for '${name}'`),
-        );
+        console.log(chalk.yellow(`Sync mode is already '${syncModeLabel(newMode)}' for '${name}'`));
         return;
       }
 
       if (!canConvertSyncMode(currentMode, newMode)) {
         console.error(
-          chalk.red(`✗ Cannot convert from '${syncModeLabel(currentMode)}' to '${syncModeLabel(newMode)}'. Only downgrades are allowed (auto → half-manual → full-manual).`),
+          chalk.red(
+            `✗ Cannot convert from '${syncModeLabel(currentMode)}' to '${syncModeLabel(newMode)}'. Only downgrades are allowed (auto → half-manual → full-manual).`,
+          ),
         );
         exitWithCode(1);
       }
 
-      console.log(chalk.bold(`\n🔄 Converting '${name}' from ${syncModeLabel(currentMode)} → ${syncModeLabel(newMode)}...\n`));
+      console.log(
+        chalk.bold(
+          `\n🔄 Converting '${name}' from ${syncModeLabel(currentMode)} → ${syncModeLabel(newMode)}...\n`,
+        ),
+      );
 
       await updateInstanceSyncMode(name, newMode);
 
@@ -615,7 +662,9 @@ program
 
         const fixed = fixWrapperVersions(instances);
         if (fixed.length > 0) {
-          console.log(chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use resolved Claude version:`));
+          console.log(
+            chalk.green(`✓ Fixed ${fixed.length} wrapper(s) to use resolved Claude version:`),
+          );
           for (const name of fixed) {
             console.log(chalk.gray(`  • ${name}`));
           }
@@ -640,7 +689,11 @@ program
           if (response.confirm) {
             const migrated = await runInstanceMigrations(fullConfig);
             await saveConfigAtomic(migrated);
-            console.log(chalk.green(`✓ Migrated ${fullConfig.instances.length} instance(s) to v${currentVersion}`));
+            console.log(
+              chalk.green(
+                `✓ Migrated ${fullConfig.instances.length} instance(s) to v${currentVersion}`,
+              ),
+            );
           }
         }
 
@@ -676,7 +729,11 @@ program
 program
   .command("plugins")
   .description("Manage plugins for instances")
-  .argument("[action]", "Action to perform (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)", "list")
+  .argument(
+    "[action]",
+    "Action to perform (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)",
+    "list",
+  )
   .argument("[instance]", "Instance name (for list/enable/disable/install/remove)", "")
   .argument("[plugins...]", "Plugin IDs", [])
   .action(async (action = "list", instanceName = "", plugins: string[] = []) => {
@@ -711,7 +768,11 @@ program
           break;
         default:
           console.error(chalk.red(`✗ Unknown action: ${action}`));
-          console.log(chalk.gray("Available actions: list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions"));
+          console.log(
+            chalk.gray(
+              "Available actions: list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions",
+            ),
+          );
           exitWithCode(1);
       }
     } catch (error: unknown) {
@@ -744,10 +805,12 @@ async function handlePluginsList(instanceName: string): Promise<void> {
       return;
     }
 
-    const results = await Promise.all(instances.map(async (instance) => {
-      const plugins = await getEnabledPlugins(instance.configDir);
-      return { instance, plugins };
-    }));
+    const results = await Promise.all(
+      instances.map(async (instance) => {
+        const plugins = await getEnabledPlugins(instance.configDir);
+        return { instance, plugins };
+      }),
+    );
 
     for (const { instance, plugins } of results) {
       console.log(chalk.cyan(`${instance.name}:`));
@@ -783,10 +846,18 @@ async function handlePluginsList(instanceName: string): Promise<void> {
   }
 }
 
-async function handlePluginsSetEnabled(instanceName: string, plugins: string[], enable: boolean): Promise<void> {
+async function handlePluginsSetEnabled(
+  instanceName: string,
+  plugins: string[],
+  enable: boolean,
+): Promise<void> {
   const instance = await requireInstance(instanceName);
   const verb = enable ? "enable" : "disable";
-  requireNonEmptyArgs(plugins, "✗ No plugins specified", `Usage: claude-multi plugins ${verb} <instance> <plugin-id>...`);
+  requireNonEmptyArgs(
+    plugins,
+    "✗ No plugins specified",
+    `Usage: claude-multi plugins ${verb} <instance> <plugin-id>...`,
+  );
 
   const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
   let updated = false;
@@ -794,7 +865,9 @@ async function handlePluginsSetEnabled(instanceName: string, plugins: string[], 
   // eslint-disable-next-line @react-doctor/async-await-in-loop -- mutates shared currentPlugins state in place
   for (const pluginId of plugins) {
     if (currentPlugins[pluginId] === enable) {
-      console.log(chalk.yellow(`⚠ Plugin '${pluginId}' is already ${enable ? "enabled" : "disabled"}`));
+      console.log(
+        chalk.yellow(`⚠ Plugin '${pluginId}' is already ${enable ? "enabled" : "disabled"}`),
+      );
     } else {
       currentPlugins[pluginId] = enable;
       if (enable) {
@@ -848,12 +921,18 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
   const instance = await requireInstance(instanceName);
 
   if (isPluginsSymlinked(instance.configDir)) {
-    console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
+    console.error(
+      chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."),
+    );
     exitWithCode(1);
   }
 
   if (isHalfManualSync(instance.configDir)) {
-    console.error(chalk.red("✗ Instance has half-manual sync (individually symlinked plugins). Switch to full-manual first."));
+    console.error(
+      chalk.red(
+        "✗ Instance has half-manual sync (individually symlinked plugins). Switch to full-manual first.",
+      ),
+    );
     exitWithCode(1);
   }
 
@@ -864,13 +943,17 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
   }
 
   const defaults = listDefaultPlugins();
-  const selections = pluginIds.map(id => {
-    const p = defaults.find(dp => dp.id === id);
+  const selections = pluginIds.map((id) => {
+    const p = defaults.find((dp) => dp.id === id);
     if (!p) {
       console.error(chalk.red(`✗ Plugin '${id}' not found in default installation`));
       exitWithCode(1);
     }
-    return { id, category: p.category === PluginCategory.Internal ? PluginCategory.Internal : PluginCategory.External };
+    return {
+      id,
+      category:
+        p.category === PluginCategory.Internal ? PluginCategory.Internal : PluginCategory.External,
+    };
   });
 
   const collisions = detectMcpCollisions(instance.configDir, pluginIds);
@@ -887,23 +970,37 @@ async function handlePluginsInstall(instanceName: string, pluginIds: string[]): 
 }
 
 async function handlePluginsRemove(instanceName: string, pluginIds: string[]): Promise<void> {
-  requireNonEmptyArgs([instanceName], "✗ Instance name required", "Usage: claude-multi plugins remove <instance> <plugin-id>...");
+  requireNonEmptyArgs(
+    [instanceName],
+    "✗ Instance name required",
+    "Usage: claude-multi plugins remove <instance> <plugin-id>...",
+  );
   const instance = await requireInstance(instanceName);
 
   if (isPluginsSymlinked(instance.configDir)) {
-    console.error(chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."));
+    console.error(
+      chalk.red("✗ Instance has auto-sync enabled (symlinked plugins). Disable auto-sync first."),
+    );
     exitWithCode(1);
   }
 
   if (isHalfManualSync(instance.configDir)) {
-    console.error(chalk.red("✗ Instance has half-manual sync (individually symlinked plugins). Switch to full-manual first."));
+    console.error(
+      chalk.red(
+        "✗ Instance has half-manual sync (individually symlinked plugins). Switch to full-manual first.",
+      ),
+    );
     exitWithCode(1);
   }
 
-  requireNonEmptyArgs(pluginIds, "✗ No plugins specified", "Usage: claude-multi plugins remove <instance> <plugin-id>...");
+  requireNonEmptyArgs(
+    pluginIds,
+    "✗ No plugins specified",
+    "Usage: claude-multi plugins remove <instance> <plugin-id>...",
+  );
 
   const installed = listInstancePlugins(instance.configDir);
-  const installedMap = new Map(installed.map(ip => [ip.id, ip]));
+  const installedMap = new Map(installed.map((ip) => [ip.id, ip]));
   // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared installed_plugins.json manifest requires sequential writes
   for (const id of pluginIds) {
     const p = installedMap.get(id);
@@ -911,7 +1008,11 @@ async function handlePluginsRemove(instanceName: string, pluginIds: string[]): P
       console.error(chalk.red(`✗ Plugin '${id}' not installed in '${instanceName}'`));
       continue;
     }
-    await removeSinglePlugin(instance.configDir, id, p.category === PluginCategory.Internal ? PluginCategory.Internal : PluginCategory.External);
+    await removeSinglePlugin(
+      instance.configDir,
+      id,
+      p.category === PluginCategory.Internal ? PluginCategory.Internal : PluginCategory.External,
+    );
     console.log(chalk.green(`✓ Removed plugin '${id}' from '${instanceName}'`));
   }
 }
@@ -926,8 +1027,8 @@ function handlePluginsListDefaults(): void {
 
   console.log(chalk.bold(`\n📋 Default Plugins (${plugins.length})\n`));
 
-  const internals = plugins.filter(p => p.category === PluginCategory.Internal);
-  const externals = plugins.filter(p => p.category === PluginCategory.External);
+  const internals = plugins.filter((p) => p.category === PluginCategory.Internal);
+  const externals = plugins.filter((p) => p.category === PluginCategory.External);
 
   if (internals.length > 0) {
     console.log(chalk.cyan("Internal:"));
@@ -983,10 +1084,15 @@ async function handlePluginsListInstalled(instanceName: string): Promise<void> {
   }
 }
 
-async function handlePluginsCheckCollisions(instanceName: string, pluginIds: string[]): Promise<void> {
+async function handlePluginsCheckCollisions(
+  instanceName: string,
+  pluginIds: string[],
+): Promise<void> {
   if (!instanceName) {
     console.error(chalk.red("✗ Instance name required"));
-    console.log(chalk.gray("Usage: claude-multi plugins check-collisions <instance> <plugin-id>..."));
+    console.log(
+      chalk.gray("Usage: claude-multi plugins check-collisions <instance> <plugin-id>..."),
+    );
     exitWithCode(1);
   }
 
@@ -1022,8 +1128,8 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
   if (fixAll) {
     instancesToFix = instances;
   } else if (names.length > 0) {
-    instancesToFix = names.flatMap(name => {
-      const found = instances.find(i => i.name === name);
+    instancesToFix = names.flatMap((name) => {
+      const found = instances.find((i) => i.name === name);
       return found ? [found] : [];
     });
   } else {
@@ -1031,37 +1137,41 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
       type: "multiselect",
       name: "selected",
       message: "Select instances to fix:",
-      choices: instances.map(i => ({
+      choices: instances.map((i) => ({
         title: `${i.name} (${getSyncMode(i)})`,
         value: i.name,
       })),
     });
     instancesToFix = selected.flatMap((name: string) => {
-      const found = instances.find(i => i.name === name);
+      const found = instances.find((i) => i.name === name);
       return found ? [found] : [];
     });
   }
 
-  const fixResults = await Promise.all(instancesToFix.map(async (instance) => {
-    const diagnosis = detectBrokenSymlinks(instance.configDir);
-    const needsFix = diagnosis.broken.length > 0;
-    const mode = getSyncMode(instance);
+  const fixResults = await Promise.all(
+    instancesToFix.map(async (instance) => {
+      const diagnosis = detectBrokenSymlinks(instance.configDir);
+      const needsFix = diagnosis.broken.length > 0;
+      const mode = getSyncMode(instance);
 
-    let fixed = false;
-    if (needsFix) {
-      try {
-        if (mode === SyncMode.Auto) {
-          await syncPluginsAndSkills(instance.configDir);
-          fixed = true;
-        } else if (mode === SyncMode.HalfManual) {
-          await halfSyncPluginsAndSkills(instance.configDir);
-          fixed = true;
+      let fixed = false;
+      if (needsFix) {
+        try {
+          if (mode === SyncMode.Auto) {
+            await syncPluginsAndSkills(instance.configDir);
+            fixed = true;
+          } else if (mode === SyncMode.HalfManual) {
+            await halfSyncPluginsAndSkills(instance.configDir);
+            fixed = true;
+          }
+        } catch {
+          /* fix failed */
         }
-      } catch { /* fix failed */ }
-    }
+      }
 
-    return { instance, diagnosis, needsFix, fixed, mode };
-  }));
+      return { instance, diagnosis, needsFix, fixed, mode };
+    }),
+  );
 
   for (const { instance, diagnosis, needsFix, fixed, mode } of fixResults) {
     console.log(chalk.bold(`\n🔍 ${instance.name}`));
@@ -1081,7 +1191,9 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
       } else if (mode === SyncMode.FullManual) {
         console.log(chalk.yellow("  ⚠ Full-manual mode — no symlinks to repair."));
       } else {
-        console.log(chalk.yellow("  ⚠ Could not auto-repair. Try re-syncing via 'claude-multi auto-sync'."));
+        console.log(
+          chalk.yellow("  ⚠ Could not auto-repair. Try re-syncing via 'claude-multi auto-sync'."),
+        );
       }
     } else {
       console.log(chalk.green(`  ✅ All symlinks OK: ${diagnosis.all.join(", ")}`));
@@ -1133,19 +1245,19 @@ async function handleMcpList(instanceName: string): Promise<void> {
   if (!instanceName) {
     console.log(chalk.bold("\n📋 MCP Servers by Instance\n"));
 
-    const mcpResults = await Promise.all(instances.map(async (instance) => {
-      const mcpServers = await listMcpServers(instance.name);
-      return { instance, mcpServers };
-    }));
+    const mcpResults = await Promise.all(
+      instances.map(async (instance) => {
+        const mcpServers = await listMcpServers(instance.name);
+        return { instance, mcpServers };
+      }),
+    );
 
     for (const { instance, mcpServers } of mcpResults) {
       const hasMcp = mcpServers && Object.keys(mcpServers).length > 0;
 
       console.log(chalk.cyan(`● ${instance.name}`));
       console.log(
-        chalk.gray(
-          `  MCP Servers: ${hasMcp ? Object.keys(mcpServers!).length : "None"}`,
-        ),
+        chalk.gray(`  MCP Servers: ${hasMcp ? Object.keys(mcpServers!).length : "None"}`),
       );
 
       if (hasMcp) {
@@ -1159,9 +1271,7 @@ async function handleMcpList(instanceName: string): Promise<void> {
     const mcpServers = await listMcpServers(instanceName);
 
     if (!mcpServers) {
-      console.log(
-        chalk.yellow(`No MCP servers found in instance '${instanceName}'`),
-      );
+      console.log(chalk.yellow(`No MCP servers found in instance '${instanceName}'`));
       return;
     }
 
@@ -1183,11 +1293,7 @@ async function handleMcpList(instanceName: string): Promise<void> {
       }
 
       if (serverConfig.env && Object.keys(serverConfig.env).length > 0) {
-        console.log(
-          chalk.gray(
-            `  Environment variables: ${Object.keys(serverConfig.env).length}`,
-          ),
-        );
+        console.log(chalk.gray(`  Environment variables: ${Object.keys(serverConfig.env).length}`));
       }
 
       console.log();
@@ -1202,11 +1308,7 @@ async function handleMcpCopy(
   const instances = await listInstances();
 
   if (instances.length < 2) {
-    console.log(
-      chalk.yellow(
-        "Need at least 2 instances to copy MCP servers between them.",
-      ),
-    );
+    console.log(chalk.yellow("Need at least 2 instances to copy MCP servers between them."));
     return;
   }
 
@@ -1249,9 +1351,7 @@ async function handleMcpCopy(
     return;
   }
 
-  console.log(
-    chalk.bold(`\n🔄 Copying MCP servers from '${source}' to '${target}'\n`),
-  );
+  console.log(chalk.bold(`\n🔄 Copying MCP servers from '${source}' to '${target}'\n`));
 
   await copyMcpServersBetweenInstances(source, target);
 
@@ -1283,9 +1383,7 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
     instance = selectedInstance;
   }
 
-  console.log(
-    chalk.bold(`\n🔍 Verifying MCP configuration in '${instance}'\n`),
-  );
+  console.log(chalk.bold(`\n🔍 Verifying MCP configuration in '${instance}'\n`));
 
   const mcpServers = await listMcpServers(instance);
 
@@ -1306,9 +1404,7 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
       (serverConfig.type === McpServerType.Http || serverConfig.type === McpServerType.Sse) &&
       !serverConfig.url
     ) {
-      console.log(
-        chalk.yellow(`    ⚠ Missing URL for ${serverConfig.type} server`),
-      );
+      console.log(chalk.yellow(`    ⚠ Missing URL for ${serverConfig.type} server`));
     } else {
       console.log(chalk.green(`    ✓ Configuration looks valid`));
     }
@@ -1319,7 +1415,7 @@ program.action(async () => {
   skipGlobalUpdateCheck = true;
 
   // Unknown subcommands fall through to the default action — reject them
-  const unknownArgs = program.args.filter(a => !a.startsWith("-"));
+  const unknownArgs = program.args.filter((a) => !a.startsWith("-"));
   if (unknownArgs.length > 0) {
     console.error(chalk.red(`✗ Unknown command: ${unknownArgs[0]}`));
     console.log(chalk.gray("Run 'claude-multi --help' for available commands."));
@@ -1381,4 +1477,3 @@ async function runUpdateCheck() {
 if (!skipGlobalUpdateCheck && process.env.CLAUDE_MULTI_UPDATE_CHECK === "true") {
   runUpdateCheck().catch(() => {});
 }
-

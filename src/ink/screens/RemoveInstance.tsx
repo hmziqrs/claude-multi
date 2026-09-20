@@ -22,8 +22,12 @@ const RemoveConfirm: React.FC<{
     <Box flexDirection="column" gap={1}>
       {showWarning && (
         <Box gap={1}>
-          <Text bold color="red">⚠ About to remove</Text>
-          <Text bold color="red">'{selected.name}'</Text>
+          <Text bold color="red">
+            ⚠ About to remove
+          </Text>
+          <Text bold color="red">
+            '{selected.name}'
+          </Text>
         </Box>
       )}
       {showDetails && (
@@ -31,12 +35,16 @@ const RemoveConfirm: React.FC<{
           <Box marginLeft={2} flexDirection="column">
             <Box gap={1}>
               <Text dimColor>├─</Text>
-              <Text dimColor bold>Binary:</Text>
+              <Text dimColor bold>
+                Binary:
+              </Text>
               <Text dimColor>{selected.binaryPath}</Text>
             </Box>
             <Box gap={1}>
               <Text dimColor>└─</Text>
-              <Text dimColor bold>Config:</Text>
+              <Text dimColor bold>
+                Config:
+              </Text>
               <Text dimColor>{selected.configDir}</Text>
             </Box>
           </Box>
@@ -46,11 +54,7 @@ const RemoveConfirm: React.FC<{
       {showConfirm && (
         <>
           <Text>Confirm removal?</Text>
-          <ConfirmInput
-            defaultChoice="cancel"
-            onConfirm={onConfirm}
-            onCancel={onCancel}
-          />
+          <ConfirmInput defaultChoice="cancel" onConfirm={onConfirm} onCancel={onCancel} />
         </>
       )}
     </Box>
@@ -60,7 +64,7 @@ const RemoveConfirm: React.FC<{
 export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, reload } = useConfig();
   const [step, setStep] = useState<Step>("select");
-  const [selected, setSelected] = useState<typeof instances[0] | null>(null);
+  const [selected, setSelected] = useState<(typeof instances)[0] | null>(null);
   const [error, setError] = useState("");
   const [removedConfig, setRemovedConfig] = useState("");
 
@@ -80,7 +84,9 @@ export const RemoveInstance: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🗑️ Remove Instance" />
         <Text color="yellow">No instances found.</Text>
-        <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
+        <Box marginTop={1}>
+          <Text dimColor>ESC to go back</Text>
+        </Box>
       </Box>
     );
   }

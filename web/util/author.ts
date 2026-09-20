@@ -1,7 +1,7 @@
 // Fetched at build time from blog.hmziq.rs so author info stays in sync without manual
 // copying; top-level await is fine here because Astro pages are async.
 
-const AUTHOR_API = 'https://blog.hmziq.rs/api/v1/author.json';
+const AUTHOR_API = "https://blog.hmziq.rs/api/v1/author.json";
 
 type Social = { platform: string; url: string };
 type AuthorPayload = {
@@ -21,17 +21,14 @@ type AuthorPayload = {
 const res = await fetch(AUTHOR_API);
 if (!res.ok) {
   throw new Error(
-    `Failed to fetch author info from ${AUTHOR_API}: ${res.status} ${res.statusText}`
+    `Failed to fetch author info from ${AUTHOR_API}: ${res.status} ${res.statusText}`,
   );
 }
 const payload = (await res.json()) as AuthorPayload;
 
 const mainSite = payload.author.websites.main;
 
-const socials: Social[] = [
-  { platform: 'website', url: mainSite },
-  ...payload.author.socials,
-];
+const socials: Social[] = [{ platform: "website", url: mainSite }, ...payload.author.socials];
 
 export const author = {
   ...payload.author,
@@ -39,10 +36,10 @@ export const author = {
 };
 
 export function formatDate(d: Date): string {
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 

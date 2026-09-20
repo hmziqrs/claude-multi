@@ -221,7 +221,9 @@ describe("unsyncPluginsAndSkills", () => {
 
       helper.assertExists(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
 
-      const content = await helper.readFile(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
+      const content = await helper.readFile(
+        `${instanceConfigDir}/plugins/nested/nested-plugin.json`,
+      );
       expect(JSON.parse(content)).toEqual({ name: "nested" });
     });
 
@@ -477,7 +479,9 @@ describe("copyAllFromDefault", () => {
 
       helper.assertExists(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
 
-      const content = await helper.readFile(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
+      const content = await helper.readFile(
+        `${instanceConfigDir}/plugins/nested/nested-plugin.json`,
+      );
       expect(JSON.parse(content)).toEqual({ name: "nested" });
     });
 
@@ -524,7 +528,9 @@ describe("copyAllFromDefault", () => {
 
       helper.assertExists(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
 
-      const content = await helper.readFile(`${instanceConfigDir}/plugins/nested/nested-plugin.json`);
+      const content = await helper.readFile(
+        `${instanceConfigDir}/plugins/nested/nested-plugin.json`,
+      );
       expect(JSON.parse(content)).toEqual({ name: "nested" });
     });
 

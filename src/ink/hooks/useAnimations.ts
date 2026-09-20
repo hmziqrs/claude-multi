@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 
-const isCapture = () =>
-  process.env.CAPTURE_MODE === "1" || process.env.NODE_ENV === "test";
+const isCapture = () => process.env.CAPTURE_MODE === "1" || process.env.NODE_ENV === "test";
 
 export function useTypewriter(text: string, speed = 25) {
-  const [charCount, setCharCount] = useState(() => isCapture() ? text.length : 0);
+  const [charCount, setCharCount] = useState(() => (isCapture() ? text.length : 0));
 
   useEffect(() => {
     if (isCapture() || text.length === 0) {
@@ -25,10 +24,13 @@ export function useTypewriter(text: string, speed = 25) {
 }
 
 export function useDrawLine(length: number, delay = 0, speed = 2) {
-  const [drawn, setDrawn] = useState(() => isCapture() ? length : 0);
+  const [drawn, setDrawn] = useState(() => (isCapture() ? length : 0));
 
   useEffect(() => {
-    if (isCapture()) { setDrawn(length); return; }
+    if (isCapture()) {
+      setDrawn(length);
+      return;
+    }
     setDrawn(0);
     let intervalId: ReturnType<typeof setInterval> | undefined;
     const start = setTimeout(() => {
@@ -49,10 +51,13 @@ export function useDrawLine(length: number, delay = 0, speed = 2) {
 }
 
 export function useStaggeredReveal(count: number, delay = 40) {
-  const [visible, setVisible] = useState(() => isCapture() ? count : 0);
+  const [visible, setVisible] = useState(() => (isCapture() ? count : 0));
 
   useEffect(() => {
-    if (isCapture()) { setVisible(count); return; }
+    if (isCapture()) {
+      setVisible(count);
+      return;
+    }
     setVisible(0);
     let current = 0;
     const timer = setInterval(() => {
@@ -72,7 +77,10 @@ export function useFadeIn(delay = 0) {
 
   useEffect(() => {
     if (isCapture() || visibleRef.current) {
-      if (!visibleRef.current) { setVisible(true); visibleRef.current = true; }
+      if (!visibleRef.current) {
+        setVisible(true);
+        visibleRef.current = true;
+      }
       return;
     }
     const timer = setTimeout(() => {
@@ -87,7 +95,6 @@ export function useFadeIn(delay = 0) {
 
 export function usePulse(frames = ["●", "○", "●"], speed = 500) {
   const [frame, setFrame] = useState(0);
-  const framesKey = frames.join("");
 
   useEffect(() => {
     if (isCapture()) return;
@@ -95,17 +102,23 @@ export function usePulse(frames = ["●", "○", "●"], speed = 500) {
       setFrame((f) => (f + 1) % frames.length);
     }, speed);
     return () => clearInterval(timer);
-  }, [framesKey, frames.length, speed]);
+  }, [frames.length, speed]);
 
   return frames[frame];
 }
 
 export function useCounter(target: number, duration = 600) {
-  const [value, setValue] = useState(() => isCapture() ? target : 0);
+  const [value, setValue] = useState(() => (isCapture() ? target : 0));
 
   useEffect(() => {
-    if (isCapture()) { setValue(target); return; }
-    if (target === 0) { setValue(0); return; }
+    if (isCapture()) {
+      setValue(target);
+      return;
+    }
+    if (target === 0) {
+      setValue(0);
+      return;
+    }
     const steps = Math.min(target, 20);
     const stepTime = duration / steps;
     let current = 0;

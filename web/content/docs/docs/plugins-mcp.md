@@ -191,7 +191,11 @@ Edit an instance's `settings.json` directly to add a server manually:
     },
     "postgres": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://user:pass@localhost:5432/mydb"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://user:pass@localhost:5432/mydb"
+      ]
     }
   }
 }
@@ -210,9 +214,9 @@ Some servers should reach only specific instances. A production database server 
 
 ### Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| Server not loading | Check the command path in `settings.json` |
-| Permission denied | Make sure the MCP binary is executable (`chmod +x`) |
-| Connection refused | Verify the server is running and the port is correct |
-| Server loads but no tools | Check the server's own logs for startup errors |
+| Problem                   | Fix                                                  |
+| ------------------------- | ---------------------------------------------------- |
+| Server not loading        | Check the command path in `settings.json`            |
+| Permission denied         | Make sure the MCP binary is executable (`chmod +x`)  |
+| Connection refused        | Verify the server is running and the port is correct |
+| Server loads but no tools | Check the server's own logs for startup errors       |

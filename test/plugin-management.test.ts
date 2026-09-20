@@ -79,7 +79,9 @@ describe("Plugin Management", () => {
 
   afterAll(() => {
     clearTestDefaultClaudeDir();
-    try { rmSync(baseDir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(baseDir, { recursive: true, force: true });
+    } catch {}
   });
 
   describe("scanPluginsFromDir", () => {
@@ -90,12 +92,12 @@ describe("Plugin Management", () => {
       const plugins = scanPluginsFromDir(defaultDir);
       expect(plugins.length).toBe(2);
 
-      const internal = plugins.find(p => p.id === "my-internal");
+      const internal = plugins.find((p) => p.id === "my-internal");
       expect(internal).toBeDefined();
       expect(internal!.category).toBe("internal");
       expect(internal!.hasMcp).toBe(false);
 
-      const external = plugins.find(p => p.id === "my-external");
+      const external = plugins.find((p) => p.id === "my-external");
       expect(external).toBeDefined();
       expect(external!.category).toBe("external");
       expect(external!.hasMcp).toBe(true);
@@ -106,18 +108,24 @@ describe("Plugin Management", () => {
       createMockPlugin(defaultDir, "plugins", "lsp-plugin", { hasPluginJson: false });
 
       const plugins = scanPluginsFromDir(defaultDir);
-      const lsp = plugins.find(p => p.id === "lsp-plugin");
+      const lsp = plugins.find((p) => p.id === "lsp-plugin");
       expect(lsp).toBeDefined();
       expect(lsp!.name).toBe("lsp-plugin"); // Falls back to dir name
     });
 
     test("handles both .mcp.json formats", () => {
-      createMockPlugin(defaultDir, "external_plugins", "flat-mcp", { hasMcp: true, mcpFormat: "flat" });
-      createMockPlugin(defaultDir, "external_plugins", "nested-mcp", { hasMcp: true, mcpFormat: "nested" });
+      createMockPlugin(defaultDir, "external_plugins", "flat-mcp", {
+        hasMcp: true,
+        mcpFormat: "flat",
+      });
+      createMockPlugin(defaultDir, "external_plugins", "nested-mcp", {
+        hasMcp: true,
+        mcpFormat: "nested",
+      });
 
       const plugins = listDefaultPlugins();
-      const flat = plugins.find(p => p.id === "flat-mcp");
-      const nested = plugins.find(p => p.id === "nested-mcp");
+      const flat = plugins.find((p) => p.id === "flat-mcp");
+      const nested = plugins.find((p) => p.id === "nested-mcp");
 
       expect(flat!.mcpServerNames).toEqual(["flat-mcp"]);
       expect(nested!.mcpServerNames).toEqual(["nested-mcp"]);
@@ -140,8 +148,8 @@ describe("Plugin Management", () => {
       );
 
       const plugins = listDefaultPlugins();
-      const flat = plugins.find(p => p.id === "flat-mcp");
-      const nested = plugins.find(p => p.id === "nested-mcp");
+      const flat = plugins.find((p) => p.id === "flat-mcp");
+      const nested = plugins.find((p) => p.id === "nested-mcp");
 
       expect(flat!.enabled).toBe(true);
       expect(nested!.enabled).toBe(false);
@@ -223,7 +231,9 @@ describe("Plugin Management", () => {
       }
 
       setTestDefaultClaudeDir(defaultDir);
-      try { rmSync(rbBase, { recursive: true, force: true }); } catch {}
+      try {
+        rmSync(rbBase, { recursive: true, force: true });
+      } catch {}
     });
   });
 
@@ -265,7 +275,9 @@ describe("Plugin Management", () => {
       expect(servers["test-server"]).toBeDefined();
       expect(servers["test-server"].command).toBe("npx");
 
-      try { rmSync(mcpDir, { recursive: true, force: true }); } catch {}
+      try {
+        rmSync(mcpDir, { recursive: true, force: true });
+      } catch {}
     });
 
     test("getInstanceMcpServers returns combined view", async () => {
@@ -288,7 +300,9 @@ describe("Plugin Management", () => {
       expect(result.all["plugin-server"]).toBeDefined();
       expect(result.all["custom-server"]).toBeDefined();
 
-      try { rmSync(combinedDir, { recursive: true, force: true }); } catch {}
+      try {
+        rmSync(combinedDir, { recursive: true, force: true });
+      } catch {}
     });
   });
 
@@ -311,7 +325,9 @@ describe("Plugin Management", () => {
       expect(collisions.length).toBe(1);
       expect(collisions[0].serverName).toBe("shared-name");
 
-      try { rmSync(targetDir, { recursive: true, force: true }); } catch {}
+      try {
+        rmSync(targetDir, { recursive: true, force: true });
+      } catch {}
     });
 
     test("returns empty when no collisions", () => {
@@ -337,7 +353,9 @@ describe("Plugin Management", () => {
       const raw = readFileSync(join(testDir, "settings.json"), "utf-8");
       expect(() => JSON.parse(raw)).not.toThrow();
 
-      try { rmSync(testDir, { recursive: true, force: true }); } catch {}
+      try {
+        rmSync(testDir, { recursive: true, force: true });
+      } catch {}
     });
   });
 });

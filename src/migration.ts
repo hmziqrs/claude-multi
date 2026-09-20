@@ -1,4 +1,13 @@
-import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, rmSync, writeFileSync, chmodSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  copyFileSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  chmodSync,
+} from "node:fs";
 import { join, dirname } from "node:path";
 import semver from "semver";
 import type { Config, Instance, MigrationMeta } from "@/config";
@@ -21,12 +30,17 @@ export interface InstanceMigration {
 const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   {
     version: "0.6.2",
-    description: "Regenerate wrappers and update stale .claude.json for current claude-multi behavior",
+    description:
+      "Regenerate wrappers and update stale .claude.json for current claude-multi behavior",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
 
-      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+      if (
+        instance.createdWithVersion &&
+        instance.createdWithVersion !== LEGACY_INSTANCE_VERSION &&
+        instance.createdWithVersion === currentVersion
+      ) {
         return Promise.resolve(instance);
       }
 
@@ -44,7 +58,9 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
             // Skip unreadable wrapper
           }
         } else {
-          console.warn(`[migration] Could not find claude binary, skipping wrapper regeneration for instance: ${instance.name}`);
+          console.warn(
+            `[migration] Could not find claude binary, skipping wrapper regeneration for instance: ${instance.name}`,
+          );
         }
       }
 
@@ -59,7 +75,11 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
-      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+      if (
+        instance.createdWithVersion &&
+        instance.createdWithVersion !== LEGACY_INSTANCE_VERSION &&
+        instance.createdWithVersion === currentVersion
+      ) {
         return Promise.resolve(instance);
       }
 
@@ -77,7 +97,9 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
           }
         }
       } catch (err: unknown) {
-        console.warn(`[migration] Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
+        console.warn(
+          `[migration] Failed to sync provider template for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
 
       return Promise.resolve(instance);
@@ -85,11 +107,16 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   },
   {
     version: "0.11.1",
-    description: "Sync provider env to current templates: model slots always updated; tunable vars refreshed when holding a known legacy default (e.g. GLM MAX_OUTPUT_TOKENS 64000)",
+    description:
+      "Sync provider env to current templates: model slots always updated; tunable vars refreshed when holding a known legacy default (e.g. GLM MAX_OUTPUT_TOKENS 64000)",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
-      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+      if (
+        instance.createdWithVersion &&
+        instance.createdWithVersion !== LEGACY_INSTANCE_VERSION &&
+        instance.createdWithVersion === currentVersion
+      ) {
         return Promise.resolve(instance);
       }
 
@@ -107,7 +134,9 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
           }
         }
       } catch (err: unknown) {
-        console.warn(`[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
+        console.warn(
+          `[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
 
       return Promise.resolve(instance);
@@ -115,11 +144,16 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   },
   {
     version: "0.12.0",
-    description: "GLM template: sonnet slot moved to glm-5.3-flash[1m] (three-tier split: opus glm-5.3[1m], sonnet glm-5.3-flash[1m], haiku glm-5-turbo)",
+    description:
+      "GLM template: sonnet slot moved to glm-5.3-flash[1m] (three-tier split: opus glm-5.3[1m], sonnet glm-5.3-flash[1m], haiku glm-5-turbo)",
     // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
-      if (instance.createdWithVersion && instance.createdWithVersion !== LEGACY_INSTANCE_VERSION && instance.createdWithVersion === currentVersion) {
+      if (
+        instance.createdWithVersion &&
+        instance.createdWithVersion !== LEGACY_INSTANCE_VERSION &&
+        instance.createdWithVersion === currentVersion
+      ) {
         return Promise.resolve(instance);
       }
 
@@ -137,7 +171,9 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
           }
         }
       } catch (err: unknown) {
-        console.warn(`[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
+        console.warn(
+          `[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
 
       return Promise.resolve(instance);
@@ -171,15 +207,22 @@ function updateClaudeJson(configDir: string): void {
 export function needsInstanceMigration(config: Config): boolean {
   const current = getClaudeMultiVersion();
   const stored = config.instanceMigrationVersion;
-  const providerTemplateDrift = config.instances.some(instance => needsProviderTemplateSync(instance.configDir, {
-    providerTemplate: instance.providerTemplate,
-    providerRegion: instance.providerRegion,
-  }));
+  const providerTemplateDrift = config.instances.some((instance) =>
+    needsProviderTemplateSync(instance.configDir, {
+      providerTemplate: instance.providerTemplate,
+      providerRegion: instance.providerRegion,
+    }),
+  );
 
   if (!stored) return INSTANCE_MIGRATIONS.length > 0 || providerTemplateDrift;
   const storedCoerced = semver.coerce(stored);
   if (!storedCoerced) return INSTANCE_MIGRATIONS.length > 0 || providerTemplateDrift;
-  return providerTemplateDrift || INSTANCE_MIGRATIONS.some(m => semver.gt(m.version, storedCoerced) && semver.lte(m.version, current));
+  return (
+    providerTemplateDrift ||
+    INSTANCE_MIGRATIONS.some(
+      (m) => semver.gt(m.version, storedCoerced) && semver.lte(m.version, current),
+    )
+  );
 }
 
 export async function runInstanceMigrations(config: Config): Promise<Config> {
@@ -201,9 +244,9 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
 
     const currentVersion = getClaudeMultiVersion();
     const stored = semver.coerce(config.instanceMigrationVersion || "0.0.0");
-    const applicable = INSTANCE_MIGRATIONS
-      .filter(m => stored ? (semver.gt(m.version, stored) && semver.lte(m.version, currentVersion)) : true)
-      .toSorted((a, b) => semver.compare(a.version, b.version));
+    const applicable = INSTANCE_MIGRATIONS.filter((m) =>
+      stored ? semver.gt(m.version, stored) && semver.lte(m.version, currentVersion) : true,
+    ).toSorted((a, b) => semver.compare(a.version, b.version));
 
     for (const migration of applicable) {
       // eslint-disable-next-line @react-doctor/async-await-in-loop -- migrations must run sequentially per version order
@@ -218,10 +261,13 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
     // updates reach every provider even if a release forgets an INSTANCE_MIGRATIONS entry.
     for (let i = 0; i < config.instances.length; i++) {
       const instance = config.instances[i]!;
-      if (!needsProviderTemplateSync(instance.configDir, {
-        providerTemplate: instance.providerTemplate,
-        providerRegion: instance.providerRegion,
-      })) continue;
+      if (
+        !needsProviderTemplateSync(instance.configDir, {
+          providerTemplate: instance.providerTemplate,
+          providerRegion: instance.providerRegion,
+        })
+      )
+        continue;
 
       try {
         const result = syncProviderEnvToSettings(instance.configDir, {
@@ -230,9 +276,12 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
           tunablePolicy: "overwrite-legacy-defaults",
         });
         if (result.region) instance.providerRegion = result.region;
-        if (!instance.providerTemplate && result.providerName) instance.providerTemplate = result.providerName;
+        if (!instance.providerTemplate && result.providerName)
+          instance.providerTemplate = result.providerName;
       } catch (err: unknown) {
-        console.warn(`[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`);
+        console.warn(
+          `[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -243,8 +292,12 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
   }
 }
 
-function getBackupDir() { return join(getBaseDir(), ".claude-multi", "backups"); }
-function getLockFile() { return join(getBaseDir(), ".claude-multi", ".migration.lock"); }
+function getBackupDir() {
+  return join(getBaseDir(), ".claude-multi", "backups");
+}
+function getLockFile() {
+  return join(getBaseDir(), ".claude-multi", ".migration.lock");
+}
 
 export interface MigrationResult {
   success: boolean;
@@ -261,7 +314,12 @@ function createLock(): boolean {
   if (existsSync(lockFile)) {
     try {
       const raw = JSON.parse(readFileSync(lockFile, "utf-8")) as unknown;
-      if (typeof raw === "object" && raw !== null && "pid" in raw && typeof (raw as { pid: unknown }).pid === "number") {
+      if (
+        typeof raw === "object" &&
+        raw !== null &&
+        "pid" in raw &&
+        typeof (raw as { pid: unknown }).pid === "number"
+      ) {
         const lock = raw as { pid: number; startedAt: string };
         // >30min-old lock is from a dead process (even with a recycled PID) — remove it
         const lockAge = Date.now() - new Date(lock.startedAt).getTime();
@@ -282,16 +340,22 @@ function createLock(): boolean {
       rmSync(lockFile, { force: true });
     }
   }
-  writeFileSync(lockFile, JSON.stringify({
-    pid: process.pid,
-    startedAt: new Date().toISOString(),
-  }), "utf-8");
+  writeFileSync(
+    lockFile,
+    JSON.stringify({
+      pid: process.pid,
+      startedAt: new Date().toISOString(),
+    }),
+    "utf-8",
+  );
   return true;
 }
 
 function releaseLock(): void {
   // Safe to silence — lock file may already be removed by another process
-  try { rmSync(getLockFile(), { force: true }); } catch {}
+  try {
+    rmSync(getLockFile(), { force: true });
+  } catch {}
 }
 
 export function needsMigration(config: Config): boolean {

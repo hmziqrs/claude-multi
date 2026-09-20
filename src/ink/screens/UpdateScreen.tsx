@@ -42,7 +42,7 @@ function VersionCard({
         </Text>
       </Box>
       <Box marginLeft={2}>
-        <Text dimColor>Latest:  </Text>
+        <Text dimColor>Latest: </Text>
         <Text bold>{latest || (failed ? "unreachable" : "unknown")}</Text>
       </Box>
       {failed && (
@@ -174,7 +174,11 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 failed={!claudeInfo.current && !claudeInfo.latest}
               />
             )}
-            {error && <Box marginTop={1}><StatusBar message={error} type="error" /></Box>}
+            {error && (
+              <Box marginTop={1}>
+                <StatusBar message={error} type="error" />
+              </Box>
+            )}
             <Box marginTop={1}>
               <Select
                 options={[
@@ -207,7 +211,9 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="📦 Updates" />
         <Box marginTop={1}>
-          <Spinner label={`Updating ${updatingTarget === "multi" ? "claude-multi" : "@anthropic-ai/claude-code"}...`} />
+          <Spinner
+            label={`Updating ${updatingTarget === "multi" ? "claude-multi" : "@anthropic-ai/claude-code"}...`}
+          />
         </Box>
         <Box marginTop={1}>
           <Text dimColor>Do not press ESC: update in progress</Text>
@@ -247,8 +253,16 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         hasUpdate={claudeUpdate}
       />
 
-      {error && <Box marginTop={1}><StatusBar message={error} type="error" /></Box>}
-      {success && <Box marginTop={1}><StatusBar message={success} type="success" /></Box>}
+      {error && (
+        <Box marginTop={1}>
+          <StatusBar message={error} type="error" />
+        </Box>
+      )}
+      {success && (
+        <Box marginTop={1}>
+          <StatusBar message={success} type="success" />
+        </Box>
+      )}
 
       <Box marginTop={1}>
         <Select

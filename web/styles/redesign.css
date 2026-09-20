@@ -42,14 +42,15 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.35);
   --shadow-xl: 0 24px 56px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.4);
-  --shadow-glow-accent: 0 0 0 1px var(--accent-border),
-    0 4px 24px rgba(217, 119, 87, 0.18);
+  --shadow-glow-accent: 0 0 0 1px var(--accent-border), 0 4px 24px rgba(217, 119, 87, 0.18);
 
   /* ---- Fonts (self-hosted via globals.css) ---- */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', Menlo,
-    Consolas, 'Liberation Mono', monospace;
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono",
+    monospace;
 
   /* ---- Layout ---- */
   --container-sm: 640px;
@@ -297,7 +298,8 @@
 .redesign-root .reveal {
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity var(--duration-slow) var(--ease-out),
+  transition:
+    opacity var(--duration-slow) var(--ease-out),
     transform var(--duration-slow) var(--ease-out);
   will-change: opacity, transform;
 }
@@ -349,16 +351,36 @@
    page content (about, blog, providers) stays on-theme without editing every class. */
 
 /* ---- Remap lime text/bg/border Tailwind utilities ---- */
-.redesign-root .text-lime { color: var(--accent) !important; }
-.redesign-root .bg-lime { background-color: var(--accent) !important; }
-.redesign-root .bg-lime\/10 { background-color: var(--accent-soft) !important; }
-.redesign-root .bg-lime\/\[0\.03\] { background-color: rgba(217, 119, 87, 0.03) !important; }
-.redesign-root .bg-lime\/\[0\.04\] { background-color: rgba(217, 119, 87, 0.04) !important; }
-.redesign-root .bg-lime\/\[0\.06\] { background-color: rgba(217, 119, 87, 0.06) !important; }
-.redesign-root .border-lime\/30 { border-color: rgba(217, 119, 87, 0.3) !important; }
-.redesign-root .ring-lime\/40 { --tw-ring-color: rgba(217, 119, 87, 0.4) !important; }
-.redesign-root .text-lime\/30 { color: rgba(217, 119, 87, 0.3) !important; }
-.redesign-root .shadow-\[0_0_10px_var\(--color-lime\)\] { box-shadow: 0 0 10px var(--accent) !important; }
+.redesign-root .text-lime {
+  color: var(--accent) !important;
+}
+.redesign-root .bg-lime {
+  background-color: var(--accent) !important;
+}
+.redesign-root .bg-lime\/10 {
+  background-color: var(--accent-soft) !important;
+}
+.redesign-root .bg-lime\/\[0\.03\] {
+  background-color: rgba(217, 119, 87, 0.03) !important;
+}
+.redesign-root .bg-lime\/\[0\.04\] {
+  background-color: rgba(217, 119, 87, 0.04) !important;
+}
+.redesign-root .bg-lime\/\[0\.06\] {
+  background-color: rgba(217, 119, 87, 0.06) !important;
+}
+.redesign-root .border-lime\/30 {
+  border-color: rgba(217, 119, 87, 0.3) !important;
+}
+.redesign-root .ring-lime\/40 {
+  --tw-ring-color: rgba(217, 119, 87, 0.4) !important;
+}
+.redesign-root .text-lime\/30 {
+  color: rgba(217, 119, 87, 0.3) !important;
+}
+.redesign-root .shadow-\[0_0_10px_var\(--color-lime\)\] {
+  box-shadow: 0 0 10px var(--accent) !important;
+}
 
 /* ---- Remap legacy lime CSS variable references ---- */
 .redesign-root {
@@ -445,7 +467,9 @@
   background: linear-gradient(135deg, #e08a6d, var(--accent));
   color: #0b0c0e;
   text-decoration: none;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
 .redesign-root .btn-primary:hover {
   transform: translateY(-1px);
@@ -479,7 +503,11 @@
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   backdrop-filter: blur(20px) saturate(140%);
   border: 1px solid var(--border-subtle);
-  transition: border-color 0.4s ease, background 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+  transition:
+    border-color 0.4s ease,
+    background 0.4s ease,
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
 }
 .redesign-root .glass:hover {
   background: var(--background-elevated);

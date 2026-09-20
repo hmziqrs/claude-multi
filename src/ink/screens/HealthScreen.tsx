@@ -73,10 +73,10 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
     );
   }
 
-  const hasVersionIssues = issues.some(i => i.category === "version");
+  const hasVersionIssues = issues.some((i) => i.category === "version");
 
   const handleIssueSelect = (value: string) => {
-    const issue = issues.find(i => i.id === value);
+    const issue = issues.find((i) => i.id === value);
     if (issue) {
       setSelectedIssue(issue);
       setStep("detail");
@@ -103,7 +103,9 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
           <Box marginTop={1} flexDirection="column">
             {hasVersionIssues && (
               <Box marginBottom={1}>
-                <Text color="cyan" bold>f</Text>
+                <Text color="cyan" bold>
+                  f
+                </Text>
                 <Text color="cyan"> fix wrappers </Text>
                 <Text dimColor>│</Text>
               </Box>
@@ -119,7 +121,9 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
           <Box marginLeft={2} flexDirection="column">
             <Box gap={1}>
               <Text dimColor>├─</Text>
-              <Text dimColor bold>Severity:</Text>
+              <Text dimColor bold>
+                Severity:
+              </Text>
               <Text color={selectedIssue.severity === "error" ? "red" : "yellow"}>
                 {selectedIssue.severity}
               </Text>
@@ -127,26 +131,34 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
             {selectedIssue.instanceName && (
               <Box gap={1}>
                 <Text dimColor>├─</Text>
-                <Text dimColor bold>Instance:</Text>
+                <Text dimColor bold>
+                  Instance:
+                </Text>
                 <Text>{selectedIssue.instanceName}</Text>
               </Box>
             )}
             <Box gap={1}>
               <Text dimColor>├─</Text>
-              <Text dimColor bold>Detail:</Text>
+              <Text dimColor bold>
+                Detail:
+              </Text>
               <Text>{selectedIssue.message}</Text>
             </Box>
             {selectedIssue.detail && (
               <Box gap={1}>
                 <Text dimColor>├─</Text>
-                <Text dimColor bold>Info:</Text>
+                <Text dimColor bold>
+                  Info:
+                </Text>
                 <Text dimColor>{selectedIssue.detail}</Text>
               </Box>
             )}
             {selectedIssue.resolutionHint && (
               <Box gap={1}>
                 <Text dimColor>└─</Text>
-                <Text dimColor bold>Fix:</Text>
+                <Text dimColor bold>
+                  Fix:
+                </Text>
                 <Text dimColor>{selectedIssue.resolutionHint}</Text>
               </Box>
             )}

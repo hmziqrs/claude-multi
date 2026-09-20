@@ -17,11 +17,11 @@ Qwen3-Coder is Alibaba's coding model family, in three tiers: Next for heavy rea
 
 ## Model specs
 
-| Role | Model | Context | Max Output |
-|------|-------|---------|------------|
-| Primary (Opus) | Qwen3-Coder-Next | 128K | 65,536 |
-| Balanced (Sonnet) | Qwen3-Coder-Plus | 128K | 65,536 |
-| Fast (Haiku) | Qwen3-Coder-Flash | 128K | 65,536 |
+| Role              | Model             | Context | Max Output |
+| ----------------- | ----------------- | ------- | ---------- |
+| Primary (Opus)    | Qwen3-Coder-Next  | 128K    | 65,536     |
+| Balanced (Sonnet) | Qwen3-Coder-Plus  | 128K    | 65,536     |
+| Fast (Haiku)      | Qwen3-Coder-Flash | 128K    | 65,536     |
 
 Each tier maps to the matching Claude Code role. Heavy reasoning goes to Next, everyday coding to Plus, quick tasks to Flash. Subagent work also runs on Flash.
 

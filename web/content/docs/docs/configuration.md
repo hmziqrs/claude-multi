@@ -24,15 +24,15 @@ claude-multi tracks all instances in a central registry:
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `version` | `string` | Config format version (`"2"` after migration) |
-| `instances` | `array` | All registered instances |
-| `instances[].name` | `string` | Instance name, letters, numbers, hyphens, underscores |
-| `instances[].configDir` | `string` | Absolute path to the instance's config directory |
-| `instances[].binaryPath` | `string` | Absolute path to the generated wrapper script |
-| `instances[].createdAt` | `string` | ISO 8601 creation timestamp |
-| `instances[].autoSync` | `boolean` | Whether plugins/skills are symlinked from `~/.claude` |
+| Field                    | Type      | Description                                           |
+| ------------------------ | --------- | ----------------------------------------------------- |
+| `version`                | `string`  | Config format version (`"2"` after migration)         |
+| `instances`              | `array`   | All registered instances                              |
+| `instances[].name`       | `string`  | Instance name, letters, numbers, hyphens, underscores |
+| `instances[].configDir`  | `string`  | Absolute path to the instance's config directory      |
+| `instances[].binaryPath` | `string`  | Absolute path to the generated wrapper script         |
+| `instances[].createdAt`  | `string`  | ISO 8601 creation timestamp                           |
+| `instances[].autoSync`   | `boolean` | Whether plugins/skills are symlinked from `~/.claude` |
 
 ---
 
@@ -69,18 +69,18 @@ Each instance has its own `settings.json` at `~/.claude-<name>/settings.json`. T
 
 Environment variables that claude-multi sets when it launches Claude Code for this instance. Provider templates fill these in for you.
 
-| Key | Description |
-|-----|-------------|
-| `ANTHROPIC_AUTH_TOKEN` | API key for the provider |
-| `ANTHROPIC_BASE_URL` | Provider's Anthropic-compatible API endpoint |
-| `ANTHROPIC_MODEL` | Primary model (mapped to Claude Code's internal opus slot) |
-| `ANTHROPIC_SMALL_FAST_MODEL` | Fast/cheap model (mapped to haiku slot) |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet-tier model |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus-tier model |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku-tier model |
-| `API_TIMEOUT_MS` | Request timeout (some templates set this to `600000`) |
-| `CLAUDE_CODE_SUBAGENT_MODEL` | Model used by sub-agents for background tasks |
-| `CLAUDE_CODE_EFFORT_LEVEL` | Reasoning effort level (`low`, `medium`, `high`, `max`) |
+| Key                              | Description                                                |
+| -------------------------------- | ---------------------------------------------------------- |
+| `ANTHROPIC_AUTH_TOKEN`           | API key for the provider                                   |
+| `ANTHROPIC_BASE_URL`             | Provider's Anthropic-compatible API endpoint               |
+| `ANTHROPIC_MODEL`                | Primary model (mapped to Claude Code's internal opus slot) |
+| `ANTHROPIC_SMALL_FAST_MODEL`     | Fast/cheap model (mapped to haiku slot)                    |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet-tier model                                          |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL`   | Opus-tier model                                            |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL`  | Haiku-tier model                                           |
+| `API_TIMEOUT_MS`                 | Request timeout (some templates set this to `600000`)      |
+| `CLAUDE_CODE_SUBAGENT_MODEL`     | Model used by sub-agents for background tasks              |
+| `CLAUDE_CODE_EFFORT_LEVEL`       | Reasoning effort level (`low`, `medium`, `high`, `max`)    |
 
 ### `enabledPlugins` object
 
@@ -181,15 +181,15 @@ claude-multi keeps the last 3 backup sets and deletes the older ones.
 
 ## File locations summary
 
-| Path | Purpose |
-|------|---------|
-| `~/.claude-multi/config.json` | Instance registry |
-| `~/.claude-multi/health-status.json` | Health issue tracking |
-| `~/.claude-multi/backups/` | Migration backups |
-| `~/.claude-multi/.migration.lock` | PID-based migration lock |
-| `~/.claude-<name>/settings.json` | Per-instance settings (env, plugins, MCP) |
-| `~/.claude-<name>/.claude.json` | Per-instance state |
-| `~/.claude-<name>/plugins/` | Plugins (symlinked or copied) |
-| `~/.claude-<name>/skills/` | Skills (symlinked or copied) |
-| `~/.claude-<name>/projects/` | Conversation history |
-| `~/.local/bin/claude-<name>` | Wrapper script |
+| Path                                 | Purpose                                   |
+| ------------------------------------ | ----------------------------------------- |
+| `~/.claude-multi/config.json`        | Instance registry                         |
+| `~/.claude-multi/health-status.json` | Health issue tracking                     |
+| `~/.claude-multi/backups/`           | Migration backups                         |
+| `~/.claude-multi/.migration.lock`    | PID-based migration lock                  |
+| `~/.claude-<name>/settings.json`     | Per-instance settings (env, plugins, MCP) |
+| `~/.claude-<name>/.claude.json`      | Per-instance state                        |
+| `~/.claude-<name>/plugins/`          | Plugins (symlinked or copied)             |
+| `~/.claude-<name>/skills/`           | Skills (symlinked or copied)              |
+| `~/.claude-<name>/projects/`         | Conversation history                      |
+| `~/.local/bin/claude-<name>`         | Wrapper script                            |

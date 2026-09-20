@@ -48,7 +48,11 @@ const GoodbyeScreen: React.FC = () => {
   );
 };
 
-const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; onBack: () => void }> = ({ fixedCount, migratedCount, onBack }) => {
+const DoctorResultScreen: React.FC<{
+  fixedCount: number;
+  migratedCount: number;
+  onBack: () => void;
+}> = ({ fixedCount, migratedCount, onBack }) => {
   useNavigation(onBack);
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
@@ -57,7 +61,10 @@ const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; 
         <>
           {fixedCount > 0 && (
             <>
-              <StatusBar message={`Fixed ${fixedCount} wrapper(s) to use global Claude binary`} type="success" />
+              <StatusBar
+                message={`Fixed ${fixedCount} wrapper(s) to use global Claude binary`}
+                type="success"
+              />
               <Box marginTop={1}>
                 <Text dimColor>All instances now use the globally installed Claude binary.</Text>
               </Box>
@@ -65,7 +72,10 @@ const DoctorResultScreen: React.FC<{ fixedCount: number; migratedCount: number; 
           )}
           {migratedCount > 0 && (
             <Box marginTop={fixedCount > 0 ? 1 : 0}>
-              <StatusBar message={`Migrated ${migratedCount} instance(s) to v${getClaudeMultiVersion()}`} type="success" />
+              <StatusBar
+                message={`Migrated ${migratedCount} instance(s) to v${getClaudeMultiVersion()}`}
+                type="success"
+              />
             </Box>
           )}
         </>
@@ -85,8 +95,7 @@ const InstanceLine: React.FC<{ instances: { name: string }[] }> = ({ instances }
   return (
     <Box marginBottom={1}>
       <Text dimColor>
-        {instances.length} instance(s):{" "}
-        {instances.map((i) => i.name).join(", ")}
+        {instances.length} instance(s): {instances.map((i) => i.name).join(", ")}
       </Text>
     </Box>
   );
@@ -95,7 +104,11 @@ const InstanceLine: React.FC<{ instances: { name: string }[] }> = ({ instances }
 export const App: React.FC = () => {
   const { exit } = useApp();
   const { instances, loading, migrationStatus, instanceMigrationsPending, reload } = useConfig();
-  const { issues, dismiss, dismissAll, retry } = useHealthCheck(instances, migrationStatus, instanceMigrationsPending);
+  const { issues, dismiss, dismissAll, retry } = useHealthCheck(
+    instances,
+    migrationStatus,
+    instanceMigrationsPending,
+  );
   const [screen, setScreen] = useState<Screen>("menu");
   const [menuKey, setMenuKey] = useState(0);
   const [doctorResult, setDoctorResult] = useState({
@@ -103,6 +116,10 @@ export const App: React.FC = () => {
     migratedCount: 0,
   });
   const [doctorRunning, setDoctorRunning] = useState(false);
+
+  const goToHealth = () => {
+    setScreen("health");
+  };
 
   useInput((input, key) => {
     if (screen !== "menu") return;
@@ -131,26 +148,26 @@ export const App: React.FC = () => {
     if (doctorRunning) return;
     setDoctorRunning(true);
     try {
-    const fixed = fixWrapperVersions(instances);
+      const fixed = fixWrapperVersions(instances);
 
-    let migrated = 0;
-    try {
-      const fullConfig = await loadConfig();
-      if (needsInstanceMigration(fullConfig)) {
-        const before = fullConfig.instanceMigrationVersion;
-        const migratedConfig = await runInstanceMigrations(fullConfig);
-        if (migratedConfig.instanceMigrationVersion !== before) {
-          await saveConfigAtomic(migratedConfig);
-          migrated = fullConfig.instances.length;
+      let migrated = 0;
+      try {
+        const fullConfig = await loadConfig();
+        if (needsInstanceMigration(fullConfig)) {
+          const before = fullConfig.instanceMigrationVersion;
+          const migratedConfig = await runInstanceMigrations(fullConfig);
+          if (migratedConfig.instanceMigrationVersion !== before) {
+            await saveConfigAtomic(migratedConfig);
+            migrated = fullConfig.instances.length;
+          }
         }
-      }
-    } catch {}
+      } catch {}
 
-    setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated });
-    // reload() triggers useHealthCheck's effect via changed dependencies —
-    // no need to call retry() separately (would cause a double health check)
-    await reload();
-    setScreen("doctor-result");
+      setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated });
+      // reload() triggers useHealthCheck's effect via changed dependencies —
+      // no need to call retry() separately (would cause a double health check)
+      await reload();
+      setScreen("doctor-result");
     } finally {
       setDoctorRunning(false);
     }
@@ -174,7 +191,13 @@ export const App: React.FC = () => {
   }
 
   if (screen === "doctor-result") {
-    return <DoctorResultScreen fixedCount={doctorResult.fixedCount} migratedCount={doctorResult.migratedCount} onBack={goToMenu} />;
+    return (
+      <DoctorResultScreen
+        fixedCount={doctorResult.fixedCount}
+        migratedCount={doctorResult.migratedCount}
+        onBack={goToMenu}
+      />
+    );
   }
 
   if (screen !== "menu") {
@@ -186,14 +209,10 @@ export const App: React.FC = () => {
     return null;
   }
 
-  const errorCount = issues.filter(i => i.severity === "error").length;
-  const warningCount = issues.filter(i => i.severity === "warning").length;
-  const versionIssues = issues.filter(i => i.category === "version");
+  const errorCount = issues.filter((i) => i.severity === "error").length;
+  const warningCount = issues.filter((i) => i.severity === "warning").length;
+  const versionIssues = issues.filter((i) => i.category === "version");
   const hasVersionIssues = versionIssues.length > 0;
-
-  const goToHealth = () => {
-    setScreen("health");
-  };
 
   const menuOptions = [
     { label: "➕ Add new instance", value: "add" },

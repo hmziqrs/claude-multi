@@ -1,4 +1,12 @@
-import { mkdtempSync, rmSync, readlinkSync, existsSync, readdirSync, statSync, mkdirSync } from "node:fs";
+import {
+  mkdtempSync,
+  rmSync,
+  readlinkSync,
+  existsSync,
+  readdirSync,
+  statSync,
+  mkdirSync,
+} from "node:fs";
 import { writeFile, mkdir, copyFile as cpFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -30,7 +38,10 @@ export class AutoSyncTestHelper {
 
     const nestedPluginDir = join(pluginsDir, "nested");
     await mkdir(nestedPluginDir, { recursive: true });
-    await writeFile(join(nestedPluginDir, "nested-plugin.json"), JSON.stringify({ name: "nested" }));
+    await writeFile(
+      join(nestedPluginDir, "nested-plugin.json"),
+      JSON.stringify({ name: "nested" }),
+    );
 
     const skillsDir = join(defaultDir, "skills");
     await mkdir(skillsDir, { recursive: true });
@@ -102,8 +113,7 @@ export class AutoSyncTestHelper {
     for (const dir of this.tempDirs) {
       try {
         rmSync(dir, { recursive: true, force: true });
-      } catch {
-      }
+      } catch {}
     }
     this.tempDirs = [];
 
@@ -132,8 +142,7 @@ export class AutoSyncTestHelper {
     try {
       readlinkSync(path);
       throw new Error(`Path exists but is a symlink, not a regular directory: ${path}`);
-    } catch {
-    }
+    } catch {}
     const stat = statSync(path);
     if (!stat.isDirectory()) {
       throw new Error(`Path exists but is not a directory: ${path}`);

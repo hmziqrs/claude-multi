@@ -13,15 +13,29 @@ describe("Ink Rendered Frame Tests", () => {
 
   it("renders main menu with instances", () => {
     const instances = [
-      { name: "glm", configDir: "/home/.claude-glm", binaryPath: "/home/.local/bin/claude-glm", createdAt: "2025-01-01T00:00:00.000Z", autoSync: true },
-      { name: "g2", configDir: "/home/.claude-g2", binaryPath: "/home/.local/bin/claude-g2", createdAt: "2025-06-01T00:00:00.000Z", autoSync: false },
+      {
+        name: "glm",
+        configDir: "/home/.claude-glm",
+        binaryPath: "/home/.local/bin/claude-glm",
+        createdAt: "2025-01-01T00:00:00.000Z",
+        autoSync: true,
+      },
+      {
+        name: "g2",
+        configDir: "/home/.claude-g2",
+        binaryPath: "/home/.local/bin/claude-g2",
+        createdAt: "2025-06-01T00:00:00.000Z",
+        autoSync: false,
+      },
     ];
 
     const { lastFrame } = render(
       <Box flexDirection="column" padding={1}>
         <Header title="🤖 Claude Multi" subtitle="Interactive Mode" />
         <Box marginBottom={1}>
-          <Text dimColor>{instances.length} instance(s): {instances.map((i) => i.name).join(", ")}</Text>
+          <Text dimColor>
+            {instances.length} instance(s): {instances.map((i) => i.name).join(", ")}
+          </Text>
         </Box>
         <Footer />
       </Box>,
@@ -34,7 +48,13 @@ describe("Ink Rendered Frame Tests", () => {
 
   it("renders instance listing with cards", () => {
     const instances = [
-      { name: "glm", configDir: "/home/.claude-glm", binaryPath: "/home/.local/bin/claude-glm", createdAt: "2025-01-01T00:00:00.000Z", autoSync: true },
+      {
+        name: "glm",
+        configDir: "/home/.claude-glm",
+        binaryPath: "/home/.local/bin/claude-glm",
+        createdAt: "2025-01-01T00:00:00.000Z",
+        autoSync: true,
+      },
     ];
 
     const { lastFrame } = render(
@@ -66,12 +86,29 @@ describe("Ink Rendered Frame Tests", () => {
       <Box flexDirection="column" padding={1}>
         <Header title="ℹ️ Instance Details" />
         <Box borderStyle="round" borderColor="cyan" paddingX={1}>
-          <Text bold color="cyan">{instance.name}</Text>
+          <Text bold color="cyan">
+            {instance.name}
+          </Text>
         </Box>
         <Box borderStyle="single" borderColor="gray" paddingX={1} flexDirection="column">
-          <Box gap={2}><Text dimColor bold>Binary:</Text><Text>{instance.binaryPath}</Text></Box>
-          <Box gap={2}><Text dimColor bold>Config:</Text><Text>{instance.configDir}</Text></Box>
-          <Box gap={2}><Text dimColor bold>Auto-sync:</Text><Text color="green">✓ Enabled</Text></Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Binary:
+            </Text>
+            <Text>{instance.binaryPath}</Text>
+          </Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Config:
+            </Text>
+            <Text>{instance.configDir}</Text>
+          </Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Auto-sync:
+            </Text>
+            <Text color="green">✓ Enabled</Text>
+          </Box>
         </Box>
       </Box>,
     );
@@ -87,11 +124,23 @@ describe("Ink Rendered Frame Tests", () => {
       <Box flexDirection="column" padding={1}>
         <Header title="🗑️ Remove Instance" />
         <Box borderStyle="round" borderColor="red" paddingX={1} flexDirection="column">
-          <Text bold color="red">⚠ About to remove 'glm'</Text>
+          <Text bold color="red">
+            ⚠ About to remove 'glm'
+          </Text>
         </Box>
         <Box borderStyle="single" borderColor="gray" paddingX={1} flexDirection="column">
-          <Box gap={2}><Text dimColor bold>Binary:</Text><Text dimColor>/home/.local/bin/claude-glm</Text></Box>
-          <Box gap={2}><Text dimColor bold>Config:</Text><Text dimColor>/home/.claude-glm</Text></Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Binary:
+            </Text>
+            <Text dimColor>/home/.local/bin/claude-glm</Text>
+          </Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Config:
+            </Text>
+            <Text dimColor>/home/.claude-glm</Text>
+          </Box>
         </Box>
       </Box>,
     );
@@ -106,8 +155,18 @@ describe("Ink Rendered Frame Tests", () => {
       <Box flexDirection="column" gap={1}>
         <StatusBar message="Instance 'test' created successfully!" type="success" />
         <Box borderStyle="single" borderColor="gray" paddingX={1} flexDirection="column">
-          <Box gap={2}><Text dimColor bold>Binary:</Text><Text>/home/.local/bin/claude-test</Text></Box>
-          <Box gap={2}><Text dimColor bold>Config:</Text><Text>/home/.claude-test</Text></Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Binary:
+            </Text>
+            <Text>/home/.local/bin/claude-test</Text>
+          </Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Config:
+            </Text>
+            <Text>/home/.claude-test</Text>
+          </Box>
         </Box>
       </Box>,
     );
@@ -132,9 +191,24 @@ describe("Ink Rendered Frame Tests", () => {
       <Box flexDirection="column" padding={1}>
         <Header title="⚙️ Manage MCP Servers" />
         <Box marginLeft={2} flexDirection="column">
-          <Box gap={1}><Text bold color="cyan">context7</Text><Text color="green">✓</Text></Box>
-          <Box gap={2}><Text dimColor bold>Type:</Text><Text>http</Text></Box>
-          <Box gap={2}><Text dimColor bold>URL:</Text><Text>https://api.context7.com</Text></Box>
+          <Box gap={1}>
+            <Text bold color="cyan">
+              context7
+            </Text>
+            <Text color="green">✓</Text>
+          </Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              Type:
+            </Text>
+            <Text>http</Text>
+          </Box>
+          <Box gap={2}>
+            <Text dimColor bold>
+              URL:
+            </Text>
+            <Text>https://api.context7.com</Text>
+          </Box>
         </Box>
       </Box>,
     );
@@ -156,7 +230,11 @@ describe("Ink Rendered Frame Tests", () => {
   });
 
   it("renders goodbye", () => {
-    const { lastFrame } = render(<Box padding={1}><Text dimColor>👋 Goodbye!</Text></Box>);
+    const { lastFrame } = render(
+      <Box padding={1}>
+        <Text dimColor>👋 Goodbye!</Text>
+      </Box>,
+    );
     expect(lastFrame()).toContain("Goodbye!");
   });
 });

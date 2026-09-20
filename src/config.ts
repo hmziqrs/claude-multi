@@ -1,4 +1,15 @@
-import { existsSync, mkdirSync, readdirSync, statSync, readlinkSync, rmSync, lstatSync, readFileSync, renameSync, type Stats } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  readlinkSync,
+  rmSync,
+  lstatSync,
+  readFileSync,
+  renameSync,
+  type Stats,
+} from "node:fs";
 import { readFile, writeFile, copyFile, mkdir, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
@@ -7,7 +18,14 @@ import type { ProviderTemplate, ProviderEnvSyncResult } from "@/templates";
 import { applyProviderTemplate, syncProviderEnvToSettings } from "@/templates";
 import { writeJsonFileAtomic } from "@/util/json-file";
 import { ClaudeMultiError, ErrorCode } from "@/errors";
-import { MigrationStatus, PluginCategory, McpServerType, SyncMode, type SyncMode as SyncModeType, canConvertSyncMode } from "@/constants";
+import {
+  MigrationStatus,
+  PluginCategory,
+  McpServerType,
+  SyncMode,
+  type SyncMode as SyncModeType,
+  canConvertSyncMode,
+} from "@/constants";
 import chalk from "chalk";
 
 export interface McpServer {
@@ -75,12 +93,20 @@ export interface PluginInfo {
 let _testConfigDir: string | undefined;
 
 /** Test-only: isolate config storage from ~/.claude-multi */
-export function setTestConfigDir(dir: string): void { _testConfigDir = dir; }
+export function setTestConfigDir(dir: string): void {
+  _testConfigDir = dir;
+}
 /** Test-only: restore real config storage */
-export function clearTestConfigDir(): void { _testConfigDir = undefined; }
+export function clearTestConfigDir(): void {
+  _testConfigDir = undefined;
+}
 
-function getConfigDir(): string { return _testConfigDir ?? join(homedir(), ".claude-multi"); }
-function getConfigFile(): string { return join(getConfigDir(), "config.json"); }
+function getConfigDir(): string {
+  return _testConfigDir ?? join(homedir(), ".claude-multi");
+}
+function getConfigFile(): string {
+  return join(getConfigDir(), "config.json");
+}
 
 const SYNC_DIRS = ["plugins", "skills"] as const;
 
@@ -96,9 +122,12 @@ export function getSyncMode(instance: Instance): SyncModeType {
 
 export function syncModeLabel(mode: SyncModeType): string {
   switch (mode) {
-    case SyncMode.Auto: return "Auto-sync (symlink dirs)";
-    case SyncMode.HalfManual: return "Half-manual (symlink items)";
-    case SyncMode.FullManual: return "Full-manual (independent copy)";
+    case SyncMode.Auto:
+      return "Auto-sync (symlink dirs)";
+    case SyncMode.HalfManual:
+      return "Half-manual (symlink items)";
+    case SyncMode.FullManual:
+      return "Full-manual (independent copy)";
   }
 }
 
@@ -107,16 +136,18 @@ async function copyDirRecursive(source: string, target: string): Promise<void> {
     await mkdir(target, { recursive: true });
   }
   const entries = readdirSync(source);
-  await Promise.all(entries.map(async (entry) => {
-    const src = join(source, entry);
-    const tgt = join(target, entry);
-    const s = statSync(src);
-    if (s.isDirectory()) {
-      await copyDirRecursive(src, tgt);
-    } else {
-      await copyFile(src, tgt);
-    }
-  }));
+  await Promise.all(
+    entries.map(async (entry) => {
+      const src = join(source, entry);
+      const tgt = join(target, entry);
+      const s = statSync(src);
+      if (s.isDirectory()) {
+        await copyDirRecursive(src, tgt);
+      } else {
+        await copyFile(src, tgt);
+      }
+    }),
+  );
 }
 
 function lstatSafe(path: string): Stats | null {
@@ -135,7 +166,8 @@ function ensureConfigDir(): void {
 
 function isConfig(raw: unknown): raw is Config {
   return (
-    typeof raw === "object" && raw !== null &&
+    typeof raw === "object" &&
+    raw !== null &&
     Array.isArray((raw as Config).instances) &&
     typeof (raw as Config).version === "string"
   );
@@ -158,12 +190,20 @@ export async function loadConfig(): Promise<Config> {
   try {
     const raw = JSON.parse(content);
     if (!isConfig(raw)) {
-      throw new ClaudeMultiError(ErrorCode.CONFIG_CORRUPTED, "Config file has an unexpected shape", { cause: raw });
+      throw new ClaudeMultiError(
+        ErrorCode.CONFIG_CORRUPTED,
+        "Config file has an unexpected shape",
+        { cause: raw },
+      );
     }
     config = raw;
   } catch (err: unknown) {
     if (err instanceof ClaudeMultiError) throw err;
-    throw new ClaudeMultiError(ErrorCode.CONFIG_CORRUPTED, `Config file is corrupted: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.CONFIG_CORRUPTED,
+      `Config file is corrupted: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
   }
 
   const { needsMigration, runMigration, LEGACY_INSTANCE_VERSION } = await import("./migration.js");
@@ -203,7 +243,10 @@ export async function addInstance(instance: Instance): Promise<void> {
 
   const existing = config.instances.find((i) => i.name === instance.name);
   if (existing) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_ALREADY_EXISTS, `Instance '${instance.name}' already exists`);
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_ALREADY_EXISTS,
+      `Instance '${instance.name}' already exists`,
+    );
   }
 
   config.instances.push(instance);
@@ -270,7 +313,10 @@ export async function updateInstanceSyncMode(
 
   if (currentMode === newMode) return inst;
   if (!canConvertSyncMode(currentMode, newMode)) {
-    throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, `Cannot convert from ${syncModeLabel(currentMode)} to ${syncModeLabel(newMode)}. Only downgrades are allowed.`);
+    throw new ClaudeMultiError(
+      ErrorCode.SYMLINK_CONFLICT,
+      `Cannot convert from ${syncModeLabel(currentMode)} to ${syncModeLabel(newMode)}. Only downgrades are allowed.`,
+    );
   }
 
   if (newMode === SyncMode.Auto) {
@@ -357,7 +403,9 @@ export function detectBrokenSymlinks(configDir: string): {
               result.broken.push(`${dir}/${entry.name}`);
             }
           }
-        } catch { /* permission error, skip */ }
+        } catch {
+          /* permission error, skip */
+        }
       }
     } catch {
       // Path doesn't exist at all
@@ -377,14 +425,15 @@ export function hasDefaultClaudeConfig(): boolean {
  * SECURITY: whitelist-only copy — the "env" key and all other non-whitelisted
  * (potentially sensitive) data are never copied, preventing API key exposure.
  */
-export async function copySettingsFromDefault(
-  targetConfigDir: string,
-): Promise<void> {
+export async function copySettingsFromDefault(targetConfigDir: string): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
   const sourceSettings = join(defaultDir, "settings.json");
 
   if (!existsSync(sourceSettings)) {
-    throw new ClaudeMultiError(ErrorCode.DEFAULT_SETTINGS_NOT_FOUND, "Default Claude settings.json not found");
+    throw new ClaudeMultiError(
+      ErrorCode.DEFAULT_SETTINGS_NOT_FOUND,
+      "Default Claude settings.json not found",
+    );
   }
 
   const content = await readFile(sourceSettings, "utf-8");
@@ -392,11 +441,7 @@ export async function copySettingsFromDefault(
 
   const safeSettings: Record<string, unknown> = {};
 
-  const SAFE_SETTINGS = [
-    'includeCoAuthoredBy',
-    'alwaysThinkingEnabled',
-    'enabledPlugins'
-  ];
+  const SAFE_SETTINGS = ["includeCoAuthoredBy", "alwaysThinkingEnabled", "enabledPlugins"];
 
   for (const key of SAFE_SETTINGS) {
     if (settings[key] !== undefined) {
@@ -419,7 +464,10 @@ export async function copyAllFromDefault(
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(defaultDir)) {
-    throw new ClaudeMultiError(ErrorCode.DEFAULT_DIR_NOT_FOUND, "Default Claude directory not found");
+    throw new ClaudeMultiError(
+      ErrorCode.DEFAULT_DIR_NOT_FOUND,
+      "Default Claude directory not found",
+    );
   }
 
   if (!existsSync(targetConfigDir)) {
@@ -427,9 +475,12 @@ export async function copyAllFromDefault(
   }
 
   // Resolve legacy boolean to SyncMode
-  const effectiveMode: SyncModeType = typeof syncModeOrAutoSync === "boolean"
-    ? (syncModeOrAutoSync ? SyncMode.Auto : SyncMode.FullManual)
-    : syncModeOrAutoSync;
+  const effectiveMode: SyncModeType =
+    typeof syncModeOrAutoSync === "boolean"
+      ? syncModeOrAutoSync
+        ? SyncMode.Auto
+        : SyncMode.FullManual
+      : syncModeOrAutoSync;
 
   const excludeFiles = [
     "config.json",
@@ -520,9 +571,7 @@ export async function copyAllFromDefault(
   await copyRecursive(defaultDir, targetConfigDir);
 }
 
-async function detectMcpConfigurations(
-  configDir: string,
-): Promise<McpConfiguration | null> {
+async function detectMcpConfigurations(configDir: string): Promise<McpConfiguration | null> {
   if (!existsSync(configDir)) {
     return null;
   }
@@ -568,9 +617,7 @@ export async function hasDefaultMcpConfig(): Promise<boolean> {
   return mcpConfig !== null;
 }
 
-export async function copyMcpServersFromDefault(
-  targetConfigDir: string,
-): Promise<void> {
+export async function copyMcpServersFromDefault(targetConfigDir: string): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(targetConfigDir)) {
@@ -633,19 +680,26 @@ export async function copyMcpServersBetweenInstances(
   ]);
 
   if (!sourceInstance) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Source instance '${sourceInstanceName}' not found`);
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_NOT_FOUND,
+      `Source instance '${sourceInstanceName}' not found`,
+    );
   }
 
   if (!targetInstance) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Target instance '${targetInstanceName}' not found`);
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_NOT_FOUND,
+      `Target instance '${targetInstanceName}' not found`,
+    );
   }
 
-  const sourceMcpConfig = await detectMcpConfigurations(
-    sourceInstance.configDir,
-  );
+  const sourceMcpConfig = await detectMcpConfigurations(sourceInstance.configDir);
 
   if (!sourceMcpConfig) {
-    throw new ClaudeMultiError(ErrorCode.MCP_NOT_FOUND, `No MCP configurations found in instance '${sourceInstanceName}'`);
+    throw new ClaudeMultiError(
+      ErrorCode.MCP_NOT_FOUND,
+      `No MCP configurations found in instance '${sourceInstanceName}'`,
+    );
   }
 
   await writeMcpConfiguration(targetInstance.configDir, sourceMcpConfig);
@@ -657,7 +711,10 @@ export async function listMcpServers(
   const instance = await getInstance(instanceName);
 
   if (!instance) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, `Instance '${instanceName}' not found`);
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_NOT_FOUND,
+      `Instance '${instanceName}' not found`,
+    );
   }
 
   const mcpConfig = await detectMcpConfigurations(instance.configDir);
@@ -680,9 +737,7 @@ export async function createSettingsFromTemplate(
 }
 
 /** Writes .claude.json state to skip Claude Code onboarding screens. */
-export async function initializeInstanceState(
-  configDir: string,
-): Promise<void> {
+export async function initializeInstanceState(configDir: string): Promise<void> {
   const stateFile = join(configDir, ".claude.json");
   if (existsSync(stateFile)) return;
 
@@ -725,7 +780,9 @@ export async function mergeProviderEnv(
   }
 
   const env = (existing.env as Record<string, string>) ?? {};
-  const templateSettings = applyProviderTemplate(template, apiKey) as { env: Record<string, string> };
+  const templateSettings = applyProviderTemplate(template, apiKey) as {
+    env: Record<string, string>;
+  };
 
   existing.env = { ...env, ...templateSettings.env };
   existing.includeCoAuthoredBy = template.settings.includeCoAuthoredBy;
@@ -751,16 +808,22 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
 
   if (result.status === "skipped") {
     if (result.reason === "no-settings") {
-      throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, `No settings.json found for '${instance.name}'`);
+      throw new ClaudeMultiError(
+        ErrorCode.INSTANCE_DIR_NOT_FOUND,
+        `No settings.json found for '${instance.name}'`,
+      );
     }
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_NOT_FOUND, result.providerName
-      ? `Unknown provider template '${result.providerName}'`
-      : `Could not detect provider for '${instance.name}'`);
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_NOT_FOUND,
+      result.providerName
+        ? `Unknown provider template '${result.providerName}'`
+        : `Could not detect provider for '${instance.name}'`,
+    );
   }
 
   let needsSave = false;
   const config = await loadConfig();
-  const inst = config.instances.find(i => i.name === instance.name);
+  const inst = config.instances.find((i) => i.name === instance.name);
   if (inst) {
     if (!inst.providerTemplate && result.providerName) {
       inst.providerTemplate = result.providerName;
@@ -776,203 +839,214 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
   }
 }
 
-export async function syncPluginsAndSkills(
-  configDir: string,
-): Promise<void> {
+export async function syncPluginsAndSkills(configDir: string): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(configDir)) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_DIR_NOT_FOUND,
+      "Instance config directory does not exist",
+    );
   }
 
-  await Promise.all(SYNC_DIRS.map(async (dir) => {
-    const targetPath = join(configDir, dir);
-    const sourcePath = join(defaultDir, dir);
+  await Promise.all(
+    SYNC_DIRS.map(async (dir) => {
+      const targetPath = join(configDir, dir);
+      const sourcePath = join(defaultDir, dir);
 
-    if (!existsSync(sourcePath)) {
-      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
-      return;
-    }
-
-    if (existsSync(targetPath)) {
-      try {
-        const linkTarget = readlinkSync(targetPath);
-        if (linkTarget === sourcePath || linkTarget === join("..", "..", ".claude", dir)) {
-          console.log(chalk.gray(`  ✓ ${dir} already synced`));
-          return;
-        }
-        rmSync(targetPath, { force: true });
-      } catch {
-        rmSync(targetPath, { force: true, recursive: true });
+      if (!existsSync(sourcePath)) {
+        console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
+        return;
       }
-    }
 
-    const relativePath = relative(dirname(targetPath), sourcePath);
-    await symlink(relativePath, targetPath, "dir");
-    console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ${sourcePath}`));
-  }));
+      if (existsSync(targetPath)) {
+        try {
+          const linkTarget = readlinkSync(targetPath);
+          if (linkTarget === sourcePath || linkTarget === join("..", "..", ".claude", dir)) {
+            console.log(chalk.gray(`  ✓ ${dir} already synced`));
+            return;
+          }
+          rmSync(targetPath, { force: true });
+        } catch {
+          rmSync(targetPath, { force: true, recursive: true });
+        }
+      }
+
+      const relativePath = relative(dirname(targetPath), sourcePath);
+      await symlink(relativePath, targetPath, "dir");
+      console.log(chalk.green(`  ✓ Symlinked: ${dir} -> ${sourcePath}`));
+    }),
+  );
 }
 
 /**
  * Half-manual: whole-dir symlinks -> real dirs containing per-item symlinks.
  * New items installed in ~/.claude won't appear here automatically.
  */
-export async function halfSyncPluginsAndSkills(
-  configDir: string,
-): Promise<void> {
+export async function halfSyncPluginsAndSkills(configDir: string): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(configDir)) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_DIR_NOT_FOUND,
+      "Instance config directory does not exist",
+    );
   }
 
-  await Promise.all(SYNC_DIRS.map(async (dir) => {
-    const targetPath = join(configDir, dir);
-    const sourcePath = join(defaultDir, dir);
+  await Promise.all(
+    SYNC_DIRS.map(async (dir) => {
+      const targetPath = join(configDir, dir);
+      const sourcePath = join(defaultDir, dir);
 
-    if (!existsSync(sourcePath)) {
-      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
-      return;
-    }
-
-    try {
-      const stat = lstatSync(targetPath);
-      if (stat.isSymbolicLink()) {
-        rmSync(targetPath, { force: true });
-        console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
+      if (!existsSync(sourcePath)) {
+        console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
+        return;
       }
-    } catch { /* not a symlink, good */ }
 
-    if (!existsSync(targetPath)) {
-      await mkdir(targetPath, { recursive: true });
-    }
-
-    const entries = readdirSync(sourcePath, { withFileTypes: true });
-    let linked = 0;
-    for (const entry of entries) {
-      const sourceEntry = join(sourcePath, entry.name);
-      const targetEntry = join(targetPath, entry.name);
-
-      const existingStat = lstatSafe(targetEntry);
-      if (existingStat) {
-        if (existingStat.isSymbolicLink()) {
-          try {
-            const currentTarget = readlinkSync(targetEntry);
-            const resolvedTarget = isAbsolute(currentTarget)
-              ? currentTarget
-              : resolve(dirname(targetEntry), currentTarget);
-            if (resolvedTarget === sourceEntry) {
-              linked++;
-              continue;
-            }
-          } catch { /* broken symlink, replace it */ }
-          rmSync(targetEntry, { force: true });
-        } else {
-          // Real file/dir — don't overwrite user's own content
-          continue;
+      try {
+        const stat = lstatSync(targetPath);
+        if (stat.isSymbolicLink()) {
+          rmSync(targetPath, { force: true });
+          console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
         }
+      } catch {
+        /* not a symlink, good */
       }
 
-      const relativePath = relative(dirname(targetEntry), sourceEntry);
-      await symlink(relativePath, targetEntry, entry.isDirectory() ? "dir" : "file");
-      linked++;
-    }
+      if (!existsSync(targetPath)) {
+        await mkdir(targetPath, { recursive: true });
+      }
 
-    console.log(chalk.green(`  ✓ Half-synced ${dir}: ${linked} item(s) individually symlinked`));
-  }));
+      const entries = readdirSync(sourcePath, { withFileTypes: true });
+      let linked = 0;
+      for (const entry of entries) {
+        const sourceEntry = join(sourcePath, entry.name);
+        const targetEntry = join(targetPath, entry.name);
+
+        const existingStat = lstatSafe(targetEntry);
+        if (existingStat) {
+          if (existingStat.isSymbolicLink()) {
+            try {
+              const currentTarget = readlinkSync(targetEntry);
+              const resolvedTarget = isAbsolute(currentTarget)
+                ? currentTarget
+                : resolve(dirname(targetEntry), currentTarget);
+              if (resolvedTarget === sourceEntry) {
+                linked++;
+                continue;
+              }
+            } catch {
+              /* broken symlink, replace it */
+            }
+            rmSync(targetEntry, { force: true });
+          } else {
+            // Real file/dir — don't overwrite user's own content
+            continue;
+          }
+        }
+
+        const relativePath = relative(dirname(targetEntry), sourceEntry);
+        await symlink(relativePath, targetEntry, entry.isDirectory() ? "dir" : "file");
+        linked++;
+      }
+
+      console.log(chalk.green(`  ✓ Half-synced ${dir}: ${linked} item(s) individually symlinked`));
+    }),
+  );
 }
 
 /** Replaces symlinks with real copies; handles whole-dir (auto) and per-item (half-manual) symlinks. */
-export async function unsyncPluginsAndSkills(
-  configDir: string,
-): Promise<void> {
+export async function unsyncPluginsAndSkills(configDir: string): Promise<void> {
   const defaultDir = getDefaultClaudeDir();
 
   if (!existsSync(configDir)) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_DIR_NOT_FOUND, "Instance config directory does not exist");
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_DIR_NOT_FOUND,
+      "Instance config directory does not exist",
+    );
   }
 
-  await Promise.all(SYNC_DIRS.map(async (dir) => {
-    const targetPath = join(configDir, dir);
-    const sourcePath = join(defaultDir, dir);
+  await Promise.all(
+    SYNC_DIRS.map(async (dir) => {
+      const targetPath = join(configDir, dir);
+      const sourcePath = join(defaultDir, dir);
 
-    if (!existsSync(sourcePath)) {
-      console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
-      return;
-    }
+      if (!existsSync(sourcePath)) {
+        console.log(chalk.yellow(`  ⚠ Source ${dir} not found in ${defaultDir}, skipping`));
+        return;
+      }
 
-    let isWholeDirSymlink = false;
-    try {
-      readlinkSync(targetPath);
-      isWholeDirSymlink = true;
-    } catch {
-      // Not a symlink
-    }
+      let isWholeDirSymlink = false;
+      try {
+        readlinkSync(targetPath);
+        isWholeDirSymlink = true;
+      } catch {
+        // Not a symlink
+      }
 
-    if (isWholeDirSymlink) {
-      rmSync(targetPath, { force: true });
-      console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
-      await mkdir(targetPath, { recursive: true });
-      await copyDirRecursive(sourcePath, targetPath);
-      console.log(chalk.green(`  ✓ Copied files for ${dir}`));
-    } else if (!existsSync(targetPath)) {
-      await mkdir(targetPath, { recursive: true });
-      await copyDirRecursive(sourcePath, targetPath);
-      console.log(chalk.green(`  ✓ Copied files for ${dir}`));
-    } else {
-      // Real directory — may be half-manual with individual symlinks inside
-      let replaced = 0;
-      const entries = readdirSync(targetPath, { withFileTypes: true });
-      for (const entry of entries) {
-        const entryPath = join(targetPath, entry.name);
-        const entryStat = lstatSafe(entryPath);
-        if (entryStat?.isSymbolicLink()) {
-          const linkTarget = readlinkSync(entryPath);
-          const resolvedTarget = isAbsolute(linkTarget)
-            ? linkTarget
-            : resolve(dirname(entryPath), linkTarget);
+      if (isWholeDirSymlink) {
+        rmSync(targetPath, { force: true });
+        console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
+        await mkdir(targetPath, { recursive: true });
+        await copyDirRecursive(sourcePath, targetPath);
+        console.log(chalk.green(`  ✓ Copied files for ${dir}`));
+      } else if (!existsSync(targetPath)) {
+        await mkdir(targetPath, { recursive: true });
+        await copyDirRecursive(sourcePath, targetPath);
+        console.log(chalk.green(`  ✓ Copied files for ${dir}`));
+      } else {
+        // Real directory — may be half-manual with individual symlinks inside
+        let replaced = 0;
+        const entries = readdirSync(targetPath, { withFileTypes: true });
+        for (const entry of entries) {
+          const entryPath = join(targetPath, entry.name);
+          const entryStat = lstatSafe(entryPath);
+          if (entryStat?.isSymbolicLink()) {
+            const linkTarget = readlinkSync(entryPath);
+            const resolvedTarget = isAbsolute(linkTarget)
+              ? linkTarget
+              : resolve(dirname(entryPath), linkTarget);
 
-          rmSync(entryPath, { force: true });
-          if (existsSync(resolvedTarget)) {
-            const realStat = statSync(resolvedTarget);
-            if (realStat.isDirectory()) {
-              await mkdir(entryPath, { recursive: true });
-              await copyDirRecursive(resolvedTarget, entryPath);
+            rmSync(entryPath, { force: true });
+            if (existsSync(resolvedTarget)) {
+              const realStat = statSync(resolvedTarget);
+              if (realStat.isDirectory()) {
+                await mkdir(entryPath, { recursive: true });
+                await copyDirRecursive(resolvedTarget, entryPath);
+              } else {
+                await copyFile(resolvedTarget, entryPath);
+              }
+              replaced++;
+            }
+          }
+        }
+
+        const sourceEntries = readdirSync(sourcePath, { withFileTypes: true });
+        for (const entry of sourceEntries) {
+          const targetEntry = join(targetPath, entry.name);
+          if (!existsSync(targetEntry)) {
+            const sourceEntry = join(sourcePath, entry.name);
+            if (entry.isDirectory()) {
+              await mkdir(targetEntry, { recursive: true });
+              await copyDirRecursive(sourceEntry, targetEntry);
             } else {
-              await copyFile(resolvedTarget, entryPath);
+              await copyFile(sourceEntry, targetEntry);
             }
             replaced++;
           }
         }
-      }
 
-      const sourceEntries = readdirSync(sourcePath, { withFileTypes: true });
-      for (const entry of sourceEntries) {
-        const targetEntry = join(targetPath, entry.name);
-        if (!existsSync(targetEntry)) {
-          const sourceEntry = join(sourcePath, entry.name);
-          if (entry.isDirectory()) {
-            await mkdir(targetEntry, { recursive: true });
-            await copyDirRecursive(sourceEntry, targetEntry);
-          } else {
-            await copyFile(sourceEntry, targetEntry);
-          }
-          replaced++;
+        if (replaced > 0) {
+          console.log(chalk.green(`  ✓ ${dir}: replaced ${replaced} symlink(s) with copies`));
+        } else {
+          console.log(chalk.gray(`  ✓ ${dir}: already fully independent`));
         }
       }
-
-      if (replaced > 0) {
-        console.log(chalk.green(`  ✓ ${dir}: replaced ${replaced} symlink(s) with copies`));
-      } else {
-        console.log(chalk.gray(`  ✓ ${dir}: already fully independent`));
-      }
-    }
-  }));
+    }),
+  );
 }
 
-export async function readClaudeSettings(
-  configDir: string,
-): Promise<ClaudeSettings | null> {
+export async function readClaudeSettings(configDir: string): Promise<ClaudeSettings | null> {
   const settingsFile = join(configDir, "settings.json");
 
   if (!existsSync(settingsFile)) {
@@ -1014,10 +1088,7 @@ export async function setEnabledPlugins(
   await writeClaudeSettings(configDir, settings);
 }
 
-export async function enablePlugin(
-  configDir: string,
-  pluginId: string,
-): Promise<void> {
+export async function enablePlugin(configDir: string, pluginId: string): Promise<void> {
   const settings = (await readClaudeSettings(configDir)) || {};
   if (!settings.enabledPlugins) {
     settings.enabledPlugins = {};
@@ -1026,10 +1097,7 @@ export async function enablePlugin(
   await writeClaudeSettings(configDir, settings);
 }
 
-export async function disablePlugin(
-  configDir: string,
-  pluginId: string,
-): Promise<void> {
+export async function disablePlugin(configDir: string, pluginId: string): Promise<void> {
   const settings = (await readClaudeSettings(configDir)) || {};
   if (!settings.enabledPlugins) {
     settings.enabledPlugins = {};
@@ -1170,7 +1238,9 @@ export function isHalfManualSync(configDir: string): boolean {
           const entryStat = lstatSafe(entryPath);
           if (entryStat?.isSymbolicLink()) return true;
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
   }
   return false;
@@ -1182,10 +1252,10 @@ export function isClaudeCodeRunning(configDir: string): boolean {
   if (process.env.NODE_ENV === "test") return false;
   try {
     const { execSync } = require("node:child_process");
-    const result = execSync(
-      `ps aux | grep -c "CLAUDE_CONFIG_DIR=${configDir}" || true`,
-      { encoding: "utf-8", timeout: 2000 },
-    ).trim();
+    const result = execSync(`ps aux | grep -c "CLAUDE_CONFIG_DIR=${configDir}" || true`, {
+      encoding: "utf-8",
+      timeout: 2000,
+    }).trim();
     return parseInt(result, 10) > 1;
   } catch {
     return false;
@@ -1221,14 +1291,14 @@ function readInstalledPlugins(pluginsDir: string): InstalledPluginsFile {
   }
 }
 
-async function writeInstalledPlugins(pluginsDir: string, data: InstalledPluginsFile): Promise<void> {
+async function writeInstalledPlugins(
+  pluginsDir: string,
+  data: InstalledPluginsFile,
+): Promise<void> {
   await writeJsonFileAtomic(join(pluginsDir, "installed_plugins.json"), data);
 }
 
-async function addPluginToInstalledPlugins(
-  configDir: string,
-  pluginId: string,
-): Promise<void> {
+async function addPluginToInstalledPlugins(configDir: string, pluginId: string): Promise<void> {
   const pluginsDir = join(configDir, "plugins");
   const data = readInstalledPlugins(pluginsDir);
   const key = `${pluginId}@claude-plugins-official`;
@@ -1272,10 +1342,12 @@ function estimatePluginSize(pluginPath: string): number {
         total += estimatePluginSize(fullPath);
       } else {
         // Skip files that can't be stat'd; return partial total
-        try { total += statSync(fullPath).size; } catch {}
+        try {
+          total += statSync(fullPath).size;
+        } catch {}
       }
     }
-  // Return 0 if directory can't be read; caller uses this as an estimate
+    // Return 0 if directory can't be read; caller uses this as an estimate
   } catch {}
   return total;
 }
@@ -1323,7 +1395,10 @@ export async function copySinglePlugin(
   const targetPlugin = join(targetConfigDir, MARKETPLACE_REL, subDir, pluginId);
 
   if (!existsSync(sourcePlugin)) {
-    throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${pluginId}' not found in default Claude`);
+    throw new ClaudeMultiError(
+      ErrorCode.PLUGIN_NOT_FOUND,
+      `Plugin '${pluginId}' not found in default Claude`,
+    );
   }
 
   const scaffoldDir = join(targetConfigDir, MARKETPLACE_REL, subDir);
@@ -1357,15 +1432,24 @@ export async function copySelectedPlugins(
   selections: Array<{ id: string; category: PluginCategory }>,
 ): Promise<void> {
   if (selections.length === 0) {
-    throw new ClaudeMultiError(ErrorCode.NO_PLUGINS_SELECTED, "No plugins selected. Select at least one plugin.");
+    throw new ClaudeMultiError(
+      ErrorCode.NO_PLUGINS_SELECTED,
+      "No plugins selected. Select at least one plugin.",
+    );
   }
 
   if (isPluginsSymlinked(targetConfigDir)) {
-    throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, "Cannot copy individual plugins to a symlinked instance. Disable auto-sync first.");
+    throw new ClaudeMultiError(
+      ErrorCode.SYMLINK_CONFLICT,
+      "Cannot copy individual plugins to a symlinked instance. Disable auto-sync first.",
+    );
   }
 
   if (isClaudeCodeRunning(targetConfigDir)) {
-    throw new ClaudeMultiError(ErrorCode.INSTANCE_RUNNING, "Claude Code is running on this instance. Close it first before modifying plugins.");
+    throw new ClaudeMultiError(
+      ErrorCode.INSTANCE_RUNNING,
+      "Claude Code is running on this instance. Close it first before modifying plugins.",
+    );
   }
 
   const defaultDir = getDefaultClaudeDir();
@@ -1373,7 +1457,10 @@ export async function copySelectedPlugins(
     const subDir = sel.category === PluginCategory.Internal ? "plugins" : "external_plugins";
     const source = join(defaultDir, MARKETPLACE_REL, subDir, sel.id);
     if (!existsSync(source)) {
-      throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${sel.id}' not found in default Claude`);
+      throw new ClaudeMultiError(
+        ErrorCode.PLUGIN_NOT_FOUND,
+        `Plugin '${sel.id}' not found in default Claude`,
+      );
     }
   }
 
@@ -1384,7 +1471,10 @@ export async function copySelectedPlugins(
   }
   // Warn if >100MB but don't block (exact free space check is platform-dependent)
   if (totalSize > 100 * 1024 * 1024) {
-    throw new ClaudeMultiError(ErrorCode.PLUGIN_TOO_LARGE, `Selected plugins total ${(totalSize / 1024 / 1024).toFixed(1)}MB. Ensure sufficient disk space.`);
+    throw new ClaudeMultiError(
+      ErrorCode.PLUGIN_TOO_LARGE,
+      `Selected plugins total ${(totalSize / 1024 / 1024).toFixed(1)}MB. Ensure sufficient disk space.`,
+    );
   }
 
   const completed: Array<{ id: string; category: PluginCategory }> = [];
@@ -1409,7 +1499,11 @@ export async function copySelectedPlugins(
         console.error(chalk.yellow("Warning: could not clean up backup"));
       }
     }
-    throw new ClaudeMultiError(ErrorCode.PLUGIN_INSTALL_FAILED, `Plugin install failed, rolled back ${completed.length} plugin(s). ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.PLUGIN_INSTALL_FAILED,
+      `Plugin install failed, rolled back ${completed.length} plugin(s). ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
   }
 }
 
@@ -1419,14 +1513,20 @@ export async function removeSinglePlugin(
   category: PluginCategory,
 ): Promise<void> {
   if (isPluginsSymlinked(configDir)) {
-    throw new ClaudeMultiError(ErrorCode.SYMLINK_CONFLICT, "Cannot remove plugins from a symlinked instance. Disable auto-sync first.");
+    throw new ClaudeMultiError(
+      ErrorCode.SYMLINK_CONFLICT,
+      "Cannot remove plugins from a symlinked instance. Disable auto-sync first.",
+    );
   }
 
   const subDir = category === PluginCategory.Internal ? "plugins" : "external_plugins";
   const pluginPath = join(configDir, MARKETPLACE_REL, subDir, pluginId);
 
   if (!existsSync(pluginPath)) {
-    throw new ClaudeMultiError(ErrorCode.PLUGIN_NOT_FOUND, `Plugin '${pluginId}' not found in this instance`);
+    throw new ClaudeMultiError(
+      ErrorCode.PLUGIN_NOT_FOUND,
+      `Plugin '${pluginId}' not found in this instance`,
+    );
   }
 
   // Stage as .removing backup so a failed removal can be restored
@@ -1434,17 +1534,27 @@ export async function removeSinglePlugin(
   try {
     renameSync(pluginPath, backupPath);
   } catch (err: unknown) {
-    throw new ClaudeMultiError(ErrorCode.PLUGIN_REMOVE_FAILED, `Failed to stage plugin for removal: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.PLUGIN_REMOVE_FAILED,
+      `Failed to stage plugin for removal: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
   }
 
   try {
     rmSync(backupPath, { force: true, recursive: true });
     await removePluginFromInstalledPlugins(configDir, pluginId);
   } catch (err: unknown) {
-    try { renameSync(backupPath, pluginPath); } catch {
+    try {
+      renameSync(backupPath, pluginPath);
+    } catch {
       console.error(chalk.red("Rollback attempt failed — backup may need manual recovery"));
     }
-    throw new ClaudeMultiError(ErrorCode.PLUGIN_REMOVE_FAILED, `Failed to remove plugin: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new ClaudeMultiError(
+      ErrorCode.PLUGIN_REMOVE_FAILED,
+      `Failed to remove plugin: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err },
+    );
   }
 }
 
@@ -1494,10 +1604,7 @@ export async function setCustomMcpServer(
   await writeClaudeSettings(configDir, settings);
 }
 
-export async function removeCustomMcpServer(
-  configDir: string,
-  name: string,
-): Promise<void> {
+export async function removeCustomMcpServer(configDir: string, name: string): Promise<void> {
   const settings = await readClaudeSettings(configDir);
   if (!settings?.mcpServers || !(name in settings.mcpServers)) return;
   delete settings.mcpServers[name];

@@ -3,20 +3,20 @@ export const MigrationStatus = {
   Failed: "failed",
   Pending: "pending",
 } as const;
-export type MigrationStatus = typeof MigrationStatus[keyof typeof MigrationStatus];
+export type MigrationStatus = (typeof MigrationStatus)[keyof typeof MigrationStatus];
 
 export const PluginCategory = {
   Internal: "internal",
   External: "external",
 } as const;
-export type PluginCategory = typeof PluginCategory[keyof typeof PluginCategory];
+export type PluginCategory = (typeof PluginCategory)[keyof typeof PluginCategory];
 
 export const McpServerType = {
   Stdio: "stdio",
   Http: "http",
   Sse: "sse",
 } as const;
-export type McpServerType = typeof McpServerType[keyof typeof McpServerType];
+export type McpServerType = (typeof McpServerType)[keyof typeof McpServerType];
 
 export const CopyOption = {
   None: "none",
@@ -26,7 +26,7 @@ export const CopyOption = {
   All: "all",
   Mcp: "mcp",
 } as const;
-export type CopyOption = typeof CopyOption[keyof typeof CopyOption];
+export type CopyOption = (typeof CopyOption)[keyof typeof CopyOption];
 
 export const SyncMode = {
   /** Symlink entire plugins/skills directories — instant sync, blocks individual plugin ops */
@@ -36,10 +36,14 @@ export const SyncMode = {
   /** Full copy — completely independent, no symlinks at all */
   FullManual: "full-manual",
 } as const;
-export type SyncMode = typeof SyncMode[keyof typeof SyncMode];
+export type SyncMode = (typeof SyncMode)[keyof typeof SyncMode];
 
 /** Ordered from most shared to most isolated. Used for downgrade-only enforcement. */
-export const SYNC_MODE_ORDER: readonly SyncMode[] = [SyncMode.Auto, SyncMode.HalfManual, SyncMode.FullManual];
+export const SYNC_MODE_ORDER: readonly SyncMode[] = [
+  SyncMode.Auto,
+  SyncMode.HalfManual,
+  SyncMode.FullManual,
+];
 
 export function canConvertSyncMode(from: SyncMode, to: SyncMode): boolean {
   return SYNC_MODE_ORDER.indexOf(to) > SYNC_MODE_ORDER.indexOf(from);
@@ -61,11 +65,11 @@ export const PluginAction = {
   ListInstalled: "list-installed",
   CheckCollisions: "check-collisions",
 } as const;
-export type PluginAction = typeof PluginAction[keyof typeof PluginAction];
+export type PluginAction = (typeof PluginAction)[keyof typeof PluginAction];
 
 export const McpAction = {
   List: "list",
   Copy: "copy",
   Verify: "verify",
 } as const;
-export type McpAction = typeof McpAction[keyof typeof McpAction];
+export type McpAction = (typeof McpAction)[keyof typeof McpAction];

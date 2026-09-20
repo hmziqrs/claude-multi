@@ -42,11 +42,12 @@ if (start === -1) {
   process.exit(1);
 }
 
-const section = lines
-  .slice(start + 1, end)
-  .join("\n")
-  .replace(/^\n+/, "")
-  .replace(/\n+$/, "") + "\n";
+const section =
+  lines
+    .slice(start + 1, end)
+    .join("\n")
+    .replace(/^\n+/, "")
+    .replace(/\n+$/, "") + "\n";
 
 if (outPath) {
   writeFileSync(resolve(outPath), section);

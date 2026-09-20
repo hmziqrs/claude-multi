@@ -28,15 +28,21 @@ export const WarningBanner: React.FC<WarningBannerProps> = ({
     <Box flexDirection="column" marginBottom={1}>
       <Box>
         <Text color="yellow">{icon} </Text>
-        <Text color="yellow" bold>{parts.join(", ")}</Text>
+        <Text color="yellow" bold>
+          {parts.join(", ")}
+        </Text>
         <Text color="yellow">, press </Text>
-        <Text color="yellow" bold>!</Text>
+        <Text color="yellow" bold>
+          !
+        </Text>
         <Text color="yellow"> to review</Text>
       </Box>
       {hasVersionIssues && (
         <Box>
-          <Text color="red">  ⚠ Some instances have version issues. </Text>
-          <Text color="red" bold>Press ! to review and fix.</Text>
+          <Text color="red"> ⚠ Some instances have version issues. </Text>
+          <Text color="red" bold>
+            Press ! to review and fix.
+          </Text>
         </Box>
       )}
     </Box>

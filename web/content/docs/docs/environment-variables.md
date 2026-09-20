@@ -7,11 +7,11 @@ description: Environment variable reference for claude-multi and provider config
 
 These control claude-multi itself. Set them in your shell before launching.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CLAUDE_MULTI_INK` | `true` | Set to `false` to use the simpler prompts-based UI instead of the Ink TUI |
-| `CLAUDE_MULTI_HOME` | `~` | Override the base directory for config storage. claude-multi looks for `config.json` at `$CLAUDE_MULTI_HOME/.claude-multi/` |
-| `CLAUDE_MULTI_UPDATE_CHECK` | `false` | Set to `true` to check for claude-multi and Claude Code updates on launch |
+| Variable                    | Default | Description                                                                                                                 |
+| --------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE_MULTI_INK`          | `true`  | Set to `false` to use the simpler prompts-based UI instead of the Ink TUI                                                   |
+| `CLAUDE_MULTI_HOME`         | `~`     | Override the base directory for config storage. claude-multi looks for `config.json` at `$CLAUDE_MULTI_HOME/.claude-multi/` |
+| `CLAUDE_MULTI_UPDATE_CHECK` | `false` | Set to `true` to check for claude-multi and Claude Code updates on launch                                                   |
 
 **Example:**
 
@@ -31,42 +31,42 @@ These live in each instance's `settings.json` under the `env` key. Provider temp
 
 ### Core API variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `ANTHROPIC_AUTH_TOKEN` | API key for the provider | `sk-your-key-here` |
-| `ANTHROPIC_BASE_URL` | Provider's Anthropic-compatible API endpoint | `https://api.deepseek.com/anthropic` |
+| Variable               | Description                                  | Example                              |
+| ---------------------- | -------------------------------------------- | ------------------------------------ |
+| `ANTHROPIC_AUTH_TOKEN` | API key for the provider                     | `sk-your-key-here`                   |
+| `ANTHROPIC_BASE_URL`   | Provider's Anthropic-compatible API endpoint | `https://api.deepseek.com/anthropic` |
 
 ### Model mapping variables
 
-| Variable | Description | Maps to |
-|----------|-------------|---------|
-| `ANTHROPIC_MODEL` | Primary model | Claude Code's internal opus slot |
-| `ANTHROPIC_SMALL_FAST_MODEL` | Fast/cheap model for quick tasks | Claude Code's internal haiku slot |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet-tier model | Used when Claude Code requests a "sonnet" class model |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus-tier model | Used when Claude Code requests an "opus" class model |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku-tier model | Used when Claude Code requests a "haiku" class model |
+| Variable                         | Description                      | Maps to                                               |
+| -------------------------------- | -------------------------------- | ----------------------------------------------------- |
+| `ANTHROPIC_MODEL`                | Primary model                    | Claude Code's internal opus slot                      |
+| `ANTHROPIC_SMALL_FAST_MODEL`     | Fast/cheap model for quick tasks | Claude Code's internal haiku slot                     |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet-tier model                | Used when Claude Code requests a "sonnet" class model |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL`   | Opus-tier model                  | Used when Claude Code requests an "opus" class model  |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL`  | Haiku-tier model                 | Used when Claude Code requests a "haiku" class model  |
 
 ### Sub-agent variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `CLAUDE_CODE_SUBAGENT_MODEL` | Model used by sub-agents for background tasks, exploration, and code review | `deepseek-v4-flash` |
-| `CLAUDE_CODE_EFFORT_LEVEL` | Reasoning effort level for the main model | `low`, `medium`, `high`, `max` |
+| Variable                     | Description                                                                 | Example                        |
+| ---------------------------- | --------------------------------------------------------------------------- | ------------------------------ |
+| `CLAUDE_CODE_SUBAGENT_MODEL` | Model used by sub-agents for background tasks, exploration, and code review | `deepseek-v4-flash`            |
+| `CLAUDE_CODE_EFFORT_LEVEL`   | Reasoning effort level for the main model                                   | `low`, `medium`, `high`, `max` |
 
 ### Timeout
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable         | Description                     | Example  |
+| ---------------- | ------------------------------- | -------- |
 | `API_TIMEOUT_MS` | Request timeout in milliseconds | `600000` |
 
 ### Context window / auto-compaction variables
 
 Claude Code compresses older conversation history once usage crosses a share of the context window, instead of failing when the model hits its token limit. It assumes a 200K window by default, so a provider with a smaller real window needs these overrides. Without them, compaction runs too late and the API call fails mid-session.
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable                          | Description                                       | Example                |
+| --------------------------------- | ------------------------------------------------- | ---------------------- |
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | The model's actual context window size, in tokens | `131072` (Qwen's 128K) |
-| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Percentage of the window that triggers compaction | `75` |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Percentage of the window that triggers compaction | `75`                   |
 
 Models that match or exceed the 200K default, like GLM-5.3 with its 1M window, use a `[1m]` suffix on the model name instead, so you do not need an override.
 

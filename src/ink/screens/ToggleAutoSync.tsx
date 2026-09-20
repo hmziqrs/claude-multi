@@ -14,17 +14,23 @@ type Step = "select" | "action" | "syncing" | "done";
 
 function syncModeColor(mode: SyncModeType): string {
   switch (mode) {
-    case SyncMode.Auto: return "green";
-    case SyncMode.HalfManual: return "cyan";
-    case SyncMode.FullManual: return "yellow";
+    case SyncMode.Auto:
+      return "green";
+    case SyncMode.HalfManual:
+      return "cyan";
+    case SyncMode.FullManual:
+      return "yellow";
   }
 }
 
 function syncModeIcon(mode: SyncModeType): string {
   switch (mode) {
-    case SyncMode.Auto: return "⚡";
-    case SyncMode.HalfManual: return "🔗";
-    case SyncMode.FullManual: return "📦";
+    case SyncMode.Auto:
+      return "⚡";
+    case SyncMode.HalfManual:
+      return "🔗";
+    case SyncMode.FullManual:
+      return "📦";
   }
 }
 
@@ -42,14 +48,21 @@ const SyncModeAction: React.FC<{
       {showStatus && (
         <Box flexDirection="column" gap={0}>
           <Text>
-            Sync mode for <Text bold color="cyan">{selected.name}</Text> is{" "}
+            Sync mode for{" "}
+            <Text bold color="cyan">
+              {selected.name}
+            </Text>{" "}
+            is{" "}
             <Text bold color={syncModeColor(currentMode)}>
               {syncModeIcon(currentMode)} {syncModeLabel(currentMode)}
             </Text>
           </Text>
           {currentMode !== SyncMode.FullManual && (
             <Text dimColor>
-              Can convert to: {availableSyncModeConversions(currentMode).map(m => syncModeLabel(m)).join(", ")}
+              Can convert to:{" "}
+              {availableSyncModeConversions(currentMode)
+                .map((m) => syncModeLabel(m))
+                .join(", ")}
             </Text>
           )}
         </Box>
@@ -71,7 +84,7 @@ const SyncModeAction: React.FC<{
 export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { instances, toggleSyncMode, syncPluginsAndSkills, halfSyncPluginsAndSkills } = useConfig();
   const [step, setStep] = useState<Step>("select");
-  const [selected, setSelected] = useState<typeof instances[0] | null>(null);
+  const [selected, setSelected] = useState<(typeof instances)[0] | null>(null);
   const { error, setError } = useMessage();
   const [newMode, setNewMode] = useState<SyncModeType>(SyncMode.Auto);
 
@@ -91,7 +104,9 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🔄 Sync Mode" />
         <Text color="yellow">No instances found.</Text>
-        <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
+        <Box marginTop={1}>
+          <Text dimColor>ESC to go back</Text>
+        </Box>
       </Box>
     );
   }
@@ -206,11 +221,7 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       )}
 
       {step === "action" && selected && (
-        <SyncModeAction
-          selected={selected}
-          actionOptions={actionOptions}
-          onAction={handleAction}
-        />
+        <SyncModeAction selected={selected} actionOptions={actionOptions} onAction={handleAction} />
       )}
 
       {step === "syncing" && <Text dimColor>Converting sync mode…</Text>}

@@ -14,7 +14,9 @@ export const StepIndicator: React.FC<{
   return (
     <Box marginBottom={1}>
       <Text color="cyan">[</Text>
-      <Text bold color="cyan">{current}</Text>
+      <Text bold color="cyan">
+        {current}
+      </Text>
       <Text color="cyan">/{total}]</Text>
       <Text> {typedLabel}</Text>
     </Box>

@@ -23,7 +23,8 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   glm: {
     name: "glm",
     displayName: "GLM Coding Plan",
-    description: "GLM-5.3, GLM-5.3-Flash, and GLM-5-Turbo via z.ai Coding Plan subscription (Anthropic endpoint is coding-plan-only)",
+    description:
+      "GLM-5.3, GLM-5.3-Flash, and GLM-5-Turbo via z.ai Coding Plan subscription (Anthropic endpoint is coding-plan-only)",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -49,7 +50,8 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   minimax: {
     name: "minimax",
     displayName: "MiniMax",
-    description: "MiniMax-M3 — 1M context, frontier coding/agentic, native multimodal — via minimax.io",
+    description:
+      "MiniMax-M3 — 1M context, frontier coding/agentic, native multimodal — via minimax.io",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -120,7 +122,8 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   "mimo-token": {
     name: "mimo-token",
     displayName: "Xiaomi MiMo (Token Plan)",
-    description: "MiMo-V2.5-Pro via xiaomimimo.com Token Plan — monthly subscription with credit pool, replace base URL with your regional endpoint (CN/SG/EU) from the subscription console",
+    description:
+      "MiMo-V2.5-Pro via xiaomimimo.com Token Plan — monthly subscription with credit pool, replace base URL with your regional endpoint (CN/SG/EU) from the subscription console",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -141,7 +144,8 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   kimi: {
     name: "kimi",
     displayName: "Moonshot Kimi",
-    description: "Kimi K2.7 Code, K2.6, K2.5 models via moonshot.ai — pay-per-token only, no subscription plan",
+    description:
+      "Kimi K2.7 Code, K2.6, K2.5 models via moonshot.ai — pay-per-token only, no subscription plan",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -251,7 +255,9 @@ export function providerHasRegions(providerName: string): boolean {
   return providerName in PROVIDER_REGION_MAPS;
 }
 
-export function getProviderRegions(providerName: string): Record<string, { label: string; baseUrl: string }> | undefined {
+export function getProviderRegions(
+  providerName: string,
+): Record<string, { label: string; baseUrl: string }> | undefined {
   return PROVIDER_REGION_MAPS[providerName];
 }
 
@@ -293,9 +299,7 @@ export function getAvailableProviders(): ProviderTemplate[] {
   return Object.values(PROVIDER_TEMPLATES);
 }
 
-export function getProviderTemplate(
-  name: string,
-): ProviderTemplate | undefined {
+export function getProviderTemplate(name: string): ProviderTemplate | undefined {
   return PROVIDER_TEMPLATES[name.toLowerCase()];
 }
 
@@ -350,7 +354,9 @@ export function detectProvider(configDir: string): string | null {
  * Legacy template defaults: during "overwrite-legacy-defaults" sync these are stale, not user-customized.
  * Update in the same commit as any template change to a TUNABLE_ENV_VARS value.
  */
-export const LEGACY_ENV_DEFAULTS: Readonly<Record<string, Partial<Record<string, readonly string[]>>>> = {
+export const LEGACY_ENV_DEFAULTS: Readonly<
+  Record<string, Partial<Record<string, readonly string[]>>>
+> = {
   glm: {
     MAX_OUTPUT_TOKENS: ["64000"],
     CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["131072"],
@@ -439,7 +445,8 @@ export function syncProviderEnvToSettings(
     if (!(key in existingEnv)) continue;
     const value = existingEnv[key]!;
     if (value === templateEnv[key]) continue;
-    if (policy === "overwrite-legacy-defaults" && isLegacyDefault(providerName, key, value)) continue;
+    if (policy === "overwrite-legacy-defaults" && isLegacyDefault(providerName, key, value))
+      continue;
     newEnv[key] = value;
   }
 
@@ -471,11 +478,13 @@ export function needsProviderTemplateSync(
   options: Omit<ProviderEnvSyncOptions, "dryRun"> = {},
 ): boolean {
   try {
-    return syncProviderEnvToSettings(configDir, {
-      ...options,
-      tunablePolicy: options.tunablePolicy ?? "overwrite-legacy-defaults",
-      dryRun: true,
-    }).status === "synced";
+    return (
+      syncProviderEnvToSettings(configDir, {
+        ...options,
+        tunablePolicy: options.tunablePolicy ?? "overwrite-legacy-defaults",
+        dryRun: true,
+      }).status === "synced"
+    );
   } catch {
     // Corrupt/unreadable settings.json is a health issue, not grounds to apply a template
     return false;

@@ -28,14 +28,10 @@ function compareVersions(v1: string, v2: string): number {
 
 async function getNpmVersion(packageName: string): Promise<string> {
   try {
-    const response = await fetch(
-      `https://registry.npmjs.org/${packageName}/latest`,
-    );
+    const response = await fetch(`https://registry.npmjs.org/${packageName}/latest`);
 
     if (response.status === 404) {
-      console.log(
-        "📦 Package not found on npm registry. This will be the first publish.",
-      );
+      console.log("📦 Package not found on npm registry. This will be the first publish.");
       return "0.0.0";
     }
 

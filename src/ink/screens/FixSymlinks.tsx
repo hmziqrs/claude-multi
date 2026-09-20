@@ -25,9 +25,11 @@ const SymlinkResults: React.FC<{
           <Box gap={1}>
             <Text bold>{r.name}</Text>
             {r.broken.length > 0 ? (
-              r.fixed
-                ? <Text color="green">✅ Fixed: {r.broken.join(", ")}</Text>
-                : <Text color="red">❌ Failed: {r.broken.join(", ")}</Text>
+              r.fixed ? (
+                <Text color="green">✅ Fixed: {r.broken.join(", ")}</Text>
+              ) : (
+                <Text color="red">❌ Failed: {r.broken.join(", ")}</Text>
+              )
             ) : r.all.length > 0 ? (
               <Text color="green">✅ All OK: {r.all.join(", ")}</Text>
             ) : (
@@ -36,13 +38,18 @@ const SymlinkResults: React.FC<{
           </Box>
         </Box>
       ))}
-      {showDone && <Box marginTop={1}><Text bold>✨ Done!</Text></Box>}
+      {showDone && (
+        <Box marginTop={1}>
+          <Text bold>✨ Done!</Text>
+        </Box>
+      )}
     </Box>
   );
 };
 
 export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, detectBrokenSymlinks, syncPluginsAndSkills, halfSyncPluginsAndSkills } = useConfig();
+  const { instances, detectBrokenSymlinks, syncPluginsAndSkills, halfSyncPluginsAndSkills } =
+    useConfig();
   const [step, setStep] = useState<Step>("select");
   const [results, setResults] = useState<
     { name: string; broken: string[]; all: string[]; fixed: boolean }[]
@@ -59,7 +66,9 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🔄 Re-sync Symlinks" />
         <Text color="yellow">No instances found.</Text>
-        <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
+        <Box marginTop={1}>
+          <Text dimColor>ESC to go back</Text>
+        </Box>
       </Box>
     );
   }
@@ -76,29 +85,31 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setStep("fixing");
     setError("");
 
-    const instanceMap = new Map(instances.map(i => [i.name, i]));
-    const fixResults = await Promise.all(selectedNames.map(async (name) => {
-      const instance = instanceMap.get(name);
-      if (!instance) return null;
-      const diagnosis = detectBrokenSymlinks(instance.configDir);
-      const hasBroken = diagnosis.broken.length > 0;
-      const mode = getSyncMode(instance);
+    const instanceMap = new Map(instances.map((i) => [i.name, i]));
+    const fixResults = await Promise.all(
+      selectedNames.map(async (name) => {
+        const instance = instanceMap.get(name);
+        if (!instance) return null;
+        const diagnosis = detectBrokenSymlinks(instance.configDir);
+        const hasBroken = diagnosis.broken.length > 0;
+        const mode = getSyncMode(instance);
 
-      if (hasBroken) {
-        try {
-          if (mode === SyncMode.Auto) {
-            await syncPluginsAndSkills(instance.configDir);
-          } else if (mode === SyncMode.HalfManual) {
-            await halfSyncPluginsAndSkills(instance.configDir);
+        if (hasBroken) {
+          try {
+            if (mode === SyncMode.Auto) {
+              await syncPluginsAndSkills(instance.configDir);
+            } else if (mode === SyncMode.HalfManual) {
+              await halfSyncPluginsAndSkills(instance.configDir);
+            }
+            return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: true };
+          } catch {
+            return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: false };
           }
+        } else {
           return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: true };
-        } catch {
-          return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: false };
         }
-      } else {
-        return { name, broken: diagnosis.broken, all: diagnosis.all, fixed: true };
-      }
-    }));
+      }),
+    );
     setResults(fixResults.filter(Boolean) as typeof results);
     setStep("done");
   };
@@ -122,9 +133,7 @@ export const FixSymlinks: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {step === "fixing" && <Text dimColor>Fixing symlinks…</Text>}
 
-      {step === "done" && (
-        <SymlinkResults results={results} />
-      )}
+      {step === "done" && <SymlinkResults results={results} />}
 
       <Box marginTop={1}>
         <Text dimColor>ESC back │ q quit</Text>

@@ -40,9 +40,7 @@ describe("Wrapper Script Generation", () => {
       const script = generateWindowsWrapperScript(options);
 
       expect(script).toContain("@echo off");
-      expect(script).toContain(
-        'set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"',
-      );
+      expect(script).toContain('set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"');
       expect(script).toContain("%*");
     });
   });

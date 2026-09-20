@@ -1,4 +1,4 @@
-import raw from '../../CHANGELOG.md?raw';
+import raw from "../../CHANGELOG.md?raw";
 
 export type Item = { text: string; subItems: string[] };
 export type Section = { label: string; items: Item[] };
@@ -6,7 +6,7 @@ export type Release = { version: string; date: string; sections: Section[] };
 
 export function parseChangelog(text: string): Release[] {
   const releases: Release[] = [];
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   let release: Release | null = null;
   let section: Section | null = null;
   let lastItem: Item | null = null;
@@ -45,4 +45,4 @@ export function parseChangelog(text: string): Release[] {
 
 export const releases = parseChangelog(raw);
 export const latestRelease = releases[0];
-export const latestVersion = latestRelease?.version ?? '0.0.0';
+export const latestVersion = latestRelease?.version ?? "0.0.0";

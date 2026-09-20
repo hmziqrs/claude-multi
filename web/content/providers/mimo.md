@@ -17,10 +17,10 @@ MiMo-V2.5-Pro is a 1 trillion parameter mixture-of-experts model with 42B active
 
 ## Model specs
 
-| Role | Model | Parameters | Context | Max Output |
-|------|-------|------------|---------|------------|
-| Primary (Opus/Sonnet) | MiMo-V2.5-Pro | 1T MoE (42B active) | 1M | 128K |
-| Fast (Haiku) | MiMo-V2.5 | 310B MoE (15B active) | 1M | 128K |
+| Role                  | Model         | Parameters            | Context | Max Output |
+| --------------------- | ------------- | --------------------- | ------- | ---------- |
+| Primary (Opus/Sonnet) | MiMo-V2.5-Pro | 1T MoE (42B active)   | 1M      | 128K       |
+| Fast (Haiku)          | MiMo-V2.5     | 310B MoE (15B active) | 1M      | 128K       |
 
 V2.5-Pro handles the heavy reasoning. V2.5 runs background tasks, subagent calls, and quick edits at lower cost. The template maps each one to its role for you.
 

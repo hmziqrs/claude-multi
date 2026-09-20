@@ -26,15 +26,21 @@ type InfoData = {
   mcpCustomCount: number | null;
 };
 
-const DetailRow: React.FC<{ label: string; value: string; color?: string; last?: boolean; delay?: number }> = ({
-  label, value, color, last, delay = 0,
-}) => {
+const DetailRow: React.FC<{
+  label: string;
+  value: string;
+  color?: string;
+  last?: boolean;
+  delay?: number;
+}> = ({ label, value, color, last, delay = 0 }) => {
   const visible = useFadeIn(delay);
   if (!visible) return null;
   return (
     <Box gap={1}>
       <Text dimColor>{last ? "└─" : "├─"}</Text>
-      <Text dimColor bold>{label}:</Text>
+      <Text dimColor bold>
+        {label}:
+      </Text>
       {color ? <Text color={color}>{value}</Text> : <Text>{value}</Text>}
     </Box>
   );
@@ -58,48 +64,68 @@ const ACTION_VALUES = {
 
 function syncModeColor(mode: SyncModeType): string {
   switch (mode) {
-    case SyncMode.Auto: return "green";
-    case SyncMode.HalfManual: return "cyan";
-    case SyncMode.FullManual: return "yellow";
+    case SyncMode.Auto:
+      return "green";
+    case SyncMode.HalfManual:
+      return "cyan";
+    case SyncMode.FullManual:
+      return "yellow";
   }
 }
 
 function templateStatusLabel(status: TemplateMismatchStatus): string {
   switch (status) {
-    case "match": return "✓ up to date";
-    case "mismatch": return "⚠ mismatch detected";
-    case "unknown": return "? unknown";
+    case "match":
+      return "✓ up to date";
+    case "mismatch":
+      return "⚠ mismatch detected";
+    case "unknown":
+      return "? unknown";
   }
 }
 
 function wrapperStatusLabel(status: WrapperMismatchStatus): string {
   switch (status) {
-    case "match": return "✓ up to date";
-    case "mismatch": return "⚠ mismatch detected";
-    case "missing": return "✗ wrapper missing";
-    case "unknown": return "? unknown";
+    case "match":
+      return "✓ up to date";
+    case "mismatch":
+      return "⚠ mismatch detected";
+    case "missing":
+      return "✗ wrapper missing";
+    case "unknown":
+      return "? unknown";
   }
 }
 
 export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { exit } = useApp();
-  const { instances, listInstancePlugins, getInstanceMcpServers, syncTemplateEnv, regenerateWrapper, toggleSyncMode } = useConfig();
+  const {
+    instances,
+    listInstancePlugins,
+    getInstanceMcpServers,
+    syncTemplateEnv,
+    regenerateWrapper,
+    toggleSyncMode,
+  } = useConfig();
   const [step, setStep] = useState<Step>("select");
-  const [selected, setSelected] = useState<typeof instances[0] | null>(null);
+  const [selected, setSelected] = useState<(typeof instances)[0] | null>(null);
   const [infoData, setInfoData] = useState<InfoData>(EMPTY_INFO);
   const [templateStatus, setTemplateStatus] = useState<TemplateMismatchStatus>("unknown");
   const [wrapperStatus, setWrapperStatus] = useState<WrapperMismatchStatus>("unknown");
   const [providerName, setProviderName] = useState<string | null>(null);
-  const [actionResult, setActionResult] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [actionResult, setActionResult] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const [executing, setExecuting] = useState(false);
 
   // Resolve the current instance from the live instances array so that
   // after reload() the selected reference stays fresh.
   const liveSelected = selected
-    ? instances.find(i => i.name === selected.name) ?? selected
+    ? (instances.find((i) => i.name === selected.name) ?? selected)
     : null;
 
-  const runDiagnostics = useCallback((inst: typeof instances[0]) => {
+  const runDiagnostics = useCallback((inst: (typeof instances)[0]) => {
     const tmpl = detectTemplateMismatch(inst);
     const wrap = detectWrapperMismatch(inst);
     setTemplateStatus(tmpl.status);
@@ -107,21 +133,33 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     setProviderName(tmpl.providerName);
   }, []);
 
-  const loadInstanceInfo = useCallback(async (inst: typeof instances[0]) => {
-    try {
-      const plugins = listInstancePlugins(inst.configDir);
-      const mcpData = await getInstanceMcpServers(inst.configDir);
-      setInfoData({
-        pluginCount: plugins.length,
-        enabledCount: plugins.filter(p => p.enabled).length,
-        mcpPluginCount: Object.keys(mcpData.fromPlugins).length,
-        mcpCustomCount: Object.keys(mcpData.fromSettings).length,
-        mcpCount: Object.keys(mcpData.all).length,
-      });
-    } catch {
-      setInfoData(EMPTY_INFO);
+  const loadInstanceInfo = useCallback(
+    async (inst: (typeof instances)[0]) => {
+      try {
+        const plugins = listInstancePlugins(inst.configDir);
+        const mcpData = await getInstanceMcpServers(inst.configDir);
+        setInfoData({
+          pluginCount: plugins.length,
+          enabledCount: plugins.filter((p) => p.enabled).length,
+          mcpPluginCount: Object.keys(mcpData.fromPlugins).length,
+          mcpCustomCount: Object.keys(mcpData.fromSettings).length,
+          mcpCount: Object.keys(mcpData.all).length,
+        });
+      } catch {
+        setInfoData(EMPTY_INFO);
+      }
+    },
+    [listInstancePlugins, getInstanceMcpServers],
+  );
+
+  const goToInfo = () => {
+    const inst = liveSelected;
+    if (inst) {
+      runDiagnostics(inst);
+      loadInstanceInfo(inst);
     }
-  }, [listInstancePlugins, getInstanceMcpServers]);
+    setStep("info");
+  };
 
   useInput((input, key) => {
     if (executing) return;
@@ -151,15 +189,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
       }
     }
   });
-
-  const goToInfo = () => {
-    const inst = liveSelected;
-    if (inst) {
-      runDiagnostics(inst);
-      loadInstanceInfo(inst);
-    }
-    setStep("info");
-  };
 
   if (instances.length === 0) {
     return (
@@ -201,9 +230,15 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
       setExecuting(true);
       try {
         await toggleSyncMode(selected!.name, targetMode);
-        setActionResult({ message: `Sync mode set to ${syncModeLabel(targetMode)} for '${selected!.name}'`, type: "success" });
+        setActionResult({
+          message: `Sync mode set to ${syncModeLabel(targetMode)} for '${selected!.name}'`,
+          type: "success",
+        });
       } catch (err: unknown) {
-        setActionResult({ message: err instanceof Error ? err.message : String(err), type: "error" });
+        setActionResult({
+          message: err instanceof Error ? err.message : String(err),
+          type: "error",
+        });
       }
       setExecuting(false);
       setStep("result");
@@ -222,10 +257,16 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
     try {
       if (value === ACTION_VALUES.SyncTemplate) {
         await syncTemplateEnv(liveSelected ?? selected);
-        setActionResult({ message: `Settings template updated for '${selected.name}'`, type: "success" });
+        setActionResult({
+          message: `Settings template updated for '${selected.name}'`,
+          type: "success",
+        });
       } else if (value === ACTION_VALUES.UpdateWrapper || value === ACTION_VALUES.OverrideWrapper) {
         await regenerateWrapper(liveSelected ?? selected);
-        setActionResult({ message: `Alias wrapper regenerated for '${selected.name}'`, type: "success" });
+        setActionResult({
+          message: `Alias wrapper regenerated for '${selected.name}'`,
+          type: "success",
+        });
       }
     } catch (err: unknown) {
       setActionResult({
@@ -296,12 +337,18 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
         <Box flexDirection="column" gap={0}>
           <Box gap={1}>
             <Text color="cyan">●</Text>
-            <Text bold color="cyan">{displayInstance.name}</Text>
+            <Text bold color="cyan">
+              {displayInstance.name}
+            </Text>
           </Box>
           <Box marginLeft={2} flexDirection="column">
             <DetailRow label="Binary" value={displayInstance.binaryPath} delay={50} />
             <DetailRow label="Config" value={displayInstance.configDir} delay={100} />
-            <DetailRow label="Created" value={new Date(displayInstance.createdAt).toLocaleString()} delay={150} />
+            <DetailRow
+              label="Created"
+              value={new Date(displayInstance.createdAt).toLocaleString()}
+              delay={150}
+            />
             <DetailRow
               label="Sync mode"
               value={syncModeLabel(getSyncMode(displayInstance))}
@@ -310,10 +357,16 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
             />
             <DetailRow
               label="Version"
-              value={displayInstance.createdWithVersion === LEGACY_INSTANCE_VERSION
-                ? "before version tracking"
-                : displayInstance.createdWithVersion}
-              color={displayInstance.createdWithVersion === LEGACY_INSTANCE_VERSION ? "yellow" : undefined}
+              value={
+                displayInstance.createdWithVersion === LEGACY_INSTANCE_VERSION
+                  ? "before version tracking"
+                  : displayInstance.createdWithVersion
+              }
+              color={
+                displayInstance.createdWithVersion === LEGACY_INSTANCE_VERSION
+                  ? "yellow"
+                  : undefined
+              }
               last={lastRow === "version"}
               delay={250}
             />
@@ -321,7 +374,13 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
               <DetailRow
                 label="Provider"
                 value={providerName!}
-                color={templateStatus === "match" ? undefined : templateStatus === "mismatch" ? "yellow" : undefined}
+                color={
+                  templateStatus === "match"
+                    ? undefined
+                    : templateStatus === "mismatch"
+                      ? "yellow"
+                      : undefined
+                }
                 last={lastRow === "provider"}
                 delay={275}
               />
@@ -350,7 +409,9 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
         <Box flexDirection="column" gap={1}>
           <Box gap={1}>
             <Text color="cyan">●</Text>
-            <Text bold color="cyan">{displayInstance.name}</Text>
+            <Text bold color="cyan">
+              {displayInstance.name}
+            </Text>
           </Box>
           <Box marginTop={1}>
             <Text bold>Actions:</Text>
@@ -372,7 +433,9 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
         <Box flexDirection="column" gap={1}>
           <Box gap={1}>
             <Text color="cyan">●</Text>
-            <Text bold color="cyan">{displayInstance.name}</Text>
+            <Text bold color="cyan">
+              {displayInstance.name}
+            </Text>
           </Box>
           <Box marginTop={1}>
             <Spinner label="Updating..." />
@@ -384,7 +447,9 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
         <Box flexDirection="column" gap={1}>
           <Box gap={1}>
             <Text color="cyan">●</Text>
-            <Text bold color="cyan">{displayInstance.name}</Text>
+            <Text bold color="cyan">
+              {displayInstance.name}
+            </Text>
           </Box>
           <Box marginTop={1}>
             <StatusBar message={actionResult.message} type={actionResult.type} />
@@ -400,18 +465,14 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
             <Text dimColor>q quit</Text>
           </Box>
         )}
-        {step === "actions" && (
-          <Text dimColor>↑↓ navigate │ Enter select │ ESC back │ q quit</Text>
-        )}
+        {step === "actions" && <Text dimColor>↑↓ navigate │ Enter select │ ESC back │ q quit</Text>}
         {step === "result" && (
           <Box gap={2}>
             <Text dimColor>Enter/ESC to return</Text>
             <Text dimColor>q quit</Text>
           </Box>
         )}
-        {step === "select" && (
-          <Text dimColor>ESC to go back │ q quit</Text>
-        )}
+        {step === "select" && <Text dimColor>ESC to go back │ q quit</Text>}
       </Box>
     </Box>
   );

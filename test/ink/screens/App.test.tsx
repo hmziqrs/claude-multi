@@ -82,11 +82,10 @@ describe("Ink Visual Snapshot Tests", () => {
         <Text bold>
           Instance: <Text color="cyan">{instance.name}</Text>
         </Text>
-        <Text dimColor>Binary:    {instance.binaryPath}</Text>
-        <Text dimColor>Config:    {instance.configDir}</Text>
+        <Text dimColor>Binary: {instance.binaryPath}</Text>
+        <Text dimColor>Config: {instance.configDir}</Text>
         <Text dimColor>
-          Auto-sync:{" "}
-          <Text color="green">✓ Enabled</Text>
+          Auto-sync: <Text color="green">✓ Enabled</Text>
         </Text>
       </Box>,
     );
@@ -101,12 +100,12 @@ describe("Ink Visual Snapshot Tests", () => {
     const { lastFrame } = render(
       <Box flexDirection="column" gap={1}>
         <Header title="⚙️ Manage MCP Servers" />
-        <Text dimColor>  • context7: http</Text>
-        <Text dimColor>    URL: https://api.context7.com</Text>
-        <Text color="green">    ✓ Configuration looks valid</Text>
-        <Text dimColor>  • playwright: stdio</Text>
-        <Text dimColor>    Command: npx @playwright/mcp</Text>
-        <Text color="green">    ✓ Configuration looks valid</Text>
+        <Text dimColor> • context7: http</Text>
+        <Text dimColor> URL: https://api.context7.com</Text>
+        <Text color="green"> ✓ Configuration looks valid</Text>
+        <Text dimColor> • playwright: stdio</Text>
+        <Text dimColor> Command: npx @playwright/mcp</Text>
+        <Text color="green"> ✓ Configuration looks valid</Text>
       </Box>,
     );
 
@@ -129,9 +128,9 @@ describe("Ink Visual Snapshot Tests", () => {
           <Box key={r.name} flexDirection="column">
             <Text bold>🔍 {r.name}</Text>
             {r.broken.length > 0 ? (
-              <Text color="green">  ✅ Fixed: {r.broken.join(", ")}</Text>
+              <Text color="green"> ✅ Fixed: {r.broken.join(", ")}</Text>
             ) : (
-              <Text color="green">  ✅ All symlinks OK: {r.all.join(", ")}</Text>
+              <Text color="green"> ✅ All symlinks OK: {r.all.join(", ")}</Text>
             )}
           </Box>
         ))}

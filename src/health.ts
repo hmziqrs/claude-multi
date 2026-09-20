@@ -1,4 +1,11 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  renameSync,
+  unlinkSync,
+} from "node:fs";
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import { detectBrokenSymlinks } from "@/config";
@@ -32,7 +39,9 @@ export interface HealthStatus {
   issues: HealthIssue[];
 }
 
-function getHealthFile() { return join(getBaseDir(), ".claude-multi", "health-status.json"); }
+function getHealthFile() {
+  return join(getBaseDir(), ".claude-multi", "health-status.json");
+}
 
 export function runHealthChecks(
   instances: Instance[],
@@ -204,7 +213,11 @@ export function runHealthChecks(
       }
     }
 
-    if (inst.createdWithVersion && inst.createdWithVersion !== LEGACY_INSTANCE_VERSION && inst.createdWithVersion !== currentVersion) {
+    if (
+      inst.createdWithVersion &&
+      inst.createdWithVersion !== LEGACY_INSTANCE_VERSION &&
+      inst.createdWithVersion !== currentVersion
+    ) {
       issues.push({
         id: `instance-outdated-${inst.name}`,
         severity: "info",
@@ -248,14 +261,16 @@ export function saveHealthStatus(status: HealthStatus): void {
     JSON.parse(readFileSync(tmpPath, "utf-8"));
     renameSync(tmpPath, healthFile);
   } catch (err) {
-    try { unlinkSync(tmpPath); } catch {}
+    try {
+      unlinkSync(tmpPath);
+    } catch {}
     throw err;
   }
 }
 
 export function dismissIssue(id: string): void {
   const status = loadHealthStatus();
-  const issue = status.issues.find(i => i.id === id);
+  const issue = status.issues.find((i) => i.id === id);
   if (issue) {
     issue.dismissed = true;
     saveHealthStatus(status);

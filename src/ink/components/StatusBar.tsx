@@ -14,7 +14,9 @@ export const StatusBar: React.FC<{
 
   return (
     <Box marginBottom={1}>
-      <Text color={colors[type]} bold>{icons[type]}</Text>
+      <Text color={colors[type]} bold>
+        {icons[type]}
+      </Text>
       <Text> {message}</Text>
     </Box>
   );

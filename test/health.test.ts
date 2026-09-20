@@ -22,19 +22,27 @@ function makeInstance(overrides: Partial<Instance> = {}): Instance {
 }
 
 function writeShellWrapper(path: string, claudePath: string): void {
-  writeFileSync(path, `#!/bin/sh
+  writeFileSync(
+    path,
+    `#!/bin/sh
 export CLAUDE_CONFIG_DIR="/fake"
 exec "${claudePath}" "$@"
-`, { mode: 0o755 });
+`,
+    { mode: 0o755 },
+  );
 }
 
 function writeNodeWrapper(path: string, claudePath: string): void {
-  writeFileSync(path, `#!/usr/bin/env node
+  writeFileSync(
+    path,
+    `#!/usr/bin/env node
 import { spawn } from 'child_process';
 process.env.CLAUDE_CONFIG_DIR = "/fake";
 const claude = spawn("${claudePath}", process.argv.slice(2), { stdio: 'inherit', env: process.env });
 claude.on('exit', (code) => { process.exit(code || 0); });
-`, { mode: 0o755 });
+`,
+    { mode: 0o755 },
+  );
 }
 
 describe("Health Check", () => {
@@ -52,7 +60,9 @@ describe("Health Check", () => {
   afterEach(() => {
     process.env.CLAUDE_MULTI_HOME = originalEnv;
     process.env.CLAUDE_MULTI_CLAUDE_PATH = originalClaudePath;
-    try { rmSync(testDir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(testDir, { recursive: true, force: true });
+    } catch {}
   });
 
   describe("runHealthChecks", () => {
@@ -73,7 +83,7 @@ describe("Health Check", () => {
       const inst = makeInstance({ configDir: join(testDir, "nonexistent") });
 
       const issues = runHealthChecks([inst]);
-      const configIssue = issues.find(i => i.id === "configdir-missing-test-inst");
+      const configIssue = issues.find((i) => i.id === "configdir-missing-test-inst");
       expect(configIssue).toBeDefined();
       expect(configIssue!.severity).toBe("error");
       expect(configIssue!.category).toBe("config");
@@ -85,7 +95,7 @@ describe("Health Check", () => {
       mkdirSync(inst.configDir, { recursive: true });
 
       const issues = runHealthChecks([inst]);
-      const binaryIssue = issues.find(i => i.id === "binary-missing-test-inst");
+      const binaryIssue = issues.find((i) => i.id === "binary-missing-test-inst");
       expect(binaryIssue).toBeDefined();
       expect(binaryIssue!.severity).toBe("warning");
       expect(binaryIssue!.category).toBe("binary");
@@ -98,7 +108,7 @@ describe("Health Check", () => {
       writeFileSync(join(inst.configDir, "settings.json"), "{invalid json");
 
       const issues = runHealthChecks([inst]);
-      const settingsIssue = issues.find(i => i.id === "settings-corrupt-test-inst");
+      const settingsIssue = issues.find((i) => i.id === "settings-corrupt-test-inst");
       expect(settingsIssue).toBeDefined();
       expect(settingsIssue!.severity).toBe("warning");
       expect(settingsIssue!.category).toBe("settings");
@@ -113,7 +123,7 @@ describe("Health Check", () => {
         migrationStatus: "failed",
         failureInfo: { error: "test migration error" },
       });
-      const migrationIssue = issues.find(i => i.id === "migration-failed");
+      const migrationIssue = issues.find((i) => i.id === "migration-failed");
       expect(migrationIssue).toBeDefined();
       expect(migrationIssue!.severity).toBe("error");
       expect(migrationIssue!.message).toContain("test migration error");
@@ -162,7 +172,7 @@ describe("Health Check", () => {
       writeShellWrapper(inst.binaryPath, "/usr/local/bin/claude");
 
       const issues = runHealthChecks([inst]);
-      const versionIssue = issues.find(i => i.id === "wrong-claude-version-test-inst");
+      const versionIssue = issues.find((i) => i.id === "wrong-claude-version-test-inst");
       expect(versionIssue).toBeDefined();
       expect(versionIssue!.severity).toBe("error");
       expect(versionIssue!.category).toBe("version");
@@ -177,7 +187,7 @@ describe("Health Check", () => {
       writeNodeWrapper(inst.binaryPath, "/usr/local/bin/claude");
 
       const issues = runHealthChecks([inst]);
-      const versionIssue = issues.find(i => i.id === "wrong-claude-version-test-inst");
+      const versionIssue = issues.find((i) => i.id === "wrong-claude-version-test-inst");
       expect(versionIssue).toBeDefined();
       expect(versionIssue!.severity).toBe("error");
       expect(versionIssue!.category).toBe("version");
@@ -192,7 +202,7 @@ describe("Health Check", () => {
       writeShellWrapper(inst.binaryPath, fakeClaudeBin);
 
       const issues = runHealthChecks([inst]);
-      const versionIssue = issues.find(i => i.category === "version");
+      const versionIssue = issues.find((i) => i.category === "version");
       expect(versionIssue).toBeUndefined();
     });
 
@@ -206,7 +216,7 @@ describe("Health Check", () => {
       writeShellWrapper(inst.binaryPath, "/usr/local/bin/claude");
 
       const issues = runHealthChecks([inst]);
-      const versionIssue = issues.find(i => i.category === "version");
+      const versionIssue = issues.find((i) => i.category === "version");
       expect(versionIssue).toBeUndefined();
 
       process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;
@@ -342,19 +352,21 @@ describe("Health Check", () => {
 
       const status = {
         lastChecked: new Date().toISOString(),
-        issues: [{
-          id: "test-issue",
-          severity: "warning" as const,
-          category: "config" as const,
-          title: "Test",
-          message: "Test issue",
-          detail: null,
-          instanceName: null,
-          timestamp: new Date().toISOString(),
-          dismissed: false,
-          resolved: false,
-          resolutionHint: null,
-        }],
+        issues: [
+          {
+            id: "test-issue",
+            severity: "warning" as const,
+            category: "config" as const,
+            title: "Test",
+            message: "Test issue",
+            detail: null,
+            instanceName: null,
+            timestamp: new Date().toISOString(),
+            dismissed: false,
+            resolved: false,
+            resolutionHint: null,
+          },
+        ],
       };
 
       saveHealthStatus(status);
@@ -383,16 +395,40 @@ describe("Health Check", () => {
       saveHealthStatus({
         lastChecked: new Date().toISOString(),
         issues: [
-          { id: "a", severity: "warning", category: "config", title: "A", message: "A", detail: null, instanceName: null, timestamp: new Date().toISOString(), dismissed: false, resolved: false, resolutionHint: null },
-          { id: "b", severity: "error", category: "binary", title: "B", message: "B", detail: null, instanceName: null, timestamp: new Date().toISOString(), dismissed: false, resolved: false, resolutionHint: null },
+          {
+            id: "a",
+            severity: "warning",
+            category: "config",
+            title: "A",
+            message: "A",
+            detail: null,
+            instanceName: null,
+            timestamp: new Date().toISOString(),
+            dismissed: false,
+            resolved: false,
+            resolutionHint: null,
+          },
+          {
+            id: "b",
+            severity: "error",
+            category: "binary",
+            title: "B",
+            message: "B",
+            detail: null,
+            instanceName: null,
+            timestamp: new Date().toISOString(),
+            dismissed: false,
+            resolved: false,
+            resolutionHint: null,
+          },
         ],
       });
 
       dismissIssue("a");
 
       const status = loadHealthStatus();
-      expect(status.issues.find(i => i.id === "a")!.dismissed).toBe(true);
-      expect(status.issues.find(i => i.id === "b")!.dismissed).toBe(false);
+      expect(status.issues.find((i) => i.id === "a")!.dismissed).toBe(true);
+      expect(status.issues.find((i) => i.id === "b")!.dismissed).toBe(false);
     });
 
     test("dismissAllIssues marks all issues", async () => {
@@ -403,8 +439,32 @@ describe("Health Check", () => {
       saveHealthStatus({
         lastChecked: new Date().toISOString(),
         issues: [
-          { id: "a", severity: "warning", category: "config", title: "A", message: "A", detail: null, instanceName: null, timestamp: new Date().toISOString(), dismissed: false, resolved: false, resolutionHint: null },
-          { id: "b", severity: "error", category: "binary", title: "B", message: "B", detail: null, instanceName: null, timestamp: new Date().toISOString(), dismissed: false, resolved: false, resolutionHint: null },
+          {
+            id: "a",
+            severity: "warning",
+            category: "config",
+            title: "A",
+            message: "A",
+            detail: null,
+            instanceName: null,
+            timestamp: new Date().toISOString(),
+            dismissed: false,
+            resolved: false,
+            resolutionHint: null,
+          },
+          {
+            id: "b",
+            severity: "error",
+            category: "binary",
+            title: "B",
+            message: "B",
+            detail: null,
+            instanceName: null,
+            timestamp: new Date().toISOString(),
+            dismissed: false,
+            resolved: false,
+            resolutionHint: null,
+          },
         ],
       });
 
@@ -424,7 +484,7 @@ describe("Health Check", () => {
       mkdirSync(inst.configDir, { recursive: true });
 
       const issues = runHealthChecks([inst], undefined, true);
-      const pendingIssue = issues.find(i => i.id === "instance-migrations-pending");
+      const pendingIssue = issues.find((i) => i.id === "instance-migrations-pending");
       expect(pendingIssue).toBeDefined();
       expect(pendingIssue!.severity).toBe("warning");
       expect(pendingIssue!.category).toBe("migration");
@@ -437,7 +497,7 @@ describe("Health Check", () => {
       mkdirSync(inst.configDir, { recursive: true });
 
       const issues = runHealthChecks([inst], undefined, false);
-      const pendingIssue = issues.find(i => i.id === "instance-migrations-pending");
+      const pendingIssue = issues.find((i) => i.id === "instance-migrations-pending");
       expect(pendingIssue).toBeUndefined();
     });
   });

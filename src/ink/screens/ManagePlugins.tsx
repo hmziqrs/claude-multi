@@ -11,7 +11,13 @@ import { formatPluginLabel } from "@/ink/util/format";
 import { useFadeIn } from "@/ink/hooks/useAnimations";
 import { PluginAction, PluginCategory } from "@/constants";
 
-type Step = "action" | "select-instance" | "select-plugins" | "symlink-warning" | "plugin-list" | "done";
+type Step =
+  | "action"
+  | "select-instance"
+  | "select-plugins"
+  | "symlink-warning"
+  | "plugin-list"
+  | "done";
 
 const PluginSuccess: React.FC<{ message: string }> = ({ message }) => {
   const visible = useFadeIn(100);
@@ -24,11 +30,13 @@ const PluginRow: React.FC<{ plugin: PluginInfo; index: number }> = ({ plugin, in
   if (!visible) return null;
   return (
     <Box gap={1} marginLeft={2}>
-      <Text color={plugin.enabled ? "green" : "red"}>
-        {plugin.enabled ? "✓" : "✗"}
-      </Text>
+      <Text color={plugin.enabled ? "green" : "red"}>{plugin.enabled ? "✓" : "✗"}</Text>
       <Text bold={plugin.enabled}>{plugin.name}</Text>
-      {plugin.hasMcp && <Text color="cyan" dimColor>(MCP)</Text>}
+      {plugin.hasMcp && (
+        <Text color="cyan" dimColor>
+          (MCP)
+        </Text>
+      )}
       {plugin.category === PluginCategory.External && <Text dimColor>[ext]</Text>}
     </Box>
   );
@@ -36,10 +44,16 @@ const PluginRow: React.FC<{ plugin: PluginInfo; index: number }> = ({ plugin, in
 
 export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const {
-    instances, reload,
-    listDefaultPlugins, listInstancePlugins,
-    copySelectedPlugins, removeSinglePlugin,
-    enablePlugin, disablePlugin, isPluginsSymlinked, isHalfManualSync,
+    instances,
+    reload,
+    listDefaultPlugins,
+    listInstancePlugins,
+    copySelectedPlugins,
+    removeSinglePlugin,
+    enablePlugin,
+    disablePlugin,
+    isPluginsSymlinked,
+    isHalfManualSync,
   } = useConfig();
 
   const [step, setStep] = useState<Step>("action");
@@ -51,14 +65,24 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const filteredOptions = useMemo(() => {
     const showCat = action === PluginAction.Install || action === PluginAction.Remove;
     const plugins =
-      action === PluginAction.Enable ? instancePlugins.filter(p => !p.enabled) :
-      action === PluginAction.Disable ? instancePlugins.filter(p => p.enabled) :
-      instancePlugins;
-    return plugins.map(p => ({ label: formatPluginLabel(p, { showCategory: showCat }), value: p.id }));
+      action === PluginAction.Enable
+        ? instancePlugins.filter((p) => !p.enabled)
+        : action === PluginAction.Disable
+          ? instancePlugins.filter((p) => p.enabled)
+          : instancePlugins;
+    return plugins.map((p) => ({
+      label: formatPluginLabel(p, { showCategory: showCat }),
+      value: p.id,
+    }));
   }, [action, instancePlugins]);
 
   useNavigation(() => {
-    if (step === "select-instance" || step === "select-plugins" || step === "plugin-list" || step === "symlink-warning") {
+    if (
+      step === "select-instance" ||
+      step === "select-plugins" ||
+      step === "plugin-list" ||
+      step === "symlink-warning"
+    ) {
       setStep("action");
     } else if (step === "done") {
       onBack();
@@ -72,15 +96,20 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="🔌 Manage Plugins" />
         <Text color="yellow">No instances found.</Text>
-        <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
+        <Box marginTop={1}>
+          <Text dimColor>ESC to go back</Text>
+        </Box>
       </Box>
     );
   }
 
-  const getInstance = (name: string) => instances.find(i => i.name === name);
+  const getInstance = (name: string) => instances.find((i) => i.name === name);
 
   const handleAction = (value: string) => {
-    if (value === "cancel") { onBack(); return; }
+    if (value === "cancel") {
+      onBack();
+      return;
+    }
     setAction(value);
     setStep("select-instance");
   };
@@ -90,7 +119,11 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const inst = getInstance(value);
     if (!inst) return;
 
-    const modifiesPlugins = action === PluginAction.Install || action === PluginAction.Remove || action === PluginAction.Enable || action === PluginAction.Disable;
+    const modifiesPlugins =
+      action === PluginAction.Install ||
+      action === PluginAction.Remove ||
+      action === PluginAction.Enable ||
+      action === PluginAction.Disable;
     if (modifiesPlugins) {
       if (isPluginsSymlinked(inst.configDir) || isHalfManualSync(inst.configDir)) {
         setStep("symlink-warning");
@@ -106,11 +139,15 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       if (action === PluginAction.Install) {
         const defaults = listDefaultPlugins();
         const installed = listInstancePlugins(configDir);
-        const installedIds = new Set(installed.map(p => p.id));
-        const available = defaults.filter(p => !installedIds.has(p.id));
+        const installedIds = new Set(installed.map((p) => p.id));
+        const available = defaults.filter((p) => !installedIds.has(p.id));
         setInstancePlugins(available);
         setStep("select-plugins");
-      } else if (action === PluginAction.Remove || action === PluginAction.Enable || action === PluginAction.Disable) {
+      } else if (
+        action === PluginAction.Remove ||
+        action === PluginAction.Enable ||
+        action === PluginAction.Disable
+      ) {
         const plugins = listInstancePlugins(configDir);
         setInstancePlugins(plugins);
         setStep("select-plugins");
@@ -139,8 +176,8 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     try {
       if (action === PluginAction.Install) {
         const defaults = listDefaultPlugins();
-        const selections = selectedIds.map(id => {
-          const p = defaults.find(dp => dp.id === id);
+        const selections = selectedIds.map((id) => {
+          const p = defaults.find((dp) => dp.id === id);
           return { id, category: p?.category ?? PluginCategory.External };
         });
         if (selections.length > 0) {
@@ -148,7 +185,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }
         setSuccess(`Installed ${selections.length} plugin(s) to '${selectedInstance}'`);
       } else if (action === PluginAction.Remove) {
-        const pluginMap = new Map(instancePlugins.map(ip => [ip.id, ip]));
+        const pluginMap = new Map(instancePlugins.map((ip) => [ip.id, ip]));
         for (const id of selectedIds) {
           // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared plugin manifest requires sequential writes
           const p = pluginMap.get(id);
@@ -213,10 +250,7 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <Text dimColor>Switch to full-manual mode first to manage plugins individually.</Text>
           <Text dimColor>Use "🔄 Sync mode" from the main menu.</Text>
           <Box marginTop={1}>
-            <ConfirmInput
-              onConfirm={() => setStep("action")}
-              onCancel={() => setStep("action")}
-            />
+            <ConfirmInput onConfirm={() => setStep("action")} onCancel={() => setStep("action")} />
           </Box>
         </Box>
       )}
@@ -225,19 +259,26 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           {filteredOptions.length === 0 ? (
             <Text dimColor>
-              {action === PluginAction.Install ? "All default plugins already installed." :
-               action === PluginAction.Enable ? "All installed plugins are already enabled." :
-               action === PluginAction.Disable ? "All installed plugins are already disabled." :
-               action === PluginAction.Remove ? "No plugins installed to remove." :
-               "No plugins found."}
+              {action === PluginAction.Install
+                ? "All default plugins already installed."
+                : action === PluginAction.Enable
+                  ? "All installed plugins are already enabled."
+                  : action === PluginAction.Disable
+                    ? "All installed plugins are already disabled."
+                    : action === PluginAction.Remove
+                      ? "No plugins installed to remove."
+                      : "No plugins found."}
             </Text>
           ) : (
             <>
               <Text>
-                {action === PluginAction.Install ? "Select plugins to install:" :
-                 action === PluginAction.Remove ? "Select plugins to remove:" :
-                 action === PluginAction.Enable ? "Select plugins to enable:" :
-                 "Select plugins to disable:"}
+                {action === PluginAction.Install
+                  ? "Select plugins to install:"
+                  : action === PluginAction.Remove
+                    ? "Select plugins to remove:"
+                    : action === PluginAction.Enable
+                      ? "Select plugins to enable:"
+                      : "Select plugins to disable:"}
               </Text>
               <Text dimColor>space to toggle · enter to confirm</Text>
               <MultiSelect
@@ -252,16 +293,16 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {step === "plugin-list" && (
         <Box flexDirection="column" gap={1}>
-          <Text bold>{instancePlugins.length} plugin(s) installed in '{selectedInstance}':</Text>
+          <Text bold>
+            {instancePlugins.length} plugin(s) installed in '{selectedInstance}':
+          </Text>
           {instancePlugins.map((p, i) => (
             <PluginRow key={p.id} plugin={p} index={i} />
           ))}
         </Box>
       )}
 
-      {step === "done" && success && (
-        <PluginSuccess message={success} />
-      )}
+      {step === "done" && success && <PluginSuccess message={success} />}
 
       <Box marginTop={1}>
         <Text dimColor>ESC back │ q quit</Text>

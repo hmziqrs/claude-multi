@@ -42,12 +42,12 @@ That is the entire mechanism. Claude Code reads its config from the directory yo
 └── claude-deepseek          # wrapper script
 ```
 
-| Path | Purpose |
-|------|---------|
-| `~/.claude-multi/config.json` | Central registry of all instances, name, paths, creation date, auto-sync status |
-| `~/.claude-<name>/` | Per-instance config directory. Mirrors Claude Code's `~/.claude` structure |
-| `~/.local/bin/claude-<name>` | Generated wrapper command (`.cmd` on Windows) |
-| `~/.claude/` | Your default Claude Code config. Treated as the source for copy and sync operations. Never modified. |
+| Path                          | Purpose                                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `~/.claude-multi/config.json` | Central registry of all instances, name, paths, creation date, auto-sync status                      |
+| `~/.claude-<name>/`           | Per-instance config directory. Mirrors Claude Code's `~/.claude` structure                           |
+| `~/.local/bin/claude-<name>`  | Generated wrapper command (`.cmd` on Windows)                                                        |
+| `~/.claude/`                  | Your default Claude Code config. Treated as the source for copy and sync operations. Never modified. |
 
 ## Instance isolation
 

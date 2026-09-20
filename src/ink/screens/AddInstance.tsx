@@ -5,10 +5,7 @@ import { Header } from "@/ink/components/Header";
 import { StepIndicator } from "@/ink/components/StepIndicator";
 import { StatusBar } from "@/ink/components/StatusBar";
 import { useNavigation } from "@/ink/hooks/useNavigation";
-import {
-  useConfig,
-  type Instance,
-} from "@/ink/hooks/useConfig";
+import { useConfig, type Instance } from "@/ink/hooks/useConfig";
 import { removeInstance as removeInstanceFromConfig } from "@/config";
 import { removeWrapper } from "@/wrapper";
 import { getClaudeMultiVersion } from "@/version";
@@ -17,26 +14,39 @@ import { formatPluginLabel } from "@/ink/util/format";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { CopyOption, PluginCategory, SyncMode, type SyncMode as SyncModeType } from "@/constants";
-import { providerHasRegions, resolveRegionTemplate, getProviderRegions, getApiKeyPlaceholder } from "@/templates";
+import {
+  providerHasRegions,
+  resolveRegionTemplate,
+  getProviderRegions,
+  getApiKeyPlaceholder,
+} from "@/templates";
 
 const AddResult: React.FC<{ name: string; binaryPath: string; configDir: string }> = ({
-  name, binaryPath, configDir,
+  name,
+  binaryPath,
+  configDir,
 }) => {
   const showStatus = useFadeIn(50);
   const showPaths = useFadeIn(200);
   return (
     <Box flexDirection="column" gap={1}>
-      {showStatus && <StatusBar message={`Instance '${name}' created successfully!`} type="success" />}
+      {showStatus && (
+        <StatusBar message={`Instance '${name}' created successfully!`} type="success" />
+      )}
       {showPaths && (
         <Box marginLeft={2} flexDirection="column">
           <Box gap={1}>
             <Text dimColor>├─</Text>
-            <Text dimColor bold>Binary:</Text>
+            <Text dimColor bold>
+              Binary:
+            </Text>
             <Text>{binaryPath}</Text>
           </Box>
           <Box gap={1}>
             <Text dimColor>└─</Text>
-            <Text dimColor bold>Config:</Text>
+            <Text dimColor bold>
+              Config:
+            </Text>
             <Text>{configDir}</Text>
           </Box>
         </Box>
@@ -126,9 +136,7 @@ function getNextStep(current: Step, state: WizardState): Step | null {
 }
 
 function getVisibleStepCount(state: WizardState): number {
-  return getVisibleSteps(state).filter(
-    (s) => s !== Step.Creating && s !== Step.Done,
-  ).length;
+  return getVisibleSteps(state).filter((s) => s !== Step.Creating && s !== Step.Done).length;
 }
 
 // --- Reducer state and actions ---
@@ -171,7 +179,12 @@ function reducer(state: AddInstanceState, action: AddInstanceAction): AddInstanc
     case "SELECT_PROVIDER":
       // Clear stale region when switching away from a regional provider
       if (!action.provider || !providerHasRegions(action.provider)) {
-        return { ...state, selectedProvider: action.provider, useProvider: action.useProvider, selectedRegion: null };
+        return {
+          ...state,
+          selectedProvider: action.provider,
+          useProvider: action.useProvider,
+          selectedRegion: null,
+        };
       }
       return { ...state, selectedProvider: action.provider, useProvider: action.useProvider };
     case "SET_REGION":
@@ -219,11 +232,7 @@ const NameStep: React.FC<{
   <Box flexDirection="column" gap={1}>
     <Text>Instance name:</Text>
     <Text dimColor>Letters, numbers, hyphens, underscores only</Text>
-    <TextInput
-      placeholder="my-instance"
-      defaultValue={state.name}
-      onSubmit={onSubmit}
-    />
+    <TextInput placeholder="my-instance" defaultValue={state.name} onSubmit={onSubmit} />
   </Box>
 );
 
@@ -259,10 +268,14 @@ const ProviderRegionStep: React.FC<{
         </Text>
       </Box>
       <Select
-        options={regions ? Object.entries(regions).map(([key, val]) => ({
-          label: `${val.label} — ${val.baseUrl}`,
-          value: key,
-        })) : []}
+        options={
+          regions
+            ? Object.entries(regions).map(([key, val]) => ({
+                label: `${val.label} — ${val.baseUrl}`,
+                value: key,
+              }))
+            : []
+        }
         visibleOptionCount={3}
         defaultValue={state.selectedRegion ?? undefined}
         onChange={onSelect}
@@ -294,10 +307,7 @@ const PathsConfirmStep: React.FC<{
     <Text>Use default paths?</Text>
     <Text dimColor>Config: {join(homedir(), `.claude-${state.name}`)}</Text>
     <Text dimColor>Binary: {cfg.getDefaultBinaryPath(state.name)}</Text>
-    <ConfirmInput
-      onConfirm={() => onConfirm(true)}
-      onCancel={() => onConfirm(false)}
-    />
+    <ConfirmInput onConfirm={() => onConfirm(true)} onCancel={() => onConfirm(false)} />
   </Box>
 );
 
@@ -347,7 +357,10 @@ const SyncModeStep: React.FC<{
   );
 };
 
-export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }> = ({ onBack, initialName }) => {
+export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }> = ({
+  onBack,
+  initialName,
+}) => {
   const { exit } = useApp();
   const cfg = useConfig();
 
@@ -355,19 +368,25 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const defaultPlugins = useMemo(() => cfg.listDefaultPlugins(), [cfg]);
 
-  const wizardState = useMemo<WizardState>(() => ({
-    useProvider: state.useProvider,
-    selectedProvider: state.selectedProvider,
-    copyOption: state.copyOption,
-  }), [state.useProvider, state.selectedProvider, state.copyOption]);
+  const wizardState = useMemo<WizardState>(
+    () => ({
+      useProvider: state.useProvider,
+      selectedProvider: state.selectedProvider,
+      copyOption: state.copyOption,
+    }),
+    [state.useProvider, state.selectedProvider, state.copyOption],
+  );
 
-  const navTo = useCallback((target: Step | null) => {
-    if (target) {
-      dispatch({ type: "SET_STEP", step: target });
-    } else {
-      onBack();
-    }
-  }, [onBack]);
+  const navTo = useCallback(
+    (target: Step | null) => {
+      if (target) {
+        dispatch({ type: "SET_STEP", step: target });
+      } else {
+        onBack();
+      }
+    },
+    [onBack],
+  );
 
   const goBack = useCallback(() => {
     navTo(getPrevStep(state.step, wizardState));
@@ -397,7 +416,10 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   });
 
   const handleNameSubmit = useCallback((value: string) => {
-    if (!value.trim()) { dispatch({ type: "SET_ERROR", error: "Name is required" }); return; }
+    if (!value.trim()) {
+      dispatch({ type: "SET_ERROR", error: "Name is required" });
+      return;
+    }
     if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
       dispatch({ type: "SET_ERROR", error: "Only letters, numbers, hyphens, underscores allowed" });
       return;
@@ -413,7 +435,10 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       return;
     }
     dispatch({ type: "SELECT_PROVIDER", provider: value, useProvider: true });
-    dispatch({ type: "SET_STEP", step: providerHasRegions(value) ? Step.ProviderRegion : Step.ProviderApiKey });
+    dispatch({
+      type: "SET_STEP",
+      step: providerHasRegions(value) ? Step.ProviderRegion : Step.ProviderApiKey,
+    });
   }, []);
 
   const handleRegionSelect = useCallback((value: string) => {
@@ -422,7 +447,10 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   }, []);
 
   const handleApiKeySubmit = useCallback((value: string) => {
-    if (!value.trim()) { dispatch({ type: "SET_ERROR", error: "API key is required" }); return; }
+    if (!value.trim()) {
+      dispatch({ type: "SET_ERROR", error: "API key is required" });
+      return;
+    }
     dispatch({ type: "SET_API_KEY", key: value });
     dispatch({ type: "SET_STEP", step: Step.PathsConfirm });
   }, []);
@@ -431,97 +459,120 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     dispatch({ type: "SET_STEP", step: Step.CopyOptions });
   }, []);
 
-  const doCreate = useCallback(async (copyOpt: string, sync: SyncModeType) => {
-    dispatch({ type: "SET_STEP", step: Step.Creating });
-    dispatch({ type: "SET_ERROR", error: "" });
+  const doCreate = useCallback(
+    async (copyOpt: string, sync: SyncModeType) => {
+      dispatch({ type: "SET_STEP", step: Step.Creating });
+      dispatch({ type: "SET_ERROR", error: "" });
 
-    try {
-      const cDir = join(homedir(), `.claude-${state.name}`);
-      const bPath = cfg.getDefaultBinaryPath(state.name);
+      try {
+        const cDir = join(homedir(), `.claude-${state.name}`);
+        const bPath = cfg.getDefaultBinaryPath(state.name);
 
-      const instance: Instance = {
-        name: state.name,
-        configDir: cDir,
-        binaryPath: bPath,
-        createdAt: new Date().toISOString(),
-        autoSync: sync === SyncMode.Auto,
-        syncMode: sync,
-        createdWithVersion: getClaudeMultiVersion(),
-        ...(state.useProvider && state.selectedProvider ? { providerTemplate: state.selectedProvider } : {}),
-        ...(state.selectedRegion && state.useProvider && state.selectedProvider && providerHasRegions(state.selectedProvider)
-          ? { providerRegion: state.selectedRegion }
-          : {}),
-      };
+        const instance: Instance = {
+          name: state.name,
+          configDir: cDir,
+          binaryPath: bPath,
+          createdAt: new Date().toISOString(),
+          autoSync: sync === SyncMode.Auto,
+          syncMode: sync,
+          createdWithVersion: getClaudeMultiVersion(),
+          ...(state.useProvider && state.selectedProvider
+            ? { providerTemplate: state.selectedProvider }
+            : {}),
+          ...(state.selectedRegion &&
+          state.useProvider &&
+          state.selectedProvider &&
+          providerHasRegions(state.selectedProvider)
+            ? { providerRegion: state.selectedRegion }
+            : {}),
+        };
 
-      await cfg.addInstance(instance);
-      await Promise.all([
-        cfg.createWrapper(instance),
-        cfg.initializeInstanceState(cDir),
-      ]);
+        await cfg.addInstance(instance);
+        await Promise.all([cfg.createWrapper(instance), cfg.initializeInstanceState(cDir)]);
 
-      if (copyOpt === CopyOption.SelectPlugins) {
-        await cfg.copySettingsFromDefault(cDir);
-        const selections = state.selectedPluginIds.map(id => {
-          const plugin = defaultPlugins.find(p => p.id === id);
-          return { id, category: plugin?.category ?? PluginCategory.External };
-        });
-        if (selections.length > 0) {
-          await cfg.copySelectedPlugins(cDir, selections);
+        if (copyOpt === CopyOption.SelectPlugins) {
+          await cfg.copySettingsFromDefault(cDir);
+          const selections = state.selectedPluginIds.map((id) => {
+            const plugin = defaultPlugins.find((p) => p.id === id);
+            return { id, category: plugin?.category ?? PluginCategory.External };
+          });
+          if (selections.length > 0) {
+            await cfg.copySelectedPlugins(cDir, selections);
+          }
+          if (sync === SyncMode.Auto) {
+            await cfg.syncPluginsAndSkills(cDir);
+          } else if (sync === SyncMode.HalfManual) {
+            await cfg.halfSyncPluginsAndSkills(cDir);
+          }
+          // FullManual: already copied as real files, nothing more to do
+        } else if (copyOpt === CopyOption.All) {
+          await cfg.copyAllFromDefault(cDir, sync);
+        } else if (copyOpt === CopyOption.Settings) {
+          await cfg.copySettingsFromDefault(cDir);
         }
-        if (sync === SyncMode.Auto) {
-          await cfg.syncPluginsAndSkills(cDir);
-        } else if (sync === SyncMode.HalfManual) {
-          await cfg.halfSyncPluginsAndSkills(cDir);
+
+        if (state.useProvider && state.selectedProvider) {
+          let template = cfg.getProviderTemplate(state.selectedProvider);
+          if (template && state.selectedRegion && providerHasRegions(state.selectedProvider)) {
+            template = resolveRegionTemplate(template, state.selectedRegion);
+          }
+          if (template) await cfg.mergeProviderEnv(cDir, template, state.apiKey);
         }
-        // FullManual: already copied as real files, nothing more to do
-      } else if (copyOpt === CopyOption.All) {
-        await cfg.copyAllFromDefault(cDir, sync);
-      } else if (copyOpt === CopyOption.Settings) {
-        await cfg.copySettingsFromDefault(cDir);
+
+        dispatch({ type: "SET_RESULT", result: { configDir: cDir, binaryPath: bPath } });
+        dispatch({ type: "SET_STEP", step: Step.Done });
+      } catch (err: unknown) {
+        await removeInstanceFromConfig(state.name).catch(() => {});
+        removeWrapper(cfg.getDefaultBinaryPath(state.name));
+        dispatch({ type: "SET_ERROR", error: err instanceof Error ? err.message : String(err) });
+        dispatch({ type: "SET_STEP", step: Step.Name });
       }
+    },
+    [
+      state.name,
+      state.apiKey,
+      state.selectedProvider,
+      state.selectedRegion,
+      state.selectedPluginIds,
+      state.useProvider,
+      defaultPlugins,
+      cfg,
+    ],
+  );
 
-      if (state.useProvider && state.selectedProvider) {
-        let template = cfg.getProviderTemplate(state.selectedProvider);
-        if (template && state.selectedRegion && providerHasRegions(state.selectedProvider)) {
-          template = resolveRegionTemplate(template, state.selectedRegion);
-        }
-        if (template) await cfg.mergeProviderEnv(cDir, template, state.apiKey);
+  const handleCopyOption = useCallback(
+    (value: string) => {
+      dispatch({ type: "SET_COPY_OPTION", value });
+      if (value === CopyOption.SelectPlugins) {
+        dispatch({ type: "SET_STEP", step: Step.SelectPlugins });
+      } else if (value === CopyOption.All) {
+        dispatch({ type: "SET_STEP", step: Step.Autosync });
+      } else {
+        doCreate(value, SyncMode.FullManual);
       }
-
-      dispatch({ type: "SET_RESULT", result: { configDir: cDir, binaryPath: bPath } });
-      dispatch({ type: "SET_STEP", step: Step.Done });
-    } catch (err: unknown) {
-      await removeInstanceFromConfig(state.name).catch(() => {});
-      removeWrapper(cfg.getDefaultBinaryPath(state.name));
-      dispatch({ type: "SET_ERROR", error: err instanceof Error ? err.message : String(err) });
-      dispatch({ type: "SET_STEP", step: Step.Name });
-    }
-  }, [state.name, state.apiKey, state.selectedProvider, state.selectedRegion, state.selectedPluginIds, state.useProvider, defaultPlugins, cfg]);
-
-  const handleCopyOption = useCallback((value: string) => {
-    dispatch({ type: "SET_COPY_OPTION", value });
-    if (value === CopyOption.SelectPlugins) {
-      dispatch({ type: "SET_STEP", step: Step.SelectPlugins });
-    } else if (value === CopyOption.All) {
-      dispatch({ type: "SET_STEP", step: Step.Autosync });
-    } else {
-      doCreate(value, SyncMode.FullManual);
-    }
-  }, [doCreate]);
+    },
+    [doCreate],
+  );
 
   const handlePluginSelection = useCallback((ids: string[]) => {
     if (ids.length === 0) {
-      dispatch({ type: "SET_ERROR", error: "Select at least one plugin, or go back and choose a different option." });
+      dispatch({
+        type: "SET_ERROR",
+        error: "Select at least one plugin, or go back and choose a different option.",
+      });
       return;
     }
     dispatch({ type: "SET_PLUGIN_IDS", ids });
     dispatch({ type: "SET_STEP", step: Step.Autosync });
   }, []);
 
-  const handleSyncModeSelect = useCallback((mode: SyncModeType) => {
-    dispatch({ type: "SET_SYNC_MODE", value: mode });
-    doCreate(state.copyOption, mode);
-  }, [state.copyOption, doCreate]);
+  const handleSyncModeSelect = useCallback(
+    (mode: SyncModeType) => {
+      dispatch({ type: "SET_SYNC_MODE", value: mode });
+      doCreate(state.copyOption, mode);
+    },
+    [state.copyOption, doCreate],
+  );
 
   const hasDefaultConfig = cfg.hasDefaultConfig();
 
@@ -540,7 +591,7 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
     { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: CopyOption.All },
   ];
 
-  const pluginSelectOptions = defaultPlugins.map(p => ({
+  const pluginSelectOptions = defaultPlugins.map((p) => ({
     label: formatPluginLabel(p, { showCategory: true }),
     value: p.id,
   }));
@@ -548,7 +599,11 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
   return (
     <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
       <Header title="➕ Add New Instance" />
-      <StepIndicator current={stepNumber(state.step)} total={getVisibleStepCount(wizardState)} label={STEP_TITLES[state.step]} />
+      <StepIndicator
+        current={stepNumber(state.step)}
+        total={getVisibleStepCount(wizardState)}
+        label={STEP_TITLES[state.step]}
+      />
 
       {state.error && <StatusBar message={state.error} type="error" />}
 
@@ -557,7 +612,12 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
       )}
 
       {state.step === Step.ProviderSelect && (
-        <ProviderSelectStep state={state} dispatch={dispatch} providerOptions={providerOptions} onSelect={handleProviderSelect} />
+        <ProviderSelectStep
+          state={state}
+          dispatch={dispatch}
+          providerOptions={providerOptions}
+          onSelect={handleProviderSelect}
+        />
       )}
 
       {state.step === Step.ProviderRegion && (
@@ -602,16 +662,16 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
         />
       )}
 
-      {state.step === Step.Autosync && (
-        <SyncModeStep onSelect={handleSyncModeSelect} />
-      )}
+      {state.step === Step.Autosync && <SyncModeStep onSelect={handleSyncModeSelect} />}
 
-      {state.step === Step.Creating && (
-        <Text dimColor>Creating instance…</Text>
-      )}
+      {state.step === Step.Creating && <Text dimColor>Creating instance…</Text>}
 
       {state.step === Step.Done && state.result && (
-        <AddResult name={state.name} binaryPath={state.result.binaryPath} configDir={state.result.configDir} />
+        <AddResult
+          name={state.name}
+          binaryPath={state.result.binaryPath}
+          configDir={state.result.configDir}
+        />
       )}
 
       <Box marginTop={1}>

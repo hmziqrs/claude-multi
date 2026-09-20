@@ -68,7 +68,7 @@ export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
   if (providerHasRegions(providerName)) {
     const existingUrl = existingEnv.ANTHROPIC_BASE_URL;
     const detectedRegion = existingUrl
-      ? detectRegionFromBaseUrl(existingUrl) ?? instance.providerRegion
+      ? (detectRegionFromBaseUrl(existingUrl) ?? instance.providerRegion)
       : instance.providerRegion;
 
     if (detectedRegion) {

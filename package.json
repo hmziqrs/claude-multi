@@ -28,8 +28,10 @@
     "tts-server": "bash scripts/start-tts-server.sh",
     "generate-audio": "bun run scripts/generate-audio.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt src web scripts test",
+    "format:check": "vp fmt src web scripts test --check"
   },
   "keywords": [
     "claude",
@@ -64,12 +66,12 @@
     "execa": "^9.6.1",
     "ink": "^7.0.2",
     "ink-testing-library": "^4.0.0",
-    "oxlint": "^1.67.0",
     "playwright": "^1.60.0",
     "prompts": "^2.4.2",
     "react": "^19.2.6",
     "tailwindcss": "^4.3.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite-plus": "0.3.3"
   },
   "engines": {
     "node": ">=18.0.0",

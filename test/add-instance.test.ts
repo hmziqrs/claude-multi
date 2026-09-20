@@ -134,7 +134,7 @@ describe("handleAddInstance (component-level tests)", () => {
       expect((caught as ClaudeMultiError).code).toBe(ErrorCode.INSTANCE_ALREADY_EXISTS);
 
       const config = await loadConfig();
-      expect(config.instances.filter(i => i.name === "dup")).toHaveLength(1);
+      expect(config.instances.filter((i) => i.name === "dup")).toHaveLength(1);
     });
 
     it("rollback removes config entry — Phase 4 regression guard", async () => {
@@ -145,7 +145,7 @@ describe("handleAddInstance (component-level tests)", () => {
       await removeInstance("zombie").catch(() => {});
 
       const config = await loadConfig();
-      expect(config.instances.find(i => i.name === "zombie")).toBeUndefined();
+      expect(config.instances.find((i) => i.name === "zombie")).toBeUndefined();
     });
   });
 });

@@ -11,7 +11,17 @@ import { useFadeIn, useStaggeredReveal } from "@/ink/hooks/useAnimations";
 import type { McpServer } from "@/config";
 import { McpAction, McpServerType } from "@/constants";
 
-type Step = "action" | "select" | "details" | "select-source" | "select-target" | "copying" | "add-name" | "add-config" | "remove-select" | "done";
+type Step =
+  | "action"
+  | "select"
+  | "details"
+  | "select-source"
+  | "select-target"
+  | "copying"
+  | "add-name"
+  | "add-config"
+  | "remove-select"
+  | "done";
 
 interface McpSource {
   name: string;
@@ -39,39 +49,51 @@ const McpSourceDetails: React.FC<{
       {sources.slice(0, visibleCount).map((src) => (
         <Box key={src.name} marginLeft={2} flexDirection="column">
           <Box gap={1}>
-            <Text bold color="cyan">{src.name}</Text>
+            <Text bold color="cyan">
+              {src.name}
+            </Text>
             {src.source === "plugin" ? (
               <Text dimColor>[{src.pluginName}]</Text>
             ) : (
               <Text dimColor>[custom]</Text>
             )}
-            {action === McpAction.Verify && (
-              src.config.type === McpServerType.Stdio && !src.config.command ? (
+            {action === McpAction.Verify &&
+              (src.config.type === McpServerType.Stdio && !src.config.command ? (
                 <Text color="yellow">⚠</Text>
-              ) : (src.config.type === McpServerType.Http || src.config.type === McpServerType.Sse) && !src.config.url ? (
+              ) : (src.config.type === McpServerType.Http ||
+                  src.config.type === McpServerType.Sse) &&
+                !src.config.url ? (
                 <Text color="yellow">⚠</Text>
               ) : (
                 <Text color="green">✓</Text>
-              )
-            )}
+              ))}
           </Box>
           <Box marginLeft={2} flexDirection="column">
             <Box gap={1}>
               <Text dimColor>├─</Text>
-              <Text dimColor bold>Type:</Text>
+              <Text dimColor bold>
+                Type:
+              </Text>
               <Text>{src.config.type}</Text>
             </Box>
             {src.config.command && (
               <Box gap={1}>
                 <Text dimColor>├─</Text>
-                <Text dimColor bold>Command:</Text>
-                <Text>{src.config.command}{src.config.args?.length ? ` ${src.config.args.join(" ")}` : ""}</Text>
+                <Text dimColor bold>
+                  Command:
+                </Text>
+                <Text>
+                  {src.config.command}
+                  {src.config.args?.length ? ` ${src.config.args.join(" ")}` : ""}
+                </Text>
               </Box>
             )}
             {src.config.url && (
               <Box gap={1}>
                 <Text dimColor>└─</Text>
-                <Text dimColor bold>URL:</Text>
+                <Text dimColor bold>
+                  URL:
+                </Text>
                 <Text>{src.config.url}</Text>
               </Box>
             )}
@@ -129,13 +151,26 @@ function mcpReducer(state: McpState, action: McpReducerAction): McpState {
 }
 
 export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { instances, copyMcpServersBetweenInstances, getInstanceMcpServers, listInstancePlugins, setCustomMcpServer, removeCustomMcpServer } = useConfig();
+  const {
+    instances,
+    copyMcpServersBetweenInstances,
+    getInstanceMcpServers,
+    listInstancePlugins,
+    setCustomMcpServer,
+    removeCustomMcpServer,
+  } = useConfig();
   const [state, dispatch] = useReducer(mcpReducer, initialMcpState);
   const { step, action, selectedInstance, sourceInstance, mcpSources, customName } = state;
   const { error, setError, success, setSuccess } = useMessage();
 
   useNavigation(() => {
-    if (step === "details" || step === "select" || step === "remove-select" || step === "add-name" || step === "add-config") {
+    if (
+      step === "details" ||
+      step === "select" ||
+      step === "remove-select" ||
+      step === "add-name" ||
+      step === "add-config"
+    ) {
       dispatch({ type: "SET_STEP", step: "action" });
     } else if (step === "select-target") {
       dispatch({ type: "SET_STEP", step: "select-source" });
@@ -151,13 +186,18 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       <Box flexDirection="column" width="100" paddingX={2} paddingY={1}>
         <Header title="⚙️ Manage MCP Servers" />
         <Text color="yellow">No instances found.</Text>
-        <Box marginTop={1}><Text dimColor>ESC to go back</Text></Box>
+        <Box marginTop={1}>
+          <Text dimColor>ESC to go back</Text>
+        </Box>
       </Box>
     );
   }
 
   const handleAction = (value: string) => {
-    if (value === "cancel") { onBack(); return; }
+    if (value === "cancel") {
+      onBack();
+      return;
+    }
     dispatch({ type: "SET_ACTION", action: value });
     if (value === McpAction.Copy) {
       if (instances.length < 2) {
@@ -187,7 +227,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         throw new Error("Config must be a JSON object with a 'type' field");
       }
       const config = raw as McpServer;
-      const inst = instances.find(i => i.name === selectedInstance);
+      const inst = instances.find((i) => i.name === selectedInstance);
       if (!inst) return;
       await setCustomMcpServer(inst.configDir, customName, config);
       setSuccess(`Added custom MCP server '${customName}' to '${selectedInstance}'`);
@@ -201,7 +241,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handleRemoveSelect = async (serverName: string) => {
     if (!selectedInstance) return;
     try {
-      const inst = instances.find(i => i.name === selectedInstance);
+      const inst = instances.find((i) => i.name === selectedInstance);
       if (!inst) return;
       await removeCustomMcpServer(inst.configDir, serverName);
       setSuccess(`Removed custom MCP server '${serverName}' from '${selectedInstance}'`);
@@ -213,7 +253,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   };
 
   const buildMcpSources = async (instanceName: string): Promise<McpSource[]> => {
-    const inst = instances.find(i => i.name === instanceName);
+    const inst = instances.find((i) => i.name === instanceName);
     if (!inst) return [];
 
     const { fromPlugins, fromSettings } = await getInstanceMcpServers(inst.configDir);
@@ -266,7 +306,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       }
       if (action === "remove-custom") {
         const sources = await buildMcpSources(value);
-        const customs = sources.filter(s => s.source === "custom");
+        const customs = sources.filter((s) => s.source === "custom");
         if (customs.length === 0) {
           setError("No custom MCP servers found in this instance");
           dispatch({ type: "SET_STEP", step: "action" });
@@ -331,20 +371,23 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <InstanceSelectMenu instances={instances} onSelect={handleInstanceSelect} />
       )}
 
-      {step === "details" && (
-        <McpSourceDetails sources={mcpSources} action={action} />
-      )}
+      {step === "details" && <McpSourceDetails sources={mcpSources} action={action} />}
 
       {step === "select-source" && (
-        <InstanceSelectMenu instances={instances} label="Source instance:" onSelect={handleSourceSelect} />
+        <InstanceSelectMenu
+          instances={instances}
+          label="Source instance:"
+          onSelect={handleSourceSelect}
+        />
       )}
 
       {step === "select-target" && sourceInstance && (
         <Box flexDirection="column" gap={1}>
           <Text>Target instance:</Text>
           <Select
-            options={instances
-              .flatMap((i) => i.name !== sourceInstance ? [{ label: i.name, value: i.name }] : [])}
+            options={instances.flatMap((i) =>
+              i.name !== sourceInstance ? [{ label: i.name, value: i.name }] : [],
+            )}
             visibleOptionCount={instances.length - 1}
             onChange={handleTargetSelect}
           />
@@ -361,7 +404,9 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       {step === "add-config" && (
         <Box flexDirection="column" gap={1}>
           <Text>Enter JSON config for '{customName}':</Text>
-          <Text dimColor>Example: {"{ \"type\": \"stdio\", \"command\": \"npx\", \"args\": [\"-y\", \"my-server\"] }"}</Text>
+          <Text dimColor>
+            Example: {'{ "type": "stdio", "command": "npx", "args": ["-y", "my-server"] }'}
+          </Text>
           <TextInput
             placeholder='{"type":"stdio","command":"npx","args":["-y","pkg"]}'
             onSubmit={handleAddConfigSubmit}
@@ -373,7 +418,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <Box flexDirection="column" gap={1}>
           <Text>Select a custom MCP server to remove:</Text>
           <Select
-            options={mcpSources.map(s => ({ label: s.name, value: s.name }))}
+            options={mcpSources.map((s) => ({ label: s.name, value: s.name }))}
             visibleOptionCount={Math.min(mcpSources.length, 10)}
             onChange={handleRemoveSelect}
           />

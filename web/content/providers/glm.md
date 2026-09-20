@@ -17,11 +17,11 @@ GLM-5.3 is a reasoning model available through z.ai's Coding Plan. Its sonnet-ti
 
 ## Model specs
 
-| Role | Model | Context | Max output |
-|------|-------|---------|------------|
-| Primary (Opus) | `glm-5.3[1m]` | 1M | 128K |
-| Standard (Sonnet) | `glm-5.3-flash[1m]` | 1M | 128K |
-| Fast (Haiku) | `glm-5-turbo` | 200K | 128K |
+| Role              | Model               | Context | Max output |
+| ----------------- | ------------------- | ------- | ---------- |
+| Primary (Opus)    | `glm-5.3[1m]`       | 1M      | 128K       |
+| Standard (Sonnet) | `glm-5.3-flash[1m]` | 1M      | 128K       |
+| Fast (Haiku)      | `glm-5-turbo`       | 200K    | 128K       |
 
 GLM-5.3-Flash is natively multimodal, reaches the full 1M-token context window through the `[1m]` suffix, and carries 3x the Coding Plan quota of GLM-5.3. That combination suits the day-to-day sonnet workload, since the same work drains far less of your balance.
 
@@ -57,21 +57,21 @@ GLM reaches Claude Code through Z.ai's Coding Plan, a monthly subscription. The 
 
 Usage is metered in credits: `(input x input_mult + cached_input x cached_mult + output x output_mult) / 10,000`, with multipliers per model:
 
-| Model | Input | Cached input | Output |
-|-------|-------|--------------|--------|
-| GLM-5.3 | 6.9 | 1.7 | 24 |
-| GLM-5-Turbo | 5.7 | 1.5 | 21 |
-| GLM-4.7 | 4.6 | 1.2 | 16 |
-| GLM-4.6V (vision MCP tools only) | 1.2 | 0.3 | 2.7 |
+| Model                            | Input | Cached input | Output |
+| -------------------------------- | ----- | ------------ | ------ |
+| GLM-5.3                          | 6.9   | 1.7          | 24     |
+| GLM-5-Turbo                      | 5.7   | 1.5          | 21     |
+| GLM-4.7                          | 4.6   | 1.2          | 16     |
+| GLM-4.6V (vision MCP tools only) | 1.2   | 0.3          | 2.7    |
 
 GLM-5.3-Flash is available on the Coding Plan and bills through the same points system rather than its own multiplier row. It carries 3x the GLM-5.3 quota, so sonnet-tier day-to-day usage drains the balance more slowly. Off-peak calls cost 50% of the standard rate, same as every other model on the plan.
 
 Off-peak requests count at 50% of the standard credit rate. Peak is only Monday-Friday 14:00-18:00 UTC+8, so nights, weekends, and weekday mornings all bill at the off-peak rate.
 
-| Plan | 5-hour quota | Weekly quota |
-|------|--------------|--------------|
-| Lite | 2,000 credits | 10,000 credits |
-| Pro  | 12,000 credits | 60,000 credits |
+| Plan | 5-hour quota   | Weekly quota    |
+| ---- | -------------- | --------------- |
+| Lite | 2,000 credits  | 10,000 credits  |
+| Pro  | 12,000 credits | 60,000 credits  |
 | Max  | 28,000 credits | 140,000 credits |
 
 Plans start from $18 USD/month for Lite, with 20% off quarterly and 30% off yearly billing. This points system replaced the older peak/off-peak multiplier plan, which was discontinued for new users on 2026-07-30. GLM-5-Turbo is also on the standard pay-as-you-go API, but that route isn't Anthropic-compatible, so claude-multi doesn't use it. For benchmarks and a full breakdown of the plan, see the [GLM-5.3 announcement post](/blog/glm-5-3-coding-plan/). The [GLM-5.2 post](/blog/glm-5-2-three-tier-coding-plan/) covers how the plan looked at launch, and [z.ai](https://z.ai) has current Pro and Max pricing.

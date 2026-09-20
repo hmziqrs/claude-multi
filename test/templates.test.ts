@@ -2,7 +2,13 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { getProviderByBaseUrl, getProviderTemplate, detectProvider, detectRegionFromBaseUrl, LEGACY_ENV_DEFAULTS } from "@/templates";
+import {
+  getProviderByBaseUrl,
+  getProviderTemplate,
+  detectProvider,
+  detectRegionFromBaseUrl,
+  LEGACY_ENV_DEFAULTS,
+} from "@/templates";
 
 let testDir: string;
 
@@ -12,7 +18,9 @@ describe("Provider detection", () => {
   });
 
   afterEach(() => {
-    try { rmSync(testDir, { recursive: true, force: true }); } catch {}
+    try {
+      rmSync(testDir, { recursive: true, force: true });
+    } catch {}
   });
 
   describe("getProviderByBaseUrl", () => {
@@ -54,15 +62,21 @@ describe("Provider detection", () => {
     });
 
     test("detects MiMo Token Plan CN region", () => {
-      expect(getProviderByBaseUrl("https://token-plan-cn.xiaomimimo.com/anthropic")).toBe("mimo-token");
+      expect(getProviderByBaseUrl("https://token-plan-cn.xiaomimimo.com/anthropic")).toBe(
+        "mimo-token",
+      );
     });
 
     test("detects MiMo Token Plan SGP region", () => {
-      expect(getProviderByBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic")).toBe("mimo-token");
+      expect(getProviderByBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic")).toBe(
+        "mimo-token",
+      );
     });
 
     test("detects MiMo Token Plan AMS region", () => {
-      expect(getProviderByBaseUrl("https://token-plan-ams.xiaomimimo.com/anthropic")).toBe("mimo-token");
+      expect(getProviderByBaseUrl("https://token-plan-ams.xiaomimimo.com/anthropic")).toBe(
+        "mimo-token",
+      );
     });
 
     test("detects Kimi by base URL", () => {
@@ -70,11 +84,15 @@ describe("Provider detection", () => {
     });
 
     test("detects Qwen by base URL", () => {
-      expect(getProviderByBaseUrl("https://dashscope-intl.aliyuncs.com/apps/anthropic")).toBe("qwen");
+      expect(getProviderByBaseUrl("https://dashscope-intl.aliyuncs.com/apps/anthropic")).toBe(
+        "qwen",
+      );
     });
 
     test("detects Qwen Coding Plan by base URL", () => {
-      expect(getProviderByBaseUrl("https://coding-intl.dashscope.aliyuncs.com/apps/anthropic")).toBe("qwen-coding");
+      expect(
+        getProviderByBaseUrl("https://coding-intl.dashscope.aliyuncs.com/apps/anthropic"),
+      ).toBe("qwen-coding");
     });
 
     test("returns null for unrecognized URL", () => {
@@ -89,13 +107,16 @@ describe("Provider detection", () => {
   describe("detectProvider", () => {
     test("detects provider from instance settings.json", () => {
       mkdirSync(testDir, { recursive: true });
-      writeFileSync(join(testDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_AUTH_TOKEN: "sk-test",
-          ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
-          ANTHROPIC_MODEL: "mimo-v2.5-pro",
-        },
-      }));
+      writeFileSync(
+        join(testDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-test",
+            ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
+            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+          },
+        }),
+      );
 
       expect(detectProvider(testDir)).toBe("mimo");
     });
@@ -113,20 +134,26 @@ describe("Provider detection", () => {
 
     test("returns null when env has no ANTHROPIC_BASE_URL", () => {
       mkdirSync(testDir, { recursive: true });
-      writeFileSync(join(testDir, "settings.json"), JSON.stringify({
-        env: { ANTHROPIC_AUTH_TOKEN: "sk-test" },
-      }));
+      writeFileSync(
+        join(testDir, "settings.json"),
+        JSON.stringify({
+          env: { ANTHROPIC_AUTH_TOKEN: "sk-test" },
+        }),
+      );
 
       expect(detectProvider(testDir)).toBeNull();
     });
 
     test("returns null for unrecognized base URL", () => {
       mkdirSync(testDir, { recursive: true });
-      writeFileSync(join(testDir, "settings.json"), JSON.stringify({
-        env: {
-          ANTHROPIC_BASE_URL: "https://custom.api.com/anthropic",
-        },
-      }));
+      writeFileSync(
+        join(testDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ANTHROPIC_BASE_URL: "https://custom.api.com/anthropic",
+          },
+        }),
+      );
 
       expect(detectProvider(testDir)).toBeNull();
     });
@@ -145,19 +172,27 @@ describe("Provider detection", () => {
     });
 
     test("detects sgp region", () => {
-      expect(detectRegionFromBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic")).toBe("sgp");
+      expect(detectRegionFromBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic")).toBe(
+        "sgp",
+      );
     });
 
     test("detects ams region", () => {
-      expect(detectRegionFromBaseUrl("https://token-plan-ams.xiaomimimo.com/anthropic")).toBe("ams");
+      expect(detectRegionFromBaseUrl("https://token-plan-ams.xiaomimimo.com/anthropic")).toBe(
+        "ams",
+      );
     });
 
     test("handles trailing slash", () => {
-      expect(detectRegionFromBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic/")).toBe("sgp");
+      expect(detectRegionFromBaseUrl("https://token-plan-sgp.xiaomimimo.com/anthropic/")).toBe(
+        "sgp",
+      );
     });
 
     test("returns null for unknown region code", () => {
-      expect(detectRegionFromBaseUrl("https://token-plan-evil.xiaomimimo.com/anthropic")).toBeNull();
+      expect(
+        detectRegionFromBaseUrl("https://token-plan-evil.xiaomimimo.com/anthropic"),
+      ).toBeNull();
     });
 
     test("returns null for non-mimo-token URL", () => {

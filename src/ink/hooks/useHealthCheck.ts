@@ -28,7 +28,7 @@ export function useHealthCheck(
       for (const i of previous.issues) {
         if (i.dismissed) dismissedMap.set(i.id, true);
       }
-      const merged = found.map(issue => ({
+      const merged = found.map((issue) => ({
         ...issue,
         dismissed: dismissedMap.has(issue.id) ? true : issue.dismissed,
       }));
@@ -38,7 +38,7 @@ export function useHealthCheck(
         issues: merged,
       });
 
-      setIssues(merged.filter(i => !i.resolved && !i.dismissed));
+      setIssues(merged.filter((i) => !i.resolved && !i.dismissed));
     } catch {
       // Health check failure is non-fatal
     } finally {
@@ -52,7 +52,7 @@ export function useHealthCheck(
 
   const dismiss = useCallback((id: string) => {
     dismissIssueAction(id);
-    setIssues(prev => prev.filter(i => i.id !== id));
+    setIssues((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
   const dismissAll = useCallback(() => {
