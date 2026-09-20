@@ -118,7 +118,7 @@
           pulse-front 3s ease-in-out infinite .6s;
       }
 
-      /* provider color cycling on the <rect> strokes */
+      /* provider color cycling on the rect strokes */
       .provider-cycle {
         animation: provider-cycle 12s steps(6) infinite;
       }
