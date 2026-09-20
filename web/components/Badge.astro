@@ -8,13 +8,13 @@ interface Props {
 const { tone = 'accent', dot = false, class: className } = Astro.props;
 ---
 
-<span class:list={['rd-badge', `rd-badge--${tone}`, className]}>
-  {dot && <span class="rd-badge__dot" aria-hidden="true"></span>}
+<span class:list={['ui-badge', `ui-badge--${tone}`, className]}>
+  {dot && <span class="ui-badge__dot" aria-hidden="true"></span>}
   <slot />
 </span>
 
 <style>
-  .rd-badge {
+  .ui-badge {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -29,25 +29,25 @@ const { tone = 'accent', dot = false, class: className } = Astro.props;
     white-space: nowrap;
     line-height: 1;
   }
-  .rd-badge--accent {
+  .ui-badge--accent {
     background: var(--accent-soft);
     border: 1px solid var(--accent-border);
     color: var(--accent);
   }
-  .rd-badge--neutral {
+  .ui-badge--neutral {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
     color: var(--text-secondary);
   }
-  .rd-badge__dot {
+  .ui-badge__dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background-color: currentColor;
     flex-shrink: 0;
-    animation: rd-badge-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: ui-badge-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  @keyframes rd-badge-pulse {
+  @keyframes ui-badge-pulse {
     0% {
       box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.5);
     }
@@ -59,7 +59,7 @@ const { tone = 'accent', dot = false, class: className } = Astro.props;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .rd-badge__dot {
+    .ui-badge__dot {
       animation: none;
     }
   }

@@ -2,24 +2,24 @@
 /**
  * Native <details>/<summary> with the `name` attribute — exclusive accordion, zero JS.
  */
-const { eyebrow, title, items = [], name = 'rd-faq' } = Astro.props;
+const { eyebrow, title, items = [], name = 'ui-faq' } = Astro.props;
 const faqItems = Array.isArray(items) ? items : [];
 ---
 
-<div class="rd-faq">
-  <div class="rd-faq__head">
-    {eyebrow && <div class="rd-faq__eyebrow">{eyebrow}</div>}
-    {title && <h2 class="rd-faq__title">{title}</h2>}
+<div class="ui-faq">
+  <div class="ui-faq__head">
+    {eyebrow && <div class="ui-faq__eyebrow">{eyebrow}</div>}
+    {title && <h2 class="ui-faq__title">{title}</h2>}
   </div>
 
-  <div class="rd-faq__list">
+  <div class="ui-faq__list">
     {
       faqItems.map((item) => (
-        <details class="rd-faq__item" name={name}>
-          <summary class="rd-faq__summary">
-            <span class="rd-faq__q">{item.question}</span>
+        <details class="ui-faq__item" name={name}>
+          <summary class="ui-faq__summary">
+            <span class="ui-faq__q">{item.question}</span>
             <svg
-              class="rd-faq__chevron"
+              class="ui-faq__chevron"
               width="16"
               height="16"
               viewBox="0 0 24 24"
@@ -33,7 +33,7 @@ const faqItems = Array.isArray(items) ? items : [];
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </summary>
-          <div class="rd-faq__answer">
+          <div class="ui-faq__answer">
             <p>{item.answer}</p>
           </div>
         </details>
@@ -43,24 +43,24 @@ const faqItems = Array.isArray(items) ? items : [];
 </div>
 
 <style>
-  .rd-faq {
+  .ui-faq {
     font-family: var(--font-sans);
   }
 
-  .rd-faq__head {
+  .ui-faq__head {
     display: flex;
     flex-direction: column;
     gap: 14px;
     margin-bottom: 36px;
   }
-  .rd-faq__eyebrow {
+  .ui-faq__eyebrow {
     font-family: var(--font-mono);
     font-size: 11px;
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--accent);
   }
-  .rd-faq__title {
+  .ui-faq__title {
     margin: 0;
     font-size: 32px;
     line-height: 1.15;
@@ -69,19 +69,19 @@ const faqItems = Array.isArray(items) ? items : [];
     color: var(--text-primary);
   }
 
-  .rd-faq__list {
+  .ui-faq__list {
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
   }
 
-  .rd-faq__item {
+  .ui-faq__item {
     border-bottom: 1px solid var(--border-subtle);
   }
-  .rd-faq__item:last-child {
+  .ui-faq__item:last-child {
     border-bottom: none;
   }
 
-  .rd-faq__summary {
+  .ui-faq__summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -92,47 +92,47 @@ const faqItems = Array.isArray(items) ? items : [];
     color: var(--text-secondary);
     transition: color var(--duration-normal) var(--ease-out);
   }
-  .rd-faq__summary::-webkit-details-marker {
+  .ui-faq__summary::-webkit-details-marker {
     display: none;
   }
-  .rd-faq__summary:hover {
+  .ui-faq__summary:hover {
     color: var(--text-primary);
   }
-  .rd-faq__item[open] > .rd-faq__summary {
+  .ui-faq__item[open] > .ui-faq__summary {
     color: var(--text-primary);
   }
 
-  .rd-faq__q {
+  .ui-faq__q {
     font-size: 15.5px;
     font-weight: 500;
     line-height: 1.4;
   }
 
-  .rd-faq__chevron {
+  .ui-faq__chevron {
     flex: none;
     color: var(--text-faint);
     transform: rotate(0deg);
     transition: transform var(--duration-normal) var(--ease-out);
   }
-  .rd-faq__item[open] > .rd-faq__summary .rd-faq__chevron {
+  .ui-faq__item[open] > .ui-faq__summary .ui-faq__chevron {
     transform: rotate(180deg);
   }
 
-  .rd-faq__answer {
+  .ui-faq__answer {
     padding: 0 40px 22px 0;
     font-size: 14px;
     line-height: 1.65;
     color: var(--text-secondary);
   }
-  .rd-faq__answer p {
+  .ui-faq__answer p {
     margin: 0;
   }
 
   @media (max-width: 640px) {
-    .rd-faq__title {
+    .ui-faq__title {
       font-size: 26px;
     }
-    .rd-faq__answer {
+    .ui-faq__answer {
       padding-right: 0;
     }
   }

@@ -17,13 +17,13 @@ const COLORS: Record<string, string> = {
 const dotColor = COLORS[status] ?? COLORS.idle;
 ---
 
-<span class:list={['rd-status', className]}>
-  <span class="rd-status__dot" style={`background-color:${dotColor}`} aria-hidden="true"></span>
+<span class:list={['ui-status', className]}>
+  <span class="ui-status__dot" style={`background-color:${dotColor}`} aria-hidden="true"></span>
   {label ?? status}
 </span>
 
 <style>
-  .rd-status {
+  .ui-status {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -33,7 +33,7 @@ const dotColor = COLORS[status] ?? COLORS.idle;
     white-space: nowrap;
     line-height: 1;
   }
-  .rd-status__dot {
+  .ui-status__dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;

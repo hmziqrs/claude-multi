@@ -11,12 +11,12 @@ const installTabs = [
 const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sudo'];
 ---
 
-<section id="install" class="reveal rd-section install">
-  <div class="rd-section__inner">
+<section id="install" class="reveal ui-section install">
+  <div class="ui-section__inner">
     <div class="install__lead">
-      <div class="rd-eyebrow">Install</div>
-      <h2 class="rd-section-title">It installs like<br />any npm package.</h2>
-      <p class="rd-section-sub">
+      <div class="ui-eyebrow">Install</div>
+      <h2 class="ui-section-title">It installs like<br />any npm package.</h2>
+      <p class="ui-section-sub">
         Install it globally with whatever manager the machine already has. There is no shell
         script to pipe and no platform binary to match.
       </p>
@@ -63,7 +63,7 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sud
     color: var(--accent);
   }
 
-  .install > .rd-section__inner:first-child {
+  .install > .ui-section__inner:first-child {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
     gap: 64px;
@@ -71,7 +71,7 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sud
   }
 
   @media (max-width: 900px) {
-    .install > .rd-section__inner:first-child {
+    .install > .ui-section__inner:first-child {
       grid-template-columns: minmax(0, 1fr);
       gap: 36px;
     }

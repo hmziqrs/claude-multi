@@ -133,19 +133,19 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js');
       </script>
-      <div class="rd-scroll-progress" id="rd-scroll-progress" aria-hidden="true"></div>
+      <div class="ui-scroll-progress" id="ui-scroll-progress" aria-hidden="true"></div>
       <div class="grain" aria-hidden="true"></div>
 
       <SiteHeader />
 
-      <main class="rd-main">
+      <main class="ui-main">
         <slot />
       </main>
 
       <SiteFooter />
 
       <script>
-        const progress = document.getElementById('rd-scroll-progress');
+        const progress = document.getElementById('ui-scroll-progress');
         function updateProgress() {
           const h = document.documentElement;
           const denom = h.scrollHeight - h.clientHeight;
@@ -230,7 +230,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     background: var(--border);
   }
 
-  .rd-scroll-progress {
+  .ui-scroll-progress {
     position: fixed;
     top: 0;
     left: 0;
@@ -242,7 +242,7 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     transition: width 0.08s linear;
   }
 
-  .rd-main {
+  .ui-main {
     position: relative;
     z-index: 2;
   }

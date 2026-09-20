@@ -28,20 +28,20 @@ const branchList = Array.isArray(branches) ? branches : [];
 const hasActive = branchList.some((b) => b && b.active);
 ---
 
-<div class="rd-workflow">
-  <div class="rd-workflow__root">
-    <span class="rd-workflow__root-icon">
+<div class="ui-workflow">
+  <div class="ui-workflow__root">
+    <span class="ui-workflow__root-icon">
       <Icon name={root.icon || 'layers'} size={13} />
     </span>
-    <div class="rd-workflow__root-text">
-      <span class="rd-workflow__root-label">{root.label}</span>
-      {root.sublabel && <span class="rd-workflow__root-sub">{root.sublabel}</span>}
+    <div class="ui-workflow__root-text">
+      <span class="ui-workflow__root-label">{root.label}</span>
+      {root.sublabel && <span class="ui-workflow__root-sub">{root.sublabel}</span>}
     </div>
   </div>
 
-  <div class="rd-workflow__branches">
+  <div class="ui-workflow__branches">
     <div
-      class="rd-workflow__rail"
+      class="ui-workflow__rail"
       aria-hidden="true"
       style={`background:${hasActive ? 'var(--border)' : 'var(--border-subtle)'}`}
     ></div>
@@ -53,36 +53,36 @@ const hasActive = branchList.some((b) => b && b.active);
         const solidColor = isActive ? 'var(--border)' : 'var(--border-subtle)';
         const lineStyle = flow ? undefined : `background:${solidColor};`;
         return (
-          <div class="rd-workflow__branch">
-            <div class="rd-workflow__elbow" aria-hidden="true">
+          <div class="ui-workflow__branch">
+            <div class="ui-workflow__elbow" aria-hidden="true">
               <div
-                class:list={['rd-workflow__elbow-line', { 'rd-workflow__elbow-line--flow': flow }]}
+                class:list={['ui-workflow__elbow-line', { 'ui-workflow__elbow-line--flow': flow }]}
                 style={lineStyle}
               />
             </div>
-            <div class="rd-workflow__chain">
+            <div class="ui-workflow__chain">
               {chain.map((node, j) => (
                 <Fragment>
-                  <div class:list={['rd-workflow__node', { 'rd-workflow__node--bright': isActive }]}>
-                    <div class="rd-workflow__node-top">
+                  <div class:list={['ui-workflow__node', { 'ui-workflow__node--bright': isActive }]}>
+                    <div class="ui-workflow__node-top">
                       {node.icon && <Icon name={node.icon} size={12} />}
-                      <span class="rd-workflow__node-label">{node.label}</span>
+                      <span class="ui-workflow__node-label">{node.label}</span>
                       {node.status === 'running' && (
-                        <span class="rd-workflow__dot" title="running" aria-hidden="true" />
+                        <span class="ui-workflow__dot" title="running" aria-hidden="true" />
                       )}
                     </div>
                     {node.sublabel && (
                       <span
-                        class:list={['rd-workflow__node-sub', { 'rd-workflow__node-sub--violet': node.tone === 'violet' }]}
+                        class:list={['ui-workflow__node-sub', { 'ui-workflow__node-sub--violet': node.tone === 'violet' }]}
                       >
                         {node.sublabel}
                       </span>
                     )}
                   </div>
                   {j < chain.length - 1 && (
-                    <div class="rd-workflow__connector" aria-hidden="true">
+                    <div class="ui-workflow__connector" aria-hidden="true">
                       <div
-                        class:list={['rd-workflow__connector-line', { 'rd-workflow__connector-line--flow': flow }]}
+                        class:list={['ui-workflow__connector-line', { 'ui-workflow__connector-line--flow': flow }]}
                         style={lineStyle}
                       />
                     </div>
@@ -98,12 +98,12 @@ const hasActive = branchList.some((b) => b && b.active);
 </div>
 
 <style>
-  .rd-workflow {
+  .ui-workflow {
     font-family: var(--font-sans);
     color: var(--text-primary);
   }
 
-  .rd-workflow__root {
+  .ui-workflow__root {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -112,7 +112,7 @@ const hasActive = branchList.some((b) => b && b.active);
     border-radius: var(--radius-md);
     padding: 10px 12px;
   }
-  .rd-workflow__root-icon {
+  .ui-workflow__root-icon {
     flex: none;
     width: 26px;
     height: 26px;
@@ -124,32 +124,32 @@ const hasActive = branchList.some((b) => b && b.active);
     align-items: center;
     justify-content: center;
   }
-  .rd-workflow__root-text {
+  .ui-workflow__root-text {
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 0;
   }
-  .rd-workflow__root-label {
+  .ui-workflow__root-label {
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1.3;
   }
-  .rd-workflow__root-sub {
+  .ui-workflow__root-sub {
     font-family: var(--font-mono);
     font-size: 10.5px;
     line-height: 1.4;
     color: var(--text-faint);
   }
 
-  .rd-workflow__branches {
+  .ui-workflow__branches {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-top: 12px;
   }
-  .rd-workflow__rail {
+  .ui-workflow__rail {
     position: absolute;
     left: 0;
     top: -12px;
@@ -157,16 +157,16 @@ const hasActive = branchList.some((b) => b && b.active);
     width: 1px;
   }
 
-  .rd-workflow__branch {
+  .ui-workflow__branch {
     display: flex;
     align-items: stretch;
   }
-  .rd-workflow__elbow {
+  .ui-workflow__elbow {
     flex: none;
     width: 16px;
     position: relative;
   }
-  .rd-workflow__elbow-line {
+  .ui-workflow__elbow-line {
     position: absolute;
     top: 26px;
     left: 0;
@@ -174,14 +174,14 @@ const hasActive = branchList.some((b) => b && b.active);
     height: 1px;
   }
 
-  .rd-workflow__chain {
+  .ui-workflow__chain {
     flex: 1 1 auto;
     min-width: 0;
     display: flex;
     align-items: stretch;
   }
 
-  .rd-workflow__node {
+  .ui-workflow__node {
     flex: 1 1 0;
     min-width: 0;
     background: var(--surface-code);
@@ -192,16 +192,16 @@ const hasActive = branchList.some((b) => b && b.active);
     flex-direction: column;
     gap: 3px;
   }
-  .rd-workflow__node--bright {
+  .ui-workflow__node--bright {
     border-color: var(--border);
   }
-  .rd-workflow__node-top {
+  .ui-workflow__node-top {
     display: flex;
     align-items: center;
     gap: 7px;
     min-height: 15px;
   }
-  .rd-workflow__node-label {
+  .ui-workflow__node-label {
     font-size: 12.5px;
     font-weight: 500;
     line-height: 1.3;
@@ -210,18 +210,18 @@ const hasActive = branchList.some((b) => b && b.active);
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .rd-workflow__dot {
+  .ui-workflow__dot {
     flex: none;
     margin-left: auto;
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: var(--success);
-    animation: rd-wf-pulse 2s ease-in-out infinite;
+    animation: ui-wf-pulse 2s ease-in-out infinite;
   }
 
-  .rd-workflow__elbow-line--flow,
-  .rd-workflow__connector-line--flow {
+  .ui-workflow__elbow-line--flow,
+  .ui-workflow__connector-line--flow {
     background-color: transparent;
     background-image: repeating-linear-gradient(
       90deg,
@@ -230,27 +230,27 @@ const hasActive = branchList.some((b) => b && b.active);
       transparent 4px,
       transparent 8px
     );
-    animation: rd-wf-dash 1s linear infinite;
+    animation: ui-wf-dash 1s linear infinite;
   }
 
-  @keyframes rd-wf-dash {
+  @keyframes ui-wf-dash {
     from { background-position: 0 0; }
     to { background-position: 16px 0; }
   }
 
-  @keyframes rd-wf-pulse {
+  @keyframes ui-wf-pulse {
     0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.35); }
     50% { opacity: 0.75; box-shadow: 0 0 0 4px rgba(74, 222, 128, 0); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .rd-workflow__elbow-line--flow,
-    .rd-workflow__connector-line--flow,
-    .rd-workflow__dot {
+    .ui-workflow__elbow-line--flow,
+    .ui-workflow__connector-line--flow,
+    .ui-workflow__dot {
       animation: none !important;
     }
   }
-  .rd-workflow__node-sub {
+  .ui-workflow__node-sub {
     font-family: var(--font-mono);
     font-size: 10.5px;
     line-height: 1.4;
@@ -260,30 +260,30 @@ const hasActive = branchList.some((b) => b && b.active);
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .rd-workflow__node-sub--violet {
+  .ui-workflow__node-sub--violet {
     color: #a78bfa;
   }
 
-  .rd-workflow__connector {
+  .ui-workflow__connector {
     flex: none;
     width: 12px;
     display: flex;
     align-items: center;
   }
-  .rd-workflow__connector-line {
+  .ui-workflow__connector-line {
     width: 100%;
     height: 1px;
   }
 
   @media (max-width: 640px) {
-    .rd-workflow__branch {
+    .ui-workflow__branch {
       flex-direction: column;
     }
-    .rd-workflow__elbow {
+    .ui-workflow__elbow {
       width: auto;
       height: 12px;
     }
-    .rd-workflow__elbow-line {
+    .ui-workflow__elbow-line {
       top: 0;
       bottom: 0;
       left: 7px;
@@ -291,16 +291,16 @@ const hasActive = branchList.some((b) => b && b.active);
       width: 1px;
       height: auto;
     }
-    .rd-workflow__chain {
+    .ui-workflow__chain {
       flex-direction: column;
     }
-    .rd-workflow__connector {
+    .ui-workflow__connector {
       width: auto;
       height: 12px;
       align-items: center;
       justify-content: center;
     }
-    .rd-workflow__connector-line {
+    .ui-workflow__connector-line {
       width: 1px;
       height: 100%;
     }

@@ -3,16 +3,16 @@ const { tabs = [] } = Astro.props;
 const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: '' }];
 ---
 
-<div class="rd-codetabs" data-rd-codetabs>
-  <div class="rd-codetabs__bar" role="tablist" aria-label="Code examples">
+<div class="ui-codetabs" data-ui-codetabs>
+  <div class="ui-codetabs__bar" role="tablist" aria-label="Code examples">
     {
       items.map((tab, i) => (
         <button
           type="button"
-          class="rd-codetabs__tab"
+          class="ui-codetabs__tab"
           role="tab"
-          id={`rd-ct-tab-${i}`}
-          aria-controls={`rd-ct-panel-${i}`}
+          id={`ui-ct-tab-${i}`}
+          aria-controls={`ui-ct-panel-${i}`}
           aria-selected={i === 0 ? 'true' : 'false'}
           tabindex={i === 0 ? 0 : -1}
         >
@@ -22,14 +22,14 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     }
   </div>
 
-  <div class="rd-codetabs__body">
+  <div class="ui-codetabs__body">
     {
       items.map((tab, i) => (
         <pre
-          class="rd-codetabs__code"
+          class="ui-codetabs__code"
           role="tabpanel"
-          id={`rd-ct-panel-${i}`}
-          aria-labelledby={`rd-ct-tab-${i}`}
+          id={`ui-ct-panel-${i}`}
+          aria-labelledby={`ui-ct-tab-${i}`}
           hidden={i !== 0}
         ><code>{tab.code}</code></pre>
       ))
@@ -37,17 +37,17 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
 
     <button
       type="button"
-      class="rd-codetabs__copy"
-      data-rd-copy
+      class="ui-codetabs__copy"
+      data-ui-copy
       data-copy-label="Copy"
       aria-label="Copy"
       title="Copy"
     >
-      <svg class="rd-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg class="ui-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
         <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
       </svg>
-      <svg class="rd-copied-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg class="ui-copied-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M20 6 9 17l-5-5" />
       </svg>
     </button>
@@ -55,7 +55,7 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
 </div>
 
 <style>
-  .rd-codetabs {
+  .ui-codetabs {
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -65,7 +65,7 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     overflow: hidden;
   }
 
-  .rd-codetabs__bar {
+  .ui-codetabs__bar {
     display: flex;
     align-items: stretch;
     padding: 0 8px;
@@ -73,7 +73,7 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     flex-shrink: 0;
   }
 
-  .rd-codetabs__tab {
+  .ui-codetabs__tab {
     position: relative;
     appearance: none;
     background: transparent;
@@ -88,15 +88,15 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     cursor: pointer;
     transition: color var(--duration-fast) var(--ease-out);
   }
-  .rd-codetabs__tab:hover {
+  .ui-codetabs__tab:hover {
     color: var(--text-secondary);
   }
-  .rd-codetabs__tab[aria-selected='true'] {
+  .ui-codetabs__tab[aria-selected='true'] {
     color: var(--text-primary);
     border-bottom-color: var(--accent);
   }
 
-  .rd-codetabs__body {
+  .ui-codetabs__body {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -106,7 +106,7 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     min-height: 0;
   }
 
-  .rd-codetabs__code {
+  .ui-codetabs__code {
     flex: 1 1 auto;
     min-width: 0;
     margin: 0;
@@ -118,11 +118,11 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     word-break: break-word;
     overflow-x: auto;
   }
-  .rd-codetabs__code[hidden] {
+  .ui-codetabs__code[hidden] {
     display: none;
   }
 
-  .rd-codetabs__copy {
+  .ui-codetabs__copy {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -137,28 +137,28 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     cursor: pointer;
     transition: color var(--duration-fast) var(--ease-out);
   }
-  .rd-codetabs__copy:hover {
+  .ui-codetabs__copy:hover {
     color: var(--text-secondary);
   }
-  .rd-codetabs__copy[data-copied='true'] {
+  .ui-codetabs__copy[data-copied='true'] {
     color: var(--success);
   }
-  .rd-copied-icon {
+  .ui-copied-icon {
     display: none;
   }
-  .rd-codetabs__copy[data-copied='true'] .rd-copy-icon {
+  .ui-codetabs__copy[data-copied='true'] .ui-copy-icon {
     display: none;
   }
-  .rd-codetabs__copy[data-copied='true'] .rd-copied-icon {
+  .ui-codetabs__copy[data-copied='true'] .ui-copied-icon {
     display: block;
   }
 </style>
 
 <script>
-  document.querySelectorAll<HTMLElement>('[data-rd-codetabs]').forEach((root) => {
+  document.querySelectorAll<HTMLElement>('[data-ui-codetabs]').forEach((root) => {
     const tabs = Array.from(root.querySelectorAll<HTMLElement>('[role="tab"]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-    const copyBtn = root.querySelector<HTMLButtonElement>('[data-rd-copy]');
+    const copyBtn = root.querySelector<HTMLButtonElement>('[data-ui-copy]');
 
     const currentCode = () => {
       const active = panels.find((p) => !p.hidden);

@@ -12,18 +12,18 @@ const { value, label, tone = 'default', bordered = false, class: className } = A
 
 <div
   class:list={[
-    'rd-metric',
-    bordered && 'rd-metric--bordered',
-    tone === 'accent' && 'rd-metric--accent',
+    'ui-metric',
+    bordered && 'ui-metric--bordered',
+    tone === 'accent' && 'ui-metric--accent',
     className
   ]}
 >
-  <div class="rd-metric__value">{value}</div>
-  <div class="rd-metric__label">{label}</div>
+  <div class="ui-metric__value">{value}</div>
+  <div class="ui-metric__label">{label}</div>
 </div>
 
 <style>
-  .rd-metric {
+  .ui-metric {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -32,10 +32,10 @@ const { value, label, tone = 'default', bordered = false, class: className } = A
     padding: 22px;
     background: var(--surface-1);
   }
-  .rd-metric--bordered {
+  .ui-metric--bordered {
     border-left: 1px solid var(--border-subtle);
   }
-  .rd-metric__value {
+  .ui-metric__value {
     font-family: var(--font-mono);
     font-size: 34px;
     line-height: 1;
@@ -44,10 +44,10 @@ const { value, label, tone = 'default', bordered = false, class: className } = A
     font-variant-numeric: tabular-nums;
     color: var(--text-primary);
   }
-  .rd-metric--accent .rd-metric__value {
+  .ui-metric--accent .ui-metric__value {
     color: var(--accent);
   }
-  .rd-metric__label {
+  .ui-metric__label {
     font-size: 12px;
     font-weight: 500;
     text-transform: uppercase;

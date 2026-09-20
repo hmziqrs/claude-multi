@@ -224,7 +224,7 @@
 }
 
 /* ===================== KEYFRAMES ===================== */
-@keyframes rd-blink {
+@keyframes ui-blink {
   0%,
   49% {
     opacity: 1;
@@ -235,23 +235,23 @@
   }
 }
 
-.site-root .rd-caret {
+.site-root .ui-caret {
   display: inline-block;
   width: 8px;
   height: 1.1em;
   margin-left: 2px;
   vertical-align: text-bottom;
   background: var(--accent);
-  animation: rd-blink 1s steps(1, end) infinite;
+  animation: ui-blink 1s steps(1, end) infinite;
 }
 
 /* ===================== SECTION PRIMITIVES ===================== */
-.site-root .rd-section {
+.site-root .ui-section {
   position: relative;
   padding: 128px 32px;
   border-top: 1px solid var(--border-subtle);
 }
-.site-root .rd-section__inner {
+.site-root .ui-section__inner {
   width: 100%;
   max-width: var(--container-xl);
   margin-inline: auto;
@@ -259,20 +259,20 @@
   flex-direction: column;
   gap: 40px;
 }
-.site-root .rd-section__head {
+.site-root .ui-section__head {
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-width: 640px;
 }
-.site-root .rd-eyebrow {
+.site-root .ui-eyebrow {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--accent);
 }
-.site-root .rd-section-title {
+.site-root .ui-section-title {
   margin: 0;
   font-size: 36px;
   line-height: 1.15;
@@ -281,14 +281,14 @@
   color: var(--text-primary);
   text-wrap: balance;
 }
-.site-root .rd-section-sub {
+.site-root .ui-section-sub {
   margin: 0;
   font-size: 18px;
   line-height: 1.65;
   color: var(--text-secondary);
   max-width: 640px;
 }
-.site-root .rd-inline-code {
+.site-root .ui-inline-code {
   font-family: var(--font-mono);
   font-size: 15px;
   color: var(--text-primary);
@@ -309,13 +309,13 @@
 }
 
 @media (max-width: 640px) {
-  .site-root .rd-section {
+  .site-root .ui-section {
     padding: 80px 16px;
   }
-  .site-root .rd-section-title {
+  .site-root .ui-section-title {
     font-size: 28px;
   }
-  .site-root .rd-section-sub {
+  .site-root .ui-section-sub {
     font-size: 16px;
   }
 }

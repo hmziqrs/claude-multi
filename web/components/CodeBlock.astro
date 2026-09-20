@@ -46,19 +46,19 @@ const isJson = language === 'json';
 const segs = isJson ? highlightJson(rawCode) : null;
 ---
 
-<div class:list={['rd-code', className]} data-code-host>
-  <div class="rd-code__bar">
-    <span class="rd-code__file">{filename}</span>
-    <button class="rd-copy-btn" type="button" aria-label="Copy code" title="Copy">
-      <span class="rd-copy-btn__icon" aria-hidden="true"><Icon name="copy" size={13} /></span>
-      <span class="rd-copy-btn__check" aria-hidden="true"><Icon name="check" size={13} /></span>
+<div class:list={['ui-code', className]} data-code-host>
+  <div class="ui-code__bar">
+    <span class="ui-code__file">{filename}</span>
+    <button class="ui-copy-btn" type="button" aria-label="Copy code" title="Copy">
+      <span class="ui-copy-btn__icon" aria-hidden="true"><Icon name="copy" size={13} /></span>
+      <span class="ui-copy-btn__check" aria-hidden="true"><Icon name="check" size={13} /></span>
     </button>
   </div>
-  <pre class="rd-code__pre" data-copy-text><code>{segs ? segs.map((s) => <span class={`rd-code__tok rd-code__tok--${s.cls.slice(4)}`}>{s.text}</span>) : rawCode}</code></pre>
+  <pre class="ui-code__pre" data-copy-text><code>{segs ? segs.map((s) => <span class={`ui-code__tok ui-code__tok--${s.cls.slice(4)}`}>{s.text}</span>) : rawCode}</code></pre>
 </div>
 
 <style>
-  .rd-code {
+  .ui-code {
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -67,7 +67,7 @@ const segs = isJson ? highlightJson(rawCode) : null;
     border-radius: 10px;
     overflow: hidden;
   }
-  .rd-code__bar {
+  .ui-code__bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -76,7 +76,7 @@ const segs = isJson ? highlightJson(rawCode) : null;
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
   }
-  .rd-code__file {
+  .ui-code__file {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--text-muted);
@@ -84,7 +84,7 @@ const segs = isJson ? highlightJson(rawCode) : null;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .rd-code__pre {
+  .ui-code__pre {
     margin: 0;
     flex: 1 1 auto;
     padding: 14px 16px;
@@ -96,23 +96,23 @@ const segs = isJson ? highlightJson(rawCode) : null;
     word-break: break-word;
     overflow-x: auto;
   }
-  .rd-code__tok {
+  .ui-code__tok {
     color: var(--text-secondary);
   }
-  .rd-code__tok--key {
+  .ui-code__tok--key {
     color: var(--accent-hover);
   }
-  .rd-code__tok--string {
+  .ui-code__tok--string {
     color: var(--success);
   }
-  .rd-code__tok--number {
+  .ui-code__tok--number {
     color: var(--info);
   }
-  .rd-code__tok--boolean {
+  .ui-code__tok--boolean {
     color: var(--warning);
   }
 
-  .rd-copy-btn {
+  .ui-copy-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -127,26 +127,26 @@ const segs = isJson ? highlightJson(rawCode) : null;
     flex-shrink: 0;
     transition: color var(--duration-fast) ease;
   }
-  .rd-copy-btn:hover {
+  .ui-copy-btn:hover {
     color: var(--text-secondary);
   }
-  .rd-copy-btn:focus-visible {
+  .ui-copy-btn:focus-visible {
     outline: 2px solid var(--accent-border);
     outline-offset: 2px;
   }
-  .rd-copy-btn__icon {
+  .ui-copy-btn__icon {
     display: inline-flex;
   }
-  .rd-copy-btn__check {
+  .ui-copy-btn__check {
     display: none;
   }
-  .rd-copy-btn.is-copied {
+  .ui-copy-btn.is-copied {
     color: var(--success);
   }
-  .rd-copy-btn.is-copied .rd-copy-btn__icon {
+  .ui-copy-btn.is-copied .ui-copy-btn__icon {
     display: none;
   }
-  .rd-copy-btn.is-copied .rd-copy-btn__check {
+  .ui-copy-btn.is-copied .ui-copy-btn__check {
     display: inline-flex;
   }
 </style>
@@ -182,7 +182,7 @@ const segs = isJson ? highlightJson(rawCode) : null;
     };
     document.addEventListener('click', (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const btn = target.closest('.rd-copy-btn') as HTMLElement | null;
+      const btn = target.closest('.ui-copy-btn') as HTMLElement | null;
       if (!btn) return;
       const host = btn.closest('[data-code-host]');
       const src = host && host.querySelector('[data-copy-text]');

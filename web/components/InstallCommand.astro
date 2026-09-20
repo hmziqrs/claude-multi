@@ -11,17 +11,17 @@ const { command, class: className } = Astro.props;
 const cmd = typeof command === 'string' ? command : String(command ?? '');
 ---
 
-<div class:list={['rd-install', className]} data-code-host>
-  <span class="rd-install__prompt" aria-hidden="true">$</span>
-  <span class="rd-install__cmd" data-copy-text>{cmd}</span>
-  <button class="rd-install__btn rd-copy-btn" type="button" aria-label="Copy install command" title="Copy">
-    <span class="rd-copy-btn__icon" aria-hidden="true"><Icon name="copy" size={14} /></span>
-    <span class="rd-copy-btn__check" aria-hidden="true"><Icon name="check" size={14} /></span>
+<div class:list={['ui-install', className]} data-code-host>
+  <span class="ui-install__prompt" aria-hidden="true">$</span>
+  <span class="ui-install__cmd" data-copy-text>{cmd}</span>
+  <button class="ui-install__btn ui-copy-btn" type="button" aria-label="Copy install command" title="Copy">
+    <span class="ui-copy-btn__icon" aria-hidden="true"><Icon name="copy" size={14} /></span>
+    <span class="ui-copy-btn__check" aria-hidden="true"><Icon name="check" size={14} /></span>
   </button>
 </div>
 
 <style>
-  .rd-install {
+  .ui-install {
     display: inline-flex;
     align-items: center;
     max-width: 100%;
@@ -30,14 +30,14 @@ const cmd = typeof command === 'string' ? command : String(command ?? '');
     border: 1px solid var(--border);
     border-radius: 8px;
   }
-  .rd-install__prompt {
+  .ui-install__prompt {
     color: var(--accent);
     font-weight: 500;
     margin-right: 9px;
     user-select: none;
     font-family: var(--font-mono);
   }
-  .rd-install__cmd {
+  .ui-install__cmd {
     font-family: var(--font-mono);
     font-size: 13px;
     white-space: nowrap;
@@ -45,7 +45,7 @@ const cmd = typeof command === 'string' ? command : String(command ?? '');
     text-overflow: ellipsis;
     color: var(--text-secondary);
   }
-  .rd-install__btn {
+  .ui-install__btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,26 +61,26 @@ const cmd = typeof command === 'string' ? command : String(command ?? '');
     flex-shrink: 0;
     transition: color var(--duration-fast) ease;
   }
-  .rd-install__btn:hover {
+  .ui-install__btn:hover {
     color: var(--text-secondary);
   }
-  .rd-install__btn:focus-visible {
+  .ui-install__btn:focus-visible {
     outline: 2px solid var(--accent-border);
     outline-offset: 2px;
   }
-  .rd-install__btn .rd-copy-btn__icon {
+  .ui-install__btn .ui-copy-btn__icon {
     display: inline-flex;
   }
-  .rd-install__btn .rd-copy-btn__check {
+  .ui-install__btn .ui-copy-btn__check {
     display: none;
   }
-  .rd-install__btn.is-copied {
+  .ui-install__btn.is-copied {
     color: #3fb950;
   }
-  .rd-install__btn.is-copied .rd-copy-btn__icon {
+  .ui-install__btn.is-copied .ui-copy-btn__icon {
     display: none;
   }
-  .rd-install__btn.is-copied .rd-copy-btn__check {
+  .ui-install__btn.is-copied .ui-copy-btn__check {
     display: inline-flex;
   }
 </style>
@@ -116,7 +116,7 @@ const cmd = typeof command === 'string' ? command : String(command ?? '');
     };
     document.addEventListener('click', (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const btn = target.closest('.rd-copy-btn') as HTMLElement | null;
+      const btn = target.closest('.ui-copy-btn') as HTMLElement | null;
       if (!btn) return;
       const host = btn.closest('[data-code-host]');
       const src = host && host.querySelector('[data-copy-text]');

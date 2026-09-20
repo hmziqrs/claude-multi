@@ -6,10 +6,10 @@ interface Props {
 const { class: className } = Astro.props;
 ---
 
-<span class:list={['rd-tag', className]}><slot /></span>
+<span class:list={['ui-tag', className]}><slot /></span>
 
 <style>
-  .rd-tag {
+  .ui-tag {
     display: inline-flex;
     align-items: center;
     font-family: var(--font-mono);
