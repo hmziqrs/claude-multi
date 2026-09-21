@@ -32,39 +32,42 @@ const menuItems = [
 ];
 ---
 
-<section id="top" class="reveal relative pt-24 px-6 pb-[88px] bg-[#0b0c0e] max-[640px]:pt-16 max-[640px]:px-4 max-[640px]:pb-14">
-  <div class="relative max-w-[1280px] mx-auto flex flex-col items-center gap-[26px] text-center">
+<section
+  id="top"
+  class="reveal relative pt-24 px-6 pb-[88px] bg-[#0b0c0e] max-[640px]:pt-16 max-[640px]:px-4 max-[640px]:pb-14"
+>
+  <div
+    class="relative max-w-[1280px] mx-auto flex flex-col items-center gap-5 text-center"
+  >
     <h1
-      class="m-0 text-[64px] leading-none tracking-[-0.045em] font-semibold max-w-[860px] text-pretty text-text max-[640px]:text-[38px] max-[640px]:tracking-[-0.03em]"
+      class="m-0 text-[46px] leading-none tracking-[-0.04em] font-semibold max-w-[720px] text-pretty text-text max-[640px]:text-[32px] max-[640px]:tracking-[-0.03em]"
     >
-      Run a separate Claude Code<br />for every provider.
+      Separate Claude Code<br />for each provider.
     </h1>
-    <p class="m-0 max-w-[620px] text-[18px] leading-[1.65] text-text-dim max-[640px]:text-[16px]">
-      Each provider gets its own <span class="ui-inline-code">claude-&lt;name&gt;</span> command and
-      config directory, all running the normal, unmodified claude binary.
+    <p
+      class="m-0 max-w-[600px] text-[17px] leading-[1.65] text-text-dim max-[640px]:text-[15.5px]"
+    >
+      Each provider gets its own <span class="ui-inline-code"
+        >claude-&lt;name&gt;</span
+      > command and config directory, running the normal claude binary.
     </p>
-    <div class="hero__cta flex gap-3 items-center max-[640px]:flex-col max-[640px]:w-full">
-      <Button size="md" href="/docs/getting-started/">Get started</Button>
-      <Button
-        variant="secondary"
-        size="md"
-        href="https://github.com/hmziqrs/claude-multi"
-        target="_blank"
-        rel="noopener"
-      >
-        View source
-      </Button>
+    <div
+      class="hero__cta flex gap-2.5 items-center max-[640px]:flex-col max-[640px]:w-full"
+    >
+      <Button size="sm" href="/docs/getting-started/">Get started</Button>
     </div>
   </div>
 
   <div
     class="relative max-w-[1280px] mt-16 mx-auto bg-[#101216] border border-[#23262d] rounded-[12px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] max-[900px]:mt-12"
   >
-    <div class="relative flex items-center gap-2.5 h-[42px] px-3.5 bg-[#14161b] border-b border-edge">
+    <div
+      class="relative flex items-center gap-2.5 h-[42px] px-3.5 bg-[#14161b] border-b border-edge"
+    >
       <span class="flex gap-1.5" aria-hidden="true">
-        <i class="w-2 h-2 rounded-full bg-white/[0.16]"></i><i class="w-2 h-2 rounded-full bg-white/[0.11]"></i><i
-          class="w-2 h-2 rounded-full bg-white/[0.11]"
-        ></i>
+        <i class="w-2 h-2 rounded-full bg-white/[0.16]"></i><i
+          class="w-2 h-2 rounded-full bg-white/[0.11]"></i><i
+          class="w-2 h-2 rounded-full bg-white/[0.11]"></i>
       </span>
       <span class="text-[13px] font-medium text-text-dim">~/projects</span>
       <span class="font-mono text-[13px] text-text-mute">claude-multi</span>
@@ -72,19 +75,28 @@ const menuItems = [
       <StatusBadge status="connected" label="Live" />
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-px bg-[#191c21] max-[900px]:grid-cols-1">
+    <div
+      class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-px bg-[#191c21] max-[900px]:grid-cols-1"
+    >
       <div
         aria-hidden="true"
         class="flex flex-col gap-3.5 py-6 px-[26px] font-mono text-[13.5px] leading-[1.7] bg-[#0d0f13] max-[640px]:py-[18px] max-[640px]:px-[18px] max-[640px]:text-[12px]"
       >
-        <div class="text-text-mute"><span class="text-lime">$</span> claude-multi</div>
+        <div class="text-text-mute">
+          <span class="text-lime">$</span> claude-multi
+        </div>
         <div class="text-text font-medium">Claude Multi · interactive mode</div>
         <div class="text-[#7c8492] text-[12px]">2 instance(s): glm, dsv3</div>
         <ul class="flex flex-col gap-1.5 text-text-dim">
           {
             menuItems.map((item) => (
               <li class:list={['flex gap-2.5', { 'text-lime': item.active }]}>
-                <span class:list={['shrink-0', item.active ? 'text-lime' : 'text-[#7c8492]']}>
+                <span
+                  class:list={[
+                    'shrink-0',
+                    item.active ? 'text-lime' : 'text-[#7c8492]',
+                  ]}
+                >
                   {item.active ? '▸' : '·'}
                 </span>
                 <span>{item.label}</span>
@@ -92,12 +104,23 @@ const menuItems = [
             ))
           }
         </ul>
-        <div class="mt-auto text-[11px] tracking-[0.02em] text-[#7c8492]">↑↓ navigate · ⏎ select · esc back</div>
+        <div class="mt-auto text-[11px] tracking-[0.02em] text-[#7c8492]">
+          ↑↓ navigate · ⏎ select · esc back
+        </div>
       </div>
 
       <div class="flex flex-col gap-4 p-5 bg-[#101216] max-[640px]:p-4">
-        <Terminal title="add instance" status="running" cursor lines={wizardLines} />
-        <CodeBlock filename="~/.claude-glm/settings.json" language="json" code={configCode} />
+        <Terminal
+          title="add instance"
+          status="running"
+          cursor
+          lines={wizardLines}
+        />
+        <CodeBlock
+          filename="~/.claude-glm/settings.json"
+          language="json"
+          code={configCode}
+        />
       </div>
     </div>
   </div>

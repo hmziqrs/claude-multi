@@ -6,10 +6,10 @@ import Tag from './Tag.astro';
 <section id="features" class="reveal ui-section">
   <div class="ui-section__inner">
     <div class="ui-section__head">
-      <h2 class="ui-section-title">Switching models shouldn't rewrite <span class="ui-inline-code">~/.claude</span>.</h2>
+      <h2 class="ui-section-title">One directory per instance.</h2>
       <p class="ui-section-sub">
-        Add as many instances as you want. claude-multi never writes to the setup you already
-        have.
+        Each instance keeps its own settings, history and credentials in <span class="ui-inline-code">~/.claude-&lt;name&gt;</span
+        >. Your existing <span class="ui-inline-code">~/.claude</span> is not modified.
       </p>
     </div>
 
@@ -18,7 +18,7 @@ import Tag from './Tag.astro';
       <FeatureCard
         icon="git-branch"
         title="One alias per provider"
-        description="Templates for GLM, MiniMax, DeepSeek, MiMo, Kimi and Qwen. Each one you set up gets its own command in the terminal."
+        description="Built-in templates for GLM, MiniMax, DeepSeek, MiMo, Kimi and Qwen. Each instance you create gets its own command."
       >
         <Tag>claude-kimi</Tag>
         <Tag>claude-mimo</Tag>
@@ -29,25 +29,25 @@ import Tag from './Tag.astro';
       <FeatureCard
         icon="shield"
         title="Isolated configs"
-        description="Every instance owns its settings.json, history and credentials. An Anthropic setup never touches a GLM setup."
+        description="Every instance owns its settings.json, history and credentials. Two instances never share a file."
       />
 
       <FeatureCard
         icon="link"
         title="Plugin sync"
-        description="Plugins and skills symlink back to your primary install. Install once and every instance picks it up."
+        description="Plugins and skills are symlinked from your primary install, so every instance sees the same set."
       />
 
       <FeatureCard
         icon="terminal"
         title="No fork"
-        description="It wraps the claude binary you already have, so your flags and slash commands behave exactly as they do upstream."
+        description="claude-multi runs the claude binary already on your machine. Your flags and slash commands work the same."
       />
 
       <FeatureCard
         icon="key"
         title="Keys stay on disk"
-        description="API keys live in per-instance config files under ~/.claude-multi, never in global env vars. Nothing leaves the machine."
+        description="API keys are written to per-instance config files under ~/.claude-multi, not to global environment variables."
       />
     </div>
   </div>
