@@ -6,7 +6,6 @@ import Tag from './Tag.astro';
 <section id="features" class="reveal ui-section">
   <div class="ui-section__inner">
     <div class="ui-section__head">
-      <div class="ui-eyebrow">Features</div>
       <h2 class="ui-section-title">Switching models shouldn't rewrite <span class="ui-inline-code">~/.claude</span>.</h2>
       <p class="ui-section-sub">
         Add as many instances as you want. claude-multi never writes to the setup you already
@@ -14,7 +13,8 @@ import Tag from './Tag.astro';
       </p>
     </div>
 
-    <div class="features__grid">
+    <!-- exact 640/900 cutoffs, do not round to sm/lg -->
+    <div class="features__grid grid grid-cols-1 gap-3 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3">
       <FeatureCard
         icon="git-branch"
         title="One alias per provider"
@@ -52,23 +52,3 @@ import Tag from './Tag.astro';
     </div>
   </div>
 </section>
-
-<style>
-  .features__grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  @media (max-width: 900px) {
-    .features__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 640px) {
-    .features__grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-</style>

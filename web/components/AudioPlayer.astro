@@ -10,7 +10,7 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
 <div class="audio-player glass rounded-2xl px-5 py-4 mb-10" data-player={id}>
   <div class="flex items-center gap-4">
     <button
-      class="play-btn flex-shrink-0 w-10 h-10 rounded-full border border-edge bg-[rgba(217,119,87,0.06)] hover:bg-[rgba(217,119,87,0.14)] hover:border-edge-hover text-lime flex items-center justify-center transition-all duration-200"
+      class="play-btn flex-shrink-0 w-10 h-10 rounded-full border border-edge bg-lime/[0.06] hover:bg-lime/[0.14] hover:border-edge-hover text-lime flex items-center justify-center transition-all duration-200"
       aria-label="Play"
     >
       <svg class="icon-play w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -29,12 +29,10 @@ const id = `ap-${Math.random().toString(36).slice(2, 8)}`;
           class="progress-track relative flex-1 h-1 bg-[rgba(217,119,87,0.1)] rounded-full cursor-pointer group"
         >
           <div
-            class="progress-fill h-full bg-lime rounded-full pointer-events-none transition-none"
-            style="width:0%"
+            class="progress-fill w-0 h-full bg-lime rounded-full pointer-events-none transition-none"
           ></div>
           <div
-            class="progress-thumb absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-lime opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-            style="left:0%"
+            class="progress-thumb absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-lime opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
           ></div>
         </div>
         <span class="time-display text-xs font-mono text-text-mute whitespace-nowrap tabular-nums">

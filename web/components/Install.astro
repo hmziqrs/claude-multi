@@ -12,19 +12,24 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sud
 ---
 
 <section id="install" class="reveal ui-section install">
-  <div class="ui-section__inner">
-    <div class="install__lead">
-      <div class="ui-eyebrow">Install</div>
+  <!-- theme.css styles .ui-section__inner unlayered, which outranks the utilities
+       layer, so the grid override needs the important suffix to win. -->
+  <div
+    class="ui-section__inner grid! grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]! gap-16! items-start max-[900px]:grid-cols-1! max-[900px]:gap-9!"
+  >
+    <div class="install__lead flex max-w-[520px] flex-col gap-4">
       <h2 class="ui-section-title">It installs like<br />any npm package.</h2>
       <p class="ui-section-sub">
         Install it globally with whatever manager the machine already has. There is no shell
         script to pipe and no platform binary to match.
       </p>
-      <ul class="install__check">
+      <!-- margin-top stays 0: the .site-root ul reset is unlayered and already beat
+           the old scoped rule, so the computed value does not change. -->
+      <ul class="install__check flex flex-col gap-2 font-mono text-[12px] text-text-mute [&_li]:flex [&_li]:items-center [&_li]:gap-2.5">
         {
           checks.map((c) => (
             <li>
-              <span class="install__tick" aria-hidden="true">✓</span>
+              <span class="install__tick text-lime" aria-hidden="true">✓</span>
               {c}
             </li>
           ))
@@ -36,44 +41,3 @@ const checks = ['Node 18+ or Bun 1+', 'macOS, Linux, Windows', 'Runs without sud
   </div>
 
 </section>
-
-<style>
-  .install__lead {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 520px;
-  }
-
-  .install__check {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  .install__check li {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  .install__tick {
-    color: var(--accent);
-  }
-
-  .install > .ui-section__inner:first-child {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: 64px;
-    align-items: start;
-  }
-
-  @media (max-width: 900px) {
-    .install > .ui-section__inner:first-child {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 36px;
-    }
-  }
-</style>

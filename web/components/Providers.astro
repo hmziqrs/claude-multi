@@ -51,11 +51,10 @@ const graph = {
 };
 ---
 
-<section id="providers" class="reveal ui-section providers">
+<section id="providers" class="reveal ui-section overflow-hidden">
 
   <div class="ui-section__inner">
     <div class="ui-section__head">
-      <div class="ui-eyebrow">Providers</div>
       <h2 class="ui-section-title">Seven providers, already wired up.</h2>
       <p class="ui-section-sub">
         Each template already knows the endpoint, the model names and the sensible defaults.
@@ -63,9 +62,9 @@ const graph = {
       </p>
     </div>
 
-    <div class="providers__grid">
-      <div class="providers__table-card">
-        <div class="providers__table-scroll">
+    <div class="relative grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-8 items-start max-[900px]:grid-cols-1">
+      <div class="border border-edge rounded-[10px] overflow-hidden bg-[#101216]">
+        <div class="providers__table-scroll w-full overflow-x-auto [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]">
           <ProductTable
             columns={providerTable.columns}
             rows={providerTable.rows}
@@ -75,76 +74,24 @@ const graph = {
         </div>
       </div>
 
-      <div class="providers__graph-card">
-        <div class="providers__graph-label">Instance graph</div>
+      <div class="border border-edge rounded-[10px] bg-[#101216] p-6 flex flex-col gap-4.5">
+        <div class="font-mono text-[11px] tracking-[0.08em] uppercase text-[#7c8492]">Instance graph</div>
         <Workflow root={graph.root} branches={graph.branches} animated={graph.animated} />
       </div>
     </div>
 
-    <div class="providers__cta">
+    <div class="relative">
       <Button variant="secondary" href="/providers/">Explore providers →</Button>
     </div>
   </div>
 </section>
 
 <style>
-  .providers {
-    overflow: hidden;
-  }
-
-  .providers__grid {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    gap: 32px;
-    align-items: start;
-  }
-
-  .providers__table-card {
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--surface-1);
-  }
-
   /* Horizontal scroll keeps column proportions intact on narrow screens instead of clipping
      cells (the card clips its rounded corners); min-width only kicks in below the breakpoint. */
-  .providers__table-scroll {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-  }
   @media (max-width: 900px) {
     .providers__table-scroll :global(.ui-table) {
       min-width: 740px;
-    }
-  }
-
-  .providers__graph-card {
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    background: var(--surface-1);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .providers__graph-label {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-wider);
-    text-transform: uppercase;
-    color: var(--text-faint);
-  }
-
-  .providers__cta {
-    position: relative;
-  }
-
-  @media (max-width: 900px) {
-    .providers__grid {
-      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

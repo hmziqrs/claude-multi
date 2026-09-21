@@ -14,120 +14,56 @@ const KNOWN = ['command', 'arrow', 'success', 'muted', 'plain'];
 const showStatus = status && status !== 'none';
 ---
 
-<div class="ui-terminal">
-  <div class="ui-terminal__header">
-    <div class="ui-terminal__dots" aria-hidden="true">
-      <span></span><span></span><span></span>
+<div class="code-surface">
+  <div class="relative flex items-center justify-center py-2.5 px-3.5 border-b border-edge shrink-0">
+    <div class="absolute left-3.5 top-1/2 -translate-y-1/2 flex gap-1.5" aria-hidden="true">
+      <span class="w-[9px] h-[9px] rounded-full bg-white/[0.18] inline-block"></span>
+      <span class="w-[9px] h-[9px] rounded-full bg-white/[0.18] inline-block"></span>
+      <span class="w-[9px] h-[9px] rounded-full bg-white/[0.18] inline-block"></span>
     </div>
-    <span class="ui-terminal__title">{title}</span>
+    <span class="font-mono text-[11px] font-medium tracking-[0.12em] uppercase text-text-mute">{title}</span>
     {
       showStatus && (
-        <div class="ui-terminal__status">
+        <div class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
           <StatusBadge status={status} label={statusLabel} />
         </div>
       )
     }
   </div>
 
-  <div class="ui-terminal__body">
+  <div class="flex-auto flex flex-col pt-4 px-[18px] pb-5 font-mono text-[12.5px] leading-[1.7] min-h-[160px]">
     {
       lineList.map((line, i) => {
         const text = line && typeof line.text === 'string' ? line.text : '';
         const tone = KNOWN.includes(line && line.tone) ? line.tone : 'plain';
         const isLast = i === lineList.length - 1;
         return (
-          <div class:list={['ui-terminal__line', `ui-terminal__line--${tone}`, { 'ui-terminal__line--cmd': tone === 'command' }]}>
-            {tone === 'command' && <span class="ui-terminal__pfx" aria-hidden="true">$</span>}
-            {tone === 'arrow' && <span class="ui-terminal__pfx" aria-hidden="true">▸</span>}
+          <div
+            class:list={[
+              'ui-terminal__line',
+              `ui-terminal__line--${tone}`,
+              'whitespace-pre-wrap [word-break:break-word]',
+              { flex: tone === 'command' },
+            ]}
+          >
+            {tone === 'command' && (
+              <span class="ui-terminal__pfx mr-[9px] shrink-0 select-none" aria-hidden="true">$</span>
+            )}
+            {tone === 'arrow' && (
+              <span class="ui-terminal__pfx mr-[9px] shrink-0 select-none" aria-hidden="true">▸</span>
+            )}
             <span class="ui-terminal__txt">{text}</span>
             {cursor && isLast && <span class="ui-caret" aria-hidden="true"></span>}
           </div>
         );
       })
     }
-    <div class="ui-terminal__fill"></div>
+    <div class="flex-1"></div>
   </div>
 </div>
 
 <style>
-  .ui-terminal {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    background: var(--surface-code);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .ui-terminal__header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border-subtle);
-    flex-shrink: 0;
-  }
-  .ui-terminal__dots {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 6px;
-  }
-  .ui-terminal__dots span {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.18);
-    display: inline-block;
-  }
-  .ui-terminal__title {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .ui-terminal__status {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-  }
-
-  .ui-terminal__body {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    padding: 16px 18px 20px;
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    line-height: 1.7;
-    min-height: 160px;
-  }
-  .ui-terminal__fill {
-    flex: 1 1 auto;
-  }
-
-  .ui-terminal__line {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .ui-terminal__line--cmd {
-    display: flex;
-  }
-
-  .ui-terminal__pfx {
-    margin-right: 9px;
-    flex: none;
-    user-select: none;
-  }
+  /* tone colors stay CSS: 3-way line/pfx/txt conditionals */
   .ui-terminal__line--command .ui-terminal__pfx {
     color: var(--accent);
     font-weight: 500;

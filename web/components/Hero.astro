@@ -32,21 +32,22 @@ const menuItems = [
 ];
 ---
 
-<section id="top" class="reveal hero">
-  <div class="hero__inner">
-    <h1 class="hero__title">Run a separate Claude Code<br />for every provider.</h1>
-    <p class="hero__sub">
-      Trying a new model means hand-editing <span class="ui-inline-code">settings.json</span>,
-      swapping keys, and keeping a pile of shell aliases alive. claude-multi gives each provider
-      its own <span class="ui-inline-code">claude-&lt;name&gt;</span> command and its own config
-      directory. All of them run the normal, unmodified claude binary.
+<section id="top" class="reveal relative pt-24 px-6 pb-[88px] bg-[#0b0c0e] max-[640px]:pt-16 max-[640px]:px-4 max-[640px]:pb-14">
+  <div class="relative max-w-[1280px] mx-auto flex flex-col items-center gap-[26px] text-center">
+    <h1
+      class="m-0 text-[64px] leading-none tracking-[-0.045em] font-semibold max-w-[860px] text-pretty text-text max-[640px]:text-[38px] max-[640px]:tracking-[-0.03em]"
+    >
+      Run a separate Claude Code<br />for every provider.
+    </h1>
+    <p class="m-0 max-w-[620px] text-[18px] leading-[1.65] text-text-dim max-[640px]:text-[16px]">
+      Each provider gets its own <span class="ui-inline-code">claude-&lt;name&gt;</span> command and
+      config directory, all running the normal, unmodified claude binary.
     </p>
-    <div class="hero__cta">
+    <div class="hero__cta flex gap-3 items-center max-[640px]:flex-col max-[640px]:w-full">
       <Button size="md" href="/docs/getting-started/">Get started</Button>
       <Button
         variant="secondary"
         size="md"
-        trailing="★ 1.2k"
         href="https://github.com/hmziqrs/claude-multi"
         target="_blank"
         rel="noopener"
@@ -54,43 +55,47 @@ const menuItems = [
         View source
       </Button>
     </div>
-    <div class="hero__meta">
-      <span>MIT licensed</span>
-      <span>Works with claude-code 2.x</span>
-      <span>Instances share nothing</span>
-    </div>
   </div>
 
-  <div class="hero__window">
-    <div class="hero__bar">
-      <span class="hero__dots" aria-hidden="true">
-        <i></i><i></i><i></i>
+  <div
+    class="relative max-w-[1280px] mt-16 mx-auto bg-[#101216] border border-[#23262d] rounded-[12px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] max-[900px]:mt-12"
+  >
+    <div class="relative flex items-center gap-2.5 h-[42px] px-3.5 bg-[#14161b] border-b border-edge">
+      <span class="flex gap-1.5" aria-hidden="true">
+        <i class="w-2 h-2 rounded-full bg-white/[0.16]"></i><i class="w-2 h-2 rounded-full bg-white/[0.11]"></i><i
+          class="w-2 h-2 rounded-full bg-white/[0.11]"
+        ></i>
       </span>
-      <span class="hero__path">~/projects</span>
-      <span class="hero__name">claude-multi</span>
-      <span class="hero__spacer"></span>
+      <span class="text-[13px] font-medium text-text-dim">~/projects</span>
+      <span class="font-mono text-[13px] text-text-mute">claude-multi</span>
+      <span class="flex-1"></span>
       <StatusBadge status="connected" label="Live" />
     </div>
 
-    <div class="hero__grid">
-      <div class="hero__menu" aria-hidden="true">
-        <div class="hero__prompt"><span class="hero__dollar">$</span> claude-multi</div>
-        <div class="hero__mode">Claude Multi · interactive mode</div>
-        <div class="hero__count">2 instance(s): glm, dsv3</div>
-        <ul class="hero__list">
+    <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-px bg-[#191c21] max-[900px]:grid-cols-1">
+      <div
+        aria-hidden="true"
+        class="flex flex-col gap-3.5 py-6 px-[26px] font-mono text-[13.5px] leading-[1.7] bg-[#0d0f13] max-[640px]:py-[18px] max-[640px]:px-[18px] max-[640px]:text-[12px]"
+      >
+        <div class="text-text-mute"><span class="text-lime">$</span> claude-multi</div>
+        <div class="text-text font-medium">Claude Multi · interactive mode</div>
+        <div class="text-[#7c8492] text-[12px]">2 instance(s): glm, dsv3</div>
+        <ul class="flex flex-col gap-1.5 text-text-dim">
           {
             menuItems.map((item) => (
-              <li class:list={['hero__item', { 'hero__item--active': item.active }]}>
-                <span class="hero__marker">{item.active ? '▸' : '·'}</span>
+              <li class:list={['flex gap-2.5', { 'text-lime': item.active }]}>
+                <span class:list={['shrink-0', item.active ? 'text-lime' : 'text-[#7c8492]']}>
+                  {item.active ? '▸' : '·'}
+                </span>
                 <span>{item.label}</span>
               </li>
             ))
           }
         </ul>
-        <div class="hero__foot">↑↓ navigate · ⏎ select · esc back</div>
+        <div class="mt-auto text-[11px] tracking-[0.02em] text-[#7c8492]">↑↓ navigate · ⏎ select · esc back</div>
       </div>
 
-      <div class="hero__right">
+      <div class="flex flex-col gap-4 p-5 bg-[#101216] max-[640px]:p-4">
         <Terminal title="add instance" status="running" cursor lines={wizardLines} />
         <CodeBlock filename="~/.claude-glm/settings.json" language="json" code={configCode} />
       </div>
@@ -99,210 +104,10 @@ const menuItems = [
 </section>
 
 <style>
-  .hero {
-    position: relative;
-    padding: 96px 32px 88px;
-    background: var(--surface-page);
-  }
-
-  .hero__inner {
-    position: relative;
-    max-width: 1440px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 26px;
-    text-align: center;
-  }
-
-  .hero__title {
-    margin: 0;
-    font-size: 64px;
-    line-height: 1;
-    letter-spacing: -0.045em;
-    font-weight: 600;
-    max-width: 860px;
-    text-wrap: pretty;
-    color: var(--text-primary);
-  }
-
-  .hero__sub {
-    margin: 0;
-    max-width: 620px;
-    font-size: 18px;
-    line-height: 1.65;
-    color: var(--text-secondary);
-  }
-
-  .hero__cta {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .hero__meta {
-    display: flex;
-    gap: 28px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-  }
-
-  .hero__window {
-    position: relative;
-    max-width: 1440px;
-    margin: 64px auto 0;
-    background: var(--surface-1);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
-  }
-
-  .hero__bar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    height: 42px;
-    padding: 0 14px;
-    border-bottom: 1px solid var(--border-subtle);
-    background: var(--background-elevated);
-  }
-  .hero__dots {
-    display: flex;
-    gap: 6px;
-  }
-  .hero__dots i {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.11);
-  }
-  .hero__dots i:first-child {
-    background: rgba(255, 255, 255, 0.16);
-  }
-  .hero__path {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-  .hero__name {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .hero__spacer {
-    flex: 1;
-  }
-
-  .hero__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 1px;
-    background: var(--border-subtle);
-  }
-
-  .hero__menu {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding: 24px 26px;
-    font-family: var(--font-mono);
-    font-size: 13.5px;
-    line-height: 1.7;
-    background: var(--surface-code);
-  }
-  .hero__prompt {
-    color: var(--text-muted);
-  }
-  .hero__dollar {
-    color: var(--accent);
-  }
-  .hero__mode {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-  .hero__count {
-    color: var(--text-faint);
-    font-size: 12px;
-  }
-  .hero__list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    color: var(--text-secondary);
-  }
-  .hero__item {
-    display: flex;
-    gap: 10px;
-  }
-  .hero__item--active {
-    color: var(--accent);
-  }
-  .hero__marker {
-    color: var(--text-faint);
-    flex: none;
-  }
-  .hero__item--active .hero__marker {
-    color: var(--accent);
-  }
-  .hero__foot {
-    margin-top: auto;
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    color: var(--text-faint);
-  }
-
-  .hero__right {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 20px;
-    background: var(--surface-1);
-  }
-
-  @media (max-width: 900px) {
-    .hero__window {
-      margin-top: 48px;
-    }
-    .hero__grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
+  /* stacked CTA on small screens: buttons fill the column */
   @media (max-width: 640px) {
-    .hero {
-      padding: 64px 16px 56px;
-    }
-    .hero__title {
-      font-size: 38px;
-      letter-spacing: -0.03em;
-    }
-    .hero__sub {
-      font-size: 16px;
-    }
-    .hero__cta {
-      flex-direction: column;
-      width: 100%;
-    }
     .hero__cta :global(.ui-btn) {
       width: 100%;
-    }
-    .hero__meta {
-      flex-direction: column;
-      gap: 8px;
-      text-align: center;
-    }
-    .hero__menu {
-      padding: 18px 18px;
-      font-size: 12px;
-    }
-    .hero__right {
-      padding: 16px;
     }
   }
 </style>

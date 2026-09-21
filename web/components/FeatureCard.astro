@@ -11,58 +11,16 @@ interface Props {
 const { icon, title, description, class: className } = Astro.props;
 ---
 
-<div class:list={['ui-feature', className]}>
-  <div class="ui-feature__icon"><Icon name={icon} size={16} /></div>
-  <div class="ui-feature__title">{title}</div>
-  {description && <div class="ui-feature__desc">{description}</div>}
-  <div class="ui-feature__slot"><slot /></div>
+<div
+  class:list={[
+    'ui-feature flex flex-col rounded-[10px] border border-edge bg-[#101216] p-[22px] transition-colors duration-[var(--duration-fast)] ease-[var(--ease-out)] hover:border-[#23262d]',
+    className
+  ]}
+>
+  <div class="ui-feature__icon flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-lime/[0.12] text-lime">
+    <Icon name={icon} size={16} />
+  </div>
+  <div class="ui-feature__title mt-4 text-[15px] font-semibold tracking-[-0.01em] text-text">{title}</div>
+  {description && <div class="ui-feature__desc mt-2 text-[13.5px] leading-[1.6] text-text-dim">{description}</div>}
+  <div class="ui-feature__slot mt-3.5 flex flex-wrap items-center gap-2"><slot /></div>
 </div>
-
-<style>
-  .ui-feature {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    padding: 22px;
-    transition:
-      transform var(--duration-fast) var(--ease-out),
-      border-color var(--duration-fast) var(--ease-out);
-  }
-  .ui-feature:hover {
-    border-color: var(--border);
-    transform: translateY(-2px);
-  }
-  .ui-feature__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    flex-shrink: 0;
-  }
-  .ui-feature__title {
-    margin-top: 16px;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text-primary);
-  }
-  .ui-feature__desc {
-    margin-top: 8px;
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: var(--text-secondary);
-  }
-  .ui-feature__slot {
-    margin-top: 14px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-  }
-</style>

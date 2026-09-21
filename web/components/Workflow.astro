@@ -28,20 +28,22 @@ const branchList = Array.isArray(branches) ? branches : [];
 const hasActive = branchList.some((b) => b && b.active);
 ---
 
-<div class="ui-workflow">
-  <div class="ui-workflow__root">
-    <span class="ui-workflow__root-icon">
+<div class="font-sans text-text">
+  <div class="flex items-center gap-2.5 bg-[#0d0f13] border border-edge-hover rounded-[8px] py-2.5 px-3">
+    <span
+      class="flex-none w-[26px] h-[26px] rounded-[5px] bg-lime/10 border border-edge-hover text-lime flex items-center justify-center"
+    >
       <Icon name={root.icon || 'layers'} size={13} />
     </span>
-    <div class="ui-workflow__root-text">
-      <span class="ui-workflow__root-label">{root.label}</span>
-      {root.sublabel && <span class="ui-workflow__root-sub">{root.sublabel}</span>}
+    <div class="flex flex-col gap-0.5 min-w-0">
+      <span class="text-[12.5px] font-semibold leading-[1.3]">{root.label}</span>
+      {root.sublabel && <span class="font-mono text-[10.5px] leading-[1.4] text-[#7c8492]">{root.sublabel}</span>}
     </div>
   </div>
 
-  <div class="ui-workflow__branches">
+  <div class="relative flex flex-col gap-2.5 mt-3">
     <div
-      class="ui-workflow__rail"
+      class="absolute left-0 -top-3 bottom-[30px] w-px"
       aria-hidden="true"
       style={`background:${hasActive ? 'var(--border)' : 'var(--border-subtle)'}`}
     ></div>
@@ -53,36 +55,57 @@ const hasActive = branchList.some((b) => b && b.active);
         const solidColor = isActive ? 'var(--border)' : 'var(--border-subtle)';
         const lineStyle = flow ? undefined : `background:${solidColor};`;
         return (
-          <div class="ui-workflow__branch">
-            <div class="ui-workflow__elbow" aria-hidden="true">
+          <div class="flex items-stretch max-[640px]:flex-col">
+            <div class="flex-none w-4 relative max-[640px]:w-auto max-[640px]:h-3" aria-hidden="true">
               <div
-                class:list={['ui-workflow__elbow-line', { 'ui-workflow__elbow-line--flow': flow }]}
+                class:list={[
+                  'ui-workflow__elbow-line absolute top-[26px] left-0 right-0 h-px max-[640px]:top-0 max-[640px]:bottom-0 max-[640px]:left-[7px] max-[640px]:right-auto max-[640px]:w-px max-[640px]:h-auto',
+                  { 'ui-workflow__elbow-line--flow': flow },
+                ]}
                 style={lineStyle}
               />
             </div>
-            <div class="ui-workflow__chain">
+            <div class="flex-auto min-w-0 flex items-stretch max-[640px]:flex-col">
               {chain.map((node, j) => (
                 <Fragment>
-                  <div class:list={['ui-workflow__node', { 'ui-workflow__node--bright': isActive }]}>
-                    <div class="ui-workflow__node-top">
+                  <div
+                    class:list={[
+                      'flex-1 min-w-0 bg-[#0d0f13] border rounded-[8px] py-2.5 px-3 flex flex-col gap-[3px]',
+                      isActive ? 'border-[#23262d]' : 'border-edge',
+                    ]}
+                  >
+                    <div class="flex items-center gap-[7px] min-h-[15px]">
                       {node.icon && <Icon name={node.icon} size={12} />}
-                      <span class="ui-workflow__node-label">{node.label}</span>
+                      <span class="text-[12.5px] font-medium leading-[1.3] text-text truncate">{node.label}</span>
                       {node.status === 'running' && (
-                        <span class="ui-workflow__dot" title="running" aria-hidden="true" />
+                        <span
+                          class="ui-workflow__dot flex-none ml-auto w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-[ui-wf-pulse_2s_ease-in-out_infinite]"
+                          title="running"
+                          aria-hidden="true"
+                        />
                       )}
                     </div>
                     {node.sublabel && (
                       <span
-                        class:list={['ui-workflow__node-sub', { 'ui-workflow__node-sub--violet': node.tone === 'violet' }]}
+                        class:list={[
+                          'font-mono text-[10.5px] leading-[1.4] tracking-[0.01em] truncate',
+                          node.tone === 'violet' ? 'text-[#a78bfa]' : 'text-[#7c8492]',
+                        ]}
                       >
                         {node.sublabel}
                       </span>
                     )}
                   </div>
                   {j < chain.length - 1 && (
-                    <div class="ui-workflow__connector" aria-hidden="true">
+                    <div
+                      class="flex-none w-3 flex items-center max-[640px]:w-auto max-[640px]:h-3 max-[640px]:justify-center"
+                      aria-hidden="true"
+                    >
                       <div
-                        class:list={['ui-workflow__connector-line', { 'ui-workflow__connector-line--flow': flow }]}
+                        class:list={[
+                          'ui-workflow__connector-line w-full h-px max-[640px]:w-px max-[640px]:h-full',
+                          { 'ui-workflow__connector-line--flow': flow },
+                        ]}
                         style={lineStyle}
                       />
                     </div>
@@ -98,128 +121,7 @@ const hasActive = branchList.some((b) => b && b.active);
 </div>
 
 <style>
-  .ui-workflow {
-    font-family: var(--font-sans);
-    color: var(--text-primary);
-  }
-
-  .ui-workflow__root {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--surface-code);
-    border: 1px solid var(--accent-border);
-    border-radius: var(--radius-md);
-    padding: 10px 12px;
-  }
-  .ui-workflow__root-icon {
-    flex: none;
-    width: 26px;
-    height: 26px;
-    border-radius: var(--radius-sm);
-    background: var(--accent-soft);
-    border: 1px solid var(--accent-border);
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .ui-workflow__root-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-  .ui-workflow__root-label {
-    font-size: 12.5px;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-  .ui-workflow__root-sub {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    line-height: 1.4;
-    color: var(--text-faint);
-  }
-
-  .ui-workflow__branches {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 12px;
-  }
-  .ui-workflow__rail {
-    position: absolute;
-    left: 0;
-    top: -12px;
-    bottom: 30px;
-    width: 1px;
-  }
-
-  .ui-workflow__branch {
-    display: flex;
-    align-items: stretch;
-  }
-  .ui-workflow__elbow {
-    flex: none;
-    width: 16px;
-    position: relative;
-  }
-  .ui-workflow__elbow-line {
-    position: absolute;
-    top: 26px;
-    left: 0;
-    right: 0;
-    height: 1px;
-  }
-
-  .ui-workflow__chain {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    align-items: stretch;
-  }
-
-  .ui-workflow__node {
-    flex: 1 1 0;
-    min-width: 0;
-    background: var(--surface-code);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .ui-workflow__node--bright {
-    border-color: var(--border);
-  }
-  .ui-workflow__node-top {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    min-height: 15px;
-  }
-  .ui-workflow__node-label {
-    font-size: 12.5px;
-    font-weight: 500;
-    line-height: 1.3;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .ui-workflow__dot {
-    flex: none;
-    margin-left: auto;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--success);
-    animation: ui-wf-pulse 2s ease-in-out infinite;
-  }
-
+  /* animated flow lines + running dot pulse; reduced-motion guard */
   .ui-workflow__elbow-line--flow,
   .ui-workflow__connector-line--flow {
     background-color: transparent;
@@ -248,61 +150,6 @@ const hasActive = branchList.some((b) => b && b.active);
     .ui-workflow__connector-line--flow,
     .ui-workflow__dot {
       animation: none !important;
-    }
-  }
-  .ui-workflow__node-sub {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    line-height: 1.4;
-    letter-spacing: 0.01em;
-    color: var(--text-faint);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .ui-workflow__node-sub--violet {
-    color: #a78bfa;
-  }
-
-  .ui-workflow__connector {
-    flex: none;
-    width: 12px;
-    display: flex;
-    align-items: center;
-  }
-  .ui-workflow__connector-line {
-    width: 100%;
-    height: 1px;
-  }
-
-  @media (max-width: 640px) {
-    .ui-workflow__branch {
-      flex-direction: column;
-    }
-    .ui-workflow__elbow {
-      width: auto;
-      height: 12px;
-    }
-    .ui-workflow__elbow-line {
-      top: 0;
-      bottom: 0;
-      left: 7px;
-      right: auto;
-      width: 1px;
-      height: auto;
-    }
-    .ui-workflow__chain {
-      flex-direction: column;
-    }
-    .ui-workflow__connector {
-      width: auto;
-      height: 12px;
-      align-items: center;
-      justify-content: center;
-    }
-    .ui-workflow__connector-line {
-      width: 1px;
-      height: 100%;
     }
   }
 </style>

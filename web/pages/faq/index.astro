@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '@/web/layouts/ContentLayout.astro';
+import '../../styles/prose.css';
 
 const entries = (await getCollection('faq')).toSorted(
   (a, b) => a.data.order - b.data.order
@@ -32,8 +33,7 @@ const faqSchema = {
   jsonLd={faqSchema}
 >
   <section class="relative z-10 pt-36 pb-12 px-6">
-    <div class="max-w-3xl mx-auto">
-      <span class="eyebrow">// FAQ</span>
+    <div class="max-w-4xl mx-auto">
       <h1
         class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
       >
@@ -41,7 +41,7 @@ const faqSchema = {
       </h1>
       <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
         Straight answers with links to the docs, blog posts, source code, and
-        the relevant TUI screens you can try right now. All on one page.
+        the relevant TUI screens you can try right now.
       </p>
 
       <nav class="reveal mt-8 flex flex-wrap gap-2">
@@ -60,20 +60,20 @@ const faqSchema = {
   </section>
 
   <section class="relative z-10 pb-32 px-6">
-    <div class="max-w-3xl mx-auto space-y-16">
+    <div class="max-w-4xl mx-auto space-y-16">
       {
         categories.map((category) => (
           <div>
             <h2 class="text-xs font-semibold uppercase tracking-widest text-lime mb-6">
               {category}
             </h2>
-            <div class="faq-list">
+            <div class="border-t border-edge">
               {rendered
                 .filter(({ entry }) => entry.data.category === category)
                 .map(({ entry, Content }) => (
-                  <details id={entry.id} class="faq-item reveal scroll-mt-28">
+                  <details id={entry.id} class="faq-item reveal scroll-mt-28 border-b border-edge">
                     <summary class="faq-summary">
-                      <span class="faq-question">{entry.data.question}</span>
+                      <span class="text-[1.05rem] font-semibold tracking-[-0.01em] leading-[1.4]">{entry.data.question}</span>
                       <svg
                         class="faq-chevron"
                         width="16"
@@ -89,7 +89,7 @@ const faqSchema = {
                         <polyline points="6 9 12 15 18 9" />
                       </svg>
                     </summary>
-                    <div class="prose-faq faq-answer">
+                    <div class="prose-doc prose-doc--sm faq-answer">
                       <Content />
                     </div>
                   </details>
@@ -152,14 +152,6 @@ const faqSchema = {
 </script>
 
 <style>
-  .faq-list {
-    border-top: 1px solid var(--color-edge);
-  }
-
-  .faq-item {
-    border-bottom: 1px solid var(--color-edge);
-  }
-
   .faq-summary {
     display: flex;
     align-items: center;
@@ -177,13 +169,6 @@ const faqSchema = {
   .faq-summary:hover,
   .faq-item[open] > .faq-summary {
     color: var(--color-text);
-  }
-
-  .faq-question {
-    font-size: 1.05rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.4;
   }
 
   .faq-chevron {
@@ -206,97 +191,3 @@ const faqSchema = {
   }
 </style>
 
-<style is:global>
-  .prose-faq {
-    color: var(--color-text-dim);
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-  .prose-faq h2 {
-    color: var(--color-text);
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    margin-top: 1.75rem;
-    margin-bottom: 0.75rem;
-  }
-  .prose-faq h3 {
-    color: var(--color-text);
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 1.5rem;
-    margin-bottom: 0.6rem;
-  }
-  .prose-faq p {
-    margin-bottom: 1rem;
-  }
-  .prose-faq a {
-    color: var(--color-lime);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(217, 119, 87, 0.3);
-    transition: border-color 0.15s;
-  }
-  .prose-faq a:hover {
-    border-bottom-color: var(--color-lime);
-  }
-  .prose-faq code {
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    color: var(--color-lime);
-    background: rgba(217, 119, 87, 0.08);
-    padding: 0.12rem 0.4rem;
-    border-radius: 0.3rem;
-  }
-  .prose-faq pre {
-    background: rgba(10, 10, 14, 0.85);
-    border: 1px solid var(--color-edge);
-    border-radius: 0.85rem;
-    padding: 1.1rem 1.25rem;
-    overflow-x: auto;
-    margin: 1.25rem 0;
-    font-size: 0.85rem;
-    line-height: 1.6;
-  }
-  .prose-faq pre code {
-    background: none;
-    padding: 0;
-    color: inherit;
-    font-size: inherit;
-  }
-  .prose-faq ul,
-  .prose-faq ol {
-    padding-left: 1.4rem;
-    margin-bottom: 1rem;
-  }
-  .prose-faq li {
-    margin-bottom: 0.35rem;
-  }
-  .prose-faq strong {
-    color: var(--color-text);
-    font-weight: 600;
-  }
-  .prose-faq table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.25rem 0;
-    font-size: 0.9rem;
-  }
-  .prose-faq th {
-    color: var(--color-text);
-    font-weight: 600;
-    text-align: left;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 2px solid var(--color-edge);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .prose-faq td {
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--color-edge);
-    vertical-align: top;
-  }
-  .prose-faq tr:last-child td {
-    border-bottom: none;
-  }
-</style>

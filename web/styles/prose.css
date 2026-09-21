@@ -1,0 +1,159 @@
+/* prose.css: shared rendered-markdown prose (blog/providers/faq detail pages).
+   Plain descendant CSS on purpose: these rules target rendered markdown children.
+   .prose-doc = providers superset (includes table rules).
+   .prose-doc--sm = faq tighter scale overrides, applied together with .prose-doc.
+   Base values are the computed winners under .site-root: theme.css's
+   .site-root .prose-* rules (higher specificity) overrode the old page blocks
+   for pre background and pre/hr/th/td border colors, so those follow theme.css. */
+
+.prose-doc {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+.prose-doc h2 {
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+.prose-doc h3 {
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+}
+.prose-doc p {
+  margin-bottom: 1.25rem;
+}
+.prose-doc a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(217, 119, 87, 0.3);
+  transition: border-color 0.15s;
+}
+.prose-doc a:hover {
+  border-bottom-color: var(--accent);
+}
+.prose-doc code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--accent);
+  background: rgba(217, 119, 87, 0.08);
+  padding: 0.12rem 0.4rem;
+  border-radius: 0.3rem;
+}
+.prose-doc pre {
+  /* bg/border from theme.css winner; old page blocks said rgba(10,10,14,0.85)/var(--color-edge) */
+  background: rgba(13, 15, 19, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.prose-doc pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+.prose-doc ul,
+.prose-doc ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose-doc li {
+  margin-bottom: 0.4rem;
+}
+.prose-doc blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.prose-doc hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+.prose-doc strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.prose-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+}
+.prose-doc th {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.prose-doc td {
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.prose-doc tr:last-child td {
+  border-bottom: none;
+}
+
+/* faq tighter scale (verbatim from the old faq page block) */
+.prose-doc--sm {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.prose-doc--sm h2 {
+  font-size: 1.35rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+.prose-doc--sm h3 {
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+.prose-doc--sm p {
+  margin-bottom: 1rem;
+}
+.prose-doc--sm code {
+  font-size: 0.9em;
+}
+.prose-doc--sm pre {
+  margin: 1.25rem 0;
+  font-size: 0.85rem;
+}
+.prose-doc--sm ul,
+.prose-doc--sm ol {
+  padding-left: 1.4rem;
+  margin-bottom: 1rem;
+}
+.prose-doc--sm li {
+  margin-bottom: 0.35rem;
+}
+.prose-doc--sm table {
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+.prose-doc--sm th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+.prose-doc--sm td {
+  padding: 0.5rem 0.75rem;
+}

@@ -12,46 +12,19 @@ const { value, label, tone = 'default', bordered = false, class: className } = A
 
 <div
   class:list={[
-    'ui-metric',
-    bordered && 'ui-metric--bordered',
+    'ui-metric flex flex-col justify-center gap-2.5 min-h-[120px] p-[22px] bg-[#101216]',
+    bordered && 'ui-metric--bordered border-l border-edge',
     tone === 'accent' && 'ui-metric--accent',
     className
   ]}
 >
-  <div class="ui-metric__value">{value}</div>
-  <div class="ui-metric__label">{label}</div>
+  <div
+    class:list={[
+      'ui-metric__value font-mono text-[34px] leading-none font-semibold tracking-[-0.02em] tabular-nums',
+      tone === 'accent' ? 'text-lime' : 'text-text'
+    ]}
+  >
+    {value}
+  </div>
+  <div class="ui-metric__label text-[12px] font-medium uppercase tracking-[0.07em] text-text-mute">{label}</div>
 </div>
-
-<style>
-  .ui-metric {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    min-height: 120px;
-    padding: 22px;
-    background: var(--surface-1);
-  }
-  .ui-metric--bordered {
-    border-left: 1px solid var(--border-subtle);
-  }
-  .ui-metric__value {
-    font-family: var(--font-mono);
-    font-size: 34px;
-    line-height: 1;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-primary);
-  }
-  .ui-metric--accent .ui-metric__value {
-    color: var(--accent);
-  }
-  .ui-metric__label {
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--text-muted);
-  }
-</style>

@@ -1,7 +1,7 @@
 ---
 ---
 
-<div class="reveal terminal demo-terminal">
+<div class="reveal terminal [--frame-duration:24s]">
   <div class="terminal-header">
     <span class="terminal-dot bg-[#ff5f57]"></span>
     <span class="terminal-dot bg-[#febc2e]"></span>
@@ -9,140 +9,121 @@
     <span class="terminal-title">claude-multi</span>
   </div>
 
-  <div class="demo-body">
-    <div class="demo-header">
-      <span class="demo-title">🤖 Claude Multi</span>
-      <span class="demo-sub">Interactive Mode</span>
+  <div class="pt-4 px-5 pb-3 font-mono text-[0.78rem] leading-[1.7] text-[#e5e7eb]">
+    <div class="flex items-baseline gap-[0.6rem] pb-[0.4rem] border-b border-dashed border-white/[0.08] mb-[0.6rem]">
+      <span class="text-lime font-bold tracking-[0.02em]">🤖 Claude Multi</span>
+      <span class="text-text-mute text-[0.7rem]">Interactive Mode</span>
     </div>
 
-    <div class="demo-stage">
-      <div class="demo-frame demo-frame-1">
-        <div class="demo-line demo-dim">2 instance(s): glm, dsv3</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-selected">▸ ➕ Add new instance</div>
-        <div class="demo-line">&nbsp;&nbsp;📋 List all instances</div>
-        <div class="demo-line">&nbsp;&nbsp;🔌 Manage plugins</div>
-        <div class="demo-line">&nbsp;&nbsp;🔄 Sync mode</div>
-        <div class="demo-line">&nbsp;&nbsp;⚙️&nbsp; MCP servers</div>
-        <div class="demo-line">&nbsp;&nbsp;🚪 Exit</div>
+    <div class="relative h-[11.5rem]">
+      <div
+        class="demo-frame demo-frame-1 absolute inset-0 opacity-0 [transform:translateY(6px)] animate-[demo-frame-cycle_var(--frame-duration)_ease-in-out_infinite]"
+      >
+        <div class="whitespace-pre text-text-mute">2 instance(s): glm, dsv3</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre text-lime [text-shadow:0_0_8px_rgba(217,119,87,0.4)]">▸ ➕ Add new instance</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;📋 List all instances</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;🔌 Manage plugins</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;🔄 Sync mode</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;⚙️&nbsp; MCP servers</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;🚪 Exit</div>
       </div>
 
-      <div class="demo-frame demo-frame-2">
-        <div class="demo-line demo-step">Step 1 / 8 · Instance Name</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">Pick a short alias. Becomes your command name.</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line">
-          <span class="demo-prompt">›</span>
-          <span class="demo-typed demo-typed-name"></span><span class="demo-caret"></span>
+      <div
+        class="demo-frame demo-frame-2 absolute inset-0 opacity-0 [transform:translateY(6px)] animate-[demo-frame-cycle_var(--frame-duration)_ease-in-out_infinite] [animation-delay:4s]"
+      >
+        <div class="whitespace-pre text-[#7dd3fc] text-[0.72rem] tracking-[0.05em] uppercase">Step 1 / 8 · Instance Name</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre text-text-mute">Pick a short alias. Becomes your command name.</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre">
+          <span class="text-lime mr-[0.4rem]">›</span>
+          <span
+            class="demo-typed demo-typed-name inline-block overflow-hidden whitespace-nowrap align-bottom w-0 text-[#fbbf24] animate-[demo-typed-name_var(--frame-duration)_linear_infinite]"
+          ></span><span
+            class="demo-caret inline-block w-1.5 h-[0.95em] bg-lime align-text-bottom ml-0.5 shadow-[0_0_6px_var(--color-lime)] animate-[demo-blink_0.9s_steps(2,end)_infinite]"
+          ></span>
         </div>
       </div>
 
-      <div class="demo-frame demo-frame-3">
-        <div class="demo-line demo-step">Step 2 / 8 · Provider Template</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-selected">▸ GLM</div>
-        <div class="demo-line">&nbsp;&nbsp;MiniMax</div>
-        <div class="demo-line">&nbsp;&nbsp;DeepSeek</div>
-        <div class="demo-line">&nbsp;&nbsp;None / Custom</div>
+      <div
+        class="demo-frame demo-frame-3 absolute inset-0 opacity-0 [transform:translateY(6px)] animate-[demo-frame-cycle_var(--frame-duration)_ease-in-out_infinite] [animation-delay:8s]"
+      >
+        <div class="whitespace-pre text-[#7dd3fc] text-[0.72rem] tracking-[0.05em] uppercase">Step 2 / 8 · Provider Template</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre text-lime [text-shadow:0_0_8px_rgba(217,119,87,0.4)]">▸ GLM</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;MiniMax</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;DeepSeek</div>
+        <div class="whitespace-pre">&nbsp;&nbsp;None / Custom</div>
       </div>
 
-      <div class="demo-frame demo-frame-4">
-        <div class="demo-line demo-step">Step 3 / 8 · API Key</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">Goes into ~/.claude-glm/settings.json</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line">
-          <span class="demo-prompt">›</span>
-          <span class="demo-typed demo-typed-key"></span><span class="demo-caret"></span>
+      <div
+        class="demo-frame demo-frame-4 absolute inset-0 opacity-0 [transform:translateY(6px)] animate-[demo-frame-cycle_var(--frame-duration)_ease-in-out_infinite] [animation-delay:12s]"
+      >
+        <div class="whitespace-pre text-[#7dd3fc] text-[0.72rem] tracking-[0.05em] uppercase">Step 3 / 8 · API Key</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre text-text-mute">Goes into ~/.claude-glm/settings.json</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre">
+          <span class="text-lime mr-[0.4rem]">›</span>
+          <span
+            class="demo-typed demo-typed-key inline-block overflow-hidden whitespace-nowrap align-bottom w-0 text-[#f9a8d4] animate-[demo-typed-key_var(--frame-duration)_linear_infinite]"
+          ></span><span
+            class="demo-caret inline-block w-1.5 h-[0.95em] bg-lime align-text-bottom ml-0.5 shadow-[0_0_6px_var(--color-lime)] animate-[demo-blink_0.9s_steps(2,end)_infinite]"
+          ></span>
         </div>
       </div>
 
-      <div class="demo-frame demo-frame-5">
-        <div class="demo-line demo-step">Step 7 / 8 · Sync Mode</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">Symlink plugins &amp; skills from ~/.claude?</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line">
-          <span class="demo-prompt">?</span>
+      <div
+        class="demo-frame demo-frame-5 absolute inset-0 opacity-0 [transform:translateY(6px)] animate-[demo-frame-cycle_var(--frame-duration)_ease-in-out_infinite] [animation-delay:16s]"
+      >
+        <div class="whitespace-pre text-[#7dd3fc] text-[0.72rem] tracking-[0.05em] uppercase">Step 7 / 8 · Sync Mode</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre text-text-mute">Symlink plugins &amp; skills from ~/.claude?</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre">
+          <span class="text-lime mr-[0.4rem]">?</span>
           Enable auto-sync
-          <span class="demo-dim">(Y/n) ›</span>
-          <span class="demo-ok">Y</span>
+          <span class="text-text-mute">(Y/n) ›</span>
+          <span class="text-lime">Y</span>
         </div>
       </div>
 
-      <div class="demo-frame demo-frame-6">
-        <div class="demo-line demo-ok">✓ Instance 'glm' created successfully!</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line demo-dim">├─ Binary: /usr/local/bin/claude-glm</div>
-        <div class="demo-line demo-dim">└─ Config: ~/.claude-glm</div>
-        <div class="demo-line demo-spacer"></div>
-        <div class="demo-line">
-          <span class="demo-prompt">$</span>
-          <span class="demo-cmd">claude-glm</span><span class="demo-caret"></span>
+      <div
+        class="demo-frame demo-frame-6 absolute inset-0 opacity-0 [transform:translateY(6px)] animate-[demo-frame-cycle_var(--frame-duration)_ease-in-out_infinite] [animation-delay:20s]"
+      >
+        <div class="whitespace-pre text-lime">✓ Instance 'glm' created successfully!</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre text-text-mute">├─ Binary: /usr/local/bin/claude-glm</div>
+        <div class="whitespace-pre text-text-mute">└─ Config: ~/.claude-glm</div>
+        <div class="whitespace-pre h-[0.4rem]"></div>
+        <div class="whitespace-pre">
+          <span class="text-lime mr-[0.4rem]">$</span>
+          <span class="text-[#7dd3fc]">claude-glm</span><span
+            class="demo-caret inline-block w-1.5 h-[0.95em] bg-lime align-text-bottom ml-0.5 shadow-[0_0_6px_var(--color-lime)] animate-[demo-blink_0.9s_steps(2,end)_infinite]"
+          ></span>
         </div>
       </div>
     </div>
 
-    <div class="demo-footer">
+    <div class="mt-2 pt-2 border-t border-dashed border-white/[0.08] text-text-mute text-[0.68rem] flex gap-2 items-center">
       <span>↑↓ navigate</span>
-      <span class="demo-sep">·</span>
+      <span class="opacity-40">·</span>
       <span>⏎ select</span>
-      <span class="demo-sep">·</span>
+      <span class="opacity-40">·</span>
       <span>esc back</span>
     </div>
   </div>
 </div>
 
 <style>
-  .demo-terminal {
-    --frame-duration: 24s;
+  /* typed widths animate via keyframes; content injected here */
+  .demo-typed-name::before {
+    content: "glm";
   }
-
-  .demo-body {
-    padding: 1rem 1.25rem 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.7;
-    color: #e5e7eb;
+  .demo-typed-key::before {
+    content: "••••••••••••";
   }
-
-  .demo-header {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
-    margin-bottom: 0.6rem;
-  }
-  .demo-title {
-    color: var(--color-lime);
-    font-weight: 700;
-    letter-spacing: 0.02em;
-  }
-  .demo-sub {
-    color: var(--color-text-mute);
-    font-size: 0.7rem;
-  }
-
-  .demo-stage {
-    position: relative;
-    height: 11.5rem;
-  }
-
-  .demo-frame {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transform: translateY(6px);
-    animation: demo-frame-cycle var(--frame-duration) ease-in-out infinite;
-  }
-  .demo-frame-1 { animation-delay: 0s; }
-  .demo-frame-2 { animation-delay: 4s; }
-  .demo-frame-3 { animation-delay: 8s; }
-  .demo-frame-4 { animation-delay: 12s; }
-  .demo-frame-5 { animation-delay: 16s; }
-  .demo-frame-6 { animation-delay: 20s; }
 
   @keyframes demo-frame-cycle {
     0%, 1%   { opacity: 0; transform: translateY(6px); }
@@ -150,61 +131,11 @@
     18%, 100% { opacity: 0; transform: translateY(-4px); }
   }
 
-  .demo-line {
-    white-space: pre;
-  }
-  .demo-spacer { height: 0.4rem; }
-  .demo-dim { color: var(--color-text-mute); }
-  .demo-ok { color: var(--color-lime); }
-  .demo-step {
-    color: #7dd3fc;
-    font-size: 0.72rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .demo-prompt { color: var(--color-lime); margin-right: 0.4rem; }
-  .demo-cmd { color: #7dd3fc; }
-
-  .demo-selected {
-    color: var(--color-lime);
-    text-shadow: 0 0 8px rgba(217, 119, 87, 0.4);
-  }
-
-  .demo-caret {
-    display: inline-block;
-    width: 6px;
-    height: 0.95em;
-    background: var(--color-lime);
-    vertical-align: text-bottom;
-    margin-left: 2px;
-    box-shadow: 0 0 6px var(--color-lime);
-    animation: demo-blink 0.9s steps(2, end) infinite;
-  }
-
+  /* theme animate-blink is 1s steps(2, start); demo needs 0.9s steps(2, end) */
   @keyframes demo-blink {
     0%, 50% { opacity: 1; }
     50.01%, 100% { opacity: 0; }
   }
-
-  .demo-typed {
-    display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    vertical-align: bottom;
-  }
-  .demo-typed-name {
-    width: 0;
-    color: #fbbf24;
-    animation: demo-typed-name var(--frame-duration) linear infinite;
-  }
-  .demo-typed-name::before { content: "glm"; }
-
-  .demo-typed-key {
-    width: 0;
-    color: #f9a8d4;
-    animation: demo-typed-key var(--frame-duration) linear infinite;
-  }
-  .demo-typed-key::before { content: "••••••••••••"; }
 
   /* Frame 2 visible window ≈ 17% → 33%. Type during 17% → 20% (~0.72s). */
   @keyframes demo-typed-name {
@@ -221,18 +152,6 @@
     66%       { width: 12ch; }
     66.01%, 100% { width: 0; }
   }
-
-  .demo-footer {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px dashed rgba(255, 255, 255, 0.08);
-    color: var(--color-text-mute);
-    font-size: 0.68rem;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-  .demo-sep { opacity: 0.4; }
 
   @media (prefers-reduced-motion: reduce) {
     .demo-frame,

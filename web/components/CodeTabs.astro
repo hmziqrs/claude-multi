@@ -1,15 +1,17 @@
 ---
+import CopyButton from './CopyButton.astro';
+
 const { tabs = [] } = Astro.props;
 const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: '' }];
 ---
 
-<div class="ui-codetabs" data-ui-codetabs>
-  <div class="ui-codetabs__bar" role="tablist" aria-label="Code examples">
+<div class="code-surface" data-ui-codetabs>
+  <div class="flex items-stretch px-2 border-b border-edge shrink-0" role="tablist" aria-label="Code examples">
     {
       items.map((tab, i) => (
         <button
           type="button"
-          class="ui-codetabs__tab"
+          class="relative appearance-none bg-transparent border-0 border-b-2 border-b-transparent -my-px py-[9px] px-3.5 font-mono text-[11.5px] tracking-[0.02em] text-text-mute cursor-pointer transition-colors duration-[140ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-text-dim aria-selected:text-text aria-selected:hover:text-text aria-selected:border-b-lime"
           role="tab"
           id={`ui-ct-tab-${i}`}
           aria-controls={`ui-ct-panel-${i}`}
@@ -22,11 +24,11 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
     }
   </div>
 
-  <div class="ui-codetabs__body">
+  <div class="flex items-start justify-between gap-3 py-3 pr-3 pl-4 flex-auto min-h-0">
     {
       items.map((tab, i) => (
         <pre
-          class="ui-codetabs__code"
+          class="m-0 flex-auto min-w-0 font-mono text-[12px] leading-[1.65] text-text-dim whitespace-pre-wrap [word-break:break-word] overflow-x-auto"
           role="tabpanel"
           id={`ui-ct-panel-${i}`}
           aria-labelledby={`ui-ct-tab-${i}`}
@@ -35,130 +37,15 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
       ))
     }
 
-    <button
-      type="button"
-      class="ui-codetabs__copy"
-      data-ui-copy
-      data-copy-label="Copy"
-      aria-label="Copy"
-      title="Copy"
-    >
-      <svg class="ui-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-      </svg>
-      <svg class="ui-copied-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M20 6 9 17l-5-5" />
-      </svg>
-    </button>
+    <CopyButton value={String(items[0]?.code ?? '').trim()} />
   </div>
 </div>
-
-<style>
-  .ui-codetabs {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    background: var(--surface-code);
-    border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .ui-codetabs__bar {
-    display: flex;
-    align-items: stretch;
-    padding: 0 8px;
-    border-bottom: 1px solid var(--border-subtle);
-    flex-shrink: 0;
-  }
-
-  .ui-codetabs__tab {
-    position: relative;
-    appearance: none;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    margin: -1px 0;
-    padding: 9px 14px;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    letter-spacing: 0.02em;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-  .ui-codetabs__tab:hover {
-    color: var(--text-secondary);
-  }
-  .ui-codetabs__tab[aria-selected='true'] {
-    color: var(--text-primary);
-    border-bottom-color: var(--accent);
-  }
-
-  .ui-codetabs__body {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 12px 12px 16px;
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
-  .ui-codetabs__code {
-    flex: 1 1 auto;
-    min-width: 0;
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.65;
-    color: var(--text-secondary);
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-x: auto;
-  }
-  .ui-codetabs__code[hidden] {
-    display: none;
-  }
-
-  .ui-codetabs__copy {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 26px;
-    height: 26px;
-    padding: 0;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-  .ui-codetabs__copy:hover {
-    color: var(--text-secondary);
-  }
-  .ui-codetabs__copy[data-copied='true'] {
-    color: var(--success);
-  }
-  .ui-copied-icon {
-    display: none;
-  }
-  .ui-codetabs__copy[data-copied='true'] .ui-copy-icon {
-    display: none;
-  }
-  .ui-codetabs__copy[data-copied='true'] .ui-copied-icon {
-    display: block;
-  }
-</style>
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-ui-codetabs]').forEach((root) => {
     const tabs = Array.from(root.querySelectorAll<HTMLElement>('[role="tab"]'));
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-    const copyBtn = root.querySelector<HTMLButtonElement>('[data-ui-copy]');
+    const copyBtn = root.querySelector<HTMLButtonElement>('[data-copy-btn]');
 
     const currentCode = () => {
       const active = panels.find((p) => !p.hidden);
@@ -174,6 +61,8 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
       panels.forEach((p, idx) => {
         p.hidden = idx !== i;
       });
+      // CopyButton reads its value at click time; keep it tracking the visible pane
+      if (copyBtn) copyBtn.setAttribute('data-copy-value', currentCode());
     };
 
     tabs.forEach((tab, i) => {
@@ -201,22 +90,5 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
         }
       });
     });
-
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        const code = currentCode();
-        try {
-          await navigator.clipboard.writeText(code);
-        } catch {
-          /* clipboard unavailable */
-        }
-        copyBtn.dataset.copied = 'true';
-        copyBtn.setAttribute('aria-label', 'Copied');
-        window.setTimeout(() => {
-          copyBtn.dataset.copied = 'false';
-          copyBtn.setAttribute('aria-label', copyBtn.dataset.copyLabel || 'Copy');
-        }, 1400);
-      });
-    }
   });
 </script>

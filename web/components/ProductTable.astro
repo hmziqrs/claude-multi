@@ -8,28 +8,48 @@ const rowPadV = dense ? '8px' : '12px';
 const rowPadH = dense ? '14px' : '16px';
 ---
 
-<div class="ui-table" role="table" aria-label="Comparison table">
-  <div class="ui-table__row ui-table__row--head" role="row" style={`grid-template-columns:${gridTemplate}`}>
+<div class="ui-table w-full flex flex-col" role="table" aria-label="Comparison table">
+  <div
+    class="ui-table__row ui-table__row--head grid items-center border-b border-edge bg-[#101216]"
+    role="row"
+    style={`grid-template-columns:${gridTemplate}`}
+  >
     {
       cols.map((col) => (
-        <div class="ui-table__head" role="columnheader" style={`padding:${rowPadH}`}>
+        <div
+          class="ui-table__head font-mono text-[10.5px] font-medium tracking-[0.08em] uppercase text-[#7c8492] whitespace-nowrap overflow-hidden text-ellipsis"
+          role="columnheader"
+          style={`padding:${rowPadH}`}
+        >
           {col.label}
         </div>
       ))
     }
   </div>
 
-  <div class="ui-table__body">
+  <div class="ui-table__body flex flex-col">
     {
       rowList.map((row, i) => (
         <div
-          class:list={['ui-table__row', 'ui-table__row--body', { 'ui-table__row--selected': i === selectedIndex }]}
+          class:list={[
+            /* selected keeps its tint on hover, so hover lives on the unselected branch */
+            'ui-table__row ui-table__row--body grid items-center border-b border-edge transition-colors duration-[60ms] ease-[cubic-bezier(0.16,1,0.3,1)] last:border-b-0',
+            i === selectedIndex
+              ? 'ui-table__row--selected bg-lime/[0.08] shadow-[inset_2px_0_0_var(--color-lime)]'
+              : 'hover:bg-[#0d0f13]'
+          ]}
           role="row"
           style={`grid-template-columns:${gridTemplate}`}
         >
           {cols.map((col) => (
             <div
-              class:list={['ui-table__cell', { 'ui-table__cell--mono': col.mono, 'ui-table__cell--emphasis': col.emphasis }]}
+              class:list={[
+                /* Grid items default to min-width:auto, forcing tracks to the full text
+                   width; min-width:0 lets fr tracks size properly and the text wrap. */
+                'ui-table__cell leading-[1.45] text-text-dim min-w-0 [overflow-wrap:anywhere] [word-break:break-word]',
+                col.mono ? 'ui-table__cell--mono font-mono text-[12px]' : 'text-[13px]',
+                col.emphasis && 'ui-table__cell--emphasis font-medium text-text'
+              ]}
               role="cell"
               title={row[col.key]}
               style={`padding:${rowPadV} ${rowPadH}`}
@@ -42,75 +62,3 @@ const rowPadH = dense ? '14px' : '16px';
     }
   </div>
 </div>
-
-<style>
-  .ui-table {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .ui-table__row {
-    display: grid;
-    align-items: center;
-  }
-
-  .ui-table__row--head {
-    border-bottom: 1px solid var(--border-subtle);
-    background: var(--surface-1);
-  }
-  .ui-table__head {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .ui-table__body {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .ui-table__row--body {
-    background: transparent;
-    border-bottom: 1px solid var(--border-subtle);
-    transition: background var(--duration-instant) var(--ease-out);
-  }
-  .ui-table__row--body:last-child {
-    border-bottom: none;
-  }
-  .ui-table__row--body:hover {
-    background: var(--surface-code);
-  }
-  .ui-table__row--selected {
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-    box-shadow: inset 2px 0 0 var(--accent);
-  }
-  .ui-table__row--selected:hover {
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-  }
-
-  .ui-table__cell {
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--text-secondary);
-    /* Grid items default to min-width:auto, forcing tracks to the full text
-       width; min-width:0 lets fr tracks size properly and the text wrap. */
-    min-width: 0;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-  .ui-table__cell--mono {
-    font-family: var(--font-mono);
-    font-size: 12px;
-  }
-  .ui-table__cell--emphasis {
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-</style>

@@ -147,23 +147,27 @@
   box-sizing: border-box;
 }
 
-.site-root h1,
-.site-root h2,
-.site-root h3,
-.site-root h4,
-.site-root h5,
-.site-root h6,
-.site-root p,
-.site-root figure,
-.site-root blockquote {
-  margin: 0;
-}
+/* Margin/list resets live in @layer base so Tailwind spacing utilities (mt-*, mb-*,
+   list-*) can override them; unlayered resets would beat the utilities layer always. */
+@layer base {
+  .site-root h1,
+  .site-root h2,
+  .site-root h3,
+  .site-root h4,
+  .site-root h5,
+  .site-root h6,
+  .site-root p,
+  .site-root figure,
+  .site-root blockquote {
+    margin: 0;
+  }
 
-.site-root ul,
-.site-root ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  .site-root ul,
+  .site-root ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 }
 
 .site-root button,
@@ -248,7 +252,7 @@
 /* ===================== SECTION PRIMITIVES ===================== */
 .site-root .ui-section {
   position: relative;
-  padding: 128px 32px;
+  padding: 128px 24px;
   border-top: 1px solid var(--border-subtle);
 }
 .site-root .ui-section__inner {
@@ -264,13 +268,6 @@
   flex-direction: column;
   gap: 16px;
   max-width: 640px;
-}
-.site-root .ui-eyebrow {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--accent);
 }
 .site-root .ui-section-title {
   margin: 0;
@@ -427,20 +424,6 @@
   color: var(--accent);
 }
 
-.site-root .eyebrow {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  padding: 0.3rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: 0.4rem;
-  background: rgba(217, 119, 87, 0.04);
-}
-
 .site-root .badge {
   display: inline-flex;
   align-items: center;
@@ -467,12 +450,9 @@
   background: linear-gradient(135deg, #e08a6d, var(--accent));
   color: #0b0c0e;
   text-decoration: none;
-  transition:
-    transform 0.2s ease,
-    filter 0.2s ease;
+  transition: filter 0.2s ease;
 }
 .site-root .btn-primary:hover {
-  transform: translateY(-1px);
   filter: brightness(1.08);
 }
 
@@ -506,13 +486,11 @@
   transition:
     border-color 0.4s ease,
     background 0.4s ease,
-    transform 0.4s ease,
     box-shadow 0.4s ease;
 }
 .site-root .glass:hover {
   background: var(--background-elevated);
   border-color: var(--accent-border);
-  transform: translateY(-2px);
 }
 
 .site-root .terminal {

@@ -2,13 +2,12 @@
 /**
  * Native <details>/<summary> with the `name` attribute: exclusive accordion, zero JS.
  */
-const { eyebrow, title, items = [], name = 'ui-faq' } = Astro.props;
+const { title, items = [], name = 'ui-faq' } = Astro.props;
 const faqItems = Array.isArray(items) ? items : [];
 ---
 
 <div class="ui-faq">
   <div class="ui-faq__head">
-    {eyebrow && <div class="ui-faq__eyebrow">{eyebrow}</div>}
     {title && <h2 class="ui-faq__title">{title}</h2>}
   </div>
 
@@ -52,13 +51,6 @@ const faqItems = Array.isArray(items) ? items : [];
     flex-direction: column;
     gap: 14px;
     margin-bottom: 36px;
-  }
-  .ui-faq__eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--accent);
   }
   .ui-faq__title {
     margin: 0;

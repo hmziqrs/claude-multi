@@ -1,0 +1,70 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  value: string;
+  class?: string;
+  [key: string]: any;
+}
+
+const { value, class: className, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  data-copy-btn
+  data-copy-value={value}
+  aria-label="Copy"
+  title="Copy"
+  class:list={[
+    'group flex items-center justify-center size-[26px] p-0 border-0 rounded-[6px] bg-transparent cursor-pointer shrink-0',
+    'text-text-mute transition-colors hover:text-text-dim',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(217,119,87,0.45)]',
+    'data-[copied]:text-[#4ade80]',
+    className,
+  ]}
+  {...rest}
+>
+  <span class="inline-flex group-data-[copied]:hidden" aria-hidden="true"><Icon name="copy" size={13} /></span>
+  <span class="hidden group-data-[copied]:inline-flex" aria-hidden="true"><Icon name="check" size={13} /></span>
+</button>
+
+<script>
+  // CopyButton: delegated clipboard copy, data-copied attr drives the icon/color swap
+  const fallback = (text: string, done: () => void) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      done();
+    } catch {
+      /* noop */
+    }
+    ta.remove();
+  };
+
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-copy-btn]');
+    if (!btn) return;
+    // read at click time so consumers with dynamic values can update the attribute
+    const value = btn.dataset.copyValue ?? '';
+    if (!btn.dataset.copyLabel) btn.dataset.copyLabel = btn.getAttribute('aria-label') || 'Copy';
+    const done = () => {
+      btn.setAttribute('data-copied', '');
+      btn.setAttribute('aria-label', 'Copied');
+      window.setTimeout(() => {
+        btn.removeAttribute('data-copied');
+        btn.setAttribute('aria-label', btn.dataset.copyLabel || 'Copy');
+      }, 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(value).then(done).catch(() => fallback(value, done));
+    } else {
+      fallback(value, done);
+    }
+  });
+</script>

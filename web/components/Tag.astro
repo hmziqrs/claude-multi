@@ -6,20 +6,9 @@ interface Props {
 const { class: className } = Astro.props;
 ---
 
-<span class:list={['ui-tag', className]}><slot /></span>
-
-<style>
-  .ui-tag {
-    display: inline-flex;
-    align-items: center;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    line-height: 1;
-    padding: 4px 8px;
-    border-radius: 5px;
-    border: 1px solid var(--border-subtle);
-    background: var(--surface-code);
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-</style>
+<span
+  class:list={[
+    'ui-tag inline-flex items-center font-mono text-[11px] leading-none py-1 px-2 rounded-[5px] border border-edge bg-[#0d0f13] text-text-dim whitespace-nowrap',
+    className
+  ]}
+><slot /></span>
