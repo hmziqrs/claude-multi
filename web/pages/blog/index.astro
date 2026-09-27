@@ -10,8 +10,8 @@ const posts = (await getCollection('blog'))
 ---
 
 <Layout
-  title="claude-multi Blog - AI Assistant & Multi-Agent Workflows"
-  description="Build notes from working on claude-multi, posts on running multiple Claude Code instances side by side, and the occasional rant about provider plumbing."
+  title="claude-multi Blog"
+  description="Build notes from working on claude-multi and posts on running multiple Claude Code instances side by side."
 >
   <section class="relative z-10 pt-36 pb-12 px-6">
     <div class="max-w-4xl mx-auto">
@@ -21,7 +21,7 @@ const posts = (await getCollection('blog'))
         Writing about <span class="gradient-text">claude-multi.</span>
       </h1>
       <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
-        Build notes, deep dives, and the occasional rant.
+        Build notes and deep dives.
       </p>
     </div>
   </section>
@@ -31,7 +31,7 @@ const posts = (await getCollection('blog'))
       {
         posts.length === 0 ? (
           <p class="text-text-mute text-center py-16">
-            No posts yet. Check back soon.
+            No posts yet.
           </p>
         ) : (
           <ul class="list-none p-0 m-0 space-y-4">

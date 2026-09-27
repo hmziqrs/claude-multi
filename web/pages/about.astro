@@ -24,17 +24,17 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
     <div class="max-w-4xl mx-auto reveal">
       <div class="glass rounded-3xl p-8 sm:p-12">
         <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">
-          A config directory is a <span class="gradient-text">single shared state.</span>
+          Everything lives in <span class="gradient-text">one directory.</span>
         </h2>
         <div class="mt-6 space-y-5 text-text-dim leading-relaxed text-[0.98rem]">
           <p>
-            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>: settings, MCP servers, plugins, skills, history. Try a second model and that one directory becomes a problem. I ended up editing settings by hand, swapping keys, and keeping shell aliases nobody asked for. Sessions and context get overwritten and you find out later.
+            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>: settings, MCP servers, plugins, skills, history. Try a second model and that one directory becomes a problem: sessions and context get overwritten. Working around it means editing settings by hand, swapping keys, and keeping shell aliases.
           </p>
           <p>
-            claude-multi gives every provider its own alias and config directory. One alias per provider (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code>), each rooted under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills symlink from your primary install, so you still maintain them in one place.
+            claude-multi gives every provider its own alias and config directory. One alias per provider (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code>), each rooted under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills symlink from your primary install.
           </p>
           <p>
-            There are no daemons and no background services. Nothing phones home. Every instance is a real directory you can <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code> into and inspect with the tools you already use.
+            There are no daemons and no background services. Nothing phones home. Every instance is a real directory you can <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code> into and inspect.
           </p>
         </div>
       </div>
@@ -45,7 +45,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
     <div class="max-w-4xl mx-auto">
       <div class="reveal text-center mb-12">
         <h2 class="mt-5 text-3xl sm:text-4xl font-extrabold tracking-tight">
-          What I <span class="gradient-text">optimize for.</span>
+          Design <span class="gradient-text">decisions.</span>
         </h2>
       </div>
 
@@ -56,7 +56,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           </div>
           <h3 class="text-lg font-semibold mb-2">Zero magic</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Every instance is a real directory at <code class="font-mono text-lime text-xs">~/.claude-multi/&lt;name&gt;</code>. Open it, edit it, or delete it. Nothing is hidden from you.
+            Every instance is a real directory at <code class="font-mono text-lime text-xs">~/.claude-multi/&lt;name&gt;</code>. Open it, edit it, or delete it.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           </div>
           <h3 class="text-lg font-semibold mb-2">Templates over docs</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Provider templates come with the right base URLs, model mappings, and defaults. Drop in your API key and go.
+            Provider templates come with the right base URLs, model mappings, and defaults. Add your API key and the config is ready.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           <div class="icon-box mb-4">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </div>
-          <h3 class="text-lg font-semibold mb-2">Reversible everything</h3>
+          <h3 class="text-lg font-semibold mb-2">Reversible operations</h3>
           <p class="text-text-dim text-sm leading-relaxed">
             Migrations back up config files. Plugin operations rename to backup before deleting. Health checks help you recover broken state.
           </p>
@@ -122,7 +122,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
             </li>
           </ol>
           <p class="pt-2">
-            That's the whole trick. One environment variable pointing at a config directory, plus a few symlinks. Nothing proxies your traffic and nothing patches the binary.
+            One environment variable pointing at a config directory, plus a few symlinks. Nothing proxies your traffic and nothing patches the binary.
           </p>
         </div>
       </div>
@@ -165,7 +165,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
         <div class="relative">
           <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Built by <span class="gradient-text">hmziqrs.</span></h2>
           <p class="mt-5 text-text-dim leading-relaxed text-[0.98rem] max-w-xl">
-            I'm an independent developer and I build open-source tooling for my own workflow first. claude-multi exists because switching providers halfway through a day kept breaking my setup, and every alternative meant learning a new CLI I did not want to learn.
+            claude-multi exists because switching providers halfway through a day kept breaking my setup, and every alternative meant learning a new CLI.
           </p>
           <div class="mt-7 flex flex-wrap gap-3">
             <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="btn-primary">
@@ -186,7 +186,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
   <section class="relative z-10 px-6 py-20">
     <div class="max-w-2xl mx-auto reveal text-center">
       <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
-        Ready to try it?
+        Try claude-multi.
       </h2>
       <p class="mt-4 text-text-dim text-lg">One npm install, two commands, and you have your first provider running.</p>
       <div class="mt-7 flex gap-3 justify-center flex-wrap">

@@ -5,17 +5,17 @@ category: "Getting Started"
 order: 1
 ---
 
-claude-multi is a CLI that lets you run multiple Claude Code instances at the same time, each pointed at a different AI provider. Every instance gets its own config directory under `~/.claude-<name>/`, so settings, history, and MCP servers don't bleed into each other.
+claude-multi is a CLI that runs multiple Claude Code instances at the same time, each pointed at a different AI provider. Every instance gets its own config directory under `~/.claude-<name>/`, so settings, history, and MCP servers don't bleed into each other.
 
 ## The problem it solves
 
 Claude Code keeps everything in one `~/.claude` folder: settings, plugins, skills, MCP servers, conversation history. That works fine until you want to try a second provider, or keep a work setup separate from a personal one. Then you're copying files around by hand, swapping environment variables, and hoping nothing gets overwritten.
 
-claude-multi gives each provider its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`), each backed by a real directory you can browse and edit. Instances share no state, so nothing overwrites anything.
+claude-multi gives each provider its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`), each backed by a real directory you can browse and edit. Instances share no state.
 
 ## What it isn't
 
-It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon, and it doesn't do model routing. Each instance is a standalone Claude Code environment, claude-multi just manages the plumbing.
+It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon, and it doesn't do model routing. Each instance is a standalone Claude Code environment. claude-multi manages the plumbing.
 
 ## What you get
 
@@ -29,7 +29,7 @@ It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon, and it d
 
 - [Is it a fork of Claude Code?](/faq/#is-it-a-fork): how the wrapper mechanism works
 - [Which providers are supported?](/faq/#supported-providers): the full template list
-- [Does it cost anything?](/faq/#pricing): it's free, you just pay for API usage
+- [Does it cost anything?](/faq/#pricing): it's free, you pay for API usage
 
 ## More info
 

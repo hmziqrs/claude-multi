@@ -19,7 +19,7 @@ If you already have a Kimi instance, run `claude-multi doctor fix` to sync.
 | Haiku | `kimi-k2.5` | `kimi-k2.5` |
 | Small/Fast | `kimi-k2.5` | `kimi-k2.5` |
 
-The previous template used K2.5 across all roles. Now Claude Code gets K2.7 Code for heavy reasoning, K2.6 for balanced work, and K2.5 for fast lightweight operations.
+Now Claude Code gets K2.7 Code for heavy reasoning, K2.6 for balanced work, and K2.5 for fast lightweight operations.
 
 The context window was also wrong. It was set to 128K in the template but the actual spec is 256K, confirmed on the [Kimi API platform](https://platform.kimi.ai/docs/pricing/chat-k27-code). Auto-compaction now targets 256K (262,144 tokens).
 
@@ -55,7 +55,7 @@ MCP Atlas (tool-use tasks via MCP) goes from 69.4 to 76.0. These are the multi-s
 
 ## Efficiency
 
-The model card says K2.7 Code uses approximately 30% fewer thinking tokens than K2.6 for equivalent tasks. Lower thinking-token usage means faster responses and lower cost per task. That matters for Claude Code's agentic loop where the model thinks on every turn.
+The model card says K2.7 Code uses approximately 30% fewer thinking tokens than K2.6 for equivalent tasks. That matters for Claude Code's agentic loop where the model thinks on every turn.
 
 K2.7 Code also forces `preserve_thinking` mode, which keeps full reasoning content across multi-turn interactions. You cannot disable it. For coding agent scenarios this is useful because the model can reference its own earlier reasoning in later turns.
 
@@ -63,7 +63,7 @@ K2.7 Code also forces `preserve_thinking` mode, which keeps full reasoning conte
 
 K2.7 Code costs $0.95/MTok input (cache miss), $0.19/MTok input (cache hit), and $4.00/MTok output on the [Kimi API platform](https://platform.kimi.ai/docs/pricing/chat-k27-code). A [limited-time promotion](https://platform.kimi.ai/docs/pricing/promotion) runs through July 2, 2026.
 
-Kimi is pay-per-token only. No subscription plan. See [full pricing details on the Kimi provider page](/providers/kimi/#pricing).
+Kimi is pay-per-token only. See [pricing details on the Kimi provider page](/providers/kimi/#pricing).
 
 ## When to use which tier
 
@@ -73,11 +73,9 @@ K2.6 (sonnet) for balanced work: writing features, code review, interactive pair
 
 K2.5 (haiku/fast) for quick lookups, simple edits, git operations. Speed over deep reasoning.
 
-The three-tier mapping means Claude Code routes heavy tasks to K2.7 Code and lightweight ones to K2.5 automatically.
-
 ## Further reading
 
-- [Kimi provider page](/providers/kimi/) for setup instructions and full pricing
+- [Kimi provider page](/providers/kimi/) for setup instructions and pricing
 - [Supported providers FAQ](/faq/#supported-providers) for a comparison of all available templates
 - [Kimi K2.7 Code on HuggingFace](https://huggingface.co/moonshotai/Kimi-K2.7-Code) for the model card and weights
 - [Kimi API platform](https://platform.kimi.ai/docs/pricing/chat-k27-code) for official pricing and documentation

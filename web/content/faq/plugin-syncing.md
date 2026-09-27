@@ -5,7 +5,7 @@ category: "Plugins & MCP"
 order: 6
 ---
 
-Auto-sync symlinks each instance's `plugins/` and `skills/` directories back to your primary `~/.claude`, so you install or update a plugin once and every synced instance picks it up immediately. Toggle it per instance:
+Auto-sync symlinks each instance's `plugins/` and `skills/` directories back to your primary `~/.claude`, so you install or update a plugin once and every synced instance picks it up. Toggle it per instance:
 
 ```sh
 claude-multi auto-sync deepseek on
@@ -19,7 +19,7 @@ Sync has three modes (auto / half-manual / full-manual), and conversions only go
 ## Related questions
 
 - [How do I manage MCP servers?](/faq/#mcp-servers): MCP configs work independently per instance
-- [How do I troubleshoot broken instances?](/faq/#troubleshooting): fixing broken symlinks and more
+- [How do I troubleshoot broken instances?](/faq/#troubleshooting): fixing broken symlinks
 
 ## More info
 

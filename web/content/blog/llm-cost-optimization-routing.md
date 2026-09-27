@@ -1,6 +1,6 @@
 ---
 title: "Stop paying Opus prices for a git status"
-description: "If you're sending every request to a flagship model, you're overpaying by a lot. A look at how LLM routing actually works, what kind of savings to expect, and how to set it up."
+description: "If you're sending every request to a flagship model, you're overpaying by a lot. How LLM routing works, what kind of savings to expect, and how to set it up."
 date: 2026-05-27
 tags: [LLM cost optimization, AI development, LLM routing, claude-code-llm-router, tiered models, cost savings, AI engineering, developer tools]
 audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/llm-cost-optimization-routing.mp3"
@@ -10,13 +10,13 @@ Running every Claude Code call through Opus is fine if you're not paying the bil
 
 The fix is routing: classify the request, send it to the cheapest model that can handle it. Boring solution, real savings. The numbers people are quoting from production are 60 to 80 percent off versus all-Opus, with no measurable hit to output quality on the easy stuff.
 
-### The cost shape, in concrete terms
+### The cost shape
 
 A normal day with Claude Code looks something like:
 
 - Lots of small calls. "Explain this `git` command." "Rename this variable." "Add a JSDoc to this function." Cheap to generate, cheap to verify.
 - A medium pile of scoped work. "Write unit tests for this function." "Refactor this module to use the new logger." Clear spec, contained blast radius.
-- A small number of hard calls. "Why is the auth service deadlocking?" "Design the migration plan for splitting this monolith." These actually need the smart model.
+- A small number of hard calls. "Why is the auth service deadlocking?" "Design the migration plan for splitting this monolith." These need the smart model.
 
 If you bill all three tiers at flagship rates, the first two are subsidizing the third by a wide margin. The first tier alone is usually 70% of your call volume and almost none of your hard-problem load.
 
@@ -30,9 +30,9 @@ A reasonable default classification is roughly:
 - `medium`: clearly scoped features, tests, single-module refactors.
 - `complex`: architecture, cross-subsystem debugging, anything that touches more than a couple of services.
 
-The router (`claude-code-smart-router`, `claude-code-llm-router`, and friends) ships with sensible defaults. You almost always want to tweak them after watching a few days of traffic.
+The router (`claude-code-smart-router`, `claude-code-llm-router`, and friends) ships with defaults. You almost always want to tweak them after watching a few days of traffic.
 
-### What the routing chain looks like in practice
+### The routing chain
 
 Most setups walk through something like:
 
@@ -45,16 +45,16 @@ The "free first" routing is the part that produces the savings. If your Ollama b
 
 ### The features that matter once you're past the demo
 
-A few things to look for in a router beyond the basic tier mapping:
+Four things to look for in a router beyond the basic tier mapping:
 
 - Budget caps and downgrades. When a tier hits its quota, the router falls back to a cheaper model instead of failing the request or silently busting your budget.
 - Caching. Identical inputs hit the same classification result and, ideally, the same response.
-- Effort knobs. Some routers can call a model at reduced "thinking" effort for medium work, which cuts the reasoning-token cost meaningfully without dropping output quality on most tasks.
+- Effort knobs. Some routers can call a model at reduced "thinking" effort for medium work, which cuts the reasoning-token cost without dropping output quality on most tasks.
 - Output caps. Hard limits on response length per tier. Stops a "summarize" call from accidentally generating a novella.
 
 ### Where claude-multi fits in
 
-The router needs somewhere to route to. claude-multi gives each provider its own configured instance, so when the router decides "send this to Qwen Flash" or "send this to Kimi" or "send this to local Ollama," the right base URL, model name, and key are already wired up. You don't write a multi-provider config from scratch; you point the router at your existing instances.
+The router needs somewhere to route to. claude-multi gives each provider its own configured instance, so when the router decides "send this to Qwen Flash" or "send this to Kimi" or "send this to local Ollama," the right base URL, model name, and key are already configured. You don't write a multi-provider config from scratch; you point the router at your existing instances.
 
 ### How to start
 

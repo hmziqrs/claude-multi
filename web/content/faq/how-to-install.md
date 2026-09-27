@@ -1,11 +1,11 @@
 ---
 question: "How do I install claude-multi?"
-description: "Install with any JS runtime, bun, npm, pnpm, or Deno, then run claude-multi to launch the interactive TUI."
+description: "Install with bun, npm, pnpm, or Deno, then run claude-multi to launch the interactive TUI."
 category: "Getting Started"
 order: 2
 ---
 
-Pick whichever package manager you already use:
+Pick whichever package manager you use:
 
 ```sh
 # bun
@@ -33,7 +33,7 @@ Or create an instance directly:
 claude-multi add deepseek --provider deepseek --api-key sk-your-key
 ```
 
-That writes a wrapper script into your PATH, which you then run like any other command. Where it lands depends on your package manager: `~/.bun/bin/`, `~/.local/bin/`, or somewhere similar.
+That writes a wrapper script into your PATH. Where it lands depends on your package manager: `~/.bun/bin/`, `~/.local/bin/`, or somewhere similar.
 
 ## Before you start
 

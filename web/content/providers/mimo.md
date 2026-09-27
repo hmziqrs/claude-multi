@@ -13,7 +13,7 @@ pricing: "Pay-per-token via xiaomimimo.com"
 order: 4
 ---
 
-MiMo-V2.5-Pro is a 1 trillion parameter mixture-of-experts model with 42B active parameters and a 1M token context window. Only the active parameters are billed, which keeps the per-token cost low. The Anthropic-compatible endpoint drops straight into Claude Code.
+MiMo-V2.5-Pro is a 1 trillion parameter mixture-of-experts model with 42B active parameters and a 1M token context window. Only the active parameters are billed. The Anthropic-compatible endpoint drops straight into Claude Code.
 
 ## Model specs
 
@@ -22,7 +22,7 @@ MiMo-V2.5-Pro is a 1 trillion parameter mixture-of-experts model with 42B active
 | Primary (Opus/Sonnet) | MiMo-V2.5-Pro | 1T MoE (42B active) | 1M | 128K |
 | Fast (Haiku) | MiMo-V2.5 | 310B MoE (15B active) | 1M | 128K |
 
-V2.5-Pro handles the heavy reasoning. V2.5 runs background tasks, subagent calls, and quick edits at lower cost. The template maps each one to its role for you.
+V2.5-Pro handles the heavy reasoning. V2.5 runs background tasks, subagent calls, and quick edits at lower cost.
 
 Thinking mode is enabled by default.
 
@@ -37,7 +37,7 @@ claude-multi add mimo
 
 3. Paste your API key when prompted
 
-The template sets the base URL, model mappings, and thinking parameters. That's the whole setup.
+The template sets the base URL, model mappings, and thinking parameters.
 
 ## Token Plan alternative
 
@@ -51,7 +51,7 @@ If you would rather have a fixed monthly bill, switch to the MiMo Token Plan tem
 
 ## Pricing details
 
-MiMo comes two ways: pay-per-token at [xiaomimimo.com](https://xiaomimimo.com), or a subscription Token Plan (monthly credit pool, regional CN/SG/EU endpoints, the `mimo-token` template). The 1T MoE architecture keeps the per-token cost low because only 42B of the 1T parameters are active per request. xiaomimimo.com has current rates.
+MiMo comes two ways: pay-per-token at [xiaomimimo.com](https://xiaomimimo.com), or a subscription Token Plan (monthly credit pool, regional CN/SG/EU endpoints, the `mimo-token` template). xiaomimimo.com has current rates.
 
 ## Related providers
 

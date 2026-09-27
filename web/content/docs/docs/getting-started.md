@@ -34,7 +34,7 @@ pnpm add -g claude-multi
 deno install -g npm:claude-multi
 ```
 
-The entry point is a polyglot file that detects your runtime, so you do not have to configure anything.
+The entry point is a polyglot file that detects your runtime.
 
 ## Create your first instance
 
@@ -67,7 +67,7 @@ Run it:
 claude-deepseek
 ```
 
-You now have a full Claude Code session connected to DeepSeek with its own isolated config. It is the same `claude` binary you already know, pointed at a different provider.
+You now have a Claude Code session connected to DeepSeek with its own isolated config. It is the same `claude` binary, pointed at a different provider.
 
 ## CLI quick start
 

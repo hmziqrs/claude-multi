@@ -5,7 +5,7 @@ category: "Plugins & MCP"
 order: 7
 ---
 
-MCP (Model Context Protocol) servers let Claude Code talk to external tools: Jira, GitHub, Slack, databases, anything you've wired up. Each instance can have its own set, and claude-multi manages them so you don't have to dig through JSON:
+MCP (Model Context Protocol) servers let Claude Code talk to external tools: Jira, GitHub, Slack, databases. Each instance can have its own set, and claude-multi manages them:
 
 - `claude-multi mcp list`: show MCP server configs across all instances
 - `claude-multi mcp copy`: copy a server config from one instance to another (also available in the TUI under **MCP servers**)

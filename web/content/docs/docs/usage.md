@@ -1,6 +1,6 @@
 ---
 title: Usage
-description: "Full CLI command reference for claude-multi: add, remove, list, sync, health-check, and TUI navigation for managing multi-provider Claude Code instances."
+description: "CLI command reference for claude-multi: add, remove, list, sync, health-check, and TUI navigation."
 ---
 
 ## Default action
@@ -19,7 +19,7 @@ CLAUDE_MULTI_INK=false claude-multi
 
 ## Instance management
 
-### `add`, Create a new instance
+### `add`
 
 ```bash
 claude-multi add <name> [options]
@@ -53,7 +53,7 @@ claude-multi add deepseek --provider deepseek --api-key sk-your-key --skip-promp
 claude-multi add glm --provider glm --api-key your-key --copy-all --auto-sync
 ```
 
-### `remove`, Remove an instance
+### `remove`
 
 ```bash
 claude-multi remove <name>
@@ -65,7 +65,7 @@ This removes the instance from the registry and deletes the wrapper script. It l
 |------|-------------|
 | `-f, --force` | Skip confirmation prompt |
 
-### `list`, List all instances
+### `list`
 
 ```bash
 claude-multi list
@@ -73,13 +73,13 @@ claude-multi list
 
 Shows every instance with its provider, paths, and sync status. Alias: `claude-multi ls`.
 
-### `info`, Show instance details
+### `info`
 
 ```bash
 claude-multi info <name>
 ```
 
-Displays full configuration for a single instance: paths, settings, plugins, auto-sync status.
+Displays configuration for a single instance: paths, settings, plugins, auto-sync status.
 
 ## Plugin management
 
@@ -130,7 +130,7 @@ Legacy `on`/`off` still work with `auto-sync` (`on` maps to `auto`, `off` maps t
 | `half-manual` | Real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing plugins, but new installs in `~/.claude` don't appear until you re-sync. |
 | `full-manual` | Independent copies of everything. No symlinks. The instance can drift freely from `~/.claude`. |
 
-Conversions are one-way: `auto` → `half-manual` → `full-manual`. You can't step back up, because reconciling directories that have diverged is a data-loss problem. The TUI Sync Mode screen shows the current mode (color-coded) and which downgrades are available, plus a **Force re-sync** option that rebuilds the symlinks without changing the mode. In half-manual mode, `plugin install` and `remove` are blocked, since individually symlinked plugins can't be individually managed.
+Conversions are one-way: `auto` → `half-manual` → `full-manual`, because reconciling directories that have diverged is a data-loss problem. The TUI Sync Mode screen shows the current mode (color-coded) and which downgrades are available, plus a **Force re-sync** option that rebuilds the symlinks without changing the mode. In half-manual mode, `plugin install` and `remove` are blocked, since individually symlinked plugins can't be individually managed.
 
 If symlinks break (you moved or deleted `~/.claude`), repair them with `claude-multi fix-symlinks`.
 
@@ -194,7 +194,7 @@ claude-glm "explain this function"
 claude-deepseek "write tests for auth.ts"
 ```
 
-Both are full, simultaneous Claude Code sessions. Open two terminals and they don't interfere with each other.
+Both are simultaneous Claude Code sessions. Open two terminals and they don't interfere with each other.
 
 ### Route by cost
 

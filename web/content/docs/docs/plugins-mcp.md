@@ -75,7 +75,7 @@ claude-multi plugins copy <source-instance> <dest-instance> <plugin-id> [<plugin
 claude-multi plugins remove deepseek <plugin-id> [<plugin-id>...]
 ```
 
-Removal renames the plugin directory to a backup rather than deleting it outright.
+Removal renames the plugin directory to a backup rather than deleting it.
 
 ### Collision detection
 
@@ -91,9 +91,9 @@ This scans for plugins that share an MCP server name but have different content.
 
 Sync has three modes, which control how an instance's `plugins/` and `skills/` relate to `~/.claude/`:
 
-- **`auto`**: `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Install or update a plugin once and every synced instance sees it immediately. Per-plugin operations (install/remove/enable/disable) aren't available, since changes happen at the source.
+- **`auto`**: `plugins/` and `skills/` are symlinked whole to `~/.claude/`. Install or update a plugin once and every synced instance sees it. Per-plugin operations (install/remove/enable/disable) aren't available, since changes happen at the source.
 - **`half-manual`**: real directories, but each plugin and skill inside is individually symlinked back to `~/.claude/`. You keep the existing set, but new installs in `~/.claude` don't appear until you re-sync. Per-plugin management is blocked here too.
-- **`full-manual`**: independent copies with no symlinks. The instance can drift freely from `~/.claude/`, and all per-plugin operations work.
+- **`full-manual`**: independent copies with no symlinks. The instance can drift from `~/.claude/`, and all per-plugin operations work.
 
 ```bash
 # Set or change the mode
@@ -122,7 +122,7 @@ Run it for specific instances, or with `-a`/`--all` across all of them. From the
 
 ## MCP server management
 
-MCP (Model Context Protocol) servers let Claude Code talk to outside systems: databases, APIs, file systems, and whatever else you wire up. Each instance can have its own MCP server configuration.
+MCP (Model Context Protocol) servers let Claude Code talk to outside systems: databases, APIs, file systems. Each instance can have its own MCP server configuration.
 
 ### Listing MCP servers
 
@@ -134,11 +134,11 @@ MCP (Model Context Protocol) servers let Claude Code talk to outside systems: da
 claude-multi mcp list
 ```
 
-This prints the MCP server configs from every instance, so you can see what is connected where.
+This prints the MCP server configs from every instance.
 
 ### Copying between instances
 
-Set up an MCP server in one instance and want it in another:
+To copy an MCP server config from one instance to another:
 
 ```bash
 claude-multi mcp copy
@@ -160,7 +160,7 @@ This checks that the referenced executables and paths still exist.
 
 **TUI:** Select **MCP servers** → pick an instance → **Add custom server**. Enter the server name and JSON config.
 
-MCP configs use the same format as Claude Code's native MCP config, with no extra layer on top.
+MCP configs use the same format as Claude Code's native MCP config, with no extra layer.
 
 ### Where configs live
 

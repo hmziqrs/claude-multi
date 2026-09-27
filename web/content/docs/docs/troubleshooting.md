@@ -50,7 +50,7 @@ claude-multi fix-symlinks --all
 
 ---
 
-## Health warning banner in the TUI
+## Health warning banner
 
 A yellow or red banner at the top of the main menu means claude-multi found problems. Press `!` to open the health screen.
 
@@ -176,9 +176,9 @@ claude-multi version
 
 ---
 
-## Still stuck?
+## Get help
 
 - Run `claude-multi list` to see all instances and their status
-- Run `claude-multi info <name>` for detailed config of a specific instance
+- Run `claude-multi info <name>` for the config of a specific instance
 - Check the [GitHub issues](https://github.com/hmziqrs/claude-multi/issues) for known problems
 - Open a new issue with your `claude-multi version` output and the content of `~/.claude-multi/config.json`

@@ -5,11 +5,11 @@ category: "Maintenance"
 order: 14
 ---
 
-Two things update independently: the claude-multi tool, and the Claude Code binary it wraps. Mixing them up is the usual reason people say "I updated but nothing changed".
+Two things update independently: the claude-multi tool, and the Claude Code binary it wraps.
 
 ## Updating Claude Code
 
-Claude Code is the `@anthropic-ai/claude-code` package. Every `claude-<name>` instance launches the same shared binary, so you only update it once. Check what you have versus what's published:
+Claude Code is the `@anthropic-ai/claude-code` package. Every `claude-<name>` instance launches the same binary, so you only update it once. Check what you have versus what's published:
 
 ```sh
 claude-multi version

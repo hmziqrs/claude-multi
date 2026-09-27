@@ -27,7 +27,7 @@ CLAUDE_MULTI_HOME=/tmp/test-env claude-multi add test --provider deepseek --api-
 
 ## Claude Code instance variables
 
-These live in each instance's `settings.json` under the `env` key. Provider templates fill them in when you create the instance.
+These live in each instance's `settings.json` under the `env` key.
 
 ### Core API variables
 

@@ -47,7 +47,7 @@ npm config get prefix
 
 Make sure the returned path is in your user `PATH` environment variable, then open a new terminal. The health check (`!` from the main menu, or `claude-multi list`) will also flag a missing wrapper and tell you what's wrong.
 
-## A note on line endings and shells
+## Git Bash, WSL, and Cygwin
 
 Git Bash, WSL, and Cygwin are common on Windows. claude-multi writes native `.cmd` wrappers, so calling `claude-deepseek` from a bash-style shell still works: the shell hands off to `cmd.exe` for `.cmd` files. If you live entirely inside WSL, you are on Linux as far as claude-multi is concerned, and it writes Unix shell wrappers there instead.
 

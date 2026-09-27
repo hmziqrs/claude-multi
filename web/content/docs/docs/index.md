@@ -4,7 +4,7 @@ description: "Install the claude-multi CLI, configure providers, manage instance
 template: doc
 ---
 
-## What is claude-multi?
+## What claude-multi does
 
 claude-multi is a free, open-source CLI that runs multiple Claude Code instances on the same machine. Each instance points at a different AI provider (GLM, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, Alibaba Qwen, or Anthropic) with its own config directory, API key, and model settings.
 
@@ -24,7 +24,7 @@ That is it. `claude-glm` launches the official Claude Code binary with the GLM C
 
 Provider templates carry the base URLs, model mappings, and defaults for each provider. You add your API key and the instance is ready.
 
-Each provider gets its own config directory under `~/.claude-multi/`, so instances share no state and cannot conflict.
+Each provider gets its own config directory under `~/.claude-multi/`.
 
 Plugin sync symlinks skills and MCP servers from your primary install. Update them once and every instance sees the change.
 

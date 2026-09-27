@@ -1,6 +1,6 @@
 ---
 title: "GLM-5.3 Coding Plan Provider for Claude Code"
-description: "Run Claude Code with GLM-5.3, GLM-5.3-Flash, and GLM-5-Turbo via z.ai Coding Plan subscription. Full Anthropic API compatibility, up to 1M context, thinking mode enabled."
+description: "Run Claude Code with GLM-5.3, GLM-5.3-Flash, and GLM-5-Turbo via z.ai Coding Plan subscription. Anthropic API compatibility, up to 1M context, thinking mode enabled."
 provider: "glm"
 tagline: "Three model tiers on a fixed monthly plan"
 setupCommand: "claude-multi add glm"
@@ -23,11 +23,11 @@ GLM-5.3 is a reasoning model available through z.ai's Coding Plan. Its sonnet-ti
 | Standard (Sonnet) | `glm-5.3-flash[1m]` | 1M | 128K |
 | Fast (Haiku) | `glm-5-turbo` | 200K | 128K |
 
-GLM-5.3-Flash is natively multimodal, reaches the full 1M-token context window through the `[1m]` suffix, and carries 3x the Coding Plan quota of GLM-5.3. That combination suits the day-to-day sonnet workload, since the same work drains far less of your balance.
+GLM-5.3-Flash is natively multimodal, reaches the full 1M-token context window through the `[1m]` suffix, and carries 3x the Coding Plan quota of GLM-5.3.
 
 The older `glm-5.2` and `glm-5.1` ids are no longer served on the Coding Plan endpoint. Requests for them are automatically routed to `glm-5.3`, so existing configs keep working, but the ids are effectively deprecated.
 
-Thinking is always on: GLM-5.3 rejects requests that disable it, and supports `reasoning_effort` values of `low`, `high`, and `max`. The template sets `REASONING_EFFORT` to `high` and allocates 8,000 thinking tokens, which is enough for most code tasks without consuming much of the context window.
+Thinking is always on: GLM-5.3 rejects requests that disable it, and supports `reasoning_effort` values of `low`, `high`, and `max`. The template sets `REASONING_EFFORT` to `high` and allocates 8,000 thinking tokens.
 
 Context windows differ across tiers, so the template sets them per model instead of using one global override. The `[1m]` suffix on GLM-5.3 and GLM-5.3-Flash tells Claude Code their real 1M window in the opus and sonnet slots, and Claude Code's default 200K assumption for unrecognized models already matches GLM-5-Turbo. Auto-compaction fires at the right point on every tier, so you do not need a `CLAUDE_CODE_AUTO_COMPACT_WINDOW` override.
 
@@ -47,7 +47,7 @@ The template sets the base URL, model mappings, context limits, and thinking par
 
 ## When to pick GLM
 
-Pick GLM when you want a fixed monthly cost instead of per-token billing. GLM-5-Turbo takes the light work (quick edits, shell commands, subagent calls), GLM-5.3 takes heavier refactoring and long agentic runs, and GLM-5.3-Flash covers day-to-day coding while draining the balance a third as fast as GLM-5.3. All of it runs inside one plan.
+Pick GLM when you want a fixed monthly cost instead of per-token billing. GLM-5-Turbo takes the light work (quick edits, shell commands, subagent calls), GLM-5.3 takes heavier refactoring and long agentic runs, and GLM-5.3-Flash covers day-to-day coding while draining the balance a third as fast as GLM-5.3.
 
 If your workload is bursty and you prefer paying only for what you use, look at the [DeepSeek](/providers/deepseek/) or [MiMo](/providers/mimo/) pay-per-token templates instead.
 
@@ -64,7 +64,7 @@ Usage is metered in credits: `(input x input_mult + cached_input x cached_mult +
 | GLM-4.7 | 4.6 | 1.2 | 16 |
 | GLM-4.6V (vision MCP tools only) | 1.2 | 0.3 | 2.7 |
 
-GLM-5.3-Flash is available on the Coding Plan and bills through the same points system rather than its own multiplier row. It carries 3x the GLM-5.3 quota, so sonnet-tier day-to-day usage drains the balance more slowly. Off-peak calls cost 50% of the standard rate, same as every other model on the plan.
+GLM-5.3-Flash is available on the Coding Plan and bills through the same points system rather than its own multiplier row. It carries 3x the GLM-5.3 quota. Off-peak calls cost 50% of the standard rate, same as every other model on the plan.
 
 Peak is only Monday-Friday 14:00-18:00 UTC+8, so nights, weekends, and weekday mornings all bill at the off-peak rate.
 
@@ -74,7 +74,7 @@ Peak is only Monday-Friday 14:00-18:00 UTC+8, so nights, weekends, and weekday m
 | Pro  | 12,000 credits | 60,000 credits |
 | Max  | 28,000 credits | 140,000 credits |
 
-Plans start from $18 USD/month for Lite, with 20% off quarterly and 30% off yearly billing. This points system replaced the older peak/off-peak multiplier plan, which was discontinued for new users on 2026-07-30. GLM-5-Turbo is also on the standard pay-as-you-go API, but that route isn't Anthropic-compatible, so claude-multi doesn't use it. For benchmarks and a full breakdown of the plan, see the [GLM-5.3 announcement post](/blog/glm-5-3-coding-plan/). The [GLM-5.2 post](/blog/glm-5-2-three-tier-coding-plan/) covers how the plan looked at launch, and [z.ai](https://z.ai) has current Pro and Max pricing.
+Plans start from $18 USD/month for Lite, with 20% off quarterly and 30% off yearly billing. This points system replaced the older peak/off-peak multiplier plan, which was discontinued for new users on 2026-07-30. GLM-5-Turbo is also on the standard pay-as-you-go API, but that route isn't Anthropic-compatible, so claude-multi doesn't use it. For benchmarks and a breakdown of the plan, see the [GLM-5.3 announcement post](/blog/glm-5-3-coding-plan/). The [GLM-5.2 post](/blog/glm-5-2-three-tier-coding-plan/) covers how the plan looked at launch, and [z.ai](https://z.ai) has current Pro and Max pricing.
 
 ## Related providers
 

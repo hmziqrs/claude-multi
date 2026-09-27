@@ -7,9 +7,9 @@ order: 5
 
 No. claude-multi doesn't fork, patch, or modify Claude Code. Each instance is a shell wrapper script that sets `CLAUDE_CONFIG_DIR` to point at an isolated config directory, then execs the real `claude` binary. No proxy, no monkey-patching, no background process.
 
-Flags, commands, and keybindings work exactly as they do normally, and Claude Code updates land immediately because you're running the actual binary. An instance is also a real directory you can `cd` into, inspect, or delete with standard tools.
+Flags, commands, and keybindings work as they normally do, and Claude Code updates land immediately because you're running the real binary. An instance is also a real directory you can `cd` into, inspect, or delete with standard tools.
 
-For the wrapper script itself and the full architecture, see how it works.
+For the wrapper script and the full architecture, see how it works.
 
 ## What's inside an instance directory
 

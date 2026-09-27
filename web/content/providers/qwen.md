@@ -23,7 +23,7 @@ Qwen3-Coder is Alibaba's coding model family, in three tiers: Next for heavy rea
 | Balanced (Sonnet) | Qwen3-Coder-Plus | 128K | 65,536 |
 | Fast (Haiku) | Qwen3-Coder-Flash | 128K | 65,536 |
 
-Each tier maps to the matching Claude Code role. Heavy reasoning goes to Next, everyday coding to Plus, quick tasks to Flash. Subagent work also runs on Flash.
+Heavy reasoning goes to Next, everyday coding to Plus, quick tasks to Flash. Subagent work also runs on Flash.
 
 Thinking mode is enabled with `REASONING_EFFORT: high` and 16,000 thinking tokens. Auto-compaction is tuned for the 128K context window.
 
@@ -54,11 +54,9 @@ The model mappings are identical. Only the base URL changes.
 
 Pick Qwen if you want three quality tiers at three price points. Flash is fast and cheap for autocomplete and simple edits, Plus handles most coding tasks, and Next takes architecture decisions and complex debugging.
 
-Because billing is per token, your cost tracks the tier you route work to. Background work runs on Flash while the harder tasks go to Next.
-
 ## Pricing details
 
-Qwen3-Coder comes two ways: pay-per-token via [DashScope](https://dashscope.aliyuncs.com), or a Coding Plan subscription (the `qwen-coding` template, same models, different endpoint). Each tier has its own rate. Flash is the cheapest and Next the most expensive, so your bill scales with how much you route to Next. The DashScope pricing page has current rates.
+Qwen3-Coder comes two ways: pay-per-token via [DashScope](https://dashscope.aliyuncs.com), or a Coding Plan subscription (the `qwen-coding` template, same models, different endpoint). Each tier has its own rate. Flash is the cheapest and Next the most expensive. The DashScope pricing page has current rates.
 
 ## Related providers
 

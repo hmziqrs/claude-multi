@@ -8,7 +8,7 @@ audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/glm-
 
 Z.ai's Coding Plan now runs GLM-5.2 as its opus-tier model, and it comes with a 1,000,000-token context window. The claude-multi GLM template now spreads three distinct GLM models across Claude Code's three tiers for the first time: GLM-5.2 for opus, GLM-5.1 for sonnet, and GLM-5-Turbo for haiku.
 
-The old template did not really have a middle tier. It put GLM-5.1 in the opus slot and reused GLM-5-Turbo for both sonnet and haiku, so there was no model between "fast" and "frontier." This update gives each tier its own model, which means a real capability and speed gradient from top to bottom.
+The old template did not have a middle tier. It put GLM-5.1 in the opus slot and reused GLM-5-Turbo for both sonnet and haiku. This update gives each tier its own model.
 
 ## The three-tier mapping
 
@@ -18,13 +18,13 @@ The old template did not really have a middle tier. It put GLM-5.1 in the opus s
 | Sonnet | GLM-5.1 | 200K | Day-to-day coding |
 | Haiku | GLM-5-Turbo | 200K | Quick edits, shell, subagents |
 
-Thinking stays on. The template keeps `REASONING_EFFORT` at high with 8,000 thinking tokens, which is enough for most code work without eating the context budget.
+Thinking stays on. The template keeps `REASONING_EFFORT` at high with 8,000 thinking tokens.
 
 ## Context windows and the 1M variant
 
 GLM-5.2's million-token window is not the default. You opt into it with a `[1m]` suffix on the model name: `glm-5.2[1m]`. Claude Code reads that suffix and compacts around 75% of one million tokens instead of its usual 200K assumption. DeepSeek and MiMo use the same convention.
 
-GLM-5.1 and GLM-5-Turbo are 200K models. They do not need a suffix, because 200K is exactly what Claude Code assumes for any model it does not recognize. Their compaction window lines up with their real limit on its own.
+GLM-5.1 and GLM-5-Turbo are 200K models. They do not need a suffix, because 200K is what Claude Code assumes for any model it does not recognize.
 
 That is why the template no longer sets a global compaction override. The previous template pinned `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 131072 (128K), because the earlier GLM-5.1 was a 128K model sitting below Claude Code's 200K default. Without the pin, the conversation would sail past 128K and the API call would crash. None of the three current models have that problem. A single global number cannot fit a 1M model and two 200K models at the same time, so the template lets each model carry its own size.
 
@@ -32,7 +32,7 @@ That is why the template no longer sets a global compaction override. The previo
 
 Here is the honest part. Z.ai has not published benchmark numbers for GLM-5.2. It is positioned in the Coding Plan as the opus-tier model and the successor to GLM-5.1, but there is no SWE-bench or reasoning table for it yet.
 
-The closest fully documented flagship is GLM-5.1, which Z.ai describes as aligned with Claude Opus 4.6 and able to run unattended for up to eight hours. Its published scores are the best available read on where the family sits. Every number below comes from Z.ai's own tables, and the competitor labels are theirs.
+The closest documented flagship is GLM-5.1, which Z.ai describes as aligned with Claude Opus 4.6 and able to run unattended for up to eight hours. Its published scores are the best available read on where the family sits. Every number below comes from Z.ai's own tables, and the competitor labels are theirs.
 
 | Benchmark | GLM-5.1 | Closest competitor (Z.ai's table) |
 |---|---|---|
@@ -69,7 +69,7 @@ If your usage is bursty and you prefer to pay only for what you run, the DeepSee
 claude-multi add glm
 ```
 
-Paste your Z.ai API key when prompted. The template fills in the endpoint, the three model mappings, and the context handling. The instance is ready to go immediately.
+Paste your Z.ai API key when prompted. The template fills in the endpoint, the three model mappings, and the context handling. The instance is ready.
 
 ---
 

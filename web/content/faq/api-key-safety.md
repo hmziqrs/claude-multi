@@ -9,20 +9,20 @@ Your API keys stay on your machine. claude-multi has no backend, no telemetry, a
 
 ## Where keys end up
 
-Each instance stores its key in `~/.claude-multi/<name>/settings.json` as part of the `ANTHROPIC_AUTH_TOKEN` env var. When you launch that instance, Claude Code reads the key directly from the config file, claude-multi isn't involved at runtime.
+Each instance stores its key in `~/.claude-multi/<name>/settings.json` as part of the `ANTHROPIC_AUTH_TOKEN` env var. When you launch that instance, Claude Code reads the key from the config file. claude-multi isn't involved at runtime.
 
 The only time claude-multi touches your key is during instance creation, when it writes it into the settings file. After that, it's between you and Claude Code.
 
-## About those config writes
+## Atomic config writes
 
 claude-multi writes settings files with a temp-file-rename pattern. It writes to a temp path, checks the result parses as valid JSON, then renames it into place. If the write fails partway, your existing config is untouched.
 
 ## Practical tips
 
 - If you use the same key across providers, you can copy settings from `~/.claude` during instance creation instead of re-entering it
-- For different keys per provider, enter them individually during setup or edit the settings file directly
+- For different keys per provider, enter them individually during setup or edit the settings file
 - Run `claude-multi info <name>` to see what's stored for any instance
-- The `version` subcommand checks npm for updates, but that's the only network call claude-multi ever makes, and it doesn't involve your API key
+- The `version` subcommand checks npm for updates, but that's the only network call claude-multi makes, and it doesn't involve your API key
 
 ## Related questions
 

@@ -41,10 +41,9 @@ const breadcrumbSchema = {
         Every provider claude-multi <span class="gradient-text">supports.</span>
       </h1>
       <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
-        claude-multi routes Claude Code to the provider that fits your budget
-        and workload. Each provider exposes a native Anthropic-compatible
-        endpoint, so setup is a single command. Pick one to see setup steps,
-        pricing, and where it fits best.
+        claude-multi routes Claude Code to the provider you pick. Each provider
+        exposes a native Anthropic-compatible endpoint, so setup is a single
+        command. Each page below lists setup steps, pricing, and use cases.
       </p>
     </div>
   </section>
@@ -90,9 +89,7 @@ const breadcrumbSchema = {
       <p class="text-text-dim mb-6 max-w-2xl">
         Each template pre-fills <code class="font-mono text-lime">ANTHROPIC_BASE_URL</code>,
         model mappings, and related env vars into your instance's <code class="font-mono text-lime">settings.json</code>.
-        You only need to supply your API key. All providers expose an
-        Anthropic-compatible API, so claude-multi points the same Claude Code
-        binary at whichever endpoint you pick.
+        You only need to supply your API key.
       </p>
       <div class="overflow-x-auto glass rounded-2xl p-1 mb-10">
         <table class="w-full text-sm border-collapse">
@@ -147,7 +144,6 @@ const breadcrumbSchema = {
       <ul class="text-text-dim text-sm space-y-2 max-w-2xl list-disc pl-5">
         <li><b class="text-text">GLM</b>: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The metered API only exposes an OpenAI-compatible URL.</li>
         <li><b class="text-text">MiMo Token Plan</b>: defaults to the CN regional endpoint. If your subscription is SG or EU, update <code class="font-mono text-lime text-xs">ANTHROPIC_BASE_URL</code> with the endpoint shown in your subscription console.</li>
-        <li><b class="text-text">Kimi</b>: no subscription plan, strictly pay per token at <code class="font-mono text-lime text-xs">api.moonshot.ai</code>.</li>
         <li><b class="text-text">MiniMax</b>: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. MiniMax-M3 has a 1M token context window and accepts text, image, and video inputs.</li>
       </ul>
     </div>
@@ -156,11 +152,11 @@ const breadcrumbSchema = {
   <section class="relative z-10 px-6 pb-20">
     <div class="max-w-2xl mx-auto reveal text-center">
       <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-        Not sure which provider to pick?
+        Set up your first instance
       </h2>
       <p class="mt-4 text-text-dim text-lg">
         The getting started guide walks through installing claude-multi and
-        adding your first instance. It takes about two minutes to get going.
+        adding your first instance. It takes about two minutes.
       </p>
       <div class="mt-7 flex gap-3 justify-center flex-wrap">
         <a href="/docs/getting-started/" class="btn-primary">

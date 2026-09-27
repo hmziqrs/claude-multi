@@ -13,7 +13,7 @@ pricing: "Pay-per-token via minimax.io"
 order: 2
 ---
 
-MiniMax-M3 has a 1 million token context window and a 512K max output. That size changes what fits in a single session. You can load a whole monorepo, run long agentic workflows, and let the model accumulate context across hundreds of files before it needs to compact.
+MiniMax-M3 has a 1 million token context window and a 512K max output. You can load a whole monorepo, run long agentic workflows, and let the model accumulate context across hundreds of files before it needs to compact.
 
 ## Model specs
 
@@ -23,7 +23,7 @@ MiniMax-M3 has a 1 million token context window and a 512K max output. That size
 
 The template maps MiniMax-M3 to every role (Opus, Sonnet, Haiku, small/fast). There is only one model, so quick shell commands and complex multi-step reasoning both go to it.
 
-Effort level is set to `max` and thinking is enabled with `REASONING_EFFORT: high`. The model gets 32,000 thinking tokens by default, which is deep enough for most work without eating much of the context window.
+Effort level is set to `max` and thinking is enabled with `REASONING_EFFORT: high`. The model gets 32,000 thinking tokens by default.
 
 ## Setup
 
@@ -36,13 +36,13 @@ claude-multi add minimax
 
 3. Paste your API key when prompted
 
-The template sets the base URL, model mapping, thinking parameters, and output limits. You should not need to edit anything by hand.
+The template sets the base URL, model mapping, thinking parameters, and output limits.
 
 ## When to pick MiniMax
 
 Pick MiniMax when context length is the constraint. If you work on large codebases, do multi-repository analysis, or run agentic tasks that accumulate a lot of state, the 1M window means fewer compaction cycles.
 
-The 512K output limit also makes a few things practical that other providers cap out on: generating an application scaffold in one pass, or getting a long analysis back without truncation.
+The 512K output limit is enough for generating an application scaffold in one pass, or getting a long analysis back without truncation.
 
 For shorter, more interactive sessions, DeepSeek or GLM may cost you less.
 

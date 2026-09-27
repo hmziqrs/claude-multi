@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: "Configuration file reference for claude-multi instances: the settings.json schema, environment variables, provider template overrides, and plugin options."
+description: "Configuration file reference for claude-multi instances: the settings.json schema, environment variables, and plugin options."
 ---
 
 ## Config registry

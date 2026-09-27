@@ -33,6 +33,6 @@ After that, run `claude-<name>` (e.g. `claude-deepseek`) to launch Claude Code w
 
 ## More info
 
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): detailed walkthrough of the creation wizard
+- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): walkthrough of the creation wizard
 - [/docs/getting-started/](/docs/getting-started/): first instance setup
 - [/docs/usage/](/docs/usage/): full CLI reference and flags

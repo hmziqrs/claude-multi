@@ -19,9 +19,9 @@ _Update (2026-08-26): claude-multi v0.12.0 moves the sonnet slot to `glm-5.3-fla
 | Sonnet | GLM-5.1 | GLM-5.3[1m] |
 | Haiku | GLM-5-Turbo | GLM-5-Turbo |
 
-Thinking stays on, but it is no longer optional. GLM-5.3 rejects `thinking.type: "disabled"` outright; `reasoning_effort` accepts low, high, or max, defaults to max, and Z.ai recommends max for coding. The template keeps `REASONING_EFFORT` at high with 8,000 thinking tokens, unchanged from 0.10.0; thinking bills as output at the 24x multiplier, so max is a quota call as much as a quality one.
+Thinking stays on, but it is no longer optional. GLM-5.3 rejects `thinking.type: "disabled"`; `reasoning_effort` accepts low, high, or max, defaults to max, and Z.ai recommends max for coding. The template keeps `REASONING_EFFORT` at high with 8,000 thinking tokens, unchanged from 0.10.0; thinking bills as output at the 24x multiplier, so max is a quota call as much as a quality one.
 
-Haiku stays on GLM-5-Turbo. Z.ai's example maps its haiku slot to `glm-4.7`, which is still served natively on the plan, but the template keeps the turbo model: it is a 200K-context model, which is exactly what Claude Code assumes for any model it does not recognize, so compaction lines up with the real limit on its own. That is also why the template still sets no global `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, even though Z.ai's example pins it to 1000000. The instance mixes a 1M model with a 200K model; the `[1m]` suffix carries the window per model, and one global number cannot fit both.
+Haiku stays on GLM-5-Turbo. Z.ai's example maps its haiku slot to `glm-4.7`, which is still served natively on the plan, but the template keeps the turbo model: it is a 200K-context model, which is what Claude Code assumes for any model it does not recognize, so compaction lines up with the real limit on its own. That is also why the template still sets no global `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, even though Z.ai's example pins it to 1000000. The instance mixes a 1M model with a 200K model; the `[1m]` suffix carries the window per model, and one global number cannot fit both.
 
 ## Context windows and max output
 
@@ -79,7 +79,7 @@ Off-peak usage costs 50% of the standard credit rate, and peak is a narrow windo
 
 At launch, GLM-5.3 is available on the GLM Coding Plan and ZCode only. The general pay-as-you-go API is listed as coming soon, and open weights are expected about two weeks after launch, pending safety evals.
 
-If you already have a GLM instance, nothing breaks today: the endpoint auto-routes the old `glm-5.2` and `glm-5.1` ids to `glm-5.3`, so existing configs keep working. But your env still names the old models and caps output at 64000, so run `claude-multi doctor fix` to sync the new template. The sync preserves your API key and any custom env vars.
+If you already have a GLM instance, nothing breaks today: the endpoint auto-routes the old `glm-5.2` and `glm-5.1` ids to `glm-5.3`. But your env still names the old models and caps output at 64000, so run `claude-multi doctor fix` to sync the new template. The sync preserves your API key and any custom env vars.
 
 ## Getting started
 
@@ -87,7 +87,7 @@ If you already have a GLM instance, nothing breaks today: the endpoint auto-rout
 claude-multi add glm
 ```
 
-Paste your Z.ai API key when prompted. The template fills in the endpoint, the two model mappings, thinking, and the new output cap. The instance is ready to go immediately.
+Paste your Z.ai API key when prompted. The template fills in the endpoint, the two model mappings, thinking, and the new output cap. The instance is ready.
 
 ---
 

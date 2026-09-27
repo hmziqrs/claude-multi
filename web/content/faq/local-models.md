@@ -5,7 +5,7 @@ category: "Providers"
 order: 16
 ---
 
-Yes, as long as your local model server exposes an Anthropic-compatible REST endpoint. Claude Code speaks the Anthropic API protocol, so the server on the other end needs to understand that format.
+Yes, if your local model server exposes an Anthropic-compatible REST endpoint. Claude Code speaks the Anthropic API protocol.
 
 ## How to set it up
 
@@ -35,7 +35,7 @@ If your local server implements the Anthropic messages API (the `/v1/messages` e
 
 The further your local setup drifts from the Anthropic API spec, the more edge cases you hit. Streaming and tool use are usually where it breaks first.
 
-## A practical note on cost
+## Cost
 
 Local models have no per-token API cost. You pay in compute instead: GPU time and electricity. If you already have the hardware, that can work out cheaper for high-volume work like code generation and refactoring.
 

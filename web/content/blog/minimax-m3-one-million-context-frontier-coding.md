@@ -8,14 +8,14 @@ audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/mini
 
 MiniMax released M3 yesterday. The short version: 1M-token context window, frontier coding scores, native image and video input, toggleable thinking. The claude-multi `minimax` template now uses it. Existing instances can sync with `claude-multi doctor fix`.
 
-The longer version is worth reading. M3 clears Opus 4.7 on three benchmarks and costs about 1/30th the price. It is also the first open-weight model to ship with a 1M context window, frontier-level coding, and native multimodality all at once.
+M3 clears Opus 4.7 on three benchmarks and costs about 1/30th the price. It is also the first open-weight model to ship with a 1M context window, frontier-level coding, and native multimodality all at once.
 
 ## What changed in the template
 
 The model names in the `minimax` template went from `MiniMax-M2.7` to `MiniMax-M3` across all model slots (opus, sonnet, haiku, small/fast). If you created a MiniMax instance before this update, running `claude-multi doctor fix` will sync the new template automatically ([how template sync works](/changelog/)). Three things are different this time:
 
-- No more auto-compaction override. M2.7 had a 128K context window. Claude Code assumes 200K for unrecognized models, which meant auto-compaction never fired and context would fill to 100% before crashing. M3 has a 1M context window. The override is gone.
-- Output tokens up to 512K. M2.7 capped at 64K. M3 supports up to 512K output tokens, which matters for the long-horizon agentic tasks the model is built for.
+- No more auto-compaction override. M2.7 had a 128K context window. Claude Code assumes 200K for unrecognized models, which meant auto-compaction never fired and context would fill to 100% before crashing. M3 has a 1M context window.
+- Output tokens up to 512K. M2.7 capped at 64K. That matters for the long-horizon agentic tasks the model is built for.
 - Effort level set to `max`. M3 supports toggleable thinking. The template enables thinking with `REASONING_EFFORT: "high"` and sets `CLAUDE_CODE_EFFORT_LEVEL: "max"`.
 
 ## The M3 architecture: MSA
@@ -24,7 +24,7 @@ The headline technical feature is MiniMax Sparse Attention (MSA). Standard atten
 
 The practical result: at 1M tokens, M3's per-token compute is 1/20th of the previous generation. Prefilling is 9x faster. Decoding is 15x faster. MiniMax claims MSA matches full attention on the vast majority of capabilities across their ablations.
 
-M3 was designed around sparse attention from the start. The compute cost does not explode at long context the way it does with full attention, which is what makes the 1M window usable in practice rather than a spec sheet number.
+M3 was designed around sparse attention from the start. The compute cost does not explode at long context the way it does with full attention.
 
 ## MiniMax M3 benchmarks
 
@@ -66,7 +66,7 @@ OmniDocBench measures multimodal document understanding across text, tables, cha
 
 ### The jump from M2.7
 
-The upgrade from M2.7 to M3 is huge. On SWE-Bench Pro, M3 jumps from 56.2 to 59.0. On KernelBench Hard, it nearly triples from 10.5 to 28.8. On Claw-Eval, it goes from 49.7 to 74.5. On SVG-Bench, from 48.0 to 63.7. PaperBench goes from 30.6 to 52.6. On every one of these tables, M3 is a different class of model than M2.7.
+On SWE-Bench Pro, M3 jumps from 56.2 to 59.0. On KernelBench Hard, it nearly triples from 10.5 to 28.8. On Claw-Eval, it goes from 49.7 to 74.5. On SVG-Bench, from 48.0 to 63.7. PaperBench goes from 30.6 to 52.6. On every one of these tables, M3 is a different class of model than M2.7.
 
 ## MiniMax M3 pricing and Token Plans
 
@@ -78,7 +78,7 @@ Through the MiniMax API:
 | Long context (512K to 1M) | $1.20 | $4.80 | 512K to 1M |
 | Cache read | $0.12 | -- | -- |
 
-For comparison, Claude Opus 4.7 runs about $15/M input and $75/M output. M3 at $2.40/M output is roughly 1/30th the cost. Even at the long-context tier ($4.80/M output), it is still a fraction of what Opus charges.
+For comparison, Claude Opus 4.7 runs about $15/M input and $75/M output. M3 at $2.40/M output is roughly 1/30th the cost.
 
 MiniMax also offers Token Plans (subscription):
 
@@ -92,7 +92,7 @@ Both Token Plan and pay-per-token use the same `api.minimax.io` endpoint. The AP
 
 MiniMax published three extended task runs that show what 1M context plus frontier coding looks like in practice.
 
-CUDA kernel optimization. M3 optimized an FP8 GEMM kernel on NVIDIA Hopper GPUs over 24 hours. 147 submissions, 1,959 tool calls. Hardware peak utilization went from 7.6% to 71.3%, a 9.4x speedup. Most models stopped improving within 30 submissions. M3's best solution showed up on submission 145. The tool call history gets dense and structured fast, and MSA's sparse attention keeps the model focused on what matters as the conversation grows.
+CUDA kernel optimization. M3 optimized an FP8 GEMM kernel on NVIDIA Hopper GPUs over 24 hours. 147 submissions, 1,959 tool calls. Hardware peak utilization went from 7.6% to 71.3%, a 9.4x speedup. Most models stopped improving within 30 submissions. M3's best solution showed up on submission 145.
 
 Paper reproduction. M3 autonomously reproduced an ICLR 2025 Outstanding Paper over 12 hours. 18 commits, 23 experimental figures. The paper's text, formulas, and figures all fit in context at once. The multimodal input handled the curves and charts natively.
 
