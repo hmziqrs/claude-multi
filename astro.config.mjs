@@ -86,6 +86,9 @@ export default defineConfig({
   integrations: [
     injectSiteFooterIntegration(),
     icon({
+      // The default iconDir `src/icons` sits in the CLI source tree here and
+      // never exists, which astro-icon reports as a warning on every start.
+      iconDir: './web/icons',
       include: {
         'simple-icons': ['x', 'github', 'linkedin', 'telegram', 'reddit'],
         lucide: ['globe'],
