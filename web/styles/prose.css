@@ -1,11 +1,3 @@
-/* prose.css: shared rendered-markdown prose (blog/providers/faq detail pages).
-   Plain descendant CSS on purpose: these rules target rendered markdown children.
-   .prose-doc = providers superset (includes table rules).
-   .prose-doc--sm = faq tighter scale overrides, applied together with .prose-doc.
-   Base values are the computed winners under .site-root: theme.css's
-   .site-root .prose-* rules (higher specificity) overrode the old page blocks
-   for pre background and pre/hr/th/td border colors, so those follow theme.css. */
-
 .prose-doc {
   color: var(--text-secondary);
   font-size: 1.05rem;
@@ -47,7 +39,6 @@
   border-radius: 0.3rem;
 }
 .prose-doc pre {
-  /* bg/border from theme.css winner; old page blocks said rgba(10,10,14,0.85)/var(--color-edge) */
   background: rgba(13, 15, 19, 0.85);
   border: 1px solid var(--border);
   border-radius: 0.85rem;
@@ -112,7 +103,6 @@
   border-bottom: none;
 }
 
-/* faq tighter scale (verbatim from the old faq page block) */
 .prose-doc--sm {
   color: var(--text-secondary);
   font-size: 1rem;

@@ -117,7 +117,6 @@
 </div>
 
 <style>
-  /* typed widths animate via keyframes; content injected here */
   .demo-typed-name::before {
     content: "glm";
   }
@@ -131,13 +130,11 @@
     18%, 100% { opacity: 0; transform: translateY(-4px); }
   }
 
-  /* theme animate-blink is 1s steps(2, start); demo needs 0.9s steps(2, end) */
   @keyframes demo-blink {
     0%, 50% { opacity: 1; }
     50.01%, 100% { opacity: 0; }
   }
 
-  /* Frame 2 visible window ≈ 17% → 33%. Type during 17% → 20% (~0.72s). */
   @keyframes demo-typed-name {
     0%, 17%   { width: 0; animation-timing-function: steps(3, end); }
     20%       { width: 2.4ch; animation-timing-function: step-end; }
@@ -145,7 +142,6 @@
     33.01%, 100% { width: 0; }
   }
 
-  /* Frame 4 visible window ≈ 50% → 66%. Type during 50% → 55% (~1.2s). */
   @keyframes demo-typed-key {
     0%, 50%   { width: 0; animation-timing-function: steps(12, end); }
     55%       { width: 12ch; animation-timing-function: step-end; }

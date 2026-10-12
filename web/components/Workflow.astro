@@ -1,7 +1,4 @@
 ---
-/**
- * Instance graph (root node + fanned branch chains); SVG-free CSS connectors, no <svg> markup.
- */
 import Icon from './Icon.astro';
 
 interface WorkflowNode {
@@ -121,7 +118,6 @@ const hasActive = branchList.some((b) => b && b.active);
 </div>
 
 <style>
-  /* animated flow lines + running dot pulse; reduced-motion guard */
   .ui-workflow__elbow-line--flow,
   .ui-workflow__connector-line--flow {
     background-color: transparent;

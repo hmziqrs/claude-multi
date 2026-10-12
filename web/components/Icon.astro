@@ -9,7 +9,6 @@ interface Props {
 
 const { name, size = 16, strokeWidth = 1.75, color, class: className } = Astro.props;
 
-// Lucide-style path data (24x24, stroke-based). Unknown name -> generic dot fallback.
 const PATHS: Record<string, { tag: string; attrs: Record<string, string> }[]> = {
   'git-branch': [
     { tag: 'line', attrs: { x1: '6', y1: '3', x2: '6', y2: '15' } },

@@ -1,9 +1,5 @@
-/* claude-multi Starlight theme (coral · dark · glass): overrides Starlight via
-   --sl-* tokens + class targeting; single source for all docs styling. */
-
 :root,
 [data-theme="dark"] {
-  /* ---------- Brand ---------- */
   --sl-color-accent-low: rgba(217, 119, 87, 0.12);
   --sl-color-accent: #d97757;
   --sl-color-accent-high: #e08a6d;
@@ -13,24 +9,20 @@
   --sl-color-text-accent: #d97757;
   --sl-color-text-action: #d97757;
 
-  /* ---------- Surface ---------- */
   --sl-color-bg: #0b0c0e;
   --sl-color-bg-nav: rgba(11, 12, 14, 0.72);
   --sl-color-bg-sidebar: rgba(13, 15, 19, 0.65);
   --sl-color-bg-code: rgba(13, 15, 19, 0.85);
   --sl-color-bg-inline-code: rgba(217, 119, 87, 0.1);
 
-  /* ---------- Text ---------- */
   --sl-color-white: #ffffff;
   --sl-color-text: #f2f3f5;
   --sl-color-text-invert: #0b0c0e;
 
-  /* ---------- Borders ---------- */
   --sl-color-hairline: rgba(217, 119, 87, 0.08);
   --sl-color-hairline-light: rgba(217, 119, 87, 0.18);
   --sl-color-hairline-shade: rgba(255, 255, 255, 0.04);
 
-  /* ---------- Gray ramp ---------- */
   --sl-color-gray-1: #d4d4dc;
   --sl-color-gray-2: #a8a8b8;
   --sl-color-gray-3: #818194;
@@ -39,20 +31,15 @@
   --sl-color-gray-6: #0d0d14;
   --sl-color-gray-7: #08080d;
 
-  /* ---------- Selection ---------- */
   --sl-color-text-selection-bg: rgba(217, 119, 87, 0.3);
 
-  /* ---------- Fonts ---------- */
   --sl-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --sl-font-system: var(--sl-font);
   --sl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --sl-font-system-mono: var(--sl-font-mono);
 
-  /* ---------- Nav height (match marketing h-16) ---------- */
   --sl-nav-height: 4rem;
 
-  /* Tailwind @theme tokens mirror globals.css @theme so shared components
-     (NavLinks, SiteFooter, etc.) resolve correctly in Starlight pages. */
   --color-lime: #d97757;
   --color-lime-bright: #e08a6d;
   --color-lime-deep: #b85a3e;
@@ -71,8 +58,6 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-/* ===== GLOBAL CANVAS: subtle ambient layers ===== */
-
 html {
   scroll-behavior: smooth;
 }
@@ -85,7 +70,6 @@ body {
   background: var(--sl-color-bg);
 }
 
-/* Make sure real content sits above background layers */
 .page,
 nav.sidebar,
 .content-panel,
@@ -102,16 +86,12 @@ header.header {
   padding: 0 !important;
 }
 
-/* position:sticky makes these stacking contexts at z-index auto, which would paint below
-   the z-index:1 .content-panel and bury the fixed mobile TOC bar; lift above panels, below header. */
 .right-sidebar,
 .right-sidebar-container {
   position: sticky !important;
   top: var(--sl-nav-height, 4rem);
   z-index: 10;
 }
-
-/* ===== TOP HEADER: frosted, lime accents ===== */
 
 header.header {
   background: rgba(11, 12, 14, 0.72) !important;
@@ -120,8 +100,6 @@ header.header {
   border-bottom: 1px solid var(--sl-color-hairline) !important;
 }
 
-/* Mobile "On this page" bar is fixed directly under the header, so it needs the header's frosted
-   treatment; on its own the translucent --sl-color-bg-nav lets the page scroll through it unreadably. */
 mobile-starlight-toc nav {
   background-color: rgba(11, 12, 14, 0.72) !important;
   -webkit-backdrop-filter: blur(20px) saturate(140%);
@@ -168,10 +146,6 @@ site-search button:hover,
   background: rgba(28, 28, 38, 0.7) !important;
 }
 
-/* ===== SIDEBAR: glass + glowing active state ===== */
-
-/* Desktop (≥72rem): nav.sidebar and .main-frame share one grid cell and overlap; sticky
-   .sidebar-pane stays visible but stops at .page's bottom. Mobile keeps Starlight's flex-column. */
 nav.sidebar {
   background: transparent !important;
   border-right: 1px solid var(--sl-color-hairline) !important;
@@ -249,13 +223,10 @@ nav.sidebar {
   transform: translateX(2px);
 }
 
-/* Starlight marks the current page with aria-current="page" */
 .sidebar-content a[aria-current="page"] {
   background: rgba(217, 119, 87, 0.1) !important;
   color: var(--sl-color-white) !important;
 }
-
-/* ===== CONTENT: typography + flow ===== */
 
 .content-panel {
   font-size: 1rem;
@@ -316,7 +287,6 @@ header h1 {
   margin-top: 1.5rem !important;
 }
 
-/* Anchor-link icons next to headings */
 .sl-markdown-content .heading-wrapper a {
   color: var(--sl-color-gray-3);
   opacity: 0;
@@ -368,7 +338,6 @@ header h1 {
   white-space: nowrap;
 }
 
-/* Code blocks (Expressive Code) */
 .expressive-code {
   border-radius: 14px !important;
   overflow: hidden;
@@ -476,8 +445,6 @@ header h1 {
   border: 1px solid var(--sl-color-hairline);
 }
 
-/* ===== ASIDES (note / tip / caution / danger) ===== */
-
 .starlight-aside {
   border-radius: 12px !important;
   border: 1px solid var(--sl-color-hairline) !important;
@@ -542,8 +509,6 @@ header h1 {
   color: #fca5a5 !important;
 }
 
-/* ===== TABLE OF CONTENTS (right sidebar) ===== */
-
 starlight-toc nav a {
   color: var(--sl-color-gray-3) !important;
   font-size: 0.82rem;
@@ -571,8 +536,6 @@ starlight-toc nav a[aria-current="true"] {
   text-transform: uppercase;
   color: var(--sl-color-gray-2) !important;
 }
-
-/* ===== PAGINATION (prev / next links) ===== */
 
 .pagination-links {
   gap: 1rem;
@@ -609,8 +572,6 @@ starlight-toc nav a[aria-current="true"] {
   color: var(--sl-color-white);
 }
 
-/* ===== FOOTER (last-updated + edit-link) ===== */
-
 footer .meta {
   color: var(--sl-color-gray-3);
   border-top: 1px solid var(--sl-color-hairline);
@@ -624,8 +585,6 @@ footer .meta a:hover {
   color: var(--sl-color-accent);
 }
 
-/* Site footer: injected at body level by Vite plugin (SSR),
-   so it naturally spans full viewport width with no sidebar overlap. */
 footer.site-footer {
   position: relative;
   z-index: 10;
@@ -745,8 +704,6 @@ footer.site-footer .footer-bottom-links {
   gap: 1rem;
 }
 
-/* ===== KBD ===== */
-
 .sl-markdown-content kbd {
   font-family: var(--sl-font-mono);
   font-size: 0.78em;
@@ -757,8 +714,6 @@ footer.site-footer .footer-bottom-links {
   border-radius: 0.4rem;
   color: var(--sl-color-white);
 }
-
-/* ===== DETAILS / SUMMARY (collapsible blocks in markdown) ===== */
 
 .sl-markdown-content details {
   border: 1px solid var(--sl-color-hairline);
@@ -785,8 +740,6 @@ footer.site-footer .footer-bottom-links {
   color: var(--sl-color-accent);
 }
 
-/* ===== SCROLLBAR ===== */
-
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -801,8 +754,6 @@ footer.site-footer .footer-bottom-links {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(217, 119, 87, 0.3);
 }
-
-/* ===== PRINT: strip ambient layers ===== */
 
 @media print {
   body::before,

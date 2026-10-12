@@ -15,33 +15,27 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand */
   --color-lime: #d97757;
   --color-lime-bright: #e08a6d;
   --color-lime-deep: #b85a3e;
   --color-lime-soft: #e8a08a;
 
-  /* Surface */
   --color-bg: #06060a;
   --color-bg-2: #0a0a12;
   --color-surface: rgba(0, 0, 0, 0.4);
   --color-surface-hover: rgba(0, 0, 0, 0.55);
   --color-surface-deep: rgba(0, 0, 0, 0.85);
 
-  /* Borders */
   --color-edge: rgba(217, 119, 87, 0.08);
   --color-edge-hover: rgba(217, 119, 87, 0.28);
 
-  /* Text */
   --color-text: #f1f1f6;
   --color-text-dim: #a1a1b5;
   --color-text-mute: #6b6b7d;
 
-  /* Fonts */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Animations */
   --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
   --animate-blink: blink 1s steps(2, start) infinite;
   --animate-drift-1: drift1 22s ease-in-out infinite alternate;
@@ -134,8 +128,6 @@
   }
 }
 
-/* ========== Background layers ========== */
-
 @utility grain {
   position: fixed;
   inset: 0;
@@ -146,8 +138,6 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>");
 }
 
-/* ========== Surface & cards ========== */
-
 @utility nav-bar {
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   backdrop-filter: blur(20px) saturate(140%);
@@ -155,18 +145,16 @@
   border-bottom: 1px solid var(--color-edge);
 }
 
-/* Shared code-card shell (.ui-code/.ui-codetabs/.ui-terminal); vars resolved under .site-root */
 @utility code-surface {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: #0d0f13; /* var(--surface-code) */
-  border: 1px solid #191c21; /* var(--border-subtle) */
+  background: #0d0f13;
+  border: 1px solid #191c21;
   border-radius: 10px;
   overflow: hidden;
 }
 
-/* De-facto inline code chip (about/privacy/terms/changelog); bg is bg-lime/10 as remapped to --accent-soft under .site-root */
 @utility code-chip {
   font-family: var(--font-mono);
   font-size: 0.85em;
@@ -176,7 +164,6 @@
   border-radius: 0.25rem;
 }
 
-/* Nav dropdown (mobile hamburger), shared by marketing + docs */
 .nav-bar-right {
   display: flex;
   align-items: center;
@@ -317,8 +304,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   color: var(--color-lime);
 }
 
-/* ========== Buttons & pills ========== */
-
 @utility btn-primary {
   position: relative;
   display: inline-flex;
@@ -383,8 +368,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   animation: var(--animate-pulse-dot);
 }
 
-/* ========== Text effects ========== */
-
 @utility gradient-text {
   color: var(--color-lime);
 }
@@ -399,8 +382,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   height: 1px;
   background: var(--color-edge);
 }
-
-/* ========== Terminal ========== */
 
 @utility terminal {
   position: relative;
@@ -474,8 +455,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   box-shadow: 0 0 8px var(--color-lime);
 }
 
-/* ========== Scroll + reveal ========== */
-
 @utility scroll-progress {
   position: fixed;
   top: 0;
@@ -515,8 +494,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   }
 }
 
-/* ========== Inline 3D canvases ========== */
-
 @utility three-inline {
   position: absolute;
   inset: 0;
@@ -524,8 +501,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   height: 100%;
   pointer-events: none;
 }
-
-/* ========== 3D stacked-cards logo ========== */
 
 .logo3d-stage {
   position: relative;
@@ -686,8 +661,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
   color: #0c0c0f;
 }
 
-/* === Hover: fan the big logo cards apart === */
-
 .logo-card {
   transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -718,8 +691,6 @@ nav-dropdown button[aria-expanded="true"] .nd-icon.close {
     0 0 0 1px rgba(255, 255, 255, 0.22) inset,
     0 1px 0 rgba(255, 255, 255, 0.35) inset;
 }
-
-/* === Hover: nav brand mark fans diagonally === */
 
 .brand-mark rect {
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);

@@ -12,7 +12,6 @@ export const onRequest = defineMiddleware(async (_context, next) => {
 
   const html = await response.text();
 
-  // Only inject on Starlight docs pages (skip marketing pages which have their own footer)
   if (!html.includes('class="page')) return new Response(html, response);
 
   const injected = html.replace("</body>", `${footerHtml}\n</body>`);

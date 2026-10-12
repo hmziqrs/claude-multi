@@ -1,7 +1,7 @@
 ---
-// oxlint-disable-next-line import/no-unassigned-import -- Astro global CSS: loaded for its side effect (Vite bundles it into the page's linked stylesheets). Plain CSS has no export to assign; `import x from` is invalid for Astro global styles and would only trade this warning for an unused-var warning.
+// oxlint-disable-next-line import/no-unassigned-import
 import '../styles/globals.css';
-// oxlint-disable-next-line import/no-unassigned-import -- same intentional side-effect import as globals.css above (layered site theme).
+// oxlint-disable-next-line import/no-unassigned-import
 import '../styles/theme.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -128,8 +128,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
   <body>
     <div class="site-root">
       <script is:inline>
-        // Mark JS as available as early as possible so reveal content is only
-        // hidden when scripting is on (see the .no-js fallback in <style>).
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js');
       </script>
@@ -170,8 +168,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           );
           revealEls.forEach((el) => io.observe(el));
 
-          // Fail-safe: reveal all sections shortly after load; below-fold .reveal nodes start
-          // at opacity:0, leaving them blank in captured screenshots and fast-scroll/no-IO cases.
           const revealAll = () =>
             revealEls.forEach((el) => el.classList.add('visible'));
           if (document.readyState === 'loading') {
@@ -193,7 +189,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     overflow-x: hidden;
   }
 
-  /* No-JS fallback: never hide reveal content when scripting is unavailable. */
   :global(html:not(.js) .reveal) {
     opacity: 1 !important;
     transform: none !important;
@@ -210,8 +205,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* The shared SiteFooter uses the legacy lime theme tokens; remap them to
-       coral/neutral tokens so it stays on-theme inside the site shell. */
     --color-lime: var(--accent);
     --color-lime-bright: var(--accent-hover);
     --color-edge: var(--border-subtle);
@@ -221,7 +214,6 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
     --color-text-mute: var(--text-muted);
   }
 
-  /* Neutralize the legacy footer's hardcoded lime gradients inside the site shell. */
   .site-root :global(.site-footer) {
     border-top-color: var(--border-subtle);
     background: var(--surface-page);

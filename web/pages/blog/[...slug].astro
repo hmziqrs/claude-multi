@@ -6,7 +6,7 @@ import Layout from '@/web/layouts/ContentLayout.astro';
 import SocialIcon from '@/web/components/SocialIcon.astro';
 import AudioPlayer from '@/web/components/AudioPlayer.astro';
 import { author, formatDate, readingTime } from '@/web/util/author';
-// oxlint-disable-next-line import/no-unassigned-import -- shared prose styles, side-effect import like layouts' theme.css
+// oxlint-disable-next-line import/no-unassigned-import
 import '../../styles/prose.css';
 
 export async function getStaticPaths() {
@@ -23,7 +23,6 @@ const minutes = readingTime(post.body ?? '');
 const localAudioPath = join(process.cwd(), 'audio', `${post.id}.mp3`);
 const audioSrc = post.data.audio ?? (existsSync(localAudioPath) ? `/audio/${post.id}.mp3` : null);
 
-// Internal link equity: related posts (by tag overlap) + chronological prev/next.
 const allPosts = (await getCollection('blog')).filter((p) => !p.data.draft);
 const others = allPosts.filter((p) => p.id !== post.id);
 

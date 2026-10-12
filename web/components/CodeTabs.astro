@@ -61,7 +61,6 @@ const items = Array.isArray(tabs) && tabs.length ? tabs : [{ label: '', code: ''
       panels.forEach((p, idx) => {
         p.hidden = idx !== i;
       });
-      // CopyButton reads its value at click time; keep it tracking the visible pane
       if (copyBtn) copyBtn.setAttribute('data-copy-value', currentCode());
     };
 

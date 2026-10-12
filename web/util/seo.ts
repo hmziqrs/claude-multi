@@ -6,8 +6,6 @@ export const SITE_URL = "https://claude-multi.hmziq.xyz";
 
 export const DEFAULT_TITLE = "claude-multi: a separate Claude Code for every provider";
 
-// Describes what the social card actually depicts, for screen readers and for
-// clients that show alt text when the image fails to load. Not the page title.
 export const DEFAULT_OG_IMAGE_ALT =
   "claude-multi social card: per-provider claude-glm, claude-deepseek, claude-kimi and claude-qwen commands in a terminal";
 

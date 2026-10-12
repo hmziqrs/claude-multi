@@ -324,7 +324,6 @@ const repo = 'https://github.com/hmziqrs/claude-multi';
 
       panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close()));
 
-      // Close when Starlight's mobile sidebar opens.
       new MutationObserver(() => {
         if (document.body.hasAttribute('data-mobile-menu-expanded')) close();
       }).observe(document.body, { attributes: true, attributeFilter: ['data-mobile-menu-expanded'] });
