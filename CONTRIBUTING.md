@@ -18,51 +18,46 @@ bun install
 
 ```
 src/
-├── cli.ts              # Commander.js CLI entry point + interactive mode
-├── config.ts           # Core config management (instances, plugins, MCP, symlinks)
-├── templates.ts        # Provider templates (env vars, model mappings)
-├── constants.ts        # Shared string constants
-├── errors.ts           # Standardized error system (ClaudeMultiError + ErrorCode)
-├── health.ts           # Health check system
-├── migration.ts        # Config version migration with backups and locking
-├── wrapper.ts          # Wrapper script generation (shell/batch)
-├── version.ts          # Version checking and update logic
-├── paths.ts            # Base directory resolution
+├── cli.ts
+├── config.ts
+├── templates.ts
+├── constants.ts
+├── errors.ts
+├── health.ts
+├── migration.ts
+├── wrapper.ts
+├── version.ts
+├── paths.ts
 ├── util/
-│   ├── json-file.ts    # Atomic JSON file writes
-│   └── runtime.ts      # Package manager detection
-└── ink/                # Ink-based Terminal UI
-    ├── App.tsx         # Root app: menu, screen routing, keyboard input
-    ├── main.tsx        # Ink render entry point
-    ├── components/     # Reusable UI components
-    ├── screens/        # TUI screens (AddInstance, ListInstances, etc.)
-    └── hooks/          # Custom hooks (useConfig, useHealthCheck, etc.)
+│   ├── json-file.ts
+│   └── runtime.ts
+└── ink/
+    ├── App.tsx
+    ├── main.tsx
+    ├── components/
+    ├── screens/
+    └── hooks/
 
-web/                    # Astro docs site (this site)
-├── content/            # Starlight docs + blog + FAQ
-└── pages/              # Marketing page, static pages
+web/
+├── content/
+└── pages/
 ```
 
 ## Build
 
 ```bash
-# Build the CLI (the Ink TUI is bundled into the same build)
 bun run build
 
-# Build the docs site
 bun run docs:build
 ```
 
 ## Test
 
 ```bash
-# Run all tests
 bun run test
 
-# Run a specific test file
 bun test test/config.test.ts
 
-# Run tests matching a pattern
 bun test --grep "symlink"
 ```
 
@@ -73,17 +68,13 @@ Tests use `CLAUDE_MULTI_HOME` to isolate from your real config, they create temp
 ## Lint, format, and typecheck
 
 ```bash
-# TypeScript check
 bun run typecheck
 
-# Docs site typecheck (astro check)
 bun run docs:typecheck
 
-# Lint (vp lint)
 bun run lint
 bun run lint:fix
 
-# Format (vp fmt; web/content is excluded)
 bun run format
 bun run format:check
 ```
@@ -91,13 +82,10 @@ bun run format:check
 ## Run locally
 
 ```bash
-# Run the CLI directly from source
 bun src/cli.ts
 
-# Run with the Ink TUI
 bun src/ink/main.tsx
 
-# Run the docs dev server
 bun run docs:dev
 ```
 

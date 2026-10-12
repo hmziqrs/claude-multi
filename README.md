@@ -23,21 +23,21 @@ https://github.com/user-attachments/assets/790edd9c-6ee2-425a-952c-397ad047d653
 
 ---
 
-## Why?
+## Why claude-multi
 
 Claude Code is great. Switching between providers and model setups is not.
 
-If you want to try GLM today and DeepSeek tomorrow, you usually end up editing `settings.json` by hand, juggling env vars, swapping keys, or maintaining a bunch of shell aliases nobody asked for.
+If you want to try GLM today and DeepSeek tomorrow, you usually end up editing `settings.json` by hand, juggling env vars, swapping keys, or maintaining a bunch of shell aliases.
 
 The other option is each provider's own CLI tool. That sounds clean until you realize every tool has its own workflow, its own flags, its own way of doing things. Learning a new harness for every model gets old fast.
 
 So I went the other way: keep one harness I already like, and put the providers behind it. It's still Claude Code under the hood, so `/loop`, `/goal`, skills, MCP servers, and plugins all keep working.
 
 ```bash
-claude          # your normal setup
-claude-glm      # GLM / Z.ai config
-claude-deepseek # DeepSeek config
-claude-minimax  # MiniMax config
+claude
+claude-glm
+claude-deepseek
+claude-minimax
 ```
 
 ---
@@ -48,9 +48,6 @@ Requires Node.js 18+ or Bun 1+, and Claude Code installed globally (`npm install
 
 ```bash
 bun add -g claude-multi
-# or: npm install -g claude-multi
-# or: pnpm add -g claude-multi
-# or: deno install -g -A -n claude-multi npm:claude-multi
 ```
 
 ---

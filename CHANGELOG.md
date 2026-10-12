@@ -127,9 +127,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Instance details actions**: The instance details screen now has action buttons. Press Enter on any instance to access: Update settings template, Update alias wrapper, and Override alias to standard. Each action shows a live mismatch indicator (✓ up to date, ⚠ mismatch detected, ✗ wrapper missing).
-- `syncProviderTemplateForInstance()` in `config.ts` — on-demand provider template sync for a single instance. Re-applies the latest template env vars while preserving API keys and user-customized tunable vars.
-- `detectTemplateMismatch()` and `detectWrapperMismatch()` in `instance-diagnostics.ts` — compare an instance's current settings/wrapper against the expected provider template.
-- `TUNABLE_ENV_VARS` shared constant in `constants/env.ts` — single source of truth for env vars that are preserved during template sync and excluded from staleness checks.
+- `syncProviderTemplateForInstance()` in `config.ts`: on-demand provider template sync for a single instance. Re-applies the latest template env vars while preserving API keys and user-customized tunable vars.
+- `detectTemplateMismatch()` and `detectWrapperMismatch()` in `instance-diagnostics.ts`: compare an instance's current settings/wrapper against the expected provider template.
+- `TUNABLE_ENV_VARS` shared constant in `constants/env.ts`: single source of truth for env vars that are preserved during template sync and excluded from staleness checks.
 
 ### Changed
 - **Health screen rewrite**: Replaced static `IssueCard` list with a Select-based issue picker. Issues can now be selected, viewed in detail, and dismissed. Press Enter to view an issue, `d` to dismiss, `D` to dismiss all.
@@ -165,7 +165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Instance migration tests: fast-path skip on current-version instances, mixed instances (some current, some old), `.claude.json` updates when the wrapper file is missing, and a verification that regenerated wrappers contain the global claude path.
 
 ### Fixed
-- Health test compared `fixWrapperVersions` output against `generateWrapperScript()` (resolves via env override) instead of `buildWrapperScript(inst, PINNED_CLAUDE_BIN)` (what the function actually uses). Would break if `CLAUDE_MULTI_CLAUDE_PATH` was set.
+- Health test compared `fixWrapperVersions` output against `generateWrapperScript()` (resolves via env override) instead of `buildWrapperScript(inst, PINNED_CLAUDE_BIN)` (what the function uses). Would break if `CLAUDE_MULTI_CLAUDE_PATH` was set.
 
 ### Added
 - Instances track the claude-multi version they were created with (`createdWithVersion`). New instances get the current version. Instances created before this field existed get `0.5` and show "before version tracking" in the UI.
@@ -177,15 +177,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `instanceMigrationVersion` in config now stores the actual package version rather than a separate numbering scheme.
 - The legacy sentinel (`"0.5"`) is defined once as `LEGACY_INSTANCE_VERSION` and imported everywhere, instead of being hardcoded in multiple files.
 - Wrapper script template exists in a single place (`buildWrapperScript` in `wrapper.ts`). Migration and health check both delegate to it instead of duplicating the template string.
-- Instance migration only rewrites wrappers when the file content actually differs (version check + content diff), instead of unconditionally regenerating every wrapper.
+- Instance migration only rewrites wrappers when the file content differs (version check + content diff), instead of unconditionally regenerating every wrapper.
 - `fixWrapperVersions` uses the canonical template targeting the pinned binary explicitly, with a content-diff check to avoid unnecessary writes.
 
 ### Fixed
 - Removed broken `compareVersions` references from `version.test.ts`.
-- `resolveClaudePath()` in `migration.ts` used `await` in a non-async function (TypeScript error). Removed — replaced by `generateWrapperScriptSafe` from `wrapper.ts`.
+- `resolveClaudePath()` in `migration.ts` used `await` in a non-async function (TypeScript error). Removed, replaced by `generateWrapperScriptSafe` from `wrapper.ts`.
 - Unused imports (`COMPATIBLE_CLAUDE_VERSION`, `installPinnedClaude`, `getPinnedBinaryVersion`, `isThirdPartyApiBroken`, `PINNED_CLAUDE_BIN`) removed from `migration.ts`.
 - `config.ts` `loadConfig` backfill loop now handles `noUncheckedIndexedAccess` correctly (pre-existing TypeScript error).
-- `createBackup` changed from async to sync (had no `await` expressions — pre-existing lint warning).
+- `createBackup` changed from async to sync (had no `await` expressions, pre-existing lint warning).
 - Array `.sort()` / `.reverse()` calls in `migration.ts` and `config.ts` changed to `.toSorted()` / `.toReversed()` (pre-existing lint warnings).
 - Duplicate `existsSync` import in `test/wrapper.test.ts` merged into single import.
 
@@ -201,8 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.0] - 2026-05-29
 
 ### Added
-- **`doctor fix` auto-installs pinned Claude binary**: when the compatible binary at `~/.claude-multi/bin` is missing or running an incompatible version, `doctor fix` now installs Claude Code v2.1.156 (the version that fixed the 3rd-party API breakage from v2.1.154–v2.1.155) before fixing wrappers. Works from both CLI and TUI.
-- **Version verification on pinned binary**: `getPinnedBinaryVersion()` reads the installed version and triggers a reinstall if it's v2.1.154–v2.1.155.
+- **`doctor fix` auto-installs pinned Claude binary**: when the compatible binary at `~/.claude-multi/bin` is missing or running an incompatible version, `doctor fix` now installs Claude Code v2.1.156 (the version that fixed the 3rd-party API breakage from v2.1.154-v2.1.155) before fixing wrappers. Works from both CLI and TUI.
+- **Version verification on pinned binary**: `getPinnedBinaryVersion()` reads the installed version and triggers a reinstall if it's v2.1.154-v2.1.155.
 - **`COMPATIBLE_CLAUDE_VERSION` constant** (`src/version.ts`): single source of truth for the pinned version (`2.1.156`).
 - **`PINNED_CLAUDE_BIN` in `src/paths.ts`**: shared path constant (previously duplicated in `wrapper.ts` and `health.ts`).
 
@@ -217,7 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.8] - 2026-05-28
 
 ### Added
-- **Region selection for MiMo Token Plan** (`--region`): `mimo-token` provider now supports regional endpoints — China (`cn`), Singapore (`sgp`), Europe (`ams`). Users are prompted to pick a region after selecting `mimo-token` in all three entry points (CLI `--region` flag, interactive prompts, Ink TUI wizard). Defaults to `cn` for backward compatibility.
+- **Region selection for MiMo Token Plan** (`--region`): `mimo-token` provider now supports regional endpoints: China (`cn`), Singapore (`sgp`), Europe (`ams`). Users are prompted to pick a region after selecting `mimo-token` in all three entry points (CLI `--region` flag, interactive prompts, Ink TUI wizard). Defaults to `cn` for backward compatibility.
 - **API key prefix mapping** (`API_KEY_PREFIXES`): `mimo-token` shows `tp_...` placeholder in the API key input; all other providers show `sk-...`. Extensible map for future providers with non-standard key formats.
 
 ### Changed
