@@ -14,34 +14,54 @@ import { tmpdir } from "node:os";
 describe("Wrapper Script Generation", () => {
   describe("Unix wrapper", () => {
     it("should generate a shell script with exec", () => {
-      const options = {
-        name: "test",
-        configDir: "/home/user/.claude-test",
-        binaryPath: "/usr/local/bin/claude-test",
-      };
+      const tmpDir = mkdtempSync(join(tmpdir(), "wrapper-gen-test-"));
+      const fakeClaude = join(tmpDir, "claude");
+      writeFileSync(fakeClaude, "#!/bin/sh");
 
-      const script = generateWrapperScript(options);
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaude;
 
-      expect(script).toContain("#!/bin/sh");
-      expect(script).toContain('CLAUDE_CONFIG_DIR="/home/user/.claude-test"');
-      expect(script).toContain("exec ");
-      expect(script).toContain('"$@"');
+      try {
+        const script = generateWrapperScript({
+          name: "test",
+          configDir: "/home/user/.claude-test",
+          binaryPath: "/usr/local/bin/claude-test",
+        });
+
+        expect(script).toContain("#!/bin/sh");
+        expect(script).toContain('CLAUDE_CONFIG_DIR="/home/user/.claude-test"');
+        expect(script).toContain("exec ");
+        expect(script).toContain('"$@"');
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+        rmSync(tmpDir, { recursive: true, force: true });
+      }
     });
   });
 
   describe("Windows wrapper", () => {
     it("should generate a valid batch wrapper script", () => {
-      const options = {
-        name: "test",
-        configDir: "C:\\Users\\user\\.claude-test",
-        binaryPath: "C:\\Users\\user\\AppData\\npm\\claude-test.cmd",
-      };
+      const tmpDir = mkdtempSync(join(tmpdir(), "wrapper-gen-test-"));
+      const fakeClaude = join(tmpDir, "claude");
+      writeFileSync(fakeClaude, "#!/bin/sh");
 
-      const script = generateWindowsWrapperScript(options);
+      const original = process.env.CLAUDE_MULTI_CLAUDE_PATH;
+      process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaude;
 
-      expect(script).toContain("@echo off");
-      expect(script).toContain('set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"');
-      expect(script).toContain("%*");
+      try {
+        const script = generateWindowsWrapperScript({
+          name: "test",
+          configDir: "C:\\Users\\user\\.claude-test",
+          binaryPath: "C:\\Users\\user\\AppData\\npm\\claude-test.cmd",
+        });
+
+        expect(script).toContain("@echo off");
+        expect(script).toContain('set "CLAUDE_CONFIG_DIR=C:\\Users\\user\\.claude-test"');
+        expect(script).toContain("%*");
+      } finally {
+        process.env.CLAUDE_MULTI_CLAUDE_PATH = original;
+        rmSync(tmpDir, { recursive: true, force: true });
+      }
     });
   });
 
