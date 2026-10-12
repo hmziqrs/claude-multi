@@ -340,7 +340,6 @@ export function detectProvider(configDir: string): string | null {
 
 /**
  * Legacy template defaults: during "overwrite-legacy-defaults" sync these are stale, not user-customized.
- * Update in the same commit as any template change to a TUNABLE_ENV_VARS value.
  */
 export const LEGACY_ENV_DEFAULTS: Readonly<
   Record<string, Partial<Record<string, readonly string[]>>>
@@ -472,7 +471,6 @@ export function needsProviderTemplateSync(
       }).status === "synced"
     );
   } catch {
-    // Corrupt/unreadable settings.json is a health issue, not grounds to apply a template
     return false;
   }
 }

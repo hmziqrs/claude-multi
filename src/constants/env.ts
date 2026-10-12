@@ -1,6 +1,5 @@
 /**
- * User-customizable tunables: PRESERVED during template sync, EXCLUDED from staleness
- * detection. Add new tunable env vars from provider templates here too.
+ * User-customizable tunables: PRESERVED during template sync, EXCLUDED from staleness detection.
  */
 export const TUNABLE_ENV_VARS: ReadonlySet<string> = new Set([
   "MAX_OUTPUT_TOKENS",
