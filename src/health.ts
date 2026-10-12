@@ -187,7 +187,6 @@ export function runHealthChecks(
       try {
         const wrapperContent = readFileSync(inst.binaryPath, "utf-8");
 
-        // Wrapper formats: sh `exec "path"`, Windows .cmd `"path" %*`, node `spawn("path"`
         const shellMatch = wrapperContent.match(/exec\s+"([^"]+)"/);
         const cmdMatch = wrapperContent.match(/"([^"]+)"\s+%\*/);
         const nodeMatch = wrapperContent.match(/spawn\("([^"]+)"/);
@@ -208,9 +207,7 @@ export function runHealthChecks(
             resolutionHint: "Run 'claude-multi doctor fix' or press ! from the home screen",
           });
         }
-      } catch {
-        // Can't read wrapper — skip
-      }
+      } catch {}
     }
 
     if (
@@ -257,7 +254,6 @@ export function saveHealthStatus(status: HealthStatus): void {
   const tmpPath = `${healthFile}.tmp.${randomBytes(4).toString("hex")}`;
   try {
     writeFileSync(tmpPath, JSON.stringify(status, null, 2), "utf-8");
-    // Verify the temp file is valid JSON before committing
     JSON.parse(readFileSync(tmpPath, "utf-8"));
     renameSync(tmpPath, healthFile);
   } catch (err) {
@@ -297,7 +293,6 @@ export function fixWrapperVersions(instances: Instance[]): string[] {
     try {
       const content = readFileSync(inst.binaryPath, "utf-8");
 
-      // Wrapper formats: sh `exec "path"`, Windows .cmd `"path" %*`, node `spawn("path"`
       const shellMatch = content.match(/exec\s+"([^"]+)"/);
       const cmdMatch = content.match(/"([^"]+)"\s+%\*/);
       const nodeMatch = content.match(/spawn\("([^"]+)"/);
@@ -311,9 +306,7 @@ export function fixWrapperVersions(instances: Instance[]): string[] {
         writeFileSync(inst.binaryPath, newContent, { mode: 0o755 });
       }
       fixed.push(inst.name);
-    } catch {
-      // Skip unreadable wrappers
-    }
+    } catch {}
   }
   return fixed;
 }

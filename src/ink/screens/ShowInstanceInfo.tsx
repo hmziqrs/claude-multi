@@ -119,8 +119,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   } | null>(null);
   const [executing, setExecuting] = useState(false);
 
-  // Resolve the current instance from the live instances array so that
-  // after reload() the selected reference stays fresh.
   const liveSelected = selected
     ? (instances.find((i) => i.name === selected.name) ?? selected)
     : null;
@@ -164,7 +162,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   useInput((input, key) => {
     if (executing) return;
 
-    // q quits — mirrors useNavigation behavior on all other screens
     if (input === "q") {
       exit();
       return;
@@ -215,7 +212,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const VALID_SYNC_MODES = new Set<string>(Object.values(SyncMode));
 
   const handleAction = async (value: string) => {
-    // Guard against double-fire from rapid Enter presses
     if (executing) return;
 
     if (value.startsWith("convert:")) {
@@ -282,7 +278,6 @@ export const ShowInstanceInfo: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const buildActionOptions = (): Array<{ label: string; value: string }> => {
     const options: Array<{ label: string; value: string }> = [];
 
-    // Template sync always fails without a detected provider template
     if (providerName) {
       options.push({
         label: `🔄 Update settings template  [${templateStatusLabel(templateStatus)}]`,

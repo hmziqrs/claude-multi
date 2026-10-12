@@ -187,20 +187,20 @@ export const ManagePlugins: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       } else if (action === PluginAction.Remove) {
         const pluginMap = new Map(instancePlugins.map((ip) => [ip.id, ip]));
         for (const id of selectedIds) {
-          // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared plugin manifest requires sequential writes
+          // eslint-disable-next-line @react-doctor/async-await-in-loop
           const p = pluginMap.get(id);
           await removeSinglePlugin(inst.configDir, id, p?.category ?? PluginCategory.External);
         }
         setSuccess(`Removed ${selectedIds.length} plugin(s) from '${selectedInstance}'`);
       } else if (action === PluginAction.Enable) {
         for (const id of selectedIds) {
-          // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared plugin manifest requires sequential writes
+          // eslint-disable-next-line @react-doctor/async-await-in-loop
           await enablePlugin(inst.configDir, `${id}@claude-plugins-official`);
         }
         setSuccess(`Enabled ${selectedIds.length} plugin(s) for '${selectedInstance}'`);
       } else if (action === PluginAction.Disable) {
         for (const id of selectedIds) {
-          // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared plugin manifest requires sequential writes
+          // eslint-disable-next-line @react-doctor/async-await-in-loop
           await disablePlugin(inst.configDir, `${id}@claude-plugins-official`);
         }
         setSuccess(`Disabled ${selectedIds.length} plugin(s) for '${selectedInstance}'`);

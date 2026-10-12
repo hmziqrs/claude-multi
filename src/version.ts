@@ -84,7 +84,6 @@ function getCurrentVersion(): string | null {
       stdio: ["pipe", "pipe", "ignore"],
     });
     const data = JSON.parse(output);
-    // pnpm returns an array, npm/bun return an object
     const root = Array.isArray(data) ? data[0] : data;
     return root?.dependencies?.["@anthropic-ai/claude-code"]?.version ?? null;
   } catch {
@@ -106,9 +105,6 @@ async function getLatestVersion(): Promise<string> {
   }
 }
 
-/**
- * Checks if an update is available
- */
 export async function checkForUpdates(): Promise<VersionInfo> {
   const current = getCurrentVersion();
   const latest = await getLatestVersion();

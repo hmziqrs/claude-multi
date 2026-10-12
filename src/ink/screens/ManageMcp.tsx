@@ -269,9 +269,7 @@ export const ManageMcp: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           }
         }
       }
-    } catch {
-      // Plugin-name resolution failed — sources will show as "unknown", acceptable
-    }
+    } catch {}
 
     const sources: McpSource[] = [];
 

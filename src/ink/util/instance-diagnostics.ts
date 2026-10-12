@@ -34,9 +34,7 @@ function tryResolveRegionalTemplate(
     if (providerRegions && region in providerRegions) {
       return resolveRegionTemplate(template, region);
     }
-  } catch {
-    // Invalid region — fall through
-  }
+  } catch {}
   return undefined;
 }
 

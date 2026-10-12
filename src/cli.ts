@@ -186,7 +186,6 @@ program
           effectiveSyncMode = SyncMode.Auto;
         }
 
-        // Legacy boolean for Instance field compat
         const autoSync = effectiveSyncMode === SyncMode.Auto;
         let providerRegion: string | undefined;
 
@@ -254,7 +253,6 @@ program
           if (options.copyMcp) {
             copyMcpServers = true;
           }
-          // skipPrompts means start fresh (both false)
         } else {
           const useInk = process.env.CLAUDE_MULTI_INK !== "false";
           if (useInk) {
@@ -571,7 +569,6 @@ program
       const instance = await requireInstance(name);
       const currentMode = getSyncMode(instance);
 
-      // Legacy on/off aliases
       const normalized = status.toLowerCase();
       let newMode: SyncModeType;
       if (normalized === "on" || normalized === "true" || status === "1") {
@@ -862,7 +859,7 @@ async function handlePluginsSetEnabled(
   const currentPlugins = (await getEnabledPlugins(instance.configDir)) || {};
   let updated = false;
 
-  // eslint-disable-next-line @react-doctor/async-await-in-loop -- mutates shared currentPlugins state in place
+  // eslint-disable-next-line @react-doctor/async-await-in-loop
   for (const pluginId of plugins) {
     if (currentPlugins[pluginId] === enable) {
       console.log(
@@ -1001,7 +998,7 @@ async function handlePluginsRemove(instanceName: string, pluginIds: string[]): P
 
   const installed = listInstancePlugins(instance.configDir);
   const installedMap = new Map(installed.map((ip) => [ip.id, ip]));
-  // eslint-disable-next-line @react-doctor/async-await-in-loop -- shared installed_plugins.json manifest requires sequential writes
+  // eslint-disable-next-line @react-doctor/async-await-in-loop
   for (const id of pluginIds) {
     const p = installedMap.get(id);
     if (!p) {
@@ -1164,9 +1161,7 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
             await halfSyncPluginsAndSkills(instance.configDir);
             fixed = true;
           }
-        } catch {
-          /* fix failed */
-        }
+        } catch {}
       }
 
       return { instance, diagnosis, needsFix, fixed, mode };
@@ -1414,7 +1409,6 @@ async function handleMcpVerify(instanceName: string): Promise<void> {
 program.action(async () => {
   skipGlobalUpdateCheck = true;
 
-  // Unknown subcommands fall through to the default action — reject them
   const unknownArgs = program.args.filter((a) => !a.startsWith("-"));
   if (unknownArgs.length > 0) {
     console.error(chalk.red(`✗ Unknown command: ${unknownArgs[0]}`));
@@ -1439,12 +1433,10 @@ program.action(async () => {
   }
 });
 
-// Suppressed by interactive commands — they run the check after Ink exits
 let skipGlobalUpdateCheck = false;
 
 program.parse();
 
-// Update check — disabled by default, set CLAUDE_MULTI_UPDATE_CHECK=true to enable
 async function runUpdateCheck() {
   try {
     const updateInfo = await checkForClaudeMultiUpdates();
@@ -1469,9 +1461,7 @@ async function runUpdateCheck() {
         exitWithCode(0);
       }
     }
-  } catch {
-    // Silent fail — never interrupt CLI usage
-  }
+  } catch {}
 }
 
 if (!skipGlobalUpdateCheck && process.env.CLAUDE_MULTI_UPDATE_CHECK === "true") {

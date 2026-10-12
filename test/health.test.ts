@@ -50,8 +50,6 @@ describe("Health Check", () => {
     testDir = mkdtempSync(join(tmpdir(), "health-test-"));
     process.env.CLAUDE_MULTI_HOME = testDir;
 
-    // Create a fake claude binary and point the env var at it,
-    // so getClaudePath() / tryGetClaudePath() resolve deterministically.
     fakeClaudeBin = join(testDir, "fake-claude-bin");
     writeFileSync(fakeClaudeBin, "#!/bin/sh", { mode: 0o755 });
     process.env.CLAUDE_MULTI_CLAUDE_PATH = fakeClaudeBin;

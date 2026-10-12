@@ -74,7 +74,6 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [claudeInfo, setClaudeInfo] = useState<VersionInfo | null>(null);
   const [updatingTarget, setUpdatingTarget] = useState<string | null>(null);
 
-  // Suppress ESC during loading/updating to prevent corrupted installs
   useInput((input, key) => {
     if (key.escape && step === "result") {
       onBack();
@@ -139,9 +138,7 @@ export const UpdateScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           setSuccess(`@anthropic-ai/claude-code updated to v${updated.latest}`);
         }
       }
-    } catch {
-      // Recheck failed — update succeeded, just couldn't verify version
-    }
+    } catch {}
 
     setUpdatingTarget(null);
     setStep("result");

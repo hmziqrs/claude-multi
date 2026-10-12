@@ -140,7 +140,6 @@ describe("handleAddInstance (component-level tests)", () => {
     it("rollback removes config entry — Phase 4 regression guard", async () => {
       const inst = makeInstance("zombie", testConfigDir);
 
-      // Replicate the cli.ts rollback: addInstance succeeds, then createWrapper "fails"
       await addInstance(inst);
       await removeInstance("zombie").catch(() => {});
 

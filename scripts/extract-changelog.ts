@@ -1,6 +1,4 @@
 #!/usr/bin/env bun
-// Usage: bun run scripts/extract-changelog.ts <version> [--out <path>] (default: stdout)
-// Matches `## [<version>]` CHANGELOG headings; exits non-zero if no section found.
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";

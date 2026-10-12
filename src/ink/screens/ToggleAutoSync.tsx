@@ -137,7 +137,6 @@ export const ToggleAutoSync: React.FC<{ onBack: () => void }> = ({ onBack }) => 
       return;
     }
 
-    // Handle force re-sync as a direct sync call (bypasses updateInstanceSyncMode)
     if (value === FORCE_RESYNC) {
       setStep("syncing");
       try {

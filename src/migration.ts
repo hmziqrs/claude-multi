@@ -32,7 +32,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     version: "0.6.2",
     description:
       "Regenerate wrappers and update stale .claude.json for current claude-multi behavior",
-    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    // eslint-disable-next-line @react-doctor/require-await
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
 
@@ -54,9 +54,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
               writeFileSync(instance.binaryPath, expected, { mode: 0o755 });
               chmodSync(instance.binaryPath, 0o755);
             }
-          } catch {
-            // Skip unreadable wrapper
-          }
+          } catch {}
         } else {
           console.warn(
             `[migration] Could not find claude binary, skipping wrapper regeneration for instance: ${instance.name}`,
@@ -72,7 +70,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   {
     version: "0.6.3",
     description: "Sync provider template env vars (model names, thinking/output limits) to latest",
-    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    // eslint-disable-next-line @react-doctor/require-await
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
       if (
@@ -109,7 +107,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     version: "0.11.1",
     description:
       "Sync provider env to current templates: model slots always updated; tunable vars refreshed when holding a known legacy default (e.g. GLM MAX_OUTPUT_TOKENS 64000)",
-    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    // eslint-disable-next-line @react-doctor/require-await
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
       if (
@@ -146,7 +144,7 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
     version: "0.12.0",
     description:
       "GLM template: sonnet slot moved to glm-5.3-flash[1m] (three-tier split: opus glm-5.3[1m], sonnet glm-5.3-flash[1m], haiku glm-5-turbo)",
-    // eslint-disable-next-line @react-doctor/require-await -- must return Promise<Instance> per interface
+    // eslint-disable-next-line @react-doctor/require-await
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();
       if (
@@ -190,7 +188,6 @@ function updateClaudeJson(configDir: string): void {
 
     let changed = false;
 
-    // migrationVersion tracks Claude Code's internal schema. Current latest is 13.
     if (typeof raw.migrationVersion === "number" && raw.migrationVersion < 13) {
       raw.migrationVersion = 13;
       changed = true;
@@ -199,9 +196,7 @@ function updateClaudeJson(configDir: string): void {
     if (changed) {
       writeFileSync(stateFile, JSON.stringify(raw, null, 2), "utf-8");
     }
-  } catch {
-    // Corrupted .claude.json - skip
-  }
+  } catch {}
 }
 
 export function needsInstanceMigration(config: Config): boolean {
@@ -227,8 +222,6 @@ export function needsInstanceMigration(config: Config): boolean {
 
 export async function runInstanceMigrations(config: Config): Promise<Config> {
   if (!needsInstanceMigration(config)) {
-    // Stamp even when nothing applies so version checkers converge instead of a permanent no-op.
-    // Never stamp down over a stored newer version — downgrade+re-upgrade must not replay migrations.
     const currentVersion = getClaudeMultiVersion();
     const storedCoerced = semver.coerce(config.instanceMigrationVersion ?? "");
     if (!storedCoerced || semver.lt(storedCoerced, currentVersion)) {
@@ -249,16 +242,14 @@ export async function runInstanceMigrations(config: Config): Promise<Config> {
     ).toSorted((a, b) => semver.compare(a.version, b.version));
 
     for (const migration of applicable) {
-      // eslint-disable-next-line @react-doctor/async-await-in-loop -- migrations must run sequentially per version order
+      // eslint-disable-next-line @react-doctor/async-await-in-loop
       for (let i = 0; i < config.instances.length; i++) {
-        // eslint-disable-next-line @react-doctor/async-await-in-loop -- migrations must run sequentially per version order
+        // eslint-disable-next-line @react-doctor/async-await-in-loop
         const migrated = await migration.migrate({ ...config.instances[i] } as Instance, config);
         config.instances[i] = migrated;
       }
     }
 
-    // Template drift is checked independently from versioned migrations so model/env
-    // updates reach every provider even if a release forgets an INSTANCE_MIGRATIONS entry.
     for (let i = 0; i < config.instances.length; i++) {
       const instance = config.instances[i]!;
       if (
@@ -321,7 +312,6 @@ function createLock(): boolean {
         typeof (raw as { pid: unknown }).pid === "number"
       ) {
         const lock = raw as { pid: number; startedAt: string };
-        // >30min-old lock is from a dead process (even with a recycled PID) — remove it
         const lockAge = Date.now() - new Date(lock.startedAt).getTime();
         if (lockAge > 30 * 60 * 1000) {
           rmSync(lockFile, { force: true });
@@ -352,7 +342,6 @@ function createLock(): boolean {
 }
 
 function releaseLock(): void {
-  // Safe to silence — lock file may already be removed by another process
   try {
     rmSync(getLockFile(), { force: true });
   } catch {}
@@ -398,7 +387,6 @@ export function createBackup(config: Config): string {
     }
   }
 
-  // Clean old backups (keep last 3)
   const backups = readdirSync(backupDir).toSorted();
   for (let i = 0; i < backups.length - 3; i++) {
     rmSync(join(backupDir, backups[i]!), { force: true, recursive: true });
@@ -411,7 +399,7 @@ export function runMigration(config: Config): Config {
   if (!needsMigration(config)) return config;
 
   if (!createLock()) {
-    return config; // Another process is migrating
+    return config;
   }
 
   const fromVersion = config.version || "1.0.0";

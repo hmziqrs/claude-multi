@@ -27,7 +27,6 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
   } as Config;
 }
 
-// glm-5.2-era settings as shipped by pre-0.11.0 templates
 function writeGlmSettings(instDir: string, env: Record<string, string> = {}) {
   mkdirSync(instDir, { recursive: true });
   writeFileSync(
@@ -216,7 +215,6 @@ describe("Migration", () => {
 
       const cmDir = join(testDir, ".claude-multi");
       mkdirSync(cmDir, { recursive: true });
-      // Create backups dir as a file (will cause mkdirSync to fail)
       writeFileSync(join(cmDir, "backups"), "not a dir");
 
       const config = makeConfig();
@@ -376,7 +374,7 @@ describe("Migration", () => {
         const { runInstanceMigrations } = await import("@/migration");
 
         const claudePath = tryGetClaudePath();
-        if (!claudePath) return; // Skip if claude not installed
+        if (!claudePath) return;
 
         const cmDir = join(testDir, ".claude-multi");
         mkdirSync(cmDir, { recursive: true });
@@ -417,9 +415,8 @@ describe("Migration", () => {
         mkdirSync(instDir, { recursive: true });
         const binaryPath = join(testDir, "bin", "same");
 
-        // Write the exact content the migration would produce (global claude path)
         const claudePath = tryGetClaudePath();
-        if (!claudePath) return; // Skip if claude not installed
+        if (!claudePath) return;
         const inst = { name: "same", configDir: instDir, binaryPath };
         const expectedContent = buildWrapperScript(inst, claudePath);
         writeFileSync(binaryPath, expectedContent, { mode: 0o755 });
@@ -1171,7 +1168,7 @@ describe("Migration", () => {
             binaryPath: join(testDir, "bin", "unknown-region"),
             createdAt: new Date().toISOString(),
             createdWithVersion: "0.5.0",
-            providerTemplate: "mimo-token", // stored provider so detectProvider is bypassed
+            providerTemplate: "mimo-token",
           },
         ],
       });
@@ -1179,7 +1176,6 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // providerTemplate is stored so the migration runs; region detection fails → fallback preserves the custom URL
       expect(settings.env.ANTHROPIC_BASE_URL).toBe(
         "https://token-plan-custom.xiaomimimo.com/anthropic",
       );
@@ -1216,7 +1212,7 @@ describe("Migration", () => {
             createdAt: new Date().toISOString(),
             createdWithVersion: "0.5.0",
             providerTemplate: "mimo-token",
-            providerRegion: "us", // invalid — not in MIMO_TOKEN_REGIONS
+            providerRegion: "us",
           },
         ],
       });
@@ -1323,7 +1319,7 @@ describe("Migration", () => {
   describe("0.11.1 instance migration — legacy-default env refresh", () => {
     function glmConfig(instDir: string, overrides: Partial<Config> = {}): Config {
       return makeConfig({
-        instanceMigrationVersion: "0.6.3", // 0.6.3 already applied — only 0.11.1 should run
+        instanceMigrationVersion: "0.6.3",
         instances: [
           {
             name: "glm-old",
@@ -1412,7 +1408,6 @@ describe("Migration", () => {
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBeUndefined();
       expect(settings.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE).toBeUndefined();
-      // User-only vars the template never set survive
       expect(settings.env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("glm-5-turbo");
     });
 
@@ -1549,11 +1544,10 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
       const settingsFile = join(instDir, "settings.json");
       const afterFirst = readFileSync(settingsFile, "utf-8");
-      // Pin mtime to a fixed past moment — any rewrite would change it
       const past = new Date(Date.now() - 60_000);
       utimesSync(settingsFile, past, past);
 
-      config.instanceMigrationVersion = "0.6.3"; // force the migration eligible again
+      config.instanceMigrationVersion = "0.6.3";
       await runInstanceMigrations(config);
 
       expect(readFileSync(settingsFile, "utf-8")).toBe(afterFirst);
@@ -1620,7 +1614,6 @@ describe("Migration", () => {
         "https://token-plan-sgp.xiaomimimo.com/anthropic",
       );
       expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
-      // mimo-token has no legacy defaults — custom tunable survives
       expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
       expect(result.instances[0]!.providerRegion).toBe("sgp");
       expect(result.instances[0]!.providerTemplate).toBe("mimo-token");
@@ -1660,7 +1653,6 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      // kimi has no legacy-default entries — custom value preserved, models synced
       expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
       expect(settings.env.ANTHROPIC_MODEL).toBe("kimi-k2.6");
     });
@@ -1724,7 +1716,7 @@ describe("Migration", () => {
   describe("0.12.0 instance migration — GLM sonnet slot to glm-5.3-flash[1m]", () => {
     function glmConfig(instDir: string, overrides: Partial<Config> = {}): Config {
       return makeConfig({
-        instanceMigrationVersion: "0.11.1", // 0.11.1 already applied — only 0.12.0 should run
+        instanceMigrationVersion: "0.11.1",
         instances: [
           {
             name: "glm-old",
@@ -1746,7 +1738,7 @@ describe("Migration", () => {
       writeGlmSettings(instDir, {
         ANTHROPIC_MODEL: "glm-5.3[1m]",
         ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]", // pre-0.12.0 template value
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]",
         ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
         MAX_OUTPUT_TOKENS: "128000",
       });
@@ -1806,8 +1798,6 @@ describe("Migration", () => {
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
       const instDir = join(testDir, ".claude-glm-current-fastpath");
-      // Fully current-template settings — drift detection must be a no-op, so any
-      // change below would come from the migrations themselves
       writeGlmSettings(instDir, {
         ANTHROPIC_MODEL: "glm-5.3[1m]",
         ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",

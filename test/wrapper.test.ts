@@ -130,7 +130,6 @@ describe("Wrapper Script Generation", () => {
 
     it("returns a string when Claude is available", () => {
       const result = tryGetClaudePath();
-      // If claude is installed (CI or dev machine), this should return a path
       if (result !== null) {
         expect(typeof result).toBe("string");
         expect(result.length).toBeGreaterThan(0);

@@ -13,10 +13,6 @@ export interface ProviderTemplate {
   };
 }
 
-/**
- * [SAFE PARK] intentionally empty — the user's installed claude-code binary is used as-is.
- * If a future Claude Code release breaks 3rd-party providers, re-add DISABLE_AUTOUPDATER/DISABLE_UPDATES: "1".
- */
 const PROVIDER_COMMON_ENV: Record<string, string> = {};
 
 const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
@@ -40,8 +36,6 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         MAX_THINKING_TOKENS: "8000",
         ENABLE_STREAMING: "true",
         MAX_OUTPUT_TOKENS: "128000",
-        // [1m] opts into the 1M context window per Z.ai's Claude Code example (three-tier split).
-        // No global CLAUDE_CODE_AUTO_COMPACT_WINDOW: one value can't fit the 1M and 200K models mixed here.
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -160,7 +154,6 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // 256K context; Claude Code assumes 200K for unrecognized models, so auto-compaction needs these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "262144",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
@@ -186,7 +179,6 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // 128K context; Claude Code assumes 200K for unrecognized models, so auto-compaction needs these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
@@ -212,7 +204,6 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
         REASONING_EFFORT: "high",
         MAX_THINKING_TOKENS: "16000",
         MAX_OUTPUT_TOKENS: "65536",
-        // 128K context; Claude Code assumes 200K for unrecognized models, so auto-compaction needs these.
         CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
@@ -246,7 +237,6 @@ export const MIMO_TOKEN_REGIONS: Record<string, { label: string; baseUrl: string
   },
 };
 
-/** Provider -> region map registry: add regional providers here and all region-aware code picks them up. */
 const PROVIDER_REGION_MAPS: Record<string, Record<string, { label: string; baseUrl: string }>> = {
   "mimo-token": MIMO_TOKEN_REGIONS,
 };
@@ -314,7 +304,6 @@ export function applyProviderTemplate(
 }
 
 export function getProviderByBaseUrl(baseUrl: string): string | null {
-  // Normalize trailing slash (common in hand-edited settings.json) so migrations don't miss a known provider.
   const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 
   for (const [name, template] of Object.entries(PROVIDER_TEMPLATES)) {
@@ -323,7 +312,6 @@ export function getProviderByBaseUrl(baseUrl: string): string | null {
 
     if (name === "mimo-token") {
       if (normalizedBaseUrl.startsWith("https://token-plan-")) continue;
-      // won't match mimo-token by exact URL since regions vary
     }
 
     if (normalizedBaseUrl === templateUrl) return name;
@@ -420,7 +408,6 @@ export function syncProviderEnvToSettings(
   const apiKey = existingEnv.ANTHROPIC_AUTH_TOKEN ?? "";
   const existingBaseUrl = existingEnv.ANTHROPIC_BASE_URL;
 
-  // Regional: URL-detected region wins over the stored region (hand-edited URLs beat stale metadata).
   let region: string | null = null;
   if (providerHasRegions(providerName)) {
     const providerRegions = getProviderRegions(providerName);
@@ -435,7 +422,6 @@ export function syncProviderEnvToSettings(
   const templateEnv = templateSettings.env as Record<string, string>;
   const newEnv: Record<string, string> = { ...templateEnv, ANTHROPIC_AUTH_TOKEN: apiKey };
 
-  // Unresolved region: keep existing base URL rather than silently defaulting regions
   if (providerHasRegions(providerName) && region === null && existingBaseUrl) {
     newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
   }

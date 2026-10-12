@@ -139,8 +139,6 @@ function getVisibleStepCount(state: WizardState): number {
   return getVisibleSteps(state).filter((s) => s !== Step.Creating && s !== Step.Done).length;
 }
 
-// --- Reducer state and actions ---
-
 type AddInstanceState = {
   step: Step;
   name: string;
@@ -177,7 +175,6 @@ function reducer(state: AddInstanceState, action: AddInstanceAction): AddInstanc
     case "SET_ERROR":
       return { ...state, error: action.error };
     case "SELECT_PROVIDER":
-      // Clear stale region when switching away from a regional provider
       if (!action.provider || !providerHasRegions(action.provider)) {
         return {
           ...state,
@@ -221,8 +218,6 @@ function initialState(initialName?: string): AddInstanceState {
     result: null,
   };
 }
-
-// --- Sub-components for each wizard step ---
 
 const NameStep: React.FC<{
   state: AddInstanceState;
@@ -504,7 +499,6 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
           } else if (sync === SyncMode.HalfManual) {
             await cfg.halfSyncPluginsAndSkills(cDir);
           }
-          // FullManual: already copied as real files, nothing more to do
         } else if (copyOpt === CopyOption.All) {
           await cfg.copyAllFromDefault(cDir, sync);
         } else if (copyOpt === CopyOption.Settings) {

@@ -164,8 +164,6 @@ export const App: React.FC = () => {
       } catch {}
 
       setDoctorResult({ fixedCount: fixed.length, migratedCount: migrated });
-      // reload() triggers useHealthCheck's effect via changed dependencies —
-      // no need to call retry() separately (would cause a double health check)
       await reload();
       setScreen("doctor-result");
     } finally {

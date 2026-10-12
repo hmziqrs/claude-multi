@@ -1,6 +1,5 @@
 @echo off
 setlocal
-:: Resolve package root (bin\ -> ..\)
 set "_cli=%~dp0..\dist\cli.js"
 
 where bun >nul 2>&1

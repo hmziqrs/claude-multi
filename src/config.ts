@@ -115,7 +115,6 @@ const VALID_SYNC_MODES = new Set<string>(Object.values(SyncMode));
 /** Priority: syncMode field > autoSync field > default "auto". */
 export function getSyncMode(instance: Instance): SyncModeType {
   if (instance.syncMode && VALID_SYNC_MODES.has(instance.syncMode)) return instance.syncMode;
-  // Backward compat: explicit autoSync=false means full-manual
   if (instance.autoSync === false) return SyncMode.FullManual;
   return SyncMode.Auto;
 }
@@ -212,7 +211,6 @@ export async function loadConfig(): Promise<Config> {
     await saveConfigAtomic(config);
   }
 
-  // Auto-backfill missing createdWithVersion (default value, not a migration)
   let backfilled = false;
   for (let i = 0; i < config.instances.length; i++) {
     const inst = config.instances[i]!;
@@ -290,7 +288,6 @@ export async function updateInstanceAutoSync(
 
   const inst = config.instances[index]!;
   inst.autoSync = autoSync;
-  // Also set syncMode for forward compat
   inst.syncMode = autoSync ? SyncMode.Auto : SyncMode.FullManual;
   await saveConfig(config);
   return inst;
@@ -330,7 +327,6 @@ export async function updateInstanceSyncMode(
   }
 
   inst.syncMode = newMode;
-  // Update autoSync for backward compat
   inst.autoSync = newMode === SyncMode.Auto;
   await saveConfig(config);
   return inst;
@@ -372,7 +368,6 @@ function isBrokenSymlink(path: string): boolean {
 
     return !existsSync(targetPath);
   } catch {
-    // lstatSync throws for non-existent paths
     return false;
   }
 }
@@ -403,13 +398,9 @@ export function detectBrokenSymlinks(configDir: string): {
               result.broken.push(`${dir}/${entry.name}`);
             }
           }
-        } catch {
-          /* permission error, skip */
-        }
+        } catch {}
       }
-    } catch {
-      // Path doesn't exist at all
-    }
+    } catch {}
   }
 
   return result;
@@ -474,7 +465,6 @@ export async function copyAllFromDefault(
     await mkdir(targetConfigDir, { recursive: true });
   }
 
-  // Resolve legacy boolean to SyncMode
   const effectiveMode: SyncModeType =
     typeof syncModeOrAutoSync === "boolean"
       ? syncModeOrAutoSync
@@ -493,7 +483,6 @@ export async function copyAllFromDefault(
     "file-history",
     "shell-snapshots",
     "statsig",
-    // MCP-related files — handled separately
     "mcp-cache",
     "mcp-logs",
     ".mcp-temp",
@@ -530,9 +519,7 @@ export async function copyAllFromDefault(
                 console.log(chalk.yellow(`  ⚠ Removing existing directory: ${entry}`));
               }
               rmSync(targetPath, { force: true, recursive: true });
-            } catch {
-              // Path doesn't exist — nothing to clean up
-            }
+            } catch {}
             await symlink(sourcePath, targetPath, "dir");
             console.log(`  Symlinked: ${entry} -> ${sourcePath}`);
           } else if (effectiveMode === SyncMode.HalfManual) {
@@ -544,7 +531,7 @@ export async function copyAllFromDefault(
             for (const sub of subEntries) {
               const subSource = join(sourcePath, sub.name);
               const subTarget = join(targetPath, sub.name);
-              if (lstatSafe(subTarget)) continue; // don't overwrite existing
+              if (lstatSafe(subTarget)) continue;
               const rel = relative(dirname(subTarget), subSource);
               await symlink(rel, subTarget, sub.isDirectory() ? "dir" : "file");
               linked++;
@@ -585,9 +572,7 @@ async function detectMcpConfigurations(configDir: string): Promise<McpConfigurat
       if (settings.mcpServers && typeof settings.mcpServers === "object") {
         return { mcpServers: settings.mcpServers };
       }
-    } catch {
-      // Ignore parsing errors, continue to other files
-    }
+    } catch {}
   }
 
   const mcpFiles = ["mcp.json", "mcp-servers.json", "claude-mcp.json"];
@@ -595,16 +580,14 @@ async function detectMcpConfigurations(configDir: string): Promise<McpConfigurat
     const mcpFilePath = join(configDir, mcpFile);
     if (existsSync(mcpFilePath)) {
       try {
-        // eslint-disable-next-line @react-doctor/async-await-in-loop -- short-circuit return on first valid config
+        // eslint-disable-next-line @react-doctor/async-await-in-loop
         const mcpContent = await readFile(mcpFilePath, "utf-8");
         const mcpConfig = JSON.parse(mcpContent);
 
         if (mcpConfig.mcpServers && typeof mcpConfig.mcpServers === "object") {
           return mcpConfig as McpConfiguration;
         }
-      } catch {
-        // Ignore parsing errors, continue to next file
-      }
+      } catch {}
     }
   }
 
@@ -624,7 +607,6 @@ export async function copyMcpServersFromDefault(targetConfigDir: string): Promis
     await mkdir(targetConfigDir, { recursive: true });
   }
 
-  // Copy plugins directory — MCP servers come from plugins
   const pluginsDir = join(targetConfigDir, "plugins");
   const defaultPluginsDir = join(defaultDir, "plugins");
   if (existsSync(defaultPluginsDir) && !existsSync(pluginsDir)) {
@@ -661,9 +643,7 @@ async function writeMcpConfiguration(
       settings.mcpServers = mcpConfig.mcpServers;
       await writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf-8");
       return;
-    } catch {
-      // If we can't parse/update settings.json, fall back to separate file
-    }
+    } catch {}
   }
 
   const mcpFile = join(targetConfigDir, "mcp.json");
@@ -748,7 +728,7 @@ export async function initializeInstanceState(configDir: string): Promise<void> 
   const state = {
     numStartups: 1,
     installMethod: "global",
-    autoUpdates: true, // [SAFE PARK] set to false if a future Claude Code version breaks 3rd-party providers; claude-multi no longer bundles claude-code so this protects the user-installed binary
+    autoUpdates: true,
     hasSeenTasksHint: true,
     hasCompletedOnboarding: true,
     lastOnboardingVersion: "2.0.31",
@@ -909,9 +889,7 @@ export async function halfSyncPluginsAndSkills(configDir: string): Promise<void>
           rmSync(targetPath, { force: true });
           console.log(chalk.gray(`  ✓ Removed directory symlink for ${dir}`));
         }
-      } catch {
-        /* not a symlink, good */
-      }
+      } catch {}
 
       if (!existsSync(targetPath)) {
         await mkdir(targetPath, { recursive: true });
@@ -935,12 +913,9 @@ export async function halfSyncPluginsAndSkills(configDir: string): Promise<void>
                 linked++;
                 continue;
               }
-            } catch {
-              /* broken symlink, replace it */
-            }
+            } catch {}
             rmSync(targetEntry, { force: true });
           } else {
-            // Real file/dir — don't overwrite user's own content
             continue;
           }
         }
@@ -980,9 +955,7 @@ export async function unsyncPluginsAndSkills(configDir: string): Promise<void> {
       try {
         readlinkSync(targetPath);
         isWholeDirSymlink = true;
-      } catch {
-        // Not a symlink
-      }
+      } catch {}
 
       if (isWholeDirSymlink) {
         rmSync(targetPath, { force: true });
@@ -995,7 +968,6 @@ export async function unsyncPluginsAndSkills(configDir: string): Promise<void> {
         await copyDirRecursive(sourcePath, targetPath);
         console.log(chalk.green(`  ✓ Copied files for ${dir}`));
       } else {
-        // Real directory — may be half-manual with individual symlinks inside
         let replaced = 0;
         const entries = readdirSync(targetPath, { withFileTypes: true });
         for (const entry of entries) {
@@ -1111,18 +1083,14 @@ export async function listAvailablePlugins(): Promise<Record<string, boolean> | 
   return defaultSettings?.enabledPlugins || null;
 }
 
-// ── Plugin Discovery ──────────────────────────────────────────────
-
 const MARKETPLACE_REL = "plugins/marketplaces/claude-plugins-official";
 
 function readMcpJsonFile(mcpPath: string): Record<string, McpServer> {
   try {
     const raw = JSON.parse(readFileSync(mcpPath, "utf-8"));
-    // Nested format: { "mcpServers": { ... } }
     if (raw.mcpServers && typeof raw.mcpServers === "object") {
       return raw.mcpServers as Record<string, McpServer>;
     }
-    // Flat format: { "serverName": { ... } }
     const servers: Record<string, McpServer> = {};
     for (const [key, val] of Object.entries(raw)) {
       if (val && typeof val === "object") {
@@ -1170,7 +1138,6 @@ function scanPluginDir(
       mcpServerNames = Object.keys(servers);
     }
 
-    // Check enabled (key format: "name@claude-plugins-official")
     const enabledKey = `${entry.name}@claude-plugins-official`;
     const enabled = enabledPlugins[enabledKey] === true;
 
@@ -1214,8 +1181,6 @@ export function listInstancePlugins(configDir: string): PluginInfo[] {
   return scanPluginsFromDir(configDir);
 }
 
-// ── Symlink Detection ─────────────────────────────────────────────
-
 export function isPluginsSymlinked(configDir: string): boolean {
   const pluginsPath = join(configDir, "plugins");
   const st = lstatSafe(pluginsPath);
@@ -1238,15 +1203,11 @@ export function isHalfManualSync(configDir: string): boolean {
           const entryStat = lstatSafe(entryPath);
           if (entryStat?.isSymbolicLink()) return true;
         }
-      } catch {
-        /* ignore */
-      }
+      } catch {}
     }
   }
   return false;
 }
-
-// ── Process Detection ─────────────────────────────────────────────
 
 export function isClaudeCodeRunning(configDir: string): boolean {
   if (process.env.NODE_ENV === "test") return false;
@@ -1261,8 +1222,6 @@ export function isClaudeCodeRunning(configDir: string): boolean {
     return false;
   }
 }
-
-// ── installed_plugins.json Management ─────────────────────────────
 
 interface InstalledPluginEntry {
   scope: string;
@@ -1331,8 +1290,6 @@ async function removePluginFromInstalledPlugins(
   await writeInstalledPlugins(pluginsDir, data);
 }
 
-// ── Disk Space Check ──────────────────────────────────────────────
-
 function estimatePluginSize(pluginPath: string): number {
   let total = 0;
   try {
@@ -1341,18 +1298,14 @@ function estimatePluginSize(pluginPath: string): number {
       if (entry.isDirectory()) {
         total += estimatePluginSize(fullPath);
       } else {
-        // Skip files that can't be stat'd; return partial total
         try {
           total += statSync(fullPath).size;
         } catch {}
       }
     }
-    // Return 0 if directory can't be read; caller uses this as an estimate
   } catch {}
   return total;
 }
-
-// ── MCP Collision Detection ───────────────────────────────────────
 
 export function detectMcpCollisions(
   configDir: string,
@@ -1381,8 +1334,6 @@ export function detectMcpCollisions(
 
   return collisions;
 }
-
-// ── Individual Plugin Copy / Remove ───────────────────────────────
 
 export async function copySinglePlugin(
   targetConfigDir: string,
@@ -1469,7 +1420,6 @@ export async function copySelectedPlugins(
     const subDir = sel.category === PluginCategory.Internal ? "plugins" : "external_plugins";
     totalSize += estimatePluginSize(join(defaultDir, MARKETPLACE_REL, subDir, sel.id));
   }
-  // Warn if >100MB but don't block (exact free space check is platform-dependent)
   if (totalSize > 100 * 1024 * 1024) {
     throw new ClaudeMultiError(
       ErrorCode.PLUGIN_TOO_LARGE,
@@ -1481,13 +1431,13 @@ export async function copySelectedPlugins(
 
   try {
     for (const sel of selections) {
-      // eslint-disable-next-line @react-doctor/async-await-in-loop -- rollback needs ordered completion tracking
+      // eslint-disable-next-line @react-doctor/async-await-in-loop
       await copySinglePlugin(targetConfigDir, sel.id, sel.category);
       completed.push(sel);
     }
   } catch (err: unknown) {
     for (const done of completed) {
-      // eslint-disable-next-line @react-doctor/async-await-in-loop -- rollback needs ordered completion tracking
+      // eslint-disable-next-line @react-doctor/async-await-in-loop
       try {
         const subDir = done.category === PluginCategory.Internal ? "plugins" : "external_plugins";
         const targetPath = join(targetConfigDir, MARKETPLACE_REL, subDir, done.id);
@@ -1529,7 +1479,6 @@ export async function removeSinglePlugin(
     );
   }
 
-  // Stage as .removing backup so a failed removal can be restored
   const backupPath = pluginPath + ".removing";
   try {
     renameSync(pluginPath, backupPath);
@@ -1557,8 +1506,6 @@ export async function removeSinglePlugin(
     );
   }
 }
-
-// ── MCP Server Helpers ────────────────────────────────────────────
 
 export function getMcpServersFromPlugins(configDir: string): Record<string, McpServer> {
   const result: Record<string, McpServer> = {};

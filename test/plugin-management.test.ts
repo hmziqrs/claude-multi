@@ -110,7 +110,7 @@ describe("Plugin Management", () => {
       const plugins = scanPluginsFromDir(defaultDir);
       const lsp = plugins.find((p) => p.id === "lsp-plugin");
       expect(lsp).toBeDefined();
-      expect(lsp!.name).toBe("lsp-plugin"); // Falls back to dir name
+      expect(lsp!.name).toBe("lsp-plugin");
     });
 
     test("handles both .mcp.json formats", () => {
@@ -191,7 +191,6 @@ describe("Plugin Management", () => {
       mkdirSync(linkDir, { recursive: true });
       mkdirSync(join(linkDir, "plugins"), { recursive: true });
 
-      // Can't easily create actual symlink in test, so test the detection function
       expect(isPluginsSymlinked(instanceDir)).toBe(false);
     });
   });
@@ -207,7 +206,6 @@ describe("Plugin Management", () => {
     });
 
     test("rolls back on partial failure", async () => {
-      // Use a separate base dir to avoid cross-test contamination
       const rbBase = mkdtempSync(join(tmpdir(), "rollback-"));
       const rbDefault = join(rbBase, "default");
       const freshInstance = join(rbBase, "instance");
@@ -226,7 +224,6 @@ describe("Plugin Management", () => {
         ]);
         expect.unreachable("Should have thrown");
       } catch (err) {
-        // The pre-flight check catches nonexistent plugins
         expect((err as Error).message).toContain("not found");
       }
 
@@ -332,7 +329,6 @@ describe("Plugin Management", () => {
 
     test("returns empty when no collisions", () => {
       const collisions = detectMcpCollisions(instanceDir, ["flat-mcp"]);
-      // flat-mcp was removed earlier, so no collisions
       expect(collisions.length).toBe(0);
     });
   });

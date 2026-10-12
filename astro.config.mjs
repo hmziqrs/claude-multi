@@ -12,10 +12,6 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
 
-/**
- * Blog post slug -> ISO date, read from frontmatter at config load.
- * Used for sitemap <lastmod>; astro:content is not available in this file.
- */
 const BLOG_DATES = new Map(
   readdirSync('./web/content/blog')
     .filter((f) => f.endsWith('.md'))
@@ -28,10 +24,6 @@ const BLOG_DATES = new Map(
     })
 );
 
-/**
- * Dev-vs-build split: dev pages get the footer via web/middleware.ts;
- * static builds get it here via this integration's astro:build:done hook.
- */
 function injectSiteFooterIntegration() {
   return {
     name: 'inject-site-footer',
@@ -86,8 +78,6 @@ export default defineConfig({
   integrations: [
     injectSiteFooterIntegration(),
     icon({
-      // The default iconDir `src/icons` sits in the CLI source tree here and
-      // never exists, which astro-icon reports as a warning on every start.
       iconDir: './web/icons',
       include: {
         'simple-icons': ['x', 'github', 'linkedin', 'telegram', 'reddit'],
@@ -97,8 +87,6 @@ export default defineConfig({
     sitemap({
       filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/') && !page.endsWith('/feed.xml'),
       serialize(item) {
-        // Only emit lastmod where a real modification date exists (blog frontmatter);
-        // a synthetic build-time date on every URL makes crawlers distrust the field site-wide.
         const slug = new URL(item.url).pathname.match(/^\/blog\/([^/]+)\/$/)?.[1];
         const date = slug && BLOG_DATES.get(slug);
         if (date) item.lastmod = date;
@@ -161,8 +149,6 @@ export default defineConfig({
       customCss: ['/web/styles/starlight.css'],
       lastUpdated: true,
       favicon: '/favicon.svg',
-      // The site ships its own branded 404 at web/pages/404.astro;
-      // disable Starlight's default /404 to avoid a route collision.
       disable404Route: true,
       head: [
         {
@@ -177,8 +163,6 @@ export default defineConfig({
           tag: 'link',
           attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: '/fonts/JetBrainsMonoVariable.woff2' },
         },
-        // Starlight already emits og:title, og:description, og:type, og:url, og:locale
-        // and twitter:card per page; only the tags it omits are added here.
         {
           tag: 'meta',
           attrs: { property: 'og:site_name', content: 'claude-multi' },

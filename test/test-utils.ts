@@ -94,8 +94,6 @@ export class AutoSyncTestHelper {
 
     const defaultClaudeDir = await this.createMockDefaultClaudeDir(baseDir);
 
-    // Production keeps instances at ~/.claude-multi/instances/<name>/; tests nest
-    // instances/ under baseDir because the default Claude dir is overridden.
     const instanceConfigDir = this.createInstanceConfigDir(baseDir);
 
     setTestDefaultClaudeDir(defaultClaudeDir);

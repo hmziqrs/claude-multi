@@ -40,7 +40,6 @@ export function useHealthCheck(
 
       setIssues(merged.filter((i) => !i.resolved && !i.dismissed));
     } catch {
-      // Health check failure is non-fatal
     } finally {
       setChecking(false);
     }
