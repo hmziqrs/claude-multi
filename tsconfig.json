@@ -12,7 +12,11 @@
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "paths": { "@/*": ["./src/*"], "@/web/*": ["./web/*"] },
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/web/*": ["./web/*"],
+      "react-devtools-core": ["./src/vendor/react-devtools-core-stub.ts"]
+    },
     "verbatimModuleSyntax": true,
     "noEmit": true,
 
