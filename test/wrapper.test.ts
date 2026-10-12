@@ -104,7 +104,7 @@ describe("Wrapper Script Generation", () => {
       });
 
       const path = getDefaultBinaryPath("test");
-      expect(path).toContain(".local/bin");
+      expect(path).toContain(join(".local", "bin"));
       expect(path).toContain("claude-test");
       expect(path).not.toContain(".cmd");
 
