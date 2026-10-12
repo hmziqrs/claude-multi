@@ -1,6 +1,7 @@
 /**
- * Site footer HTML string, injected at body level by the Vite plugin (outside Starlight's
- * .page wrapper) so it renders at full viewport width.
+ * Site footer HTML string, injected before `</body>` (outside Starlight's .page wrapper) by
+ * the inject-site-footer integration's astro:build:done hook in astro.config.mjs for static
+ * builds, and at response time by web/middleware.ts.
  */
 export function getSiteFooterHtml(version: string): string {
   return `
