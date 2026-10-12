@@ -29,7 +29,7 @@ Claude Code is great. Switching between providers and model setups is not.
 
 If you want to try GLM today and DeepSeek tomorrow, you usually end up editing `settings.json` by hand, juggling env vars, swapping keys, or maintaining a bunch of shell aliases.
 
-The other option is each provider's own CLI tool. That sounds clean until you realize every tool has its own workflow, its own flags, its own way of doing things. Learning a new harness for every model gets old fast.
+The other option is each provider's own CLI tool. Every tool has its own workflow, its own flags, its own way of doing things. Learning a new harness for every model gets old fast.
 
 So I went the other way: keep one harness I already like, and put the providers behind it. It's still Claude Code under the hood, so `/loop`, `/goal`, skills, MCP servers, and plugins all keep working.
 
@@ -45,6 +45,8 @@ claude-minimax
 ## Install
 
 Requires Node.js 18+ or Bun 1+, and Claude Code installed globally (`npm install -g @anthropic-ai/claude-code`).
+
+claude-multi installs globally with bun, npm, pnpm, or deno.
 
 ```bash
 bun add -g claude-multi

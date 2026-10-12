@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getSyncMode()` resolves the effective mode from the new `syncMode` field, falling back to the deprecated `autoSync` boolean for backward compatibility.
   - `canConvertSyncMode()` and `availableSyncModeConversions()` in `constants.ts` enforce downgrade-only rule.
   - `copyAllFromDefault()` now accepts a `SyncMode` parameter instead of a boolean.
-  - `detectBrokenSymlinks()` now detects broken individual symlinks inside real directories (half-manual mode), not just broken directory-level symlinks.
+  - `detectBrokenSymlinks()` now detects broken individual symlinks inside real directories (half-manual mode), in addition to broken directory-level symlinks.
   - TUI `ToggleAutoSync` screen rewritten as `Sync Mode` screen with color-coded mode labels and available-downgrade display.
   - Instance info screen (`ShowInstanceInfo`) shows sync mode with color-coded labels instead of binary on/off.
   - `plugin install/remove` commands blocked when instance is in half-manual mode (individually symlinked plugins cannot be individually managed).
@@ -194,7 +194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Pinned Claude version updated from `2.1.153` to `2.1.156`. `isThirdPartyApiBroken()` now covers v2.1.154 through v2.1.155.
 - Auto-updates re-enabled. `PROVIDER_COMMON_ENV` no longer injects `DISABLE_AUTOUPDATER`/`DISABLE_UPDATES`. `autoUpdates` set to `true` in instance state.
-- `doctor fix` now reinstalls the pinned binary when its version differs from `COMPATIBLE_CLAUDE_VERSION`, not just when broken. Covers the upgrade path from the old v2.1.153 pin.
+- `doctor fix` now reinstalls the pinned binary when its version differs from `COMPATIBLE_CLAUDE_VERSION` or when broken. Covers the upgrade path from the old v2.1.153 pin.
 - Unknown CLI subcommands exit with an error instead of falling through to the Ink TUI.
 - All version pinning and compatibility code tagged with `[SAFE PARK]` comments for easy discovery and reactivation.
 
