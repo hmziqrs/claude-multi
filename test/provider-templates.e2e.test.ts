@@ -71,6 +71,7 @@ describe("provider template CLI smoke test", () => {
         env: {
           ...process.env,
           HOME: home,
+          USERPROFILE: home,
           CLAUDE_MULTI_HOME: home,
           CLAUDE_MULTI_CLAUDE_PATH: fakeClaude,
           CLAUDE_MULTI_INK: "false",
