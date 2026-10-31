@@ -6,9 +6,11 @@ on:
     paths:
       - 'web/**'
       - 'public/**'
+      - 'scripts/indexnow.ts'
       - 'astro.config.mjs'
       - 'package.json'
       - 'CHANGELOG.md'
+      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 jobs:
@@ -42,3 +44,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./dist --project-name=claude-multi --branch=master
+
+      - name: Submit URLs to IndexNow
+        run: bun run scripts/indexnow.ts
+        continue-on-error: true
