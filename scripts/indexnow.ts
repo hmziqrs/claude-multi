@@ -42,10 +42,27 @@ if (process.argv.includes("--dry-run")) {
   process.exit(0);
 }
 
+const keyLocation = `${SITE}/${KEY}.txt`;
+
+async function waitForKeyFile(): Promise<void> {
+  for (let attempt = 1; attempt <= 10; attempt++) {
+    try {
+      const response = await fetch(keyLocation, { cache: "no-store" });
+      if (response.ok && (await response.text()).trim() === KEY) return;
+    } catch {
+      // The deploy may still be propagating, so retry below.
+    }
+    if (attempt < 10) await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
+  throw new Error(`IndexNow key file is not live at ${keyLocation}`);
+}
+
+await waitForKeyFile();
+
 const payload = {
   host: HOST,
   key: KEY,
-  keyLocation: `${SITE}/${KEY}.txt`,
+  keyLocation,
   urlList: urls,
 };
 
