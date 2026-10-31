@@ -5,37 +5,24 @@ category: "Getting Started"
 order: 1
 ---
 
-claude-multi is a CLI that runs multiple Claude Code instances at the same time, each pointed at a different AI provider. Every instance gets its own config directory under `~/.claude-<name>/`, so settings, history, and MCP servers don't bleed into each other.
+claude-multi is a CLI that runs multiple Claude Code instances at the same time, each with its own AI provider configuration. By default, every instance gets its own config directory under `~/.claude-<name>/`, so settings, history, and MCP servers stay separate. Your normal `~/.claude` setup is left alone.
 
-## The problem it solves
+#### The problem it solves
 
-Claude Code keeps everything in one `~/.claude` folder: settings, plugins, skills, MCP servers, conversation history. That works fine until you want to try a second provider, or keep a work setup separate from a personal one. Then you're copying files around by hand, swapping environment variables, and hoping nothing gets overwritten.
+Claude Code keeps settings, plugins, skills, and conversation history in one `~/.claude` folder. That works until you want to try a second provider or keep a work setup apart from a personal one. Then you copy files by hand, swap environment variables, and hope nothing gets overwritten.
 
-claude-multi gives each provider its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`), each backed by a real directory you can browse and edit. Instances share no state.
+claude-multi gives each instance its own alias (`claude-glm`, `claude-deepseek`, `claude-anthropic`), backed by a real directory you can browse and edit. The alias is a wrapper that sets `CLAUDE_CONFIG_DIR` and runs the official `claude` binary.
 
-## What it isn't
+#### What it isn't
 
-It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon, and it doesn't do model routing. Each instance is a standalone Claude Code environment. claude-multi manages the plumbing.
+It doesn't fork or patch Claude Code. It doesn't run a proxy or daemon, and it doesn't route between models. Each instance is a standalone Claude Code environment. claude-multi manages the config directories and wrapper scripts.
 
-## What you get
+#### What you get
 
-- 8 provider templates with the endpoints and model mappings already set
-- Plugin auto-sync via symlinks (update once, all instances get it)
-- MCP server management across instances
-- Health monitoring that catches broken symlinks, missing dirs, corrupted config
-- A terminal UI built with Ink/React, plus a fallback prompts mode
+- Templates for six providers: GLM, MiniMax, DeepSeek, Xiaomi MiMo, Kimi, and Qwen. There are eight templates because MiMo and Qwen each have two plan variants.
+- Plugin auto-sync through `plugins/` and `skills/` symlinks. Update once, and every synced instance sees it.
+- MCP server management across instances.
+- Health checks for broken symlinks, missing directories, and corrupted config.
+- A terminal UI built with Ink and React, plus a prompts fallback.
 
-## Related questions
-
-- [Is it a fork of Claude Code?](/faq/#is-it-a-fork): how the wrapper mechanism works
-- [Which providers are supported?](/faq/#supported-providers): the full template list
-- [Does it cost anything?](/faq/#pricing): it's free, you pay for API usage
-
-## More info
-
-- [/about/](/about/): design principles and how it works
-- [/docs/getting-started/](/docs/getting-started/): install and create your first instance
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): walkthrough of every TUI screen
-- [/blog/claude-code-mcp-workflow-automation/](/blog/claude-code-mcp-workflow-automation/): how it fits into the Claude Code ecosystem
-- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): where provider templates are defined
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): instance creation and plugin management
+The [docs](/docs/) cover setup and the full command reference. For the wrapper mechanism, see [how it works](/docs/how-it-works/). Template definitions are in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts); instance management is in [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts).

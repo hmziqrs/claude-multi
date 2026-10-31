@@ -1,62 +1,58 @@
 ---
 question: "Does it work on Windows?"
-description: "Yes. On Windows claude-multi writes .cmd batch files instead of shell wrappers, and the polyglot entry point runs on Node.js everywhere."
+description: "Yes. On Windows claude-multi writes .cmd batch files instead of shell wrappers, and the polyglot entry point works across Bun, Node.js, and Deno."
 category: "Compatibility"
 order: 13
 ---
 
-Yes. claude-multi works on Windows, macOS, and Linux. The CLI commands, the TUI, plugin and MCP management, and instance creation all behave the same across the three platforms.
+Yes. claude-multi works on Windows, macOS, and Linux. The CLI and TUI are platform-neutral, and instance creation follows the same steps. The wrapper scripts are the main difference.
 
-## What's different on Windows
+#### What's different on Windows
 
-The wrapper scripts are the only difference. On Unix they are plain shell scripts starting with `#!/bin/sh`. On Windows they are `.cmd` batch files that do the same job:
+On Unix the wrappers are shell scripts that start with `#!/bin/sh`. On Windows they are `.cmd` batch files:
 
 ```batch
 @echo off
-REM Claude Multi - Wrapper for deepseek
-set "CLAUDE_CONFIG_DIR=%USERPROFILE%\.claude-multi\deepseek"
-"C:\path\to\claude.exe" %*
+
+set "CLAUDE_CONFIG_DIR=%USERPROFILE%\.claude-deepseek"
+"C:\path\to\claude.cmd" %*
 ```
 
-The mechanism is identical: set `CLAUDE_CONFIG_DIR` so Claude Code reads its config from the instance directory, then run the unmodified `claude` binary. On Windows that binary is `claude.cmd` or `claude.exe`, whichever Claude Code's installer placed in your `PATH`. claude-multi finds it the same way your terminal does.
+The mechanism is the same: set `CLAUDE_CONFIG_DIR` so Claude Code reads its config from `%USERPROFILE%\.claude-deepseek`, then run the unmodified `claude` binary. On Windows that binary is `claude.cmd` or `claude.exe`, whichever Claude Code's installer put in your `PATH`. claude-multi finds it with `where claude`.
 
-## Installing on Windows
+#### Installing on Windows
 
-Use PowerShell or Command Prompt with the Node.js runtime you already have:
+Use PowerShell or Command Prompt with the runtime you already have:
 
 ```powershell
 npm install -g claude-multi
 ```
 
-If you use Bun for Windows or Deno, those work too:
+Bun and Deno work too:
 
 ```powershell
 bun add -g claude-multi
 deno install -g -A -n claude-multi npm:claude-multi
 ```
 
-After install, run `claude-multi` to open the TUI. The instance names you pick become commands like `claude-deepseek.cmd`, written to the global bin directory your package manager manages.
+After install, run `claude-multi` to open the TUI. Instance names become commands such as `claude-deepseek.cmd`, written to your package manager's global bin directory.
 
-## `claude-<name>` not recognized
+#### `claude-<name>` not recognized
 
-If Windows can't find the wrapper after you create an instance, the package manager's global bin directory is probably not on your `PATH`. For npm that directory is usually `%APPDATA%\npm`. Check it with:
+If Windows cannot find the wrapper after you create an instance, the global bin directory is probably not on `PATH`. For npm it is usually `%APPDATA%\npm`. Check it with:
 
 ```powershell
 npm config get prefix
 ```
 
-Make sure the returned path is in your user `PATH` environment variable, then open a new terminal. The health check (`!` from the main menu, or `claude-multi list`) will also flag a missing wrapper and tell you what's wrong.
+Add the returned path to your user `PATH`, then open a new terminal. The health check (`!` from the main menu, or `claude-multi doctor check`) also flags a missing wrapper.
 
-## Git Bash, WSL, and Cygwin
+#### Git Bash, WSL, and Cygwin
 
-Git Bash, WSL, and Cygwin are common on Windows. claude-multi writes native `.cmd` wrappers, so calling `claude-deepseek` from a bash-style shell still works: the shell hands off to `cmd.exe` for `.cmd` files. If you live entirely inside WSL, you are on Linux as far as claude-multi is concerned, and it writes Unix shell wrappers there instead.
+claude-multi writes native `.cmd` wrappers, so calling `claude-deepseek` from Git Bash or Cygwin still works; the shell hands off to `cmd.exe` for `.cmd` files. Inside WSL, claude-multi sees Linux and writes Unix shell wrappers instead.
 
-## CI/CD testing
+#### CI testing
 
-CI runs install and execution tests on all three operating systems against all three runtimes (bun, node, deno) on every release, so a Windows-specific regression gets caught before publish.
+CI runs install and smoke tests on Windows, macOS, and Linux for Bun, Node.js, and Deno on pull requests that touch the CLI, packaging, or the workflow file.
 
-## More info
-
-- [.github/workflows/test-install.yml](https://github.com/hmziqrs/claude-multi/blob/master/.github/workflows/test-install.yml): cross-platform test matrix
-- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): `generateWindowsWrapperScript()` implementation
-- [src/util/runtime.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/runtime.ts): platform-aware package manager detection
+The cross-platform matrix is in [.github/workflows/test-install.yml](https://github.com/hmziqrs/claude-multi/blob/master/.github/workflows/test-install.yml). Wrapper generation is in [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts).

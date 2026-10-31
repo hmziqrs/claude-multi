@@ -10,7 +10,7 @@ const posts = (await getCollection('blog'))
 ---
 
 <Layout
-  title="claude-multi Blog"
+  title="claude-multi blog: Claude Code providers and setup"
   description="Build notes from working on claude-multi and posts on running multiple Claude Code instances side by side."
 >
   <section class="relative z-10 pt-36 pb-12 px-6">
@@ -18,10 +18,12 @@ const posts = (await getCollection('blog'))
       <h1
         class="reveal mt-5 text-4xl sm:text-5xl font-extrabold tracking-[-0.02em] leading-[1.05]"
       >
-        Writing about <span class="gradient-text">claude-multi.</span>
+        The <span class="gradient-text">claude-multi blog</span>
       </h1>
       <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
-        Build notes and deep dives.
+        Notes on running Claude Code against more than one provider: setup, model
+        migrations, and the design of claude-multi. Start with the <a href="/docs/" class="text-lime hover:underline">docs</a> for install steps,
+        or browse <a href="/providers/" class="text-lime hover:underline">providers</a> to compare plans and endpoints.
       </p>
     </div>
   </section>

@@ -80,7 +80,7 @@ Full documentation: **https://claude-multi.hmziq.xyz**
 | DeepSeek | `api.deepseek.com` | `deepseek` |
 | Xiaomi MiMo | `api.xiaomimimo.com` | `mimo` |
 | Xiaomi MiMo (Token Plan) | `token-plan-cn.xiaomimimo.com` | `mimo-token` |
-| Moonshot Kimi | `api.moonshot.ai` | `kimi-k2.7-code, kimi-k2.6, kimi-k2.5` |
+| Moonshot Kimi | `api.moonshot.ai` | `kimi` |
 | Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen` |
 | Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen-coding` |
 

@@ -5,23 +5,25 @@ category: "Plugins & MCP"
 order: 6
 ---
 
-Auto-sync symlinks each instance's `plugins/` and `skills/` directories back to your primary `~/.claude`, so you install or update a plugin once and every synced instance picks it up. Toggle it per instance:
+Auto-sync symlinks each instance's `plugins/` and `skills/` directories to your primary `~/.claude`, so you install or update a plugin once and every synced instance sees it. Toggle it per instance:
 
 ```sh
 claude-multi auto-sync deepseek on
 claude-multi auto-sync deepseek off
 ```
 
-If symlinks break (you moved or deleted `~/.claude`), repair them with `claude-multi fix-symlinks`, or use **Re-sync symlinks** in the TUI.
+`on` maps to auto-sync. `off` maps to full-manual.
 
-Sync has three modes (auto / half-manual / full-manual), and conversions only go one way: you can step down from auto to half-manual to full-manual, but not back up. The plugins and MCP guide has the full mechanism, the mode comparison, and how collision detection works.
+If a symlink breaks after you move `~/.claude`, restore the directory if needed, then repair it with:
 
-## Related questions
+```sh
+claude-multi fix-symlinks --all
+```
 
-- [How do I manage MCP servers?](/faq/#mcp-servers): MCP configs work independently per instance
-- [How do I troubleshoot broken instances?](/faq/#troubleshooting): fixing broken symlinks
+You can select instances interactively by running `claude-multi fix-symlinks` with no arguments, or use **Re-sync symlinks** in the TUI.
 
-## More info
+#### Sync modes
 
-- [/docs/plugins-mcp/](/docs/plugins-mcp/): plugin and MCP management guide
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): Manage Plugins and Sync mode screens
+There are three modes: auto, half-manual, and full-manual. Auto symlinks the whole `plugins/` and `skills/` directories. Half-manual creates real directories and symlinks individual plugins and skills, so new items installed later in `~/.claude` do not appear automatically. Full-manual replaces the symlinks with real copies and leaves the instance independent.
+
+Conversions only go one way: auto to half-manual to full-manual. You cannot move back up, because reconciling directories that have diverged can lose data. The [plugins and MCP guide](/docs/plugins-mcp/) covers the modes and collision detection.

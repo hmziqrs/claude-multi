@@ -1,11 +1,37 @@
 ---
 import Layout from '../layouts/ContentLayout.astro';
 import { latestVersion } from '../util/changelog';
+import { SITE_URL } from '../util/seo';
 
-const title = 'About claude-multi | Open-Source Multi-Provider CLI for Claude Code';
-const description = 'Why claude-multi exists, how isolated configs with shared plugins work, and which providers it supports.';
+const title = 'About claude-multi | Multi-provider Claude Code CLI';
+const description = 'Why claude-multi exists, how per-provider Claude Code config directories work, and who maintains the project.';
+
+const personSchema = {
+  '@type': 'Person',
+  name: 'Hamza',
+  alternateName: 'hmziqrs',
+  url: 'https://hmziq.rs',
+  sameAs: ['https://github.com/hmziqrs', 'https://hmziq.rs'],
+  knowsAbout: [
+    'Claude Code',
+    'TypeScript',
+    'Rust',
+    'Flutter',
+    'CLI tooling',
+    'AI provider APIs',
+  ],
+};
+
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'About claude-multi',
+  url: `${SITE_URL}/about/`,
+  description,
+  mainEntity: personSchema,
+};
 ---
-<Layout title={title} description={description}>
+<Layout title={title} description={description} jsonLd={aboutSchema}>
   <section class="relative z-10 pt-32 pb-16 px-6">
     <div class="max-w-4xl mx-auto">
 
@@ -13,8 +39,11 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
         <h1 class="mt-5 text-5xl sm:text-6xl font-extrabold tracking-[-0.03em] leading-[1.05] headline-glow">
           About <span class="gradient-text">claude-multi.</span>
         </h1>
-        <p class="mt-6 text-lg sm:text-xl text-text-dim max-w-xl mx-auto leading-relaxed">
-          claude-multi is a CLI that runs multiple Claude Code instances side by side. Each one talks to a different AI provider and keeps its own config directory.
+        <p class="mt-6 text-lg sm:text-xl text-text-dim max-w-2xl mx-auto leading-relaxed">
+          claude-multi is a CLI that runs several Claude Code setups on one machine. Each
+          instance points at a different provider and keeps its own config directory. Your
+          normal <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>
+          setup stays as it is.
         </p>
       </div>
     </div>
@@ -24,17 +53,35 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
     <div class="max-w-4xl mx-auto reveal">
       <div class="glass rounded-3xl p-8 sm:p-12">
         <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">
-          Everything lives in <span class="gradient-text">one directory.</span>
+          Why one config directory is <span class="gradient-text">not enough.</span>
         </h2>
         <div class="mt-6 space-y-5 text-text-dim leading-relaxed text-[0.98rem]">
           <p>
-            Claude Code stores everything in <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>: settings, MCP servers, plugins, skills, history. Try a second model and that one directory becomes a problem: sessions and context get overwritten. Working around it means editing settings by hand, swapping keys, and keeping shell aliases.
+            Claude Code stores settings, MCP servers, plugins, skills, and history in
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>.
+            That works while you use one provider. Add a second and the same directory has to
+            hold both setups. You end up editing settings by hand, swapping keys, and keeping
+            shell aliases. Change one thing for GLM and your Anthropic session inherits it.
           </p>
           <p>
-            claude-multi gives every provider its own alias and config directory. One alias per provider (<code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-anthropic</code>), each rooted under <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>. Plugins and skills symlink from your primary install.
+            claude-multi gives every provider its own command and config directory.
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-glm</code>,
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-deepseek</code>,
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-kimi</code>,
+            and the rest each point at
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-&lt;name&gt;/</code>,
+            for example
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-glm/</code>.
+            The central registry, health status, and backups live in
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/</code>,
+            separate from the instance settings. Plugins and skills symlink from your primary
+            install.
           </p>
           <p>
-            There are no daemons and no background services. Nothing phones home. Every instance is a real directory you can <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code> into and inspect.
+            There are no daemons and no background services. Every instance is a real
+            directory you can
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">cd</code>
+            into and inspect.
           </p>
         </div>
       </div>
@@ -54,9 +101,13 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           <div class="icon-box mb-4">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
           </div>
-          <h3 class="text-lg font-semibold mb-2">Zero magic</h3>
+          <h3 class="text-lg font-semibold mb-2">Plain directories</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Every instance is a real directory at <code class="font-mono text-lime text-xs">~/.claude-multi/&lt;name&gt;</code>. Open it, edit it, or delete it.
+            Each instance is a real directory at
+            <code class="font-mono text-lime text-xs">~/.claude-&lt;name&gt;</code>. Open it,
+            edit it, or delete it. The registry in
+            <code class="font-mono text-lime text-xs">~/.claude-multi/</code> only tracks
+            instances, health, and backups.
           </p>
         </div>
 
@@ -64,9 +115,12 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           <div class="icon-box mb-4">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
-          <h3 class="text-lg font-semibold mb-2">Native passthrough</h3>
+          <h3 class="text-lg font-semibold mb-2">Thin wrapper</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Each alias is a thin wrapper around the official <code class="font-mono text-lime text-xs">claude</code> binary. All flags, commands, and keybindings pass through unchanged.
+            Each command is a thin wrapper that sets
+            <code class="font-mono text-lime text-xs">CLAUDE_CONFIG_DIR</code> and execs the
+            official <code class="font-mono text-lime text-xs">claude</code> binary. Flags,
+            slash commands, and keybindings pass through unchanged.
           </p>
         </div>
 
@@ -74,9 +128,10 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           <div class="icon-box mb-4">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </div>
-          <h3 class="text-lg font-semibold mb-2">Templates over docs</h3>
+          <h3 class="text-lg font-semibold mb-2">Provider templates</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Provider templates come with the right base URLs, model mappings, and defaults. Add your API key and the config is ready.
+            Templates for six providers fill in the base URL, model mappings, and defaults.
+            There are eight in total. Add your API key and the config is ready.
           </p>
         </div>
 
@@ -84,9 +139,12 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           <div class="icon-box mb-4">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </div>
-          <h3 class="text-lg font-semibold mb-2">Reversible operations</h3>
+          <h3 class="text-lg font-semibold mb-2">Reversible changes</h3>
           <p class="text-text-dim text-sm leading-relaxed">
-            Migrations back up config files. Plugin operations rename to backup before deleting. Health checks help you recover broken state.
+            Migrations back up config files first. Plugin operations rename to a backup
+            before deleting.
+            <code class="font-mono text-lime text-xs">claude-multi doctor</code> checks for
+            broken symlinks and stale settings.
           </p>
         </div>
       </div>
@@ -101,28 +159,31 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
         </h2>
         <div class="mt-6 space-y-5 text-text-dim leading-relaxed text-[0.98rem]">
           <p>
-            When you run <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-multi add glm --provider glm</code>, four things happen:
+            When you run
+            <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude-multi add glm</code>,
+            four things happen:
           </p>
           <ol class="space-y-3 list-none p-0 m-0">
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">1</span>
-              <span>claude-multi creates a directory at <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-multi/glm/</code> with its own <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">settings.json</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">.claude.json</code>, and history.</span>
+              <span>claude-multi creates a directory at <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude-glm/</code> with its own <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">settings.json</code>, <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">.claude.json</code>, and history.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">2</span>
-              <span>It merges the provider's env vars (base URL, model mappings) into that instance's settings and never touches your primary <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code>.</span>
+              <span>It merges the provider's env vars (base URL, model mappings) into that instance's settings. Your primary <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.claude</code> is not touched.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">3</span>
-              <span>It symlinks plugins and skills from your primary install. Update once and every instance sees it.</span>
+              <span>It symlinks plugins and skills from your primary install. Update once and every instance sees the change.</span>
             </li>
             <li class="flex gap-3">
               <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold bg-lime/10 border border-edge-hover text-lime">4</span>
-              <span>A wrapper script at <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.bun/bin/claude-glm</code> launches the official <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude</code> binary with <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">CLAUDE_CONFIG_DIR</code> pointed at the new instance.</span>
+              <span>A wrapper in your PATH, for example <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">~/.bun/bin/claude-glm</code>, launches the official <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">claude</code> binary with <code class="font-mono text-lime bg-lime/10 px-1.5 py-0.5 rounded text-[0.85em]">CLAUDE_CONFIG_DIR</code> pointed at the new instance.</span>
             </li>
           </ol>
           <p class="pt-2">
-            One environment variable pointing at a config directory, plus a few symlinks. Nothing proxies your traffic and nothing patches the binary.
+            One environment variable pointing at a config directory, plus a few symlinks.
+            Nothing proxies your traffic and nothing patches the binary.
           </p>
         </div>
       </div>
@@ -133,7 +194,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
     <div class="max-w-4xl mx-auto">
       <div class="reveal text-center mb-10">
         <h2 class="mt-5 text-3xl sm:text-4xl font-extrabold tracking-tight">
-          At a <span class="gradient-text">glance.</span>
+          The project in <span class="gradient-text">numbers.</span>
         </h2>
       </div>
 
@@ -152,10 +213,14 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
           <div class="text-[10px] uppercase tracking-wider text-text-mute mt-1">License</div>
         </a>
         <div class="glass rounded-2xl px-5 py-6 text-center">
-          <div class="stat-num text-3xl">8+</div>
-          <div class="text-[10px] uppercase tracking-wider text-text-mute mt-1">AI Providers</div>
+          <div class="stat-num text-3xl">6 / 8</div>
+          <div class="text-[10px] uppercase tracking-wider text-text-mute mt-1">Providers / templates</div>
         </div>
       </div>
+      <p class="reveal mt-4 text-center text-sm text-text-mute">
+        Six providers and eight templates. Anthropic is not a template: your existing
+        <code class="font-mono text-lime text-xs">~/.claude</code> setup stays as it is.
+      </p>
     </div>
   </section>
 
@@ -163,17 +228,43 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
     <div class="max-w-4xl mx-auto reveal">
       <div class="glass rounded-3xl p-8 sm:p-12 relative overflow-hidden">
         <div class="relative">
-          <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">Built by <span class="gradient-text">hmziqrs.</span></h2>
-          <p class="mt-5 text-text-dim leading-relaxed text-[0.98rem] max-w-xl">
-            claude-multi exists because switching providers halfway through a day kept breaking my setup, and every alternative meant learning a new CLI.
+          <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Maintained by <span class="gradient-text">hmziqrs.</span>
+          </h2>
+          <p class="mt-5 text-text-dim leading-relaxed text-[0.98rem] max-w-2xl">
+            I built claude-multi because switching providers halfway through a day kept
+            breaking my setup. I wanted to keep my Claude Code workflow and change the model
+            behind it, not learn another CLI.
+          </p>
+          <p class="mt-4 text-text-dim leading-relaxed text-[0.98rem] max-w-2xl">
+            I am hmziqrs, also known as Hamza. I have been on GitHub since 2014 and have
+            worked as a software engineer for more than nine years, mostly with TypeScript,
+            Rust, and Flutter. claude-multi is MIT-licensed and the source is public.
+          </p>
+          <p class="mt-4 text-text-dim leading-relaxed text-[0.98rem] max-w-2xl">
+            Bug reports and questions go to
+            <a
+              href="https://github.com/hmziqrs/claude-multi/issues"
+              target="_blank"
+              rel="noopener"
+              class="text-lime no-underline hover:underline"
+            >GitHub issues</a>. That is the fastest way to reach me.
           </p>
           <div class="mt-7 flex flex-wrap gap-3">
             <a href="https://github.com/hmziqrs/claude-multi" target="_blank" rel="noopener" class="btn-primary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2 0 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.6-1.5.1-3.2 0 0 1-.3 3.3 1.2A11.5 11.5 0 0 1 12 5.8c1 0 2 .1 3 .4 2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.7-5.5 6 .5.4.9 1.1.9 2.3v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
               Source on GitHub
             </a>
+            <a href="https://github.com/hmziqrs" target="_blank" rel="noopener" class="btn-secondary">
+              GitHub profile
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
             <a href="https://hmziq.rs" target="_blank" rel="noopener" class="btn-secondary">
               hmziq.rs
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
+            <a href="https://github.com/hmziqrs/claude-multi/issues" target="_blank" rel="noopener" class="btn-secondary">
+              Open an issue
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
             </a>
             <a href="/changelog/" class="btn-secondary">See releases</a>
@@ -188,7 +279,7 @@ const description = 'Why claude-multi exists, how isolated configs with shared p
       <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
         Try claude-multi.
       </h2>
-      <p class="mt-4 text-text-dim text-lg">One npm install, two commands, and you have your first provider running.</p>
+      <p class="mt-4 text-text-dim text-lg">Install once, add a provider, and run it.</p>
       <div class="mt-7 flex gap-3 justify-center flex-wrap">
         <a href="/docs/getting-started/" class="btn-primary">
           Get started

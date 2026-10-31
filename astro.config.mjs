@@ -12,17 +12,38 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
 
-const BLOG_DATES = new Map(
-  readdirSync('./web/content/blog')
-    .filter((f) => f.endsWith('.md'))
-    .flatMap((f) => {
-      const raw = readFileSync(join('./web/content/blog', f), 'utf-8');
-      const date = raw.match(/^date:\s*(.+)$/m)?.[1].trim().replace(/^["']|["']$/g, '');
-      const parsed = date ? new Date(date) : null;
-      if (!parsed || Number.isNaN(parsed.valueOf())) return [];
-      return [[basename(f, '.md'), parsed.toISOString()]];
-    })
-);
+const DEFAULT_LASTMOD = '2026-10-31';
+
+function readFrontmatterDate(raw, field) {
+  const frontmatter = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
+  const value = frontmatter.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'))?.[1];
+  if (!value) return null;
+  const parsed = new Date(value.trim().replace(/^["']|["']$/g, ''));
+  return Number.isNaN(parsed.valueOf()) ? null : parsed.toISOString();
+}
+
+function buildLastmodMap(dir, prefix, getDate) {
+  const map = new Map();
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    const raw = readFileSync(join(dir, file), 'utf-8');
+    const date = getDate(raw);
+    if (date) map.set(`${prefix}/${basename(file, '.md')}/`, date);
+  }
+  return map;
+}
+
+const LASTMOD_BY_PATH = new Map([
+  ...buildLastmodMap(
+    './web/content/blog',
+    '/blog',
+    (raw) => readFrontmatterDate(raw, 'updated') ?? readFrontmatterDate(raw, 'date')
+  ),
+  ...buildLastmodMap(
+    './web/content/providers',
+    '/providers',
+    (raw) => readFrontmatterDate(raw, 'updated') ?? DEFAULT_LASTMOD
+  ),
+]);
 
 function injectSiteFooterIntegration() {
   return {
@@ -87,9 +108,8 @@ export default defineConfig({
     sitemap({
       filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/') && !page.endsWith('/feed.xml'),
       serialize(item) {
-        const slug = new URL(item.url).pathname.match(/^\/blog\/([^/]+)\/$/)?.[1];
-        const date = slug && BLOG_DATES.get(slug);
-        if (date) item.lastmod = date;
+        const pathname = new URL(item.url).pathname.replace(/\/?$/, '/');
+        item.lastmod = LASTMOD_BY_PATH.get(pathname) ?? DEFAULT_LASTMOD;
         return item;
       },
     }),

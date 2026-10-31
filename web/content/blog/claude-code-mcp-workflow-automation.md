@@ -1,57 +1,143 @@
 ---
-title: "How MCP lets Claude Code do the rest of your job"
-description: "MCP gives Claude Code a way to talk to the tools you use: Jira, GitHub, Slack, your databases. Here is what that buys you and where it breaks down."
+title: "A Claude Code MCP workflow that actually runs"
+description: "A concrete MCP setup for Claude Code: a working config, a terminal check, and the failures that break servers, tools, and auth."
 date: 2026-05-27
-tags: [Claude Code, Model Context Protocol, MCP, workflow automation, AI co-engineer, developer productivity, tool integration, AI in software development, claude-multi]
-audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/claude-code-mcp-workflow-automation.mp3"
+updated: 2026-10-31
+tags: [claude-code, mcp, workflow, automation]
 ---
 
-Most of a developer's day is not coding. It is reading a ticket, finding the branch, running the tests, opening the PR, pasting the link into Slack, going back to the ticket to update the status. Each step is small. The total is not.
+MCP gets described as a capability. In practice it is a config file and a process. If the process does not start, the model has no tools, no matter how good the prompt is.
 
-Claude Code's Model Context Protocol (MCP) is the part that lets one prompt do all of that, instead of you doing it.
+The Model Context Protocol is an open protocol for connecting a model to external tools and data. Anthropic donated it to the Linux Foundation's Agentic AI Foundation in December 2025, and the [spec](https://modelcontextprotocol.io/specification/) now lives under community maintainers. Claude Code is one client. claude-multi gives each provider instance its own Claude Code config directory, so each instance gets its own set of servers.
 
-### What's different about Claude Code in 2026
+## Pick one loop
 
-Three things landed at once, and MCP is the one that ties them together.
+Start with a loop you already run by hand: read a ticket, find the code, change it, run the tests, open a PR, update the ticket. For this example the servers are GitHub and the local filesystem. The model reads the issue and the repo, edits files, runs the test command through the shell, and opens a PR. Slack and the issue tracker can wait until this loop works.
 
-- The agent loop. Claude Code does not stop at writing code. It runs the build, reads the failure, edits the file, runs the build again. Most of the value lands in this loop, because most of what makes code work is not the first attempt.
-- MCP. Model Context Protocol is the open standard from Anthropic that lets the model talk to your tools: Jira, GitHub, Slack, Sentry, your database, Figma. The integration is what makes the agent loop useful past the file you're editing.
-- A 1M-token context window. Most competitors are still at 200K. It sounds like a spec-sheet number until you watch the model fail at a multi-file refactor because half the project fell out of context. With 1M you can fit the surrounding code, the ticket, the design doc, and the prior PRs, and the model can reason about the whole thing.
+## The config
 
-The senior engineer is not writing less code. They are writing less coordination boilerplate.
+Put a `.mcp.json` at the repo root:
 
-### What MCP is
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/src/app"]
+    }
+  }
+}
+```
 
-Each MCP server is a small bridge that exposes one tool's capabilities in a format the model can call. You point Claude Code at the servers you want, and from then on it can read Jira issues, open GitHub PRs, post to Slack, run SQL queries against your warehouse, and so on, inside the same conversation.
+Claude Code expands `${GITHUB_TOKEN}` from the environment it starts with. Do not put the literal token in a file you commit. Project scope is the right default for a token that can write to one repo.
 
-### What it looks like in practice
+For a server that should exist in every session, put the same `mcpServers` object in `~/.claude-<name>/settings.json`. claude-multi stores MCP config there, and it does not symlink MCP servers the way it symlinks plugins and skills. The [plugin and MCP docs](/docs/plugins-mcp/) cover the per-instance commands.
 
-A real example. You say:
+## The terminal check
 
-> Fix the auth bug from JIRA-1234, open a PR, ping the team channel.
+claude-multi can check the structure of the config. The output looks like this:
 
-If you have the relevant MCP servers configured, Claude Code can read the ticket, pull the affected files, write the fix, run the tests, push a branch, open the PR with the ticket linked, update the ticket status, and post a Slack message. Some of those steps it does well. Some of them you will want to review before approving. Either way it is one conversation, not seven tools.
+```
+$ claude-multi mcp verify glm
 
-Three other things it is good at once MCP is in place:
+Verifying MCP configuration in 'glm'
 
-* Code review with context. Pulling the original ticket, the design doc, and the diff into the same review pass changes what the model can spot. Most "missed it in review" bugs are missed because the reviewer did not have the surrounding context, not because they could not read the diff.
-* Triage. Reading open issues, grouping them by label or area, suggesting which ones look like duplicates. You still own the call, but the first pass is free.
-* Reacting to events. An MCP server can push messages into a session, so the model can act on a webhook, a Telegram message, a Discord ping, without you re-prompting.
+Found 2 MCP server(s)
+  • github: stdio
+    Configuration looks valid
+  • filesystem: stdio
+    Configuration looks valid
+```
 
-### Where it falls down
+That checks that every stdio server has a command and every HTTP or SSE server has a URL. It does not prove the process starts. Run the command by hand:
 
-* MCP is only as good as the servers you connect. A flaky Jira server gives you flaky Jira behavior. Pick servers you trust, or write your own.
-* The model still hallucinates calls sometimes. Tool definitions help, but it can try to call something that does not exist or pass a malformed argument. Tests and reviews are not optional.
-* Permissions are a real problem. An agent with write access to your repo, your tracker, and your team chat is an agent that can do real damage if you point it at the wrong thing. Start read-only.
+```
+$ npx -y @modelcontextprotocol/server-github
+```
 
-### Where claude-multi fits
+If it exits with `MODULE_NOT_FOUND` or `command not found`, Claude Code will hit the same failure. Fix it outside Claude Code first. If it starts cleanly, it will wait for input; Ctrl-C is fine.
 
-Running that loop against a single provider is fine until it isn't. The provider landscape is messier than Anthropic alone: cheap models that handle most tasks, premium models for the hard ones, a few specialized ones that are weirdly good at one thing. claude-multi gives each one its own alias and config directory (`claude-glm`, `claude-deepseek`, `claude-mimo`) so you can switch without rewriting `settings.json`, and routes across them when you wire in an MCP router.
+Then start the instance and look at what connected:
 
----
+```
+$ claude-glm
+> /mcp
+```
 
-### References
+A trimmed view looks like this:
 
-*   OrbilonTech: Claude Code as Co-Engineer 2026: Powerful Reasons It Wins: [https://orbilontech.com/claude-code-as-co-engineer-2026/](https://orbilontech.com/claude-code-as-co-engineer-2026/)
-*   Claude Help Center: Use Claude for Microsoft 365 with third-party platforms: [https://support.claude.com/en/articles/13945233-use-claude-for-microsoft-365-with-third-party-platforms](https://support.claude.com/en/articles/13945233-use-claude-for-microsoft-365-with-third-party-platforms)
-*   PRABHAT.DEV: Claude Code: Zero to Hero - The Complete 2026 Field Guide: [https://prabhat.dev/claude-code-zero-to-hero-the-complete-2026-field-guide/](https://prabhat.dev/claude-code-zero-to-hero-the-complete-2026-field-guide/)
+```
+github      connected
+filesystem  connected
+```
+
+The layout depends on the client version. What matters is `connected`.
+
+## An example run
+
+An example prompt:
+
+```
+> Read issue #482, find the handler that parses the webhook payload,
+  add a null check, run the auth tests, and open a PR.
+```
+
+Claude Code calls `mcp__github__get_issue`, reads files through the filesystem server, runs the test command, and calls `mcp__github__create_pull_request`. You still review the diff. The gain is that the issue body, the file, and the PR live in one session instead of four browser tabs.
+
+## Failure modes
+
+### Server not starting
+
+`command not found` usually means PATH. Claude Code inherits the PATH of the shell that launched it, and a GUI launch or a different terminal profile can have a shorter PATH than your interactive shell. Use an absolute path such as `/opt/homebrew/bin/npx`, or fix the PATH in the profile that launches the app.
+
+Project-scoped servers from `.mcp.json` also need approval on first use. If `/mcp` shows `Pending approval`, start Claude Code interactively in that repo and approve the server. A headless run will not approve it for you.
+
+`npx` also downloads the package on first run. That can take longer than the client's startup timeout, and a registry hiccup looks like a dead server. Install the package globally or pin a version so the first run is not a network request.
+
+If the process starts and exits, run the command outside Claude Code and read stderr. A missing environment variable is the usual cause. The next most common is a relative path. A filesystem root such as `./src` resolves from where Claude Code started, not from the config file, so use an absolute path.
+
+### Tool name collisions
+
+Claude Code namespaces tools as `mcp__<server>__<tool>`, so two servers with different names can expose the same tool name without a conflict. The collision that bites is two configs registered under the same server name, usually one from a plugin and one from `settings.json`.
+
+claude-multi checks plugin collisions on install. The manual check takes an instance and one or more plugin IDs:
+
+```
+claude-multi plugins check-collisions glm <plugin-id>
+```
+
+Keep one source for each server. If you need both, rename the server key in the config. The namespace follows the key, so `github-work` and `github-personal` can coexist while `github` twice cannot.
+
+### Auth
+
+In `.mcp.json`, `${GITHUB_TOKEN}` is expanded at load time. If the variable is empty, the server can still start and then fail every call with a 401. Check it in the same shell that launches Claude Code:
+
+```
+$ echo "${GITHUB_TOKEN:0:4}"
+ghp_
+```
+
+Token scopes matter more than the token itself. A read-only token will list issues and fail on `create_pull_request`. Start with read access, confirm the tools you need, then add write access.
+
+Values in `settings.json` are stored in the file, so a token there is only as safe as the file. Keep the directory private and set the file mode:
+
+```
+chmod 600 ~/.claude-glm/settings.json
+```
+
+For a remote server that uses OAuth, `/mcp` starts the browser flow. On a headless machine there may be no browser to open. Use a token header instead, or run the auth flow on a local machine and copy the resulting config.
+
+## Keep the first config small
+
+Two servers are enough to learn the failure modes. Every additional server adds tool definitions to the context and another process that can fail at startup. Add Jira, Sentry, or Slack only when the loop needs them.
+
+That is also where claude-multi helps. A `claude-glm` instance can have a read-only GitHub token while `claude-sandbox` has no GitHub server at all. `claude-multi mcp copy` moves configs between instances, and `claude-multi mcp verify` checks the shape before you start a session.
+
+The rest of the commands are in [/docs/plugins-mcp/](/docs/plugins-mcp/). The protocol details are in the [MCP spec](https://modelcontextprotocol.io/specification/), and Anthropic's [donation announcement](https://www.anthropic.com/news/donating-the-model-context-protocol-and-establishing-of-the-agentic-ai-foundation) explains the governance change.

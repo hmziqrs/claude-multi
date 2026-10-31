@@ -2,6 +2,7 @@
 title: "Inside claude-multi: a tour of every menu"
 description: "A walkthrough of every screen in the claude-multi TUI. What each option does, when to use it, and the design calls I made."
 date: 2026-05-25
+updated: 2026-10-31
 tags: [claude-code, tui, deep-dive]
 audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/inside-claude-multi-every-menu.mp3"
 ---
@@ -38,7 +39,7 @@ Arrow keys to move. `Enter` to select. `ESC` to go back. `q` to quit. Those four
 
 ## Adding a new instance
 
-The menu items show up with emoji icons next to them; below I'll refer to them by name alone. The first one to pick is Add new instance. The wizard has eight steps. A couple of them have implications worth flagging.
+The menu items show up with emoji icons next to them; below I'll refer to them by name alone. The first one to pick is Add new instance. The wizard has eight steps. Two of them change how the instance behaves later.
 
 ### Step 1: instance name
 
@@ -52,7 +53,7 @@ Pick a template, or `None / Custom` if you want to wire things up yourself.
 
 The templates are not magic. They write the right env vars (`ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, a few others) into the instance's `settings.json`. You don't have to find the right URLs and model names across four docs sites.
 
-Current templates: GLM (Z.ai), MiniMax, DeepSeek. More on the way.
+Current templates: GLM (Z.ai), MiniMax, DeepSeek, Xiaomi MiMo (pay-as-you-go and Token Plan), Kimi, and Qwen (pay-as-you-go and Coding Plan). That is six providers and eight templates.
 
 ### Step 3: API key (if you picked a provider)
 
@@ -125,7 +126,7 @@ From there:
 - Copy a plugin from your default `~/.claude/` into this instance by hand.
 - Remove a plugin completely.
 
-Sync mode is the thing to keep in mind. In auto or half-manual mode the plugin list is partly a view onto your default `~/.claude/` install, so changes propagate (and in half-manual mode, per-plugin install and remove are blocked). In full-manual mode the instance's plugin set is entirely its own.
+Sync mode is part of the picture. In auto or half-manual mode the plugin list is partly a view onto your default `~/.claude/` install, so changes propagate (and in half-manual mode, per-plugin install and remove are blocked). In full-manual mode the instance's plugin set is entirely its own.
 
 claude-multi also runs a collision check on install. If a new plugin would clash with one already there (same name, version mismatch, that kind of thing), the TUI flags it before writing anything.
 
@@ -155,7 +156,7 @@ MCP servers lets you view MCP server configs per instance and copy them between 
 
 claude-multi watches the setup in the background. If something is wrong, the main menu shows a banner: yellow for warnings, red for the things you should fix now. Press `!` to open the health screen, which lists every detected issue (missing binary, broken symlink, stale registry entry, missing config dir) with a suggested fix.
 
-Most of the time it can fix the issue for you automatically.
+Most of the time it can fix them for you automatically.
 
 ## Three moving parts
 
@@ -187,4 +188,6 @@ The guided prompts UI was better but it asked the same questions in the same ord
 
 The menu does both. New users can poke around and find every feature without reading anything. Repeat users jump straight to the screen they want. Nobody has to memorize anything.
 
-If you take one thing from this post: spend five minutes inside `claude-multi` and click around. The whole tool is the menu.
+Spend five minutes inside `claude-multi` and click around. The whole tool is the menu.
+
+The written version of these flows is at [/docs/usage/](/docs/usage/).

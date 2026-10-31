@@ -1,11 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
-import { existsSync } from 'fs';
-import { join } from 'path';
 import Layout from '@/web/layouts/ContentLayout.astro';
 import SocialIcon from '@/web/components/SocialIcon.astro';
 import AudioPlayer from '@/web/components/AudioPlayer.astro';
 import { author, formatDate, readingTime } from '@/web/util/author';
+import { DEFAULT_OG_IMAGE, SITE_URL } from '@/web/util/seo';
 // oxlint-disable-next-line import/no-unassigned-import
 import '../../styles/prose.css';
 
@@ -19,9 +18,10 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const postUrl = `${SITE_URL}/blog/${post.id}/`;
+const dateModified = (post.data.updated ?? post.data.date).toISOString();
 const minutes = readingTime(post.body ?? '');
-const localAudioPath = join(process.cwd(), 'audio', `${post.id}.mp3`);
-const audioSrc = post.data.audio ?? (existsSync(localAudioPath) ? `/audio/${post.id}.mp3` : null);
+const audioSrc = post.data.audio ?? null;
 
 const allPosts = (await getCollection('blog')).filter((p) => !p.data.draft);
 const others = allPosts.filter((p) => p.id !== post.id);
@@ -46,7 +46,7 @@ const olderPost = currentIndex > 0 ? chronological[currentIndex - 1] : null;
 ---
 
 <Layout
-  title={`${post.data.title} - claude-multi | Blog`}
+  title={post.data.title}
   description={post.data.description}
   ogType="article"
   articlePublishedTime={post.data.date}
@@ -56,7 +56,10 @@ const olderPost = currentIndex > 0 ? chronological[currentIndex - 1] : null;
     '@type': 'BlogPosting',
     headline: post.data.title,
     description: post.data.description,
+    url: postUrl,
+    image: DEFAULT_OG_IMAGE,
     datePublished: post.data.date.toISOString(),
+    dateModified,
     author: {
       '@type': 'Person',
       name: 'hmziqrs',
@@ -65,11 +68,15 @@ const olderPost = currentIndex > 0 ? chronological[currentIndex - 1] : null;
     publisher: {
       '@type': 'Organization',
       name: 'claude-multi',
-      url: 'https://claude-multi.hmziq.xyz',
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/android-chrome-512x512.png`,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://claude-multi.hmziq.xyz/blog/${post.id}/`,
+      '@id': postUrl,
     },
   }}
 >

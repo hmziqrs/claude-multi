@@ -1,31 +1,31 @@
 ---
 question: "How do I update claude-multi and Claude Code?"
-description: "Use claude-multi version to check for updates and claude-multi update to upgrade Claude Code. For claude-multi itself, use your package manager."
+description: "Use claude-multi version to check for Claude Code updates and claude-multi update to upgrade it. For claude-multi itself, use your package manager."
 category: "Maintenance"
 order: 14
 ---
 
-Two things update independently: the claude-multi tool, and the Claude Code binary it wraps.
+Two things update independently: the claude-multi tool and the Claude Code binary it wraps.
 
-## Updating Claude Code
+#### Updating Claude Code
 
-Claude Code is the `@anthropic-ai/claude-code` package. Every `claude-<name>` instance launches the same binary, so you only update it once. Check what you have versus what's published:
+Claude Code is the `@anthropic-ai/claude-code` package. Every `claude-<name>` instance launches the same binary, so you only update it once. Check the installed version against npm:
 
 ```sh
 claude-multi version
 ```
 
-This prints three things: the version of claude-multi you are running, the installed version of Claude Code, and the latest Claude Code available on npm, with a flag if an update is pending. To apply it:
+It prints the installed Claude Code version and the latest version on npm, and flags an update when they differ. To apply it:
 
 ```sh
 claude-multi update
 ```
 
-That runs the upgrade for the shared `@anthropic-ai/claude-code` package. After it finishes, every instance picks up the new binary on its next launch. You do not need to recreate or touch any instance.
+That upgrades the shared `@anthropic-ai/claude-code` package. After it finishes, every instance picks up the new binary on its next launch. You do not need to recreate an instance.
 
-## Updating claude-multi itself
+#### Updating claude-multi itself
 
-claude-multi is a separate npm package. Update it with whatever you installed it with:
+claude-multi is a separate npm package. Check your own version with `claude-multi --version`, then update it with the package manager you used to install it:
 
 ```sh
 # bun
@@ -38,21 +38,17 @@ npm update -g claude-multi
 pnpm update -g claude-multi
 
 # Deno
-deno install -g -A -n claude-multi npm:claude-multi
+deno install --reload -g -A -n claude-multi npm:claude-multi
 ```
 
-Deno's `install` command reinstalls, which is how you get the new version under Deno. With bun, npm, and pnpm, the `update -g` flag pulls the latest.
+The Deno command reinstalls the package. With bun, npm, and pnpm, `update -g` pulls the latest published version.
 
-## What happens to instances during updates
+#### What happens to instances during updates
 
-Nothing destructive. Neither update touches your instance directories. The config at `~/.claude-multi/<name>/`, the `settings.json`, the plugins, the skills, and the conversation history under `projects/` all stay where they were. An instance is a config directory plus a wrapper script, and the wrapper only sets `CLAUDE_CONFIG_DIR` before exec'ing `claude`. None of that depends on a specific version.
+Nothing destructive. Neither update command edits your instance directories. The config at `~/.claude-<name>/`, the `settings.json`, plugins, skills, and conversation history under `projects/` stay in place. An instance is a config directory plus a wrapper script, and the wrapper only sets `CLAUDE_CONFIG_DIR` before running `claude`. None of that depends on a specific version.
 
-## After a major Claude Code release
+#### Migrations and backups
 
-Occasionally Claude Code ships a breaking change to its config schema. claude-multi detects that on launch and runs a migration, writing a `.bak` file first. If an instance looks wrong after an update, open the TUI and press `!` for the health screen, or look for `.bak` files in `~/.claude-multi/<name>/` and restore one by hand. The troubleshooting FAQ has the full recovery flow.
+claude-multi has its own config schema version. When the registry uses an older schema, it migrates on load and copies `config.json` plus each instance's `settings.json` into `~/.claude-multi/backups/` first. It keeps the three most recent backups. `claude-multi doctor fix` applies any instance migrations that are still pending.
 
-## More info
-
-- [src/version.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/version.ts): `checkForUpdates()` and `updateClaudeCode()` implementation
-- [/changelog/](/changelog/): release history
-- [claude-multi on npm](https://www.npmjs.com/package/claude-multi): check the latest published version
+If an instance looks wrong after an update, press `!` in the TUI for the health screen. You can also check the newest folder under `~/.claude-multi/backups/` and copy `instances/<name>/settings.json` back by hand. The [troubleshooting guide](/docs/troubleshooting/) has the full recovery flow. The version and update logic is in [src/version.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/version.ts), and release history is on the [changelog](/changelog/).

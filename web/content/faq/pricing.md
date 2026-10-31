@@ -1,32 +1,22 @@
 ---
 question: "Does claude-multi cost anything?"
-description: "claude-multi is free and open-source (MIT). You pay your provider for API usage. The tool takes no cut."
+description: "claude-multi is free and open-source (MIT). You pay your provider for model access. The tool takes no cut."
 category: "Pricing"
 order: 11
 ---
 
-claude-multi is free. It's MIT-licensed, published on npm, and takes no cut of your API usage. The only cost is what your provider charges you for tokens.
+claude-multi is free. It is MIT-licensed, published on npm, and takes no cut of what you pay your provider. The only cost is what your provider charges for model access.
 
-## Where the money goes
+#### Where the money goes
 
-When you run `claude-deepseek`, you're hitting DeepSeek's API directly. When you run `claude-glm`, you're hitting GLM's API directly. claude-multi doesn't sit in the middle. It configures which endpoint Claude Code talks to.
+When you run `claude-deepseek`, Claude Code talks to DeepSeek's API directly. When you run `claude-glm`, it talks to GLM's API directly. claude-multi configures which endpoint Claude Code uses. It does not proxy the request.
 
-So your bill depends on:
-- Which provider you're using
-- How many tokens you consume
-- That provider's pricing model (pay-per-token vs. subscription)
+Your bill depends on the provider, the number of tokens you consume, and that provider's pricing model (pay per token or subscription).
 
-## Comparing providers
+#### Comparing providers
 
-That's one of the reasons claude-multi exists. You can run the same task against two providers and see which gives you better results per dollar. DeepSeek and MiMo are cheaper per token than Anthropic. GLM and Qwen sell subscription plans with credit pools instead.
+That is one reason to use claude-multi: you can run the same task against two providers and compare cost and output. The [providers page](/providers/) lists models and current pricing notes. DeepSeek and Xiaomi MiMo publish lower per-token list prices than Anthropic's Opus models. GLM and Qwen also sell coding plans alongside pay-as-you-go pricing.
 
-The [providers page](/providers/) has the full list with model details.
+#### What about Claude Code itself?
 
-## What about Claude Code itself?
-
-Claude Code (the `@anthropic-ai/claude-code` package) is also free. It's Anthropic's open-source CLI. You pay for API access, not the tool.
-
-## More info
-
-- [/providers/](/providers/): full provider comparison
-- [/blog/llm-cost-optimization-routing/](/blog/llm-cost-optimization-routing/): cost optimization with LLM routing
+The `@anthropic-ai/claude-code` package is free to install. Anthropic charges for model access, either through a subscription or API billing. The CLI is not open source; claude-multi is.

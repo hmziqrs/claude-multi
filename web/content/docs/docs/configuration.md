@@ -1,38 +1,70 @@
 ---
 title: Configuration
-description: "Configuration file reference for claude-multi instances: the settings.json schema, environment variables, and plugin options."
+description: "Configuration reference for claude-multi 0.13.x: the instance registry, settings.json, .claude.json, plugin tracking, health status, and migration backups."
 ---
 
 ## Config registry
 
-claude-multi tracks all instances in a central registry:
-
-**Path:** `~/.claude-multi/config.json`
+claude-multi tracks all instances in a central registry at `~/.claude-multi/config.json`. The file holds names and paths, not API keys.
 
 ```json
 {
-  "version": "2",
   "instances": [
     {
       "name": "deepseek",
       "configDir": "/Users/you/.claude-deepseek",
       "binaryPath": "/Users/you/.local/bin/claude-deepseek",
-      "createdAt": "2026-05-27T10:00:00.000Z",
-      "autoSync": true
+      "createdAt": "2026-10-31T10:00:00.000Z",
+      "autoSync": false,
+      "syncMode": "full-manual",
+      "createdWithVersion": "0.13.0",
+      "providerTemplate": "deepseek"
+    },
+    {
+      "name": "mimo-sg",
+      "configDir": "/Users/you/.claude-mimo-sg",
+      "binaryPath": "/Users/you/.local/bin/claude-mimo-sg",
+      "createdAt": "2026-10-31T10:05:00.000Z",
+      "autoSync": true,
+      "syncMode": "auto",
+      "createdWithVersion": "0.13.0",
+      "providerTemplate": "mimo-token",
+      "providerRegion": "sgp"
     }
-  ]
+  ],
+  "version": "2.0.0",
+  "instanceMigrationVersion": "0.13.0"
 }
 ```
 
+### Registry fields
+
 | Field | Type | Description |
 |-------|------|-------------|
-| `version` | `string` | Config format version (`"2"` after migration) |
+| `version` | `string` | Config format version. `2.0.0` is current |
+| `instanceMigrationVersion` | `string` | Last claude-multi version whose instance migrations ran |
+| `migrationMeta` | `object` | Present after a schema migration runs |
+| `migrationMeta.migrationStatus` | `string` | `pending`, `failed`, or `completed` |
+| `migrationMeta.lastMigrationAt` | `string` | ISO 8601 timestamp of the last migration attempt |
+| `migrationMeta.migratedFromVersion` | `string` | Config version before the migration |
+| `migrationMeta.failureInfo` | `object` | Failed step, error message, timestamp, and whether a retry is possible |
 | `instances` | `array` | All registered instances |
-| `instances[].name` | `string` | Instance name, letters, numbers, hyphens, underscores |
-| `instances[].configDir` | `string` | Absolute path to the instance's config directory |
-| `instances[].binaryPath` | `string` | Absolute path to the generated wrapper script |
-| `instances[].createdAt` | `string` | ISO 8601 creation timestamp |
-| `instances[].autoSync` | `boolean` | Whether plugins/skills are symlinked from `~/.claude` |
+
+### Instance fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | Instance name. Letters, numbers, hyphens, and underscores |
+| `configDir` | `string` | Absolute path to the instance's config directory |
+| `binaryPath` | `string` | Absolute path to the generated wrapper |
+| `createdAt` | `string` | ISO 8601 creation timestamp |
+| `autoSync` | `boolean` | Deprecated. `false` maps to `full-manual`; any other value falls back to `auto` |
+| `syncMode` | `string` | `auto`, `half-manual`, or `full-manual`. Takes priority over `autoSync` |
+| `createdWithVersion` | `string` | claude-multi version that created the instance. Instances from before version tracking show `0.5` |
+| `providerTemplate` | `string` | Optional template name, such as `glm` or `mimo-token` |
+| `providerRegion` | `string` | Optional region for `mimo-token`: `cn`, `sgp`, or `ams` |
+
+If `syncMode` is missing, claude-multi reads `autoSync` for backward compatibility. `autoSync: false` resolves to `full-manual`. Everything else resolves to `auto`.
 
 ---
 
@@ -45,15 +77,20 @@ Each instance has its own `settings.json` at `~/.claude-<name>/settings.json`. T
   "env": {
     "ANTHROPIC_AUTH_TOKEN": "sk-your-key",
     "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-    "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]",
-    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-v4-flash",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-flash",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash"
+    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_MODEL": "deepseek-flash[1m]",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-flash[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-flash[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-flash",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-flash",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "786432",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000",
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "MAX_THINKING_TOKENS": "32000"
   },
   "enabledPlugins": {
-    "some-plugin": true,
-    "another-plugin": false
+    "some-plugin@claude-plugins-official": true,
+    "another-plugin@claude-plugins-official": false
   },
   "mcpServers": {
     "my-server": {
@@ -67,28 +104,15 @@ Each instance has its own `settings.json` at `~/.claude-<name>/settings.json`. T
 
 ### `env` object
 
-Environment variables that claude-multi sets when it launches Claude Code for this instance. Provider templates fill these in for you.
-
-| Key | Description |
-|-----|-------------|
-| `ANTHROPIC_AUTH_TOKEN` | API key for the provider |
-| `ANTHROPIC_BASE_URL` | Provider's Anthropic-compatible API endpoint |
-| `ANTHROPIC_MODEL` | Primary model (mapped to Claude Code's internal opus slot) |
-| `ANTHROPIC_SMALL_FAST_MODEL` | Fast/cheap model (mapped to haiku slot) |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet-tier model |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus-tier model |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku-tier model |
-| `API_TIMEOUT_MS` | Request timeout (some templates set this to `600000`) |
-| `CLAUDE_CODE_SUBAGENT_MODEL` | Model used by sub-agents for background tasks |
-| `CLAUDE_CODE_EFFORT_LEVEL` | Reasoning effort level (`low`, `medium`, `high`, `max`) |
+`env` holds the environment variables Claude Code receives when it launches for this instance. Provider templates fill the provider-specific keys, and each instance's file has its own `ANTHROPIC_AUTH_TOKEN` entry. [Environment variables](/docs/environment-variables/) documents every key and the values each template ships with.
 
 ### `enabledPlugins` object
 
-Map of plugin IDs to enabled or disabled state. It lists only the plugins you have toggled.
+Map of plugin keys to enabled or disabled state. Claude Code uses the `plugin-id@marketplace-name` form. The map lists the plugins with an explicit state, whether you toggled them by hand or copied them from `~/.claude`.
 
 ### `mcpServers` object
 
-Map of MCP server names to their configuration. Supports `stdio`, `http`, and `sse` transport types.
+Map of MCP server names to their configuration. The `type` field accepts `stdio`, `http`, and `sse`.
 
 ```json
 {
@@ -100,82 +124,113 @@ Map of MCP server names to their configuration. Supports `stdio`, `http`, and `s
   },
   "http-server": {
     "type": "http",
-    "url": "http://localhost:3000"
+    "url": "http://localhost:3000/mcp"
   }
 }
 ```
+
+MCP entries are not symlinked. They stay in the instance's own settings file regardless of sync mode. See [Plugins and MCP](/docs/plugins-mcp/) for the management commands.
 
 ---
 
 ## Instance state
 
-Each instance has a `.claude.json` at `~/.claude-<name>/.claude.json`:
+Each instance has a `.claude.json` at `~/.claude-<name>/.claude.json`. claude-multi writes it during setup so Claude Code skips its first-run wizard.
 
 ```json
 {
+  "numStartups": 1,
+  "installMethod": "global",
+  "autoUpdates": true,
+  "hasSeenTasksHint": true,
   "hasCompletedOnboarding": true,
-  "migrationVersion": 2,
-  "userID": "generated-uuid"
+  "lastOnboardingVersion": "2.0.31",
+  "firstStartTime": "2026-10-31T10:00:00.000Z",
+  "userID": "64-character-hex-string",
+  "promptQueueUseCount": 0,
+  "sonnet45MigrationComplete": true,
+  "opus45MigrationComplete": true,
+  "thinkingMigrationComplete": true,
+  "sonnet1m45MigrationComplete": true,
+  "opusProMigrationComplete": true,
+  "migrationVersion": 13
 }
 ```
 
-claude-multi writes this file during instance setup. `hasCompletedOnboarding: true` tells Claude Code to skip its first-run wizard.
+`hasCompletedOnboarding: true` skips the first-run wizard. `userID` is 32 random bytes encoded as hex. Claude Code adds other fields as you use the instance, so treat this file as Claude Code state rather than a claude-multi config file.
 
 ---
 
 ## Plugin tracking
 
-claude-multi tracks installed plugins in `~/.claude-<name>/plugins/installed_plugins.json` (v2 format):
+claude-multi tracks installed plugins in `~/.claude-<name>/plugins/installed_plugins.json`. The file uses v2 format, where each plugin key maps to an array of install records.
 
 ```json
 {
+  "version": 2,
   "plugins": {
-    "plugin-id": {
-      "scope": "internal",
-      "installPath": "plugins/plugin-id",
-      "version": "1.0.0",
-      "installedAt": "2026-05-27T10:00:00.000Z",
-      "enabled": true
-    }
+    "some-plugin@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/you/.claude-deepseek/plugins/marketplaces/claude-plugins-official",
+        "version": "1.0.0",
+        "installedAt": "2026-10-31T10:00:00.000Z",
+        "lastUpdated": "2026-10-31T10:00:00.000Z"
+      }
+    ]
   }
 }
 ```
+
+`installPath` points at the marketplace directory, not the individual plugin directory. The plugin files themselves live under `plugins/marketplaces/claude-plugins-official/plugins/<plugin-id>/` or `external_plugins/<plugin-id>/`.
 
 ---
 
 ## Health status
 
-Persistent health issue tracking at `~/.claude-multi/health-status.json`:
+Health issues are stored at `~/.claude-multi/health-status.json`:
 
 ```json
 {
+  "lastChecked": "2026-10-31T10:00:00.000Z",
   "issues": [
     {
+      "id": "broken-symlinks-deepseek",
+      "severity": "warning",
+      "category": "symlink",
+      "title": "Broken symlinks",
+      "message": "Instance 'deepseek' has broken symlinks: plugins",
+      "detail": "plugins",
       "instanceName": "deepseek",
-      "type": "broken_symlink",
-      "message": "plugins/some-plugin points to a missing target",
-      "detectedAt": "2026-05-27T10:00:00.000Z"
+      "timestamp": "2026-10-31T10:00:00.000Z",
+      "dismissed": false,
+      "resolved": false,
+      "resolutionHint": "Re-sync symlinks from the home screen"
     }
   ]
 }
 ```
 
-You can dismiss issues from the TUI health screen. claude-multi finds them again on the next check if the problem is still there.
+Severity is `error`, `warning`, or `info`. You can dismiss issues from the TUI health screen. claude-multi finds them again on the next check if the problem is still there.
 
 ---
 
 ## Migration backups
 
-When the config format changes, claude-multi stores backups in `~/.claude-multi/backups/`:
+When the config format changes or an instance migration runs, claude-multi creates a timestamped backup directory:
 
 ```
 ~/.claude-multi/backups/
-├── config.json.backup.2026-05-27T10-00-00
-├── deepseek-settings.json.backup.2026-05-27T10-00-00
-└── glm-settings.json.backup.2026-05-27T10-00-00
+└── 2026-10-31T10-00-00-000Z-a1b2-v2.0.0-to-v2.0.0/
+    ├── config.json
+    └── instances/
+        ├── deepseek/
+        │   └── settings.json
+        └── glm/
+            └── settings.json
 ```
 
-claude-multi keeps the last 3 backup sets and deletes the older ones.
+The directory name includes the timestamp, a short random suffix, and the source and target config versions. Each backup contains the registry and every instance's `settings.json`. claude-multi keeps the newest three backup directories and deletes older ones.
 
 ---
 
@@ -185,11 +240,22 @@ claude-multi keeps the last 3 backup sets and deletes the older ones.
 |------|---------|
 | `~/.claude-multi/config.json` | Instance registry |
 | `~/.claude-multi/health-status.json` | Health issue tracking |
-| `~/.claude-multi/backups/` | Migration backups |
+| `~/.claude-multi/backups/` | Migration backups, newest three kept |
 | `~/.claude-multi/.migration.lock` | PID-based migration lock |
-| `~/.claude-<name>/settings.json` | Per-instance settings (env, plugins, MCP) |
-| `~/.claude-<name>/.claude.json` | Per-instance state |
-| `~/.claude-<name>/plugins/` | Plugins (symlinked or copied) |
-| `~/.claude-<name>/skills/` | Skills (symlinked or copied) |
+| `~/.claude-<name>/settings.json` | Per-instance env, plugins, and MCP servers |
+| `~/.claude-<name>/.claude.json` | Per-instance Claude Code state |
+| `~/.claude-<name>/plugins/` | Plugins, symlinked or copied |
+| `~/.claude-<name>/skills/` | Skills, symlinked or copied |
 | `~/.claude-<name>/projects/` | Conversation history |
-| `~/.local/bin/claude-<name>` | Wrapper script |
+| `~/.local/bin/claude-<name>` | Wrapper script on macOS and Linux |
+
+See [How it works](/docs/how-it-works/) for the full layout, including Windows paths.
+
+Reviewed 2026-10-31
+
+## Related
+
+- [How it works](/docs/how-it-works/)
+- [Environment variables](/docs/environment-variables/)
+- [Plugins and MCP](/docs/plugins-mcp/)
+- [Troubleshooting](/docs/troubleshooting/)

@@ -20,22 +20,21 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
     name: "glm",
     displayName: "GLM Coding Plan",
     description:
-      "GLM-5.3, GLM-5.3-Flash, and GLM-5-Turbo via z.ai Coding Plan subscription (Anthropic endpoint is coding-plan-only)",
+      "GLM-5.3 and GLM-5.3-Flash via the z.ai Coding Plan, with GLM-5.3 for main work and Flash for background tasks",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5-turbo",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3-flash[1m]",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
         ANTHROPIC_MODEL: "glm-5.3[1m]",
-        ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5.3-flash[1m]",
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "1000000",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
+        CLAUDE_CODE_EFFORT_LEVEL: "high",
         MAX_THINKING_TOKENS: "8000",
-        ENABLE_STREAMING: "true",
-        MAX_OUTPUT_TOKENS: "128000",
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -45,23 +44,21 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
     name: "minimax",
     displayName: "MiniMax",
     description:
-      "MiniMax-M3 — 1M context, frontier coding/agentic, native multimodal — via minimax.io",
+      "MiniMax-M3.1-Flash with 1M context, agentic coding, native multimodal input, and flat per-token pricing",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.minimax.io/anthropic",
         API_TIMEOUT_MS: "3000000",
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
-        ANTHROPIC_MODEL: "MiniMax-M3",
-        ANTHROPIC_SMALL_FAST_MODEL: "MiniMax-M3",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M3",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M3",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M3",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
-        MAX_OUTPUT_TOKENS: "512000",
-        MAX_THINKING_TOKENS: "32000",
+        ANTHROPIC_MODEL: "MiniMax-M3.1-Flash[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "MiniMax-M3.1-Flash[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "MiniMax-M3.1-Flash[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "MiniMax-M3.1-Flash[1m]",
+        CLAUDE_CODE_SUBAGENT_MODEL: "MiniMax-M3.1-Flash[1m]",
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "524288",
         CLAUDE_CODE_EFFORT_LEVEL: "max",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -70,23 +67,22 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   deepseek: {
     name: "deepseek",
     displayName: "DeepSeek",
-    description: "DeepSeek-V4-Pro and DeepSeek-V4-Flash models via deepseek.com",
+    description:
+      "DeepSeek-V4.1-Flash for main work and subagents, with V4-Pro available as a custom model option",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "deepseek-v4-pro[1m]",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "deepseek-v4-pro[1m]",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "deepseek-v4-pro[1m]",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "deepseek-v4-flash",
-        ANTHROPIC_SMALL_FAST_MODEL: "deepseek-v4-flash",
-        CLAUDE_CODE_SUBAGENT_MODEL: "deepseek-v4-flash",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
-        MAX_THINKING_TOKENS: "32000",
-        MAX_OUTPUT_TOKENS: "128000",
+        ANTHROPIC_MODEL: "deepseek-flash[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "deepseek-flash[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "deepseek-flash[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "deepseek-flash",
+        CLAUDE_CODE_SUBAGENT_MODEL: "deepseek-flash",
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "786432",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
         CLAUDE_CODE_EFFORT_LEVEL: "max",
+        MAX_THINKING_TOKENS: "32000",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -95,19 +91,18 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   mimo: {
     name: "mimo",
     displayName: "Xiaomi MiMo",
-    description: "MiMo-V2.5-Pro and MiMo-V2.5 via xiaomimimo.com — pay-per-token API",
+    description: "MiMo-V2.6-Pro and MiMo-V2.6-Flash via xiaomimimo.com, pay-per-token API",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "mimo-v2.5-pro[1m]",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "mimo-v2.5-pro[1m]",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "mimo-v2.5-pro[1m]",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "mimo-v2.5[1m]",
-        ANTHROPIC_SMALL_FAST_MODEL: "mimo-v2.5[1m]",
-        ENABLE_THINKING: "true",
-        MAX_OUTPUT_TOKENS: "128000",
+        ANTHROPIC_MODEL: "mimo-v2.6-pro[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "mimo-v2.6-pro[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "mimo-v2.6-pro[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "mimo-v2.6-flash[1m]",
+        CLAUDE_CODE_SUBAGENT_MODEL: "mimo-v2.6-flash[1m]",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -117,19 +112,18 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
     name: "mimo-token",
     displayName: "Xiaomi MiMo (Token Plan)",
     description:
-      "MiMo-V2.5-Pro via xiaomimimo.com Token Plan — monthly subscription with credit pool, replace base URL with your regional endpoint (CN/SG/EU) from the subscription console",
+      "MiMo-V2.6-Pro and MiMo-V2.6-Flash via the Xiaomi Token Plan, with CN, SG, and EU regional endpoints",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://token-plan-cn.xiaomimimo.com/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "mimo-v2.5-pro[1m]",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "mimo-v2.5-pro[1m]",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "mimo-v2.5-pro[1m]",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "mimo-v2.5[1m]",
-        ANTHROPIC_SMALL_FAST_MODEL: "mimo-v2.5[1m]",
-        ENABLE_THINKING: "true",
-        MAX_OUTPUT_TOKENS: "128000",
+        ANTHROPIC_MODEL: "mimo-v2.6-pro[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "mimo-v2.6-pro[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "mimo-v2.6-pro[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "mimo-v2.6-flash[1m]",
+        CLAUDE_CODE_SUBAGENT_MODEL: "mimo-v2.6-flash[1m]",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -139,23 +133,21 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
     name: "kimi",
     displayName: "Moonshot Kimi",
     description:
-      "Kimi K2.7 Code, K2.6, K2.5 models via moonshot.ai — pay-per-token only, no subscription plan",
+      "Kimi K3.1 Pro via moonshot.ai, pay-per-token with a 1M context window and standard-speed inference",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://api.moonshot.ai/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "kimi-k2.6",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "kimi-k2.7-code",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "kimi-k2.6",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "kimi-k2.5",
-        ANTHROPIC_SMALL_FAST_MODEL: "kimi-k2.5",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
+        ANTHROPIC_MODEL: "kimi-k3.1-pro[1m]",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "kimi-k3.1-pro[1m]",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "kimi-k3.1-pro[1m]",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "kimi-k3.1-pro[1m]",
+        CLAUDE_CODE_SUBAGENT_MODEL: "kimi-k3.1-pro[1m]",
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "1000000",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
+        CLAUDE_CODE_EFFORT_LEVEL: "max",
         MAX_THINKING_TOKENS: "16000",
-        MAX_OUTPUT_TOKENS: "65536",
-        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "262144",
-        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -164,23 +156,22 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   qwen: {
     name: "qwen",
     displayName: "Qwen (Alibaba)",
-    description: "Qwen3-Coder and Qwen3.5 models via Alibaba DashScope — pay-per-token API",
+    description:
+      "Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Flash via Alibaba DashScope, pay-per-token API",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://dashscope-intl.aliyuncs.com/apps/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "qwen3-coder-next",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "qwen3-coder-next",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "qwen3-coder-plus",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "qwen3-coder-flash",
-        ANTHROPIC_SMALL_FAST_MODEL: "qwen3-coder-flash",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
-        MAX_THINKING_TOKENS: "16000",
-        MAX_OUTPUT_TOKENS: "65536",
-        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        ANTHROPIC_MODEL: "qwen3.8-max",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "qwen3.8-max",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "qwen3.7-plus",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "qwen3.8-flash",
+        CLAUDE_CODE_SUBAGENT_MODEL: "qwen3.8-flash",
+        CLAUDE_CODE_MAX_CONTEXT_TOKENS: "983616",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
+        MAX_THINKING_TOKENS: "16000",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -189,23 +180,22 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   "qwen-coding": {
     name: "qwen-coding",
     displayName: "Qwen Coding Plan (Alibaba)",
-    description: "Qwen3-Coder and Qwen3.5 models via Alibaba DashScope Coding Plan subscription",
+    description:
+      "Qwen3.7-Plus via the Alibaba DashScope Coding Plan, with a 1M context window",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
         ANTHROPIC_BASE_URL: "https://coding-intl.dashscope.aliyuncs.com/apps/anthropic",
         API_TIMEOUT_MS: "3000000",
-        ANTHROPIC_MODEL: "qwen3-coder-next",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "qwen3-coder-next",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "qwen3-coder-plus",
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: "qwen3-coder-flash",
-        ANTHROPIC_SMALL_FAST_MODEL: "qwen3-coder-flash",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
-        MAX_THINKING_TOKENS: "16000",
-        MAX_OUTPUT_TOKENS: "65536",
-        CLAUDE_CODE_AUTO_COMPACT_WINDOW: "131072",
+        ANTHROPIC_MODEL: "qwen3.7-plus",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "qwen3.7-plus",
+        ANTHROPIC_DEFAULT_SONNET_MODEL: "qwen3.7-plus",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "qwen3.7-plus",
+        CLAUDE_CODE_SUBAGENT_MODEL: "qwen3.7-plus",
+        CLAUDE_CODE_MAX_CONTEXT_TOKENS: "983616",
         CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "75",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
+        MAX_THINKING_TOKENS: "16000",
       },
       includeCoAuthoredBy: false,
       alwaysThinkingEnabled: false,
@@ -345,16 +335,52 @@ export const LEGACY_ENV_DEFAULTS: Readonly<
   Record<string, Partial<Record<string, readonly string[]>>>
 > = {
   glm: {
-    MAX_OUTPUT_TOKENS: ["64000"],
+    MAX_OUTPUT_TOKENS: ["64000", "128000"],
     CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["131072"],
     CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: ["75"],
   },
   minimax: {
-    MAX_OUTPUT_TOKENS: ["64000"],
+    MAX_OUTPUT_TOKENS: ["64000", "512000"],
+  },
+  deepseek: {
+    MAX_OUTPUT_TOKENS: ["128000", "384000"],
+  },
+  mimo: {
+    MAX_OUTPUT_TOKENS: ["128000"],
+  },
+  "mimo-token": {
+    MAX_OUTPUT_TOKENS: ["128000"],
+  },
+  kimi: {
+    MAX_OUTPUT_TOKENS: ["65536", "131072"],
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["262144"],
+    CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: ["75"],
+  },
+  qwen: {
+    MAX_OUTPUT_TOKENS: ["65536"],
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["131072"],
+    CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: ["75"],
+  },
+  "qwen-coding": {
+    MAX_OUTPUT_TOKENS: ["65536"],
+    CLAUDE_CODE_AUTO_COMPACT_WINDOW: ["131072"],
+    CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: ["75"],
   },
 };
 
 export type TunableEnvPolicy = "preserve-custom" | "overwrite-legacy-defaults";
+
+/**
+ * Variables that older templates wrote and the current templates no longer set. Remove them on
+ * sync so a migrated instance does not keep a dead override around.
+ */
+const STALE_ENV_VARS = new Set([
+  "ANTHROPIC_SMALL_FAST_MODEL",
+  "CLAUDE_CODE_SUBAGENT_MODEL",
+  "ENABLE_THINKING",
+  "REASONING_EFFORT",
+  "ENABLE_STREAMING",
+]);
 
 export interface ProviderEnvSyncOptions {
   /** Stored provider hint; falls back to detectProvider(configDir) */
@@ -421,6 +447,15 @@ export function syncProviderEnvToSettings(
   const templateEnv = templateSettings.env as Record<string, string>;
   const newEnv: Record<string, string> = { ...templateEnv, ANTHROPIC_AUTH_TOKEN: apiKey };
 
+  const legacyOutput = existingEnv.MAX_OUTPUT_TOKENS;
+  if (
+    legacyOutput &&
+    !existingEnv.CLAUDE_CODE_MAX_OUTPUT_TOKENS &&
+    !isLegacyDefault(providerName, "MAX_OUTPUT_TOKENS", legacyOutput)
+  ) {
+    newEnv.CLAUDE_CODE_MAX_OUTPUT_TOKENS = legacyOutput;
+  }
+
   if (providerHasRegions(providerName) && region === null && existingBaseUrl) {
     newEnv.ANTHROPIC_BASE_URL = existingBaseUrl;
   }
@@ -436,6 +471,11 @@ export function syncProviderEnvToSettings(
   }
 
   const merged = { ...existingEnv, ...newEnv };
+  delete merged.MAX_OUTPUT_TOKENS;
+
+  for (const key of STALE_ENV_VARS) {
+    if (!(key in templateEnv)) delete merged[key];
+  }
 
   if (policy === "overwrite-legacy-defaults") {
     for (const [key, values] of Object.entries(LEGACY_ENV_DEFAULTS[providerName] ?? {})) {

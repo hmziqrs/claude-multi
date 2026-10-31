@@ -697,10 +697,10 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
-      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("mimo-v2.5[1m]");
-      expect(settings.env.ENABLE_THINKING).toBe("true");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
+      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
 
     test("preserves existing API key", async () => {
@@ -883,7 +883,7 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_BASE_URL).toBe(
         "https://token-plan-sgp.xiaomimimo.com/anthropic",
       );
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-sgp-key");
     });
 
@@ -926,7 +926,7 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_BASE_URL).toBe(
         "https://token-plan-ams.xiaomimimo.com/anthropic",
       );
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("tp_test-ams-key");
     });
 
@@ -969,7 +969,7 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_BASE_URL).toBe(
         "https://token-plan-cn.xiaomimimo.com/anthropic",
       );
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
     });
 
     test("backfills providerRegion from detected base URL", async () => {
@@ -1179,7 +1179,7 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_BASE_URL).toBe(
         "https://token-plan-custom.xiaomimimo.com/anthropic",
       );
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
     });
 
     test("handles invalid stored providerRegion gracefully (V04)", async () => {
@@ -1265,10 +1265,11 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
-      expect(settings.env.REASONING_EFFORT).toBe("low");
-      expect(settings.env.ENABLE_THINKING).toBe("false");
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("32000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
+      expect(settings.env.REASONING_EFFORT).toBeUndefined();
+      expect(settings.env.ENABLE_THINKING).toBeUndefined();
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
     });
 
     test("template drift updates current-version instances (V11)", async () => {
@@ -1307,7 +1308,7 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_MODEL).toBe("deepseek-v4-pro[1m]");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("deepseek-flash[1m]");
     });
 
     test("getProviderByBaseUrl rejects unknown mimo-token region (V13)", async () => {
@@ -1333,7 +1334,7 @@ describe("Migration", () => {
       });
     }
 
-    test("updates GLM model slots to glm-5.3 and bumps legacy MAX_OUTPUT_TOKENS", async () => {
+    test("updates GLM model slots and moves the output cap to the Claude Code variable", async () => {
       const { runInstanceMigrations } = await import("@/migration");
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
@@ -1345,10 +1346,11 @@ describe("Migration", () => {
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
-      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
-      expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
-      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5.3-flash[1m]");
+      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("sk-glm-secret");
     });
 
@@ -1379,7 +1381,7 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
     });
 
-    test("preserves user-customized MAX_OUTPUT_TOKENS", async () => {
+    test("carries a custom MAX_OUTPUT_TOKENS value to the Claude Code variable", async () => {
       const { runInstanceMigrations } = await import("@/migration");
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
@@ -1389,10 +1391,11 @@ describe("Migration", () => {
       await runInstanceMigrations(glmConfig(instDir));
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("99000");
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("99000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
 
-    test("removes legacy GLM auto-compaction overrides no longer in the template", async () => {
+    test("updates legacy GLM auto-compaction and removes the old subagent model", async () => {
       const { runInstanceMigrations } = await import("@/migration");
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
@@ -1406,9 +1409,9 @@ describe("Migration", () => {
       await runInstanceMigrations(glmConfig(instDir));
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBeUndefined();
+      expect(settings.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("1000000");
       expect(settings.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE).toBeUndefined();
-      expect(settings.env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("glm-5-turbo");
+      expect(settings.env.CLAUDE_CODE_SUBAGENT_MODEL).toBeUndefined();
     });
 
     test("skips instance with unrecognized provider without touching settings", async () => {
@@ -1468,7 +1471,8 @@ describe("Migration", () => {
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
 
     test("runs when stored instanceMigrationVersion is 0.11.0 and stamps current", async () => {
@@ -1495,7 +1499,8 @@ describe("Migration", () => {
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
       expect(result.instanceMigrationVersion).toBe(getClaudeMultiVersion());
     });
 
@@ -1613,8 +1618,9 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_BASE_URL).toBe(
         "https://token-plan-sgp.xiaomimimo.com/anthropic",
       );
-      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.5-pro[1m]");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("32000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
       expect(result.instances[0]!.providerRegion).toBe("sgp");
       expect(result.instances[0]!.providerTemplate).toBe("mimo-token");
     });
@@ -1653,8 +1659,9 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("32000");
-      expect(settings.env.ANTHROPIC_MODEL).toBe("kimi-k2.6");
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("32000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
+      expect(settings.env.ANTHROPIC_MODEL).toBe("kimi-k3.1-pro[1m]");
     });
 
     test("does not stamp down over a stored newer version", async () => {
@@ -1707,13 +1714,14 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_MODEL).toBe("MiniMax-M3");
-      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("MiniMax-M3");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("512000");
+      expect(settings.env.ANTHROPIC_MODEL).toBe("MiniMax-M3.1-Flash[1m]");
+      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
   });
 
-  describe("0.12.0 instance migration — GLM sonnet slot to glm-5.3-flash[1m]", () => {
+  describe("0.12.0 migration entry — provider env sync", () => {
     function glmConfig(instDir: string, overrides: Partial<Config> = {}): Config {
       return makeConfig({
         instanceMigrationVersion: "0.11.1",
@@ -1730,7 +1738,7 @@ describe("Migration", () => {
       });
     }
 
-    test("moves the sonnet slot to glm-5.3-flash[1m] and leaves correct slots untouched", async () => {
+    test("syncs the GLM slots to the current template and retires the old output key", async () => {
       const { runInstanceMigrations } = await import("@/migration");
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
@@ -1746,16 +1754,17 @@ describe("Migration", () => {
       await runInstanceMigrations(glmConfig(instDir));
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
-      expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
-      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
-      expect(settings.env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5.3-flash[1m]");
+      expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
+      expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
       expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe("sk-glm-secret");
     });
 
-    test("fills an absent sonnet slot via template drift even for current-version instances", async () => {
+    test("fills an absent sonnet slot with the current template even for current-version instances", async () => {
       const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
@@ -1790,27 +1799,37 @@ describe("Migration", () => {
       await runInstanceMigrations(config);
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
-      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
     });
 
-    test("fast path skips the 0.12.0 migration when instance is already current", async () => {
+    test("fast path skips the migration when instance already matches the current template", async () => {
       const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
 
       mkdirSync(join(testDir, ".claude-multi"), { recursive: true });
       const instDir = join(testDir, ".claude-glm-current-fastpath");
-      writeGlmSettings(instDir, {
-        ANTHROPIC_MODEL: "glm-5.3[1m]",
-        ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
-        ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3-flash[1m]",
-        ANTHROPIC_SMALL_FAST_MODEL: "glm-5-turbo",
-        API_TIMEOUT_MS: "3000000",
-        ENABLE_THINKING: "true",
-        REASONING_EFFORT: "high",
-        MAX_THINKING_TOKENS: "8000",
-        ENABLE_STREAMING: "true",
-        MAX_OUTPUT_TOKENS: "128000",
-      });
+      mkdirSync(instDir, { recursive: true });
       const settingsFile = join(instDir, "settings.json");
+      writeFileSync(
+        settingsFile,
+        JSON.stringify({
+          env: {
+            ANTHROPIC_AUTH_TOKEN: "sk-glm-secret",
+            ANTHROPIC_BASE_URL: "https://api.z.ai/api/anthropic",
+            ANTHROPIC_MODEL: "glm-5.3[1m]",
+            ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
+            ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]",
+            ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5.3-flash[1m]",
+            API_TIMEOUT_MS: "3000000",
+            CLAUDE_CODE_AUTO_COMPACT_WINDOW: "1000000",
+            CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
+            CLAUDE_CODE_EFFORT_LEVEL: "high",
+            MAX_THINKING_TOKENS: "8000",
+            CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+          },
+          includeCoAuthoredBy: false,
+          alwaysThinkingEnabled: false,
+        }),
+      );
       const before = readFileSync(settingsFile, "utf-8");
 
       const config = makeConfig({

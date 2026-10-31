@@ -142,8 +142,44 @@ const INSTANCE_MIGRATIONS: InstanceMigration[] = [
   },
   {
     version: "0.12.0",
+    description: "Sync provider env to the current provider templates",
+    // eslint-disable-next-line @react-doctor/require-await
+    migrate: (instance) => {
+      const currentVersion = getClaudeMultiVersion();
+      if (
+        instance.createdWithVersion &&
+        instance.createdWithVersion !== LEGACY_INSTANCE_VERSION &&
+        instance.createdWithVersion === currentVersion
+      ) {
+        return Promise.resolve(instance);
+      }
+
+      try {
+        const result = syncProviderEnvToSettings(instance.configDir, {
+          providerTemplate: instance.providerTemplate,
+          providerRegion: instance.providerRegion,
+          tunablePolicy: "overwrite-legacy-defaults",
+        });
+
+        if (result.status !== "skipped") {
+          if (result.region) instance.providerRegion = result.region;
+          if (!instance.providerTemplate && result.providerName) {
+            instance.providerTemplate = result.providerName;
+          }
+        }
+      } catch (err: unknown) {
+        console.warn(
+          `[migration] Failed to refresh provider env for '${instance.name}': ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+
+      return Promise.resolve(instance);
+    },
+  },
+  {
+    version: "0.13.0",
     description:
-      "GLM template: sonnet slot moved to glm-5.3-flash[1m] (three-tier split: opus glm-5.3[1m], sonnet glm-5.3-flash[1m], haiku glm-5-turbo)",
+      "Provider templates: GLM official mapping, MiniMax M3.1 Flash, DeepSeek V4.1 Flash, Kimi K3.1 Pro standard, Qwen3.8/3.7, and Claude Code output/context variables",
     // eslint-disable-next-line @react-doctor/require-await
     migrate: (instance) => {
       const currentVersion = getClaudeMultiVersion();

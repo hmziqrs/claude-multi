@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-10-31
+
+### Changed
+- **Provider templates refreshed for the October 2026 model lineups.** GLM now follows Z.ai's official Claude Code mapping: `glm-5.3[1m]` for opus and sonnet, `glm-5.3-flash[1m]` for haiku. GLM-5-Turbo is no longer a Coding Plan tier. MiniMax moves to `MiniMax-M3.1-Flash[1m]` in every slot. DeepSeek moves to `deepseek-flash[1m]` for opus, sonnet, and primary, with `deepseek-flash` for haiku and subagents. Kimi uses standard `kimi-k3.1-pro[1m]` in every slot, with Highspeed available as an optional faster tier. MiMo stays on V2.6 Pro and Flash.
+- **Qwen templates updated.** Pay-as-you-go uses `qwen3.8-max`, `qwen3.7-plus`, and `qwen3.8-flash`. The Coding Plan uses `qwen3.7-plus` in every slot because Qwen3.8 is not included in that plan. The retired `qwen3-coder-next` and `qwen3-coder-plus` IDs are gone.
+- **Output and context variables corrected.** Templates now use `CLAUDE_CODE_MAX_OUTPUT_TOKENS` instead of the inert `MAX_OUTPUT_TOKENS`, set `CLAUDE_CODE_MAX_CONTEXT_TOKENS` where needed, and use `CLAUDE_CODE_EFFORT_LEVEL` instead of undocumented effort variables. Deprecated `ANTHROPIC_SMALL_FAST_MODEL` entries are removed during sync.
+- Existing instances pick up the new mappings through the template drift check. Run `claude-multi doctor check` to see the change, then `claude-multi doctor fix` to apply it. API keys and user-tuned values are preserved.
+- Provider pages, docs, FAQ, and the environment-variable reference now match the shipped templates.
+
+### Blog
+- Blog post: [A Claude Code MCP workflow that actually runs](https://claude-multi.hmziq.xyz/blog/claude-code-mcp-workflow-automation/)
+- Blog post: [A reproducible LLM routing setup for Claude Code](https://claude-multi.hmziq.xyz/blog/llm-cost-optimization-routing/)
+
 ## [0.12.0] - 2026-08-26
 
 ### Changed
@@ -507,6 +520,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.13.0]: https://github.com/hmziqrs/claude-multi/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/hmziqrs/claude-multi/compare/v0.11.1...v0.12.0
 [0.11.0]: https://github.com/hmziqrs/claude-multi/compare/v0.10.0...v0.11.0
 [0.8.2]: https://github.com/hmziqrs/claude-multi/compare/v0.8.1...v0.8.2

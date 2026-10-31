@@ -5,23 +5,16 @@ category: "Architecture"
 order: 5
 ---
 
-No. claude-multi doesn't fork, patch, or modify Claude Code. Each instance is a shell wrapper script that sets `CLAUDE_CONFIG_DIR` to point at an isolated config directory, then execs the real `claude` binary. No proxy, no monkey-patching, no background process.
+No. claude-multi doesn't fork, patch, or modify Claude Code. Each instance is a shell wrapper that sets `CLAUDE_CONFIG_DIR` to an isolated directory and then runs the real `claude` binary. No proxy, no monkey-patching, no background process.
 
-Flags, commands, and keybindings work as they normally do, and Claude Code updates land immediately because you're running the real binary. An instance is also a real directory you can `cd` into, inspect, or delete with standard tools.
+Flags, commands, and keybindings work as they normally do, and Claude Code updates land immediately because every instance launches the same binary. The instance directory is real, so you can `cd` into it, inspect it, or delete it with standard tools.
 
-For the wrapper script and the full architecture, see how it works.
+The wrapper is a short script. On macOS and Linux it starts with `#!/bin/sh`; on Windows it is a `.cmd` file. The [how it works guide](/docs/how-it-works/) shows the script and the rest of the architecture.
 
-## What's inside an instance directory
+#### What's inside an instance directory
 
-Every instance lives under `~/.claude-multi/<name>/`: a `settings.json` (provider env vars and merged settings), a `.claude.json` (instance-level Claude config), `plugins/` and `skills/` (symlinked or copied), and a `projects/` directory holding conversation history per project.
+By default, every instance lives under `~/.claude-<name>/`: a `settings.json` with provider env vars and merged settings, a `.claude.json` with instance-level Claude config, `plugins/` and `skills/` directories (symlinked or copied), and a `projects/` directory holding conversation history per project.
 
-## Related questions
+The registry, backups, health state, and migration lock live separately in `~/.claude-multi/`. They are not part of any instance's config.
 
-- [What is claude-multi?](/faq/#what-is-claude-multi): the full overview
-- [How do I create a new instance?](/faq/#create-instance): getting started
-
-## More info
-
-- [/docs/how-it-works/](/docs/how-it-works/): architecture overview and wrapper script
-- [/about/](/about/): the "wrapper, not a fork" explanation
-- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): wrapper generation code
+Wrapper generation is in [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts).

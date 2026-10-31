@@ -6,18 +6,19 @@ import Tag from './Tag.astro';
 <section id="features" class="reveal ui-section">
   <div class="ui-section__inner">
     <div class="ui-section__head">
-      <h2 class="ui-section-title">One directory per instance.</h2>
+      <h2 class="ui-section-title">One config directory per instance.</h2>
       <p class="ui-section-sub">
-        Each instance keeps its own settings, history and credentials in <span class="ui-inline-code">~/.claude-&lt;name&gt;</span
-        >. Your existing <span class="ui-inline-code">~/.claude</span> is not modified.
+        Each instance keeps its settings, credentials, and history in
+        <span class="ui-inline-code">~/.claude-&lt;name&gt;</span>. Your existing
+        <span class="ui-inline-code">~/.claude</span> is not modified.
       </p>
     </div>
 
     <div class="features__grid grid grid-cols-1 gap-3 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3">
       <FeatureCard
         icon="git-branch"
-        title="One alias per provider"
-        description="Built-in templates for GLM, MiniMax, DeepSeek, MiMo, Kimi and Qwen. Each instance you create gets its own command."
+        title="One command per provider"
+        description="Templates cover GLM, MiniMax, DeepSeek, MiMo, Kimi, and Qwen, with eight templates in total. Each instance you create gets its own command."
       >
         <Tag>claude-kimi</Tag>
         <Tag>claude-mimo</Tag>
@@ -28,25 +29,25 @@ import Tag from './Tag.astro';
       <FeatureCard
         icon="shield"
         title="Isolated configs"
-        description="Every instance owns its settings.json, history and credentials. Two instances never share a file."
+        description="Every instance has its own settings.json, credentials, and session history. No config file is shared between instances."
       />
 
       <FeatureCard
         icon="link"
         title="Plugin sync"
-        description="Plugins and skills are symlinked from your primary install, so every instance sees the same set."
+        description="By default, plugins and skills are symlinked from your primary install, so you set them up once. MCP servers stay as entries in each instance's settings.json."
       />
 
       <FeatureCard
         icon="terminal"
         title="No fork"
-        description="claude-multi runs the claude binary already on your machine. Your flags and slash commands work the same."
+        description="claude-multi runs the claude binary already on your machine. Your flags, slash commands, and keybindings work the same."
       />
 
       <FeatureCard
         icon="key"
         title="Keys stay on disk"
-        description="API keys are written to per-instance config files under ~/.claude-multi, not to global environment variables."
+        description={`API keys are written to that instance's ~/.claude-<name>/settings.json, not to global environment variables.`}
       />
     </div>
   </div>

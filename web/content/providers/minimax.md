@@ -1,8 +1,8 @@
 ---
-title: "MiniMax M3 Provider for Claude Code"
-description: "Run Claude Code with MiniMax-M3 via minimax.io. 1M token context window, 512K max output, native multimodal support, one model across every role."
+title: "MiniMax M3.1 Flash Provider for Claude Code"
+description: "Run Claude Code with MiniMax-M3.1-Flash in every slot. 1M context, 128K output in Claude Code, always-on thinking, multimodal input, flat pricing."
 provider: "minimax"
-tagline: "1M context window with 512K output tokens"
+tagline: "1M context, one model for every slot"
 setupCommand: "claude-multi add minimax"
 useCases:
   - "Holding a large codebase in a single context"
@@ -11,19 +11,31 @@ useCases:
   - "Multimodal coding with image understanding"
 pricing: "Pay-per-token via minimax.io"
 order: 2
+updated: 2026-10-31
 ---
 
-MiniMax-M3 has a 1 million token context window and a 512K max output. You can load a whole monorepo, run long agentic workflows, and let the model accumulate context across hundreds of files before it needs to compact.
+MiniMax-M3.1-Flash is MiniMax's current model for Claude Code, [released October 19, 2026](https://www.minimax.io/blog/minimax-m31f). It has a 1M token context window, a 524,288 token output ceiling, and thinking that is always on. M3 is the previous generation and remains available. M3.1 Pro has been announced but not released, so the template does not list it.
 
 ## Model specs
 
-| Role | Model | Context | Max Output |
+| Role | Model | Context | Max output |
 |------|-------|---------|------------|
-| All roles | MiniMax-M3 | 1M | 512K |
+| Primary, opus, sonnet, haiku, subagents | `MiniMax-M3.1-Flash[1m]` | 1M | 512K, 128K recommended |
+| Previous generation | `MiniMax-M3` | 1M | 512K |
 
-The template maps MiniMax-M3 to every role (Opus, Sonnet, Haiku, small/fast). There is only one model, so quick shell commands and complex multi-step reasoning both go to it.
+The template maps M3.1 Flash to every role, including subagents. There is one model in the shipped config, so quick shell commands and complex multi-step reasoning both go to M3.1 Flash.
 
-Effort level is set to `max` and thinking is enabled with `REASONING_EFFORT: high`. The model gets 32,000 thinking tokens by default.
+M3.1 Flash takes text, images, and video as input. Thinking cannot be disabled. The effort setting accepts `low`, `medium`, `high`, `xhigh`, and `max`, and defaults to `max`. M3 also takes text, images, and video, but thinking is off when the `thinking` field is omitted. Send `adaptive` to enable it.
+
+MiniMax positions M3.1 Flash as its current Flash model for agentic coding. M3 remains on the model list for existing workloads, and MiniMax states that a Pro model will arrive later.
+
+## Template status
+
+The 0.13.0 template pins `MiniMax-M3.1-Flash[1m]` in primary, opus, sonnet, haiku, and subagent slots. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 524288, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `API_TIMEOUT_MS` to 3000000, and disables nonessential traffic. No manual edit is needed.
+
+MiniMax's [Claude Code guide](https://platform.minimax.io/docs/token-plan/claude-code) uses the same model name in every role, the same 524288 compaction window, and effort `max`. The template follows that setup and adds the subagent slot.
+
+To use M3 instead, change the model IDs in `~/.claude-<name>/settings.json` to `MiniMax-M3[1m]` and keep the 524288 window. M3.1 Pro is not available yet, so there is no ID to set.
 
 ## Setup
 
@@ -36,30 +48,38 @@ claude-multi add minimax
 
 3. Paste your API key when prompted
 
-The template sets the base URL, model mapping, thinking parameters, and output limits.
-
-## When to pick MiniMax
-
-Pick MiniMax when context length is the constraint. If you work on large codebases, do multi-repository analysis, or run agentic tasks that accumulate a lot of state, the 1M window means fewer compaction cycles.
-
-The 512K output limit is enough for generating an application scaffold in one pass, or getting a long analysis back without truncation.
-
-For shorter, more interactive sessions, DeepSeek or GLM may cost you less.
+The template writes the base URL, model mapping, effort level, and output limit.
 
 ## Pricing details
 
-MiniMax bills per token through [minimax.io](https://minimax.io) with no monthly commitment. Token Plan subscriptions are also available (Plus / Max / Ultra monthly tiers). Both routes share the same `api.minimax.io` endpoint, and your API key type decides which quota gets consumed.
+MiniMax bills per token through [minimax.io](https://minimax.io) with no monthly commitment. The [MiniMax pricing page](https://platform.minimax.io/docs/pricing/overview) lists the current rates:
 
-| Tier | Input / 1M | Output / 1M |
-|------|-----------|-------------|
-| Standard (up to 512K context) | $0.60 | $2.40 |
-| Long context (512K to 1M) | $1.20 | $4.80 |
-| Cache read | $0.12 | n/a |
+| Tier | Input / 1M | Output / 1M | Cache read / 1M |
+|------|-----------|-------------|-----------------|
+| M3.1 Flash, flat rate | $0.15 | $0.60 | $0.015 |
+| M3, up to 512K input | $0.30 | $1.20 | $0.06 |
+| M3, above 512K input | $0.60 | $2.40 | $0.12 |
 
-For benchmark comparisons vs Opus 4.7 and GPT-5.5, see the [MiniMax M3 announcement post](/blog/minimax-m3-one-million-context-frontier-coding/).
+M3.1 Flash uses one flat rate at every input length. M3 keeps the older two-band price, with a higher rate above 512K input tokens. MiniMax lists the M3 figures as a permanent 50% discount from the earlier $0.60/$2.40 and $1.20/$4.80 list prices.
+
+Priority service is available on M3 at 1.5x the standard rate. Set `service_tier` to `priority` for priority admission. M3.1 Flash does not support the `service_tier` field.
+
+MiniMax also sells M Plan subscriptions for individuals. Both routes use `api.minimax.io`; the key type decides which quota is consumed.
+
+For benchmark comparisons against Opus 4.7 and GPT-5.5, see the [MiniMax M3 announcement post](/blog/minimax-m3-one-million-context-frontier-coding/).
+
+## Where it fits
+
+MiniMax fits when context length is the constraint. The 1M window means fewer compaction cycles on a large repository. The model accepts up to 512K output, though Claude Code caps a single response at 128K.
+
+M3.1 Flash is half the base M3 input and output rate, with the same 1M context and output ceiling. MiniMax reports that it cuts overall usage cost by 70% on agentic tasks compared with its predecessor. The launch post also shows higher scores on DeepSWE v1.1, AutomationBench, and OSWorld V2. Public aggregate indexes place M3.1 Flash above M3. Those are vendor and aggregate results, not a coding head-to-head, so test on your own tasks before moving a workload.
+
+Claude Code caps output at 128,000 tokens for an unrecognized model ID, so the practical output ceiling is 128K in this template even though the model accepts more.
+
+If your sessions stay under 128K, MiMo V2.6 Flash is cheaper on output, and DeepSeek Flash matches the M3.1 Flash off-peak input and output rates.
 
 ## Related providers
 
-- [DeepSeek](/providers/deepseek/) - 1M context, pay-per-token
+- [DeepSeek](/providers/deepseek/) - 1M context, pay-per-token, off-peak discounts
 - [GLM](/providers/glm/) - fixed monthly subscription plan
-- [Kimi](/providers/kimi/) - 256K context, built for tool-heavy work
+- [Kimi](/providers/kimi/) - 1M context on K3.1 Pro, built for tool-heavy work

@@ -1,50 +1,76 @@
 ---
-import ProductTable from './ProductTable.astro';
 import Workflow from './Workflow.astro';
 import Button from './Button.astro';
 
-const providerTable = {
-  dense: true,
-  selectedIndex: 0,
-  columns: [
-    { key: 'name', label: 'Provider', width: '1.1fr', emphasis: true },
-    { key: 'mode', label: 'Mode', width: '90px', mono: true },
-    { key: 'models', label: 'Models', width: '1.2fr', mono: true },
-    { key: 'alias', label: 'Alias', width: '150px', mono: true },
-  ],
-  rows: [
-    { name: 'Anthropic', mode: 'NATIVE', models: 'Opus 4.7, Sonnet 4.6, Haiku 4.5', alias: 'claude-anthropic' },
-    { name: 'GLM Coding Plan', mode: 'TEMPLATE', models: 'GLM-5.3, GLM-5.3-Flash, GLM-5-Turbo', alias: 'claude-glm' },
-    { name: 'MiniMax', mode: 'TEMPLATE', models: 'MiniMax-M3', alias: 'claude-minimax' },
-    { name: 'DeepSeek', mode: 'TEMPLATE', models: 'V4-Pro, V4-Flash', alias: 'claude-deepseek' },
-    { name: 'Xiaomi MiMo', mode: 'TEMPLATE', models: 'MiMo-V2.5-Pro, MiMo-V2.5', alias: 'claude-mimo' },
-    { name: 'Moonshot Kimi', mode: 'TEMPLATE', models: 'K2.7 Code, K2.6, K2.5', alias: 'claude-kimi' },
-    { name: 'Alibaba Qwen', mode: 'TEMPLATE', models: 'Qwen3-Coder-Next, Plus, Flash', alias: 'claude-qwen' },
-  ],
-};
+const providers = [
+  {
+    name: 'GLM Coding Plan',
+    templates: 1,
+    models: 'GLM-5.3, GLM-5.3-Flash',
+    alias: 'claude-glm',
+    href: '/providers/glm/',
+  },
+  {
+    name: 'MiniMax',
+    templates: 1,
+    models: 'MiniMax-M3.1 Flash',
+    alias: 'claude-minimax',
+    href: '/providers/minimax/',
+  },
+  {
+    name: 'DeepSeek',
+    templates: 1,
+    models: 'DeepSeek V4.1 Flash',
+    alias: 'claude-deepseek',
+    href: '/providers/deepseek/',
+  },
+  {
+    name: 'Xiaomi MiMo',
+    templates: 2,
+    models: 'MiMo V2.6',
+    alias: 'claude-mimo',
+    href: '/providers/mimo/',
+  },
+  {
+    name: 'Moonshot Kimi',
+    templates: 1,
+    models: 'Kimi K3.1 Pro',
+    alias: 'claude-kimi',
+    href: '/providers/kimi/',
+  },
+  {
+    name: 'Alibaba Qwen',
+    templates: 2,
+    models: 'Qwen3.8-Max, Qwen3.7-Plus, Qwen3.8-Flash',
+    alias: 'claude-qwen',
+    href: '/providers/qwen/',
+  },
+];
+
+const gridStyle = 'grid-template-columns:minmax(0,1.2fr) 88px minmax(0,1.3fr) 150px';
 
 const graph = {
   animated: true,
-  root: { label: 'claude-multi', sublabel: '~/.claude-multi', icon: 'layers' },
+  root: { label: 'claude-multi', sublabel: 'central registry', icon: 'layers' },
   branches: [
     {
       active: true,
       chain: [
-        { label: 'work', sublabel: 'anthropic', icon: 'folder', status: 'running', active: true },
+        { label: 'work', sublabel: '~/.claude-work', icon: 'folder', status: 'running', active: true },
         { label: 'sonnet-4.6', sublabel: 'api.anthropic.com', tone: 'violet' },
       ],
     },
     {
       chain: [
-        { label: 'lab', sublabel: 'glm', icon: 'folder', status: 'running' },
+        { label: 'lab', sublabel: '~/.claude-lab', icon: 'folder', status: 'running' },
         { label: 'GLM-5.3', sublabel: 'api.z.ai', tone: 'violet' },
         { label: 'GLM-5.3-Flash', sublabel: 'api.z.ai', tone: 'violet' },
       ],
     },
     {
       chain: [
-        { label: 'cheap', sublabel: 'kimi', icon: 'folder', status: 'idle' },
-        { label: 'K2.7 Code', sublabel: 'api.moonshot.ai', tone: 'violet' },
+        { label: 'cheap', sublabel: '~/.claude-cheap', icon: 'folder', status: 'idle' },
+        { label: 'K3.1 Pro', sublabel: 'api.moonshot.ai', tone: 'violet' },
       ],
     },
   ],
@@ -55,23 +81,65 @@ const graph = {
 
   <div class="ui-section__inner">
     <div class="ui-section__head">
-      <h2 class="ui-section-title">Seven providers are built in.</h2>
+      <h2 class="ui-section-title">Six providers, eight templates.</h2>
       <p class="ui-section-sub">
-        Each template already knows the endpoint and the model names. Pick one in the menu, paste
-        your key, and you get a plain config file on disk.
+        Each template sets the base URL and model names for one provider or plan. Pick one,
+        paste a key, and the config lands in
+        <span class="ui-inline-code">~/.claude-&lt;name&gt;/settings.json</span>. Your
+        existing <span class="ui-inline-code">~/.claude</span> is not touched.
       </p>
     </div>
 
     <div class="relative grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-8 items-start max-[900px]:grid-cols-1">
-      <div class="border border-edge rounded-[10px] overflow-hidden bg-[#101216]">
-        <div class="providers__table-scroll w-full overflow-x-auto [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]">
-          <ProductTable
-            columns={providerTable.columns}
-            rows={providerTable.rows}
-            dense={providerTable.dense}
-            selectedIndex={providerTable.selectedIndex}
-          />
+      <div>
+        <div class="border border-edge rounded-[10px] overflow-hidden bg-[#101216]">
+          <div class="providers__table-scroll w-full overflow-x-auto [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]">
+            <div class="w-full min-w-[700px]">
+              <div
+                class="grid items-center border-b border-edge bg-[#101216] font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-[#7c8492]"
+                style={gridStyle}
+              >
+                <span class="px-3.5 py-2">Provider</span>
+                <span class="px-3.5 py-2">Templates</span>
+                <span class="px-3.5 py-2">Models</span>
+                <span class="px-3.5 py-2">Command</span>
+              </div>
+
+              <ul class="list-none p-0 m-0 flex flex-col">
+                {providers.map((provider) => (
+                  <li class="border-b border-edge last:border-b-0">
+                    <a
+                      href={provider.href}
+                      class="group grid items-center text-text-dim no-underline transition-colors duration-[60ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#0d0f13] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[rgba(217,119,87,0.45)]"
+                      style={gridStyle}
+                      aria-label={`${provider.name} provider guide: ${provider.templates} ${provider.templates === 1 ? 'template' : 'templates'}, models ${provider.models}, command ${provider.alias}`}
+                    >
+                      <span class="px-3.5 py-2 min-w-0 text-[13px] font-medium text-text group-hover:text-lime transition-colors">
+                        {provider.name}
+                      </span>
+                      <span class="px-3.5 py-2 min-w-0 font-mono text-[12px]">
+                        {provider.templates}
+                      </span>
+                      <span class="px-3.5 py-2 min-w-0 font-mono text-[12px] [overflow-wrap:anywhere]">
+                        {provider.models}
+                      </span>
+                      <span class="px-3.5 py-2 min-w-0 font-mono text-[12px] text-lime truncate" title={provider.alias}>
+                        {provider.alias}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
+
+        <p class="mt-3 text-[12.5px] leading-[1.6] text-text-mute">
+          Counts include the MiMo Token Plan and Qwen Coding Plan. Anthropic is not a
+          template: your existing <span class="ui-inline-code text-[12.5px]">~/.claude</span>
+          setup stays as it is. Templates pin the models listed above. Check a provider
+          page for exact model IDs, plan coverage, regional endpoints, and current pricing.
+        </p>
       </div>
 
       <div class="border border-edge rounded-[10px] bg-[#101216] p-6 flex flex-col gap-4.5">
@@ -85,11 +153,3 @@ const graph = {
     </div>
   </div>
 </section>
-
-<style>
-  @media (max-width: 900px) {
-    .providers__table-scroll :global(.ui-table) {
-      min-width: 740px;
-    }
-  }
-</style>

@@ -96,20 +96,16 @@ const canonical = new URL(Astro.url.pathname, SITE).toString();
           '@type': 'WebSite',
           name: 'claude-multi',
           url: SITE,
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: `${SITE}/blog/?q={search_term_string}`,
-            'query-input': 'required name=search_term_string',
-          },
         },
         {
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'hmziqrs',
           url: 'https://hmziq.rs',
+          logo: `${SITE}/android-chrome-512x512.png`,
           sameAs: [
-            'https://github.com/hmziqrs/claude-multi',
-            'https://twitter.com/hmziqrs',
+            'https://github.com/hmziqrs',
+            'https://x.com/hmziqrs',
           ],
         },
       ])}

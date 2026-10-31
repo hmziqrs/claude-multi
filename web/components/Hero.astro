@@ -3,6 +3,7 @@ import Button from './Button.astro';
 import StatusBadge from './StatusBadge.astro';
 import Terminal from './Terminal.astro';
 import CodeBlock from './CodeBlock.astro';
+import InstallCommand from './InstallCommand.astro';
 
 const wizardLines = [
   { text: 'claude-multi', tone: 'command' },
@@ -11,15 +12,17 @@ const wizardLines = [
   { text: 'Step 3 / 8 · api key › ••••••••••••', tone: 'arrow' },
   { text: 'Step 7 / 8 · symlink plugins & skills › Y', tone: 'arrow' },
   { text: "instance 'glm' created", tone: 'success' },
-  { text: 'binary: /usr/local/bin/claude-glm', tone: 'muted' },
+  { text: 'binary: ~/.local/bin/claude-glm', tone: 'muted' },
   { text: 'config: ~/.claude-glm', tone: 'muted' },
 ];
 
 const configCode = `{
-  "provider": "glm",
-  "baseUrl": "https://api.z.ai",
-  "model": "GLM-5.3",
-  "syncPlugins": true
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.3[1m]",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.3[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5.3-flash[1m]"
+  }
 }`;
 
 const menuItems = [
@@ -42,19 +45,23 @@ const menuItems = [
     <h1
       class="m-0 text-[46px] leading-none tracking-[-0.04em] font-semibold max-w-[720px] text-pretty text-text max-[640px]:text-[32px] max-[640px]:tracking-[-0.03em]"
     >
-      Separate Claude Code<br />for each provider.
+      A separate Claude Code <br />for each provider.
     </h1>
     <p
-      class="m-0 max-w-[600px] text-[17px] leading-[1.65] text-text-dim max-[640px]:text-[15.5px]"
+      class="m-0 max-w-[620px] text-[17px] leading-[1.65] text-text-dim max-[640px]:text-[15.5px]"
     >
       Each provider gets its own <span class="ui-inline-code"
         >claude-&lt;name&gt;</span
-      > command and config directory, running the normal claude binary.
+      > command and config directory. That command runs the normal <span
+        class="ui-inline-code">claude</span
+      > binary, and your existing <span class="ui-inline-code">~/.claude</span> stays
+      untouched.
     </p>
     <div
-      class="hero__cta flex gap-2.5 items-center max-[640px]:flex-col max-[640px]:w-full"
+      class="hero__cta flex flex-col gap-3 items-center w-full max-[640px]:w-full"
     >
       <Button size="sm" href="/docs/getting-started/">Get started</Button>
+      <InstallCommand command="npm install -g claude-multi" />
     </div>
   </div>
 

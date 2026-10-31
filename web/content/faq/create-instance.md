@@ -5,34 +5,24 @@ category: "Usage"
 order: 4
 ---
 
-Two ways: the interactive TUI, or a single CLI command.
+Two ways: the TUI or one CLI command.
 
-## Interactive TUI
+#### Interactive TUI
 
 ```sh
 claude-multi
 ```
 
-Pick **Add new instance**. The wizard asks for an instance name, provider template, API key, paths, copy options, plugin selection, and sync mode. When it finishes, you're back at the menu with the instance created.
+Pick **Add new instance**. The wizard asks for a name, provider template, API key, and path confirmation. Depending on the copy option, it also asks which plugins to include and which sync mode to use. When it finishes, you are back at the menu with the instance created.
 
-## CLI command
+#### CLI command
 
 ```sh
 claude-multi add deepseek --provider deepseek --api-key sk-your-key
 ```
 
-The `add` command takes `--provider`, `--api-key`, and the copy and sync flags (`--copy-settings`, `--copy-plugins`, `--copy-mcp`, `--sync-mode`). The CLI reference lists all of them.
+`--api-key` is required with `--provider`. The `add` command also takes `--copy-settings`, `--copy-all`, `--copy-mcp`, and one sync flag (`--auto-sync`, `--half-manual`, `--manual`, or `--sync-mode <mode>`). The [CLI reference](/docs/usage/) lists every option.
 
-After that, run `claude-<name>` (e.g. `claude-deepseek`) to launch Claude Code with that provider.
+After creation, run `claude-deepseek`. The wrapper sets `CLAUDE_CONFIG_DIR` to `~/.claude-deepseek` and launches Claude Code.
 
-## Related questions
-
-- [How does plugin syncing work?](/faq/#plugin-syncing): keep plugins in sync across instances
-- [How do I manage MCP servers?](/faq/#mcp-servers): copy MCP configs to new instances
-- [How do I remove an instance?](/faq/#remove-instance): the reverse of this process
-
-## More info
-
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): walkthrough of the creation wizard
-- [/docs/getting-started/](/docs/getting-started/): first instance setup
-- [/docs/usage/](/docs/usage/): full CLI reference and flags
+See [plugin syncing](/faq/#plugin-syncing) for the sync modes and [MCP servers](/faq/#mcp-servers) for copying MCP configs.

@@ -32,16 +32,26 @@ function summarize(r: Release) {
 ---
 
 <Layout
-  title="Changelog - claude-multi | Release history"
-  description="Release history for claude-multi. Features and fixes from v0.1 to today for the multi-provider Claude Code CLI."
+  title="claude-multi changelog | Claude Code CLI releases"
+  description={`The claude-multi changelog for Claude Code CLI releases, up to v${latest.version}. Provider templates, fixes, and migration notes.`}
 >
   <section class="relative z-10 pt-32 pb-12 px-6">
     <div class="max-w-4xl mx-auto">
 
       <div class="reveal text-center">
-        <h1 class="mt-5 text-5xl sm:text-7xl font-extrabold tracking-[-0.03em] leading-[1.02] headline-glow">
-          Release <span class="gradient-text">history.</span>
+        <h1 class="mt-5 text-4xl sm:text-6xl font-extrabold tracking-[-0.03em] leading-[1.05] headline-glow">
+          claude-multi <span class="gradient-text">changelog</span> for Claude Code.
         </h1>
+        <p class="mt-5 text-base sm:text-lg text-text-dim max-w-2xl mx-auto leading-relaxed">
+          This page tracks claude-multi CLI releases for Claude Code. Entries come from
+          <a
+            href="https://github.com/hmziqrs/claude-multi/blob/master/CHANGELOG.md"
+            target="_blank"
+            rel="noopener"
+            class="text-lime no-underline hover:underline"
+          >CHANGELOG.md</a> and cover CLI behavior, provider templates, installs, and migrations. Day-to-day
+          website CSS and CI changes are not listed unless they shipped with a release.
+        </p>
       </div>
     </div>
   </section>
@@ -128,6 +138,7 @@ function summarize(r: Release) {
     <div class="max-w-4xl mx-auto">
       <div class="reveal flex items-baseline justify-between mb-6">
         <h3 class="text-xl font-bold flex items-center gap-3">
+          Earlier releases
           <span class="text-text-mute font-mono text-sm font-normal">{past.length}</span>
         </h3>
         <button id="expand-all" type="button" class="text-[11px] font-mono uppercase tracking-wider text-text-mute hover:text-lime transition-colors px-2.5 py-1 rounded-md border border-edge hover:border-edge-hover">

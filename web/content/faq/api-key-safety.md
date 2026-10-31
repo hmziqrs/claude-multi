@@ -1,37 +1,26 @@
 ---
 question: "Is my API key stored safely?"
-description: "API keys are stored in each instance's local settings.json file, never transmitted to claude-multi's servers. The tool runs entirely on your machine."
+description: "API keys are stored in each instance's local settings.json file. claude-multi has no backend and does not collect them."
 category: "Security"
 order: 8
 ---
 
-Your API keys stay on your machine. claude-multi has no backend, no telemetry, and makes no network calls during normal operation.
+Your API keys stay on your machine. claude-multi has no backend and no telemetry. The tool itself does not send your key anywhere.
 
-## Where keys end up
+#### Where keys end up
 
-Each instance stores its key in `~/.claude-multi/<name>/settings.json` as part of the `ANTHROPIC_AUTH_TOKEN` env var. When you launch that instance, Claude Code reads the key from the config file. claude-multi isn't involved at runtime.
+Provider templates store the key in `~/.claude-<name>/settings.json` as `ANTHROPIC_AUTH_TOKEN` in the `env` block. When you launch that instance, Claude Code reads the key from the config file. claude-multi is not involved at runtime.
 
-The only time claude-multi touches your key is during instance creation, when it writes it into the settings file. After that, it's between you and Claude Code.
+Provider setup writes the key once, during instance creation. After that, the key is between you and Claude Code. It is plain text in the file, so normal file permissions are the protection. Keep backups of the instance directory private.
 
-## Atomic config writes
+`--api-key` on the command line is convenient, but the key lands in your shell history. On a shared machine, create the instance through the TUI or edit `settings.json` after creation.
 
-claude-multi writes settings files with a temp-file-rename pattern. It writes to a temp path, checks the result parses as valid JSON, then renames it into place. If the write fails partway, your existing config is untouched.
+#### Atomic config writes
 
-## Practical tips
+claude-multi writes settings files with a temp-file-rename pattern. It writes to a temp path, checks that the result parses as JSON, then renames it into place. If the write fails partway, the existing config is untouched. The implementation is in [src/util/json-file.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/json-file.ts).
 
-- If you use the same key across providers, you can copy settings from `~/.claude` during instance creation instead of re-entering it
-- For different keys per provider, enter them individually during setup or edit the settings file
-- Run `claude-multi info <name>` to see what's stored for any instance
-- The `version` subcommand checks npm for updates, but that's the only network call claude-multi makes, and it doesn't involve your API key
+#### Network calls
 
-## Related questions
+The update check fetches version metadata from the npm registry. That is the only network request claude-multi makes itself, and it does not include your API key. `claude-multi info <name>` prints the instance's config path, binary path, sync mode, version, and provider. It does not print the key.
 
-- [What is claude-multi?](/faq/#what-is-claude-multi): the "no telemetry" overview
-
-## More info
-
-- [/privacy/](/privacy/): data collection policy (website only, the CLI collects nothing)
-- [/about/](/about/): "no daemons, no background services, no telemetry"
-- [/docs/configuration/](/docs/configuration/): settings.json schema
-- [src/util/json-file.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/json-file.ts): atomic write implementation
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): how settings are created and stored
+The [configuration guide](/docs/configuration/) documents the settings format, and instance creation is in [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts).

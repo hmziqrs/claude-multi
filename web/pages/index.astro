@@ -8,7 +8,78 @@ import Providers from '../components/Providers.astro';
 
 <BaseLayout>
   <Hero />
+
+  <section id="why" class="reveal ui-section">
+    <div class="ui-section__inner">
+      <div class="max-w-[760px] mx-auto w-full flex flex-col gap-7">
+        <div class="flex flex-col gap-4">
+          <p class="m-0 font-mono text-[11px] uppercase tracking-[0.14em] text-lime">
+            Why it exists
+          </p>
+          <h2 class="ui-section-title m-0">Why a second provider breaks your setup.</h2>
+        </div>
+
+        <div class="why-prose flex flex-col gap-5 text-[17px] leading-[1.75] text-text-dim max-[640px]:text-[16px]">
+          <p>
+            Claude Code keeps one config directory: <code>~/.claude</code>. It holds
+            settings, MCP servers, plugins, skills, and conversation history. That works
+            while you use one provider. Add a second and the same files have to serve both
+            setups. Change the base URL for GLM and your Anthropic sessions follow it. Swap
+            in a DeepSeek key and the old key is gone. Copy the directory by hand and you
+            are maintaining two setups that drift.
+          </p>
+          <p>
+            claude-multi is a free, MIT-licensed CLI for people who switch providers during
+            the day. It ships eight templates for six providers: GLM, MiniMax, DeepSeek,
+            MiMo, Kimi, and Qwen. You might keep Claude on your main account, use GLM for a
+            long refactor, and send cheap batch work to DeepSeek. Or you might test a model
+            before moving a team onto it. The goal is to change models without rebuilding
+            the setup around them.
+          </p>
+          <p>
+            Isolation is literal. <code>claude-multi add glm</code> creates
+            <code>~/.claude-glm/</code> with its own <code>settings.json</code>,
+            credentials, sessions, and history. The <code>claude-glm</code> wrapper sets
+            <code>CLAUDE_CONFIG_DIR</code> to that directory, then runs the official
+            <code>claude</code> binary. Your normal <code>~/.claude</code> setup is left as
+            it is. Plugins and skills can be symlinked from your primary install, so you
+            install them once. MCP servers remain entries in the instance's
+            <code>settings.json</code>. The central registry at
+            <code>~/.claude-multi/</code> tracks instances, health, and backups. It does not
+            store each instance's settings.
+          </p>
+          <p>
+            Install with <code>npm install -g claude-multi</code>, or use bun, pnpm, or
+            Deno. Run <code>claude-multi</code> for the menu, or
+            <code>claude-multi add glm</code> to create an instance and paste a key. The
+            <a href="/docs/">setup guide</a> covers the rest, the
+            <a href="/providers/">provider pages</a> list endpoints and model mappings, the
+            <a href="/blog/">blog</a> has notes on model choice, and the
+            <a href="/faq/">FAQ</a> answers common questions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <Install />
   <Features />
   <Providers />
 </BaseLayout>
+
+<style>
+  .why-prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--text-primary);
+  }
+
+  .why-prose a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .why-prose a:hover {
+    text-decoration: underline;
+  }
+</style>

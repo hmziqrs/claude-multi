@@ -1,44 +1,53 @@
 ---
 title: Troubleshooting
-description: "Fix common claude-multi issues: instances that will not start, provider connection errors, plugin sync failures, config directory problems, and broken wrapper scripts."
+description: "Fix common claude-multi issues: command not found, auth errors, broken plugin symlinks, MCP servers that will not load, and failed migrations."
 ---
 
 ## `claude-<name>` command not found
 
-Your global binary directory is not on `PATH`. The exact location depends on your package manager, and the TUI prints it when it creates an instance.
+Your global binary directory is not on `PATH`, or the wrapper is missing.
 
-**Common locations:**
+The wrapper directory depends on the platform and, on Windows, the package manager:
 
-| Runtime | Binary directory |
-|---------|-----------------|
-| Bun | `~/.bun/bin/` |
-| npm (Linux/macOS) | `~/.local/bin/` or `/usr/local/bin/` |
-| pnpm | `~/.local/share/pnpm/` |
-| Deno | `~/.deno/bin/` |
+| Platform | Wrapper directory |
+|----------|-------------------|
+| macOS and Linux | `~/.local/bin/` |
+| Windows with npm or pnpm | `%APPDATA%\npm` |
+| Windows with Bun | `%USERPROFILE%\.bun\bin` |
+| Windows with Deno | `%USERPROFILE%\.deno\bin` |
 
-**Fix:**
+A custom `--binary` path overrides these defaults.
+
+Add the directory printed by `claude-multi list` to your `PATH`. For a quick test in the current shell:
 
 ```bash
-# zsh (macOS default)
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
+# macOS and Linux
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-Replace `~/.local/bin` with the actual path from your instance creation output.
+```powershell
+# Windows, npm or pnpm
+$env:Path = "$env:APPDATA\npm;$env:Path"
+```
 
----
+For persistent setup on zsh, bash, and PowerShell, see [Getting started](/docs/getting-started/). `claude-multi add` also prints a warning when the wrapper directory is not on `PATH`.
+
+If the directory is already on `PATH` but the command still fails, check whether the wrapper exists and points at the right binary:
+
+```bash
+claude-multi doctor check
+claude-multi doctor fix
+```
+
+`doctor check` reports a missing wrapper or a wrapper that points at a different `claude` binary. `doctor fix` rewrites wrappers that exist but point at the wrong binary. It does not recreate a wrapper you deleted. In that case, remove the instance and create it again with the same name.
 
 ## Broken plugin or skill symlinks
 
-If you moved or deleted `~/.claude/`, the symlinks in auto-synced instances now point at nothing.
+If you moved or deleted `~/.claude/`, the symlinks in auto-synced and half-synced instances point at nothing.
 
-**Fix from TUI:** Select **Re-sync symlinks** from the main menu. Pick the broken instance (or all).
+From the TUI, select **Re-sync symlinks** and pick the broken instance or all instances.
 
-**Fix from CLI:**
+From the CLI:
 
 ```bash
 # Fix a specific instance
@@ -48,66 +57,63 @@ claude-multi fix-symlinks deepseek
 claude-multi fix-symlinks --all
 ```
 
----
+`fix-symlinks` rebuilds whole-directory links in `auto` mode and per-item links in `half-manual` mode. Full-manual instances have no symlinks to repair.
 
 ## Health warning banner
 
-A yellow or red banner at the top of the main menu means claude-multi found problems. Press `!` to open the health screen.
-
-**Common health issues:**
+A yellow or red banner at the top of the main menu means claude-multi found problems. Press `!` to open the health screen. Select an issue to see its detail and suggested fix.
 
 | Problem | Cause | Fix |
 |---------|-------|-----|
-| Config directory missing | Instance dir was deleted outside claude-multi | Remove the instance or recreate the directory |
-| Binary not found | Wrapper script was deleted | Re-create the instance |
-| Corrupted settings.json | Invalid JSON in the config file | Fix or delete the corrupted file, then recreate |
-| Broken symlinks | Plugin/skill links point to missing targets | Run `fix-symlinks` |
-| Migration failed | Config schema migration was interrupted | Health screen offers retry/restore from backup |
-
----
+| Config directory missing | Instance directory was deleted outside claude-multi | Remove the instance or recreate the directory |
+| Binary not found | Wrapper script was deleted or its directory moved | Recreate the instance, then check `PATH` |
+| Wrong Claude binary | Wrapper points at an old Claude Code install | Run `claude-multi doctor fix` |
+| Corrupted `settings.json` | Invalid JSON in the file | Fix the JSON or restore a copy from `~/.claude-multi/backups/` if one exists |
+| Broken symlinks | Plugin or skill links point at missing targets | Run `fix-symlinks` |
+| Migration failed | A config schema migration was interrupted | Restore the newest backup and retry |
+| Instance migration pending | Instance settings are behind the current version | Run `claude-multi doctor fix` |
 
 ## Ink TUI doesn't render properly
 
 Some terminals, including older SSH clients, do not handle the Ink-based React TUI well.
 
-**Fix:** Force the simpler prompts-based UI:
+Force the simpler prompts-based UI:
 
 ```bash
 CLAUDE_MULTI_INK=false claude-multi
 ```
 
-Same flows, simpler rendering.
-
----
+The flows are the same. Only the rendering changes.
 
 ## API key not working
 
-If Claude Code can't authenticate with your provider:
+If Claude Code cannot authenticate with your provider:
 
-1. **Check the key is set:** `claude-multi info <name>` shows the instance's settings
-2. **Check the base URL:** Make sure you used the right provider template for your account type. MiMo and Qwen have separate templates for pay-per-token and subscription plans, and the wrong one points at the wrong endpoint
-3. **Verify the settings file:** Open `~/.claude-<name>/settings.json` and check the `env` block
+1. Check the instance fields with `claude-multi info <name>`. The provider and region should match the account you are using.
+2. Check the base URL. MiMo and Qwen have separate templates for pay-per-token and subscription plans, and the wrong template points at the wrong endpoint.
+3. Read the instance's `env` block directly:
 
 ```bash
-# Check what's configured
-cat ~/.claude-multi/deepseek/settings.json | jq .env
+cat ~/.claude-deepseek/settings.json
 ```
 
----
+The file path is `~/.claude-<name>/settings.json`, not `~/.claude-multi/<name>/settings.json`.
+
+If the key is stored under `ANTHROPIC_AUTH_TOKEN` and the endpoint matches your plan, test the key with the provider's own API before changing claude-multi. A 401 from the provider means the key or account is the problem, not the wrapper.
 
 ## Wrong provider endpoint
 
-Some providers use different base URLs for pay-per-token vs. subscription plans:
+Some providers use different base URLs for pay-per-token and subscription plans:
 
 | Provider | Pay-per-token | Subscription |
 |----------|--------------|--------------|
-| Xiaomi MiMo | `mimo` template | `mimo-token` template (different domain) |
-| Alibaba Qwen | `qwen` template | `qwen-coding` template (different subdomain) |
-| GLM (Z.ai) | No Anthropic-compatible URL | `glm` template (coding plan only) |
+| Xiaomi MiMo | `mimo` template, `api.xiaomimimo.com` | `mimo-token` template, `token-plan-<region>.xiaomimimo.com` |
+| Alibaba Qwen | `qwen` template, `dashscope-intl.aliyuncs.com` | `qwen-coding` template, `coding-intl.dashscope.aliyuncs.com` |
+| GLM (Z.ai) | No Anthropic-compatible pay-per-token URL | `glm` template, `api.z.ai/api/anthropic` |
 
-If you are on a subscription plan but used the pay-per-token template, or the other way around, your API key will not authenticate. Remove the instance and recreate it with the correct template.
+If you are on a subscription plan but used the pay-per-token template, or the other way around, the API key will not authenticate. Remove the instance and recreate it with the correct template.
 
----
+For `mimo-token`, also check the region. `cn`, `sgp`, and `ams` use different hostnames, so create the instance with the region your subscription was issued for.
 
 ## Duplicate instance name
 
@@ -115,36 +121,36 @@ If you are on a subscription plan but used the pay-per-token template, or the ot
 Error: Instance 'deepseek' already exists
 ```
 
-Instance names must be unique. Either pick a different name or remove the existing one first:
+Instance names must be unique. Pick a different name or remove the existing one first:
 
 ```bash
 claude-multi remove deepseek
 claude-multi add deepseek --provider deepseek --api-key sk-...
 ```
 
----
+`remove` leaves the old config directory in place. If you recreate the instance with the same name, it reuses `~/.claude-deepseek/`, so delete that directory first if you want a clean start.
 
 ## MCP server not working
 
 If an MCP server fails to connect:
 
-1. **Verify the config:** `claude-multi mcp verify` checks that referenced executables and paths exist
-2. **Check for collisions:** `claude-multi plugins check-collisions <instance> <plugin-id>` catches two plugins registering the same MCP server name
-3. **Inspect the config:** Open `~/.claude-<name>/settings.json` and look at the `mcpServers` field
+1. Check the config shape with `claude-multi mcp verify <instance>`. A stdio entry needs a `command`; an HTTP or SSE entry needs a `url`.
+2. Check for name collisions with `claude-multi plugins check-collisions <instance> <plugin-id>`.
+3. Open `~/.claude-<name>/settings.json` and inspect the `mcpServers` field.
+4. Start the instance and run `/mcp` to see whether the server connected and which tools it exposes.
 
----
+`mcp verify` reads the config only. It does not start the server or test the port. If the command path is wrong or the server crashes on startup, `/mcp` and the server's own logs are the places to look.
 
 ## Config migration failed
 
-If a migration was interrupted:
+If a config schema migration was interrupted:
 
-1. Check `~/.claude-multi/config.json` for `migrationStatus` flags
-2. Look for `.bak` files in the instance directory
-3. The health screen (press `!` in the TUI) shows the specific error and offers retry or restore options
+1. Check `migrationMeta.migrationStatus` in `~/.claude-multi/config.json`. A failed migration also records `failureInfo` with the failed step and error.
+2. Look in `~/.claude-multi/backups/`. Each backup is a timestamped directory containing `config.json` and the instance `settings.json` files.
+3. Restore the newest backup over the current files if the config is unusable, then run `claude-multi doctor check`. Loading the restored config retries the migration.
+4. Press `!` in the TUI to open the health screen and read the failure detail. Press `r` there to re-run the health checks.
 
-Migrations create backups before touching anything. claude-multi keeps the last 3 backup sets in `~/.claude-multi/backups/`.
-
----
+claude-multi keeps the newest three backup directories. A migration takes a PID lock, so a stale lock older than 30 minutes is removed automatically.
 
 ## Provider template did not update
 
@@ -155,9 +161,9 @@ claude-multi doctor check
 claude-multi doctor fix
 ```
 
-The check reports provider settings that no longer match the current template. The fix backs them up, then updates the model slots and template settings. It leaves your API keys and custom tuning values alone.
+`doctor check` reports instances created by an older version and provider settings that differ from the current template. `doctor fix` rewrites stale wrappers, then asks whether to run the pending instance migrations. A migration backs up the config and settings before it changes anything. It leaves your API keys and custom tuning values alone, except for documented legacy defaults.
 
----
+If both commands report nothing, the template itself has not changed in that release. Check the provider pages for manual model overrides when a vendor retires a model before claude-multi ships a template update.
 
 ## Update check not working
 
@@ -168,17 +174,27 @@ export CLAUDE_MULTI_UPDATE_CHECK=true
 claude-multi
 ```
 
-Or check manually:
+Or check Claude Code manually:
 
 ```bash
 claude-multi version
 ```
 
----
+To check the claude-multi version, run `claude-multi --version`.
 
 ## Get help
 
-- Run `claude-multi list` to see all instances and their status
-- Run `claude-multi info <name>` for the config of a specific instance
+- Run `claude-multi list` to see every instance, its paths, and its sync mode
+- Run `claude-multi info <name>` for one instance
+- Run `claude-multi doctor check` for a health report with suggested fixes
 - Check the [GitHub issues](https://github.com/hmziqrs/claude-multi/issues) for known problems
-- Open a new issue with your `claude-multi version` output and the content of `~/.claude-multi/config.json`
+- Open a new issue with your `claude-multi --version` output and the contents of `~/.claude-multi/config.json`
+
+Reviewed 2026-10-31
+
+## Related
+
+- [Getting started](/docs/getting-started/)
+- [Usage](/docs/usage/)
+- [Configuration](/docs/configuration/)
+- [Environment variables](/docs/environment-variables/)

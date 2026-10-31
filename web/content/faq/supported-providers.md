@@ -1,40 +1,37 @@
 ---
 question: "Which AI providers are supported?"
-description: "claude-multi ships 8 templates covering GLM, MiniMax, DeepSeek, Xiaomi MiMo, Moonshot Kimi, and Alibaba Qwen. Each one sets the endpoint and model mappings."
+description: "claude-multi ships eight templates across six providers: GLM, MiniMax, DeepSeek, Xiaomi MiMo, Kimi, and Qwen. Each template sets the endpoint and model mappings."
 category: "Providers"
 order: 3
 ---
 
-A provider template is a bundle of environment variables (base URL, model mappings, default settings) that claude-multi merges into a new instance. You bring the API key, the template does the rest. The providers page lists endpoints and model mappings for all eight templates.
+A provider template bundles environment variables (base URL, model mappings, default settings) that claude-multi merges into a new instance. You bring the API key. There are six providers and eight templates:
 
-## Using Anthropic directly
+- GLM
+- MiniMax
+- DeepSeek
+- Xiaomi MiMo, with pay-as-you-go and Token Plan variants
+- Kimi
+- Qwen, with pay-as-you-go and Coding Plan variants
 
-You don't need a template for Anthropic. That's Claude Code's default. Run `claude` for Anthropic and use claude-multi for everything else. If you want a managed instance for Anthropic anyway, to keep its config isolated, create one without a provider:
+The MiMo and Qwen entries are plan variants, not separate providers. The `--provider` values are `glm`, `minimax`, `deepseek`, `mimo`, `mimo-token`, `kimi`, `qwen`, and `qwen-coding`. The [providers page](/providers/) lists endpoints and model mappings for all eight.
+
+#### Using Anthropic directly
+
+You don't need a template for Anthropic. That is Claude Code's default. Run `claude` for Anthropic and use claude-multi for everything else. If you want an isolated config directory for Anthropic anyway:
 
 ```sh
 claude-multi add anthropic --skip-prompts
 ```
 
-It connects to Anthropic's API using Claude Code's built-in defaults.
+It uses Claude Code's default Anthropic endpoint.
 
-## Using a provider that's not listed
+#### Using a provider that's not listed
 
-You can create an instance without a template and configure it manually:
+Create an instance without a template and configure it yourself:
 
 ```sh
-claude-multi add my-provider
-# Then edit ~/.claude-multi/my-provider/settings.json
+claude-multi add my-provider --skip-prompts
 ```
 
-Set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_SMALL_FAST_MODEL` to match your provider's API.
-
-## Related questions
-
-- [How do I create a new instance?](/faq/#create-instance): the actual setup steps
-- [Can I use local models like Ollama?](/faq/#local-models): any Anthropic-compatible API works
-
-## More info
-
-- [/providers/](/providers/): full template reference with model mappings and endpoints
-- [/blog/kimi-k27-three-tier-agentic-coding/](/blog/kimi-k27-three-tier-agentic-coding/): Kimi K2.7 Code benchmarks and tier mapping
-- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): template definitions
+Then create or edit `~/.claude-my-provider/settings.json` and set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. The [configuration guide](/docs/configuration/) documents the settings format. Template definitions are in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts).

@@ -32,14 +32,102 @@ describe("Provider detection", () => {
       expect(getProviderByBaseUrl("https://api.z.ai/api/anthropic/")).toBe("glm");
     });
 
-    test("GLM template pins the GLM-5.3 three-tier model mapping", () => {
+    test("GLM template uses GLM-5.3 for main work and Flash for background", () => {
       const env = getProviderTemplate("glm")!.settings.env;
       expect(env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
-      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3-flash[1m]");
-      expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5-turbo");
-      expect(env.ANTHROPIC_SMALL_FAST_MODEL).toBe("glm-5-turbo");
-      expect(env.MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
+      expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5.3-flash[1m]");
+      expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("1000000");
+      expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("high");
+      expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
+      expect(env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
+    });
+
+    test("MiniMax template uses M3.1 Flash in every slot", () => {
+      const env = getProviderTemplate("minimax")!.settings.env;
+      for (const key of [
+        "ANTHROPIC_MODEL",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        "CLAUDE_CODE_SUBAGENT_MODEL",
+      ]) {
+        expect(env[key]).toBe("MiniMax-M3.1-Flash[1m]");
+      }
+      expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("524288");
+      expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("max");
+      expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
+    });
+
+    test("DeepSeek template uses V4.1 Flash as the default", () => {
+      const env = getProviderTemplate("deepseek")!.settings.env;
+      expect(env.ANTHROPIC_MODEL).toBe("deepseek-flash[1m]");
+      expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("deepseek-flash[1m]");
+      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("deepseek-flash[1m]");
+      expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("deepseek-flash");
+      expect(env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("deepseek-flash");
+      expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("786432");
+      expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("max");
+      expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
+    });
+
+    test("MiMo templates use the V2.6 Pro and Flash models", () => {
+      for (const name of ["mimo", "mimo-token"]) {
+        const env = getProviderTemplate(name)!.settings.env;
+        expect(env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
+        expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("mimo-v2.6-pro[1m]");
+        expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("mimo-v2.6-pro[1m]");
+        expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("mimo-v2.6-flash[1m]");
+        expect(env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("mimo-v2.6-flash[1m]");
+        expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+        expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
+      }
+    });
+
+    test("Kimi template uses K3.1 Pro at standard speed for every slot", () => {
+      const env = getProviderTemplate("kimi")!.settings.env;
+      for (const key of [
+        "ANTHROPIC_MODEL",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        "CLAUDE_CODE_SUBAGENT_MODEL",
+      ]) {
+        expect(env[key]).toBe("kimi-k3.1-pro[1m]");
+      }
+      expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("1000000");
+      expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("max");
+      expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
+    });
+
+    test("Qwen templates use the current 3.8 and 3.7 models", () => {
+      const env = getProviderTemplate("qwen")!.settings.env;
+      expect(env.ANTHROPIC_MODEL).toBe("qwen3.8-max");
+      expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("qwen3.8-max");
+      expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("qwen3.7-plus");
+      expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("qwen3.8-flash");
+      expect(env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("qwen3.8-flash");
+      expect(env.CLAUDE_CODE_MAX_CONTEXT_TOKENS).toBe("983616");
+      expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+      expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBeUndefined();
+
+      const coding = getProviderTemplate("qwen-coding")!.settings.env;
+      for (const key of [
+        "ANTHROPIC_MODEL",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        "CLAUDE_CODE_SUBAGENT_MODEL",
+      ]) {
+        expect(coding[key]).toBe("qwen3.7-plus");
+      }
+      expect(coding.CLAUDE_CODE_MAX_CONTEXT_TOKENS).toBe("983616");
+      expect(coding.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
     });
 
     test("LEGACY_ENV_DEFAULTS pins the stale defaults the migrations upgrade", () => {
@@ -47,6 +135,12 @@ describe("Provider detection", () => {
       expect(LEGACY_ENV_DEFAULTS.glm?.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toContain("131072");
       expect(LEGACY_ENV_DEFAULTS.glm?.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE).toContain("75");
       expect(LEGACY_ENV_DEFAULTS.minimax?.MAX_OUTPUT_TOKENS).toContain("64000");
+      expect(LEGACY_ENV_DEFAULTS.minimax?.MAX_OUTPUT_TOKENS).toContain("512000");
+      expect(LEGACY_ENV_DEFAULTS.deepseek?.MAX_OUTPUT_TOKENS).toContain("128000");
+      expect(LEGACY_ENV_DEFAULTS.deepseek?.MAX_OUTPUT_TOKENS).toContain("384000");
+      expect(LEGACY_ENV_DEFAULTS.kimi?.MAX_OUTPUT_TOKENS).toContain("65536");
+      expect(LEGACY_ENV_DEFAULTS.kimi?.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toContain("262144");
+      expect(LEGACY_ENV_DEFAULTS.qwen?.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toContain("131072");
     });
 
     test("detects MiniMax by base URL", () => {
@@ -113,7 +207,7 @@ describe("Provider detection", () => {
           env: {
             ANTHROPIC_AUTH_TOKEN: "sk-test",
             ANTHROPIC_BASE_URL: "https://api.xiaomimimo.com/anthropic",
-            ANTHROPIC_MODEL: "mimo-v2.5-pro",
+            ANTHROPIC_MODEL: "mimo-v2.6-pro",
           },
         }),
       );

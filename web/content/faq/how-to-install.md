@@ -5,7 +5,7 @@ category: "Getting Started"
 order: 2
 ---
 
-Pick whichever package manager you use:
+Pick the package manager you use:
 
 ```sh
 # bun
@@ -18,37 +18,21 @@ npm install -g claude-multi
 pnpm add -g claude-multi
 
 # Deno
-deno install -g npm:claude-multi
+deno install -g -A -n claude-multi npm:claude-multi
 ```
 
-Then launch the interactive TUI:
-
-```sh
-claude-multi
-```
-
-Or create an instance directly:
+Then run `claude-multi` to open the TUI, or create an instance directly:
 
 ```sh
 claude-multi add deepseek --provider deepseek --api-key sk-your-key
 ```
 
-That writes a wrapper script into your PATH. Where it lands depends on your package manager: `~/.bun/bin/`, `~/.local/bin/`, or somewhere similar.
+`--api-key` is required whenever you pass `--provider`. Without it, the CLI exits with an error.
 
-## Before you start
+The CLI writes a wrapper script for each instance. On macOS and Linux the default is `~/.local/bin/claude-<name>`. On Windows it goes to your package manager's global bin directory, such as `%APPDATA%\npm` for npm. Pass `--binary <path>` if you want a different path.
 
-You need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a supported runtime (Bun 1+, Node 18+, or Deno 1+), and an API key for at least one provider.
+#### Before you start
 
-## Related questions
+You need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a runtime (Bun 1+, Node.js 18+, or Deno 1+), and an API key for at least one provider.
 
-- [How do I create a new instance?](/faq/#create-instance): step-by-step after install
-- [Which providers are supported?](/faq/#supported-providers): pick the right one
-
-## More info
-
-- [/docs/getting-started/](/docs/getting-started/): full setup walkthrough
-- [/providers/](/providers/): pick a provider
-- [bin/claude-multi.js](https://github.com/hmziqrs/claude-multi/blob/master/bin/claude-multi.js): the polyglot entry point
-- [src/util/runtime.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/util/runtime.ts): package manager detection
-- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): wrapper script generation
-- [claude-multi on npm](https://www.npmjs.com/package/claude-multi)
+The [getting started guide](/docs/getting-started/) walks through the first instance. The [providers page](/providers/) lists endpoints and model mappings. Wrapper generation lives in [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts).

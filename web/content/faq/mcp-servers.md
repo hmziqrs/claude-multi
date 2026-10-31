@@ -5,22 +5,16 @@ category: "Plugins & MCP"
 order: 7
 ---
 
-MCP (Model Context Protocol) servers let Claude Code talk to external tools: Jira, GitHub, Slack, databases. Each instance can have its own set, and claude-multi manages them:
+MCP servers let Claude Code talk to external tools such as Jira, GitHub, Slack, and databases. Each instance can have its own set. claude-multi has three commands for them:
 
 - `claude-multi mcp list`: show MCP server configs across all instances
-- `claude-multi mcp copy`: copy a server config from one instance to another (also available in the TUI under **MCP servers**)
-- `claude-multi mcp verify`: check that referenced executables and paths still exist
+- `claude-multi mcp copy <source> <target>`: replace the target's MCP server entries with the source's
+- `claude-multi mcp verify`: check that each server config has a command (stdio) or a URL (HTTP and SSE)
 
-When you create an instance through the TUI, the Copy Options step can bring MCP configs over from your primary `~/.claude` install. Configs live in each instance's `settings.json` at `~/.claude-multi/<name>/settings.json`, in the same format as Claude Code's native MCP config.
+With no arguments, `mcp copy` asks for the source and target instances.
 
-The plugins and MCP guide covers setup details, edge cases, and the full command reference.
+When you create an instance through the TUI, the Copy Options step can bring MCP configs over from your primary `~/.claude` install. The CLI equivalent is `--copy-mcp`.
 
-## Related questions
+MCP configs live in each instance's `settings.json` at `~/.claude-<name>/settings.json`, in the same format as Claude Code's native MCP config. If the instance has no `settings.json`, claude-multi writes a separate `mcp.json`.
 
-- [How does plugin syncing work?](/faq/#plugin-syncing): symlinks, auto-sync, and collision detection
-
-## More info
-
-- [/docs/plugins-mcp/](/docs/plugins-mcp/): plugin and MCP guide
-- [/blog/claude-code-mcp-workflow-automation/](/blog/claude-code-mcp-workflow-automation/): what MCP buys you in practice
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): `copyMcpServersFromDefault()`, `copyMcpServersBetweenInstances()`, `listMcpServers()`
+The [plugins and MCP guide](/docs/plugins-mcp/) covers setup details and edge cases. The implementation is in [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts).

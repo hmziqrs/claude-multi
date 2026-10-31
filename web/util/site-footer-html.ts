@@ -13,7 +13,7 @@ export function getSiteFooterHtml(version: string): string {
           <span class="footer-dot"></span>
           <span class="footer-brand-name">claude-multi</span>
         </div>
-        <p class="footer-desc">Run Claude Code against 8+ AI providers from the same machine. Each instance is isolated. Plugins sync automatically.</p>
+        <p class="footer-desc">Run Claude Code against six AI providers and eight templates from the same machine. Each instance is isolated. Plugins sync automatically.</p>
       </div>
       <div class="footer-col">
         <h4 class="footer-heading">Product</h4>

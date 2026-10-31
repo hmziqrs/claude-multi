@@ -11,49 +11,38 @@ From the CLI:
 claude-multi remove deepseek
 ```
 
-Or use the alias:
+Or the alias:
 
 ```sh
 claude-multi rm deepseek
 ```
 
-From the TUI, select **Remove instance** and pick which one.
+From the TUI, select **Remove instance** and pick one.
 
-## What gets removed
+#### What gets removed
 
-The remove command does two things:
-1. Removes the instance from claude-multi's registry (`~/.claude-multi/config.json`)
-2. Deletes the wrapper script (e.g. `~/.local/bin/claude-deepseek`)
+The command removes the instance from the registry at `~/.claude-multi/config.json` and deletes the wrapper script (for example `~/.local/bin/claude-deepseek`).
 
-It does **not** delete the config directory (`~/.claude-multi/deepseek/`). That's deliberate. Your conversation history lives there, and you might want to keep it.
+It does not delete the config directory `~/.claude-deepseek/`. That is deliberate. Conversation history lives there, and you might want to keep it.
 
-## Deleting the config directory
+#### Deleting the config directory
 
-After removing the instance, you'll see a hint:
+After removal, the CLI prints the exact command:
 
 ```
-To remove config files, run: rm -rf ~/.claude-multi/deepseek
+To remove config files, run: rm -rf ~/.claude-deepseek
 ```
 
-Run that if you're sure you don't need the history. Skip it if you might want to recreate the instance later with the same conversation context.
+Run it only if you do not need the history. Skip it if you might recreate the instance with the same conversation context.
 
-## Removing in scripts or CI
+#### Scripts and CI
 
-Use `--force` to skip the confirmation prompt:
+`--force` skips the printed summary:
 
 ```sh
 claude-multi remove deepseek --force
 ```
 
-## Related questions
+The flag does not delete the config directory either.
 
-- [How do I create a new instance?](/faq/#create-instance): recreate after removing
-- [How do I troubleshoot broken instances?](/faq/#troubleshooting): when removal is part of the fix
-
-## More info
-
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): Remove instance section
-- [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts): `removeInstance()` implementation
-- [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts): `removeWrapper()` implementation
-- [src/ink/screens/RemoveInstance.tsx](https://github.com/hmziqrs/claude-multi/blob/master/src/ink/screens/RemoveInstance.tsx): TUI remove screen
-- Run `claude-multi` and select **Remove instance**
+The [troubleshooting guide](/docs/troubleshooting/) covers removal when it is part of a repair. The implementation is in [src/config.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/config.ts) and [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts).

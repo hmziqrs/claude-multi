@@ -1,50 +1,40 @@
 ---
 question: "Can I use it with local models like Ollama?"
-description: "Any provider that exposes an Anthropic-compatible REST API works, including local setups like Ollama with the right adapter."
+description: "Any provider that exposes an Anthropic-compatible REST API works, including Ollama's Anthropic-compatible endpoint and local proxies."
 category: "Providers"
 order: 16
 ---
 
-Yes, if your local model server exposes an Anthropic-compatible REST endpoint. Claude Code speaks the Anthropic API protocol.
+Yes, if your local model server exposes an Anthropic-compatible endpoint. Claude Code speaks the Anthropic API protocol.
 
-## How to set it up
+#### How to set it up
 
 Create an instance without a template:
 
 ```sh
-claude-multi add local
+claude-multi add local --skip-prompts
 ```
 
-Then edit `~/.claude-multi/local/settings.json` and set the env vars to point at your local server:
+Then create or edit `~/.claude-local/settings.json` and add the env vars:
 
 ```json
 {
   "env": {
-    "ANTHROPIC_BASE_URL": "http://localhost:11434/v1",
+    "ANTHROPIC_BASE_URL": "http://localhost:11434",
     "ANTHROPIC_MODEL": "your-model-name",
-    "ANTHROPIC_SMALL_FAST_MODEL": "your-fast-model"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "your-fast-model"
   }
 }
 ```
 
-Replace the URL and model names with whatever your local server exposes.
+Replace the URL and model names with what your server exposes. Use the base URL for its Anthropic API. Claude Code appends `/v1/messages` to it. Provider templates show how base URLs and model mappings are set in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts).
 
-## What works and what doesn't
+#### What works
 
-If your local server implements the Anthropic messages API (the `/v1/messages` endpoint), Claude Code will work with it. [Ollama](https://ollama.ai) with an Anthropic-compatible adapter, [LiteLLM](https://github.com/BerriAI/litellm), or [vLLM](https://github.com/vllm-project/vllm) behind the right proxy can bridge the gap.
+If your server implements the Anthropic messages API, Claude Code can use it. [Ollama](https://docs.ollama.com/api/anthropic-compatibility) supports a subset of that API from v0.14.0, so it can serve Claude Code directly. [LiteLLM](https://github.com/BerriAI/litellm) can proxy many backends behind an Anthropic-compatible API. [vLLM](https://github.com/vllm-project/vllm) serves an OpenAI-compatible API, so put a translation proxy in front of it.
 
-The further your local setup drifts from the Anthropic API spec, the more edge cases you hit. Streaming and tool use are usually where it breaks first.
+The further your setup drifts from the Anthropic API spec, the more edge cases you hit. Streaming and tool use usually break first.
 
-## Cost
+#### Cost
 
-Local models have no per-token API cost. You pay in compute instead: GPU time and electricity. If you already have the hardware, that can work out cheaper for high-volume work like code generation and refactoring.
-
-## Related questions
-
-- [Which providers are supported?](/faq/#supported-providers): the built-in templates
-- [How do I create a new instance?](/faq/#create-instance): the full setup walkthrough
-
-## More info
-
-- [/providers/](/providers/): template reference and env var details
-- [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts): see how templates set `ANTHROPIC_BASE_URL` and model mappings for reference
+Local models have no per-token API cost. You pay in compute: GPU time and electricity. If you already own the hardware, that can be cheaper for high-volume work such as code generation and refactoring.

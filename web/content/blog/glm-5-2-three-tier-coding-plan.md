@@ -1,16 +1,16 @@
 ---
-title: "GLM-5.2 for Claude Code: 1M Context and Three-Tier Model Mapping"
-description: "GLM-5.2 brings a 1,000,000-token context window to the Z.ai Coding Plan. The claude-multi GLM template now maps it to the opus slot, with GLM-5.1 as sonnet and GLM-5-Turbo as haiku."
+title: "GLM-5.2's three-tier mapping, and why it ended"
+description: "How the GLM-5.2 template split opus, sonnet, and haiku across three models, why GLM-5.3 collapsed it, and the two-model mapping that replaced it."
 date: 2026-06-13
+updated: 2026-10-31
 tags: [providers, models, glm, benchmark, claude-code]
-audio: "https://raw.githubusercontent.com/hmziqrs/claude-multi/master/audio/glm-5-2-three-tier-coding-plan.mp3"
 ---
 
-Z.ai's Coding Plan now runs GLM-5.2 as its opus-tier model, and it comes with a 1,000,000-token context window. The claude-multi GLM template now spreads three distinct GLM models across Claude Code's three tiers for the first time: GLM-5.2 for opus, GLM-5.1 for sonnet, and GLM-5-Turbo for haiku.
+> **Superseded by GLM-5.3.** This post documents the June 2026 GLM-5.2 template. The current template maps `glm-5.3[1m]` to primary, opus, and sonnet, and `glm-5.3-flash[1m]` to haiku. See the [GLM-5.3 post](/blog/glm-5-3-coding-plan/) for the current setup.
 
-The old template did not have a middle tier. It put GLM-5.1 in the opus slot and reused GLM-5-Turbo for both sonnet and haiku. This update gives each tier its own model.
+GLM-5.2 arrived on the Coding Plan in June 2026 with a 1,000,000-token context window. For a few weeks, claude-multi had a real three-tier spread: GLM-5.2 for opus, GLM-5.1 for sonnet, and GLM-5-Turbo for haiku. It was the first time each Claude Code tier got a different GLM model.
 
-## The three-tier mapping
+## The mapping at 5.2 launch
 
 | Claude Code tier | GLM model | Context window | Role |
 |---|---|---|---|
@@ -18,59 +18,42 @@ The old template did not have a middle tier. It put GLM-5.1 in the opus slot and
 | Sonnet | GLM-5.1 | 200K | Day-to-day coding |
 | Haiku | GLM-5-Turbo | 200K | Quick edits, shell, subagents |
 
-Thinking stays on. The template keeps `REASONING_EFFORT` at high with 8,000 thinking tokens.
+Thinking stayed on at high with 8,000 thinking tokens. The 1M window came from the `[1m]` suffix on GLM-5.2. GLM-5.1 and GLM-5-Turbo were 200K models, so they matched Claude Code's default assumption and needed no suffix.
 
-## Context windows and the 1M variant
+GLM-5-Turbo was the old template choice for the haiku slot. It is not a Coding Plan model, and the current template does not use it.
 
-GLM-5.2's million-token window is not the default. You opt into it with a `[1m]` suffix on the model name: `glm-5.2[1m]`. Claude Code reads that suffix and compacts around 75% of one million tokens instead of its usual 200K assumption. DeepSeek and MiMo use the same convention.
+## Why 5.3 collapsed it
 
-GLM-5.1 and GLM-5-Turbo are 200K models. They do not need a suffix, because 200K is what Claude Code assumes for any model it does not recognize.
+Z.ai released GLM-5.3 on 2026-08-14 and stopped serving 5.2 and 5.1 on the Coding Plan endpoint. Requests for either ID route to 5.3. claude-multi v0.11.0 put 5.3 in both the opus and sonnet slots, so the middle tier disappeared. On 2026-08-26, v0.12.0 moved sonnet to GLM-5.3-Flash. Version 0.13.0 moved Flash to haiku and returned GLM-5.3 to sonnet. The current template has two models, not the three this post describes.
 
-That is why the template no longer sets a global compaction override. The previous template pinned `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 131072 (128K), because the earlier GLM-5.1 was a 128K model sitting below Claude Code's 200K default. Without the pin, the conversation would sail past 128K and the API call would crash. None of the three current models have that problem. A single global number cannot fit a 1M model and two 200K models at the same time, so the template lets each model carry its own size.
+The sources are [Z.ai's GLM-5.3 announcement](https://z.ai/blog/glm-5.3) and the [GLM-5.3-Flash announcement](https://z.ai/blog/glm-5.3-flash).
 
-## GLM-5 family benchmarks
+## Current mapping
 
-Here is the honest part. Z.ai has not published benchmark numbers for GLM-5.2. It is positioned in the Coding Plan as the opus-tier model and the successor to GLM-5.1, but there is no SWE-bench or reasoning table for it yet.
-
-The closest documented flagship is GLM-5.1, which Z.ai describes as aligned with Claude Opus 4.6 and able to run unattended for up to eight hours. Its published scores are the best available read on where the family sits. Every number below comes from Z.ai's own tables, and the competitor labels are theirs.
-
-| Benchmark | GLM-5.1 | Closest competitor (Z.ai's table) |
+| Claude Code tier | GLM model | Context window |
 |---|---|---|
-| SWE-Bench Pro | 58.4 | GPT-5.4, 57.7 |
-| NL2Repo | 42.7 | Claude Opus 4.6, 40.1 |
+| Primary, opus | `glm-5.3[1m]` | 1M |
+| Sonnet | `glm-5.3[1m]` | 1M |
+| Haiku | `glm-5.3-flash[1m]` | 1M |
 
-GLM-5.1 also posted 95.3 on AIME 2026, 86.2 on GPQA-Diamond, and 63.5 on Terminal-Bench 2.0, with no competitor figures published alongside them.
+The two top slots share GLM-5.3. Flash carries three times the plan quota of GLM-5.3 and accepts image input, so it fits the frequent, short calls in the haiku slot. The full spec is on the [GLM provider page](/providers/glm/).
 
-The generation before that, GLM-5, is a 744-billion-parameter Mixture-of-Experts model with 40 billion active parameters, trained on 28.5 trillion tokens. It scored 77.8 on SWE-bench Verified, a hair behind Claude Opus 4.5 at 78.0 and ahead of Kimi K2.5 at 76.2. So the lineage that GLM-5.2 extends has been trading blows with the frontier for a while.
+## What to do with an old instance
 
-## Coding Plan pricing
-
-The GLM models reach Claude Code through Z.ai's Coding Plan, a monthly subscription. The Anthropic-compatible endpoint at `api.z.ai/api/anthropic` is gated to the plan. There is no pay-per-token Anthropic URL for GLM.
-
-| Plan | Price per month | Usage |
-|---|---|---|
-| Lite | $18 | 1x baseline |
-| Pro | $72 | ~5x |
-| Max | $160 | ~20x |
-
-Quota runs on a rolling five-hour window plus a weekly cap. Opus-tier models, which includes GLM-5.2, GLM-5.1, and GLM-5-Turbo, count at 3x during peak hours and 2x off-peak. A limited promo drops that to 1x off-peak through the end of September.
-
-If you would rather pay by the token, GLM-5-Turbo is on the standard API at $1.20 per million input tokens and $4.00 per million output. That route does not go through the Anthropic endpoint, so it is not what claude-multi uses, but it is useful to know the floor price exists.
-
-## When to pick GLM
-
-Pick the GLM template when you want a fixed monthly bill and a genuine three-tier spread. GLM-5.2 gives you the long context for big refactors and long sessions, GLM-5.1 handles the bulk of everyday coding, and GLM-5-Turbo keeps the small, fast tasks cheap and quick.
-
-If your usage is bursty and you prefer to pay only for what you run, the DeepSeek or MiMo pay-per-token templates fit better. They expose their own frontier models without a subscription.
-
-## Getting started
+Do not follow the setup instructions from the original version of this post. They describe a template that no longer ships. If you created a GLM instance on 0.10.0, 0.11.0, or 0.12.0, run:
 
 ```sh
-claude-multi add glm
+claude-multi doctor fix
 ```
 
-Paste your Z.ai API key when prompted. The template fills in the endpoint, the three model mappings, and the context handling. The instance is ready.
+The sync rewrites the model IDs, the compaction window, and the output cap, and it preserves your API key and any custom env vars. The old `glm-5.2` and `glm-5.1` IDs still route to 5.3, so a stale instance will not fail immediately. A 0.10.0 instance keeps the old 64,000 output cap. A 0.11.0 instance has the new cap but still points sonnet at 5.3. A 0.12.0 instance has Flash in sonnet and needs the haiku slot moved to Flash.
+
+The original post also described the 3x peak / 2x off-peak quota and a promo through September 2026. Z.ai discontinued that system for new users on 2026-07-30 and moved the plan to credits. The [GLM-5.3 post](/blog/glm-5-3-coding-plan/) has the current formula and plan limits.
+
+## What still applies
+
+The mechanics did not change. The `[1m]` suffix opts a model into the million-token window, and Claude Code compacts around the window it reads from the model name. That was true for GLM-5.2, and it is true for GLM-5.3 and Flash. When the tiers had different windows, the template had to set context per model. Both current models are 1M, so 0.13.0 uses one global window at 1000000.
 
 ---
 
-See the [GLM provider page](/providers/glm/) for the full spec table, or compare this against [Kimi K2.7](/blog/kimi-k27-three-tier-agentic-coding/) and [MiniMax M3](/blog/minimax-m3-one-million-context-frontier-coding/). The [CHANGELOG](https://github.com/hmziqrs/claude-multi/blob/master/CHANGELOG.md) has the full diff.
+See the [GLM provider page](/providers/glm/) for the current spec table, or compare against [Kimi K3.1 Pro](/blog/kimi-k27-three-tier-agentic-coding/) and [MiniMax M3.1 Flash](/blog/minimax-m3-one-million-context-frontier-coding/). The [CHANGELOG](https://github.com/hmziqrs/claude-multi/blob/master/CHANGELOG.md) has the full diff.

@@ -1,6 +1,6 @@
 ---
 title: Environment variables
-description: Environment variable reference for claude-multi and provider configuration
+description: "Runtime variables for claude-multi and the Claude Code env keys that provider templates write into each instance's settings.json."
 ---
 
 ## claude-multi runtime variables
@@ -10,24 +10,30 @@ These control claude-multi itself. Set them in your shell before launching.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `CLAUDE_MULTI_INK` | `true` | Set to `false` to use the simpler prompts-based UI instead of the Ink TUI |
-| `CLAUDE_MULTI_HOME` | `~` | Override the base directory for config storage. claude-multi looks for `config.json` at `$CLAUDE_MULTI_HOME/.claude-multi/` |
+| `CLAUDE_MULTI_HOME` | home directory | Base directory for central state. Health status and migration backups resolve under `$CLAUDE_MULTI_HOME/.claude-multi/` |
+| `CLAUDE_MULTI_CLAUDE_PATH` | unset | Absolute path to the `claude` binary. Overrides the PATH lookup when wrappers are created or repaired. The file must exist |
 | `CLAUDE_MULTI_UPDATE_CHECK` | `false` | Set to `true` to check for claude-multi and Claude Code updates on launch |
 
-**Example:**
+**Examples:**
 
 ```bash
 # Use the simpler UI
 CLAUDE_MULTI_INK=false claude-multi
 
-# Store config in a custom location
-CLAUDE_MULTI_HOME=/tmp/test-env claude-multi add test --provider deepseek --api-key sk-...
+# Point wrapper creation at a specific Claude Code install
+CLAUDE_MULTI_CLAUDE_PATH=/opt/claude/bin/claude claude-multi add glm
+
+# Store central state under a test directory
+CLAUDE_MULTI_HOME=/tmp/test-env claude-multi doctor check
 ```
+
+`CLAUDE_MULTI_HOME` does not move an instance's config directory. Each instance still lives at `~/.claude-<name>/` unless you pass `--config` to `add`. The instance registry still resolves from your home directory, so this variable is mainly useful for tests and isolated health or migration runs.
 
 ---
 
 ## Claude Code instance variables
 
-These live in each instance's `settings.json` under the `env` key.
+These live in each instance's `settings.json` under the `env` key. Provider templates fill them in. You can edit them by hand or let `claude-multi doctor fix` refresh them from the current template.
 
 ### Core API variables
 
@@ -40,145 +46,128 @@ These live in each instance's `settings.json` under the `env` key.
 
 | Variable | Description | Maps to |
 |----------|-------------|---------|
-| `ANTHROPIC_MODEL` | Primary model | Claude Code's internal opus slot |
-| `ANTHROPIC_SMALL_FAST_MODEL` | Fast/cheap model for quick tasks | Claude Code's internal haiku slot |
+| `ANTHROPIC_MODEL` | Primary model for the session | The main conversation |
+| `ANTHROPIC_SMALL_FAST_MODEL` | Deprecated. Use `ANTHROPIC_DEFAULT_HAIKU_MODEL` for the fast model | Superseded by `ANTHROPIC_DEFAULT_HAIKU_MODEL`; current templates do not write it |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet-tier model | Used when Claude Code requests a "sonnet" class model |
 | `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus-tier model | Used when Claude Code requests an "opus" class model |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku-tier model | Used when Claude Code requests a "haiku" class model |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku-tier model | Used when Claude Code requests a "haiku" class model, and by most templates for the fast slot |
 
-### Sub-agent variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `CLAUDE_CODE_SUBAGENT_MODEL` | Model used by sub-agents for background tasks, exploration, and code review | `deepseek-v4-flash` |
-| `CLAUDE_CODE_EFFORT_LEVEL` | Reasoning effort level for the main model | `low`, `medium`, `high`, `max` |
-
-### Timeout
+### Sub-agent, effort, and thinking variables
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `API_TIMEOUT_MS` | Request timeout in milliseconds | `600000` |
+| `CLAUDE_CODE_SUBAGENT_MODEL` | Model used by sub-agents for background tasks, exploration, and code review | `deepseek-flash` |
+| `CLAUDE_CODE_EFFORT_LEVEL` | Reasoning effort for the main model. Accepted values depend on the model | `low`, `medium`, `high`, `xhigh`, `max` |
+| `MAX_THINKING_TOKENS` | Fixed thinking budget in tokens | `32000` |
 
-### Context window / auto-compaction variables
+### Output variables
 
-Claude Code compresses older conversation history once usage crosses a share of the context window, instead of failing when the model hits its token limit. It assumes a 200K window by default, so a provider with a smaller real window needs these overrides. Without them, compaction runs too late and the API call fails mid-session.
+Claude Code caps output at 128,000 tokens for an unrecognized model ID and defaults to 32,000 when the variable is unset. A model that lists a larger maximum output cannot exceed the Claude Code cap.
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | The model's actual context window size, in tokens | `131072` (Qwen's 128K) |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | Maximum response tokens | `128000` |
+
+### Timeout and traffic variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `API_TIMEOUT_MS` | Request timeout in milliseconds | `3000000` |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Disables nonessential traffic. The GLM and MiniMax templates set it to `1` | `1` |
+
+### Context window and auto-compaction
+
+Claude Code assumes a 200K context window for an unrecognized model ID. When the real window differs, tell Claude Code with the `[1m]` suffix on the model name or with `CLAUDE_CODE_MAX_CONTEXT_TOKENS`. Without that, compaction runs against the wrong window and the API call can fail mid-session.
+
+Claude Code compresses older conversation history once usage crosses a share of the window. `CLAUDE_CODE_AUTO_COMPACT_WINDOW` sets the window used for that decision; it accepts values from 100,000 to 1,000,000. `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` sets the percentage that triggers compaction.
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `CLAUDE_CODE_MAX_CONTEXT_TOKENS` | Context window in tokens when the model name has no `[1m]` suffix | `983616` for Qwen |
+| `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | Window used to decide when to compact, in tokens. Range is 100000 to 1000000 | `786432` for DeepSeek |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Percentage of the window that triggers compaction | `75` |
 
-Models that match or exceed the 200K default, like GLM-5.3 with its 1M window, use a `[1m]` suffix on the model name instead, so you do not need an override.
+The templates set this window at or below the model's context limit. Values below 100,000 or above 1,000,000 are outside the supported range.
 
 ---
 
 ## Per-provider defaults
 
-Each provider template sets these variables to its own values.
+Each template writes its own base URL, model slots, timeout, and tuning values. This table matches `src/templates.ts` in 0.13.x.
 
-### GLM (`glm`)
+| Template | Provider page | Base URL | Primary slot | Fast slot | Timeout |
+|----------|---------------|----------|--------------|-----------|---------|
+| `glm` | [GLM](/providers/glm/) | `https://api.z.ai/api/anthropic` | `glm-5.3[1m]` | `glm-5.3-flash[1m]` | `3000000` |
+| `minimax` | [MiniMax](/providers/minimax/) | `https://api.minimax.io/anthropic` | `MiniMax-M3.1-Flash[1m]` | `MiniMax-M3.1-Flash[1m]` | `3000000` |
+| `deepseek` | [DeepSeek](/providers/deepseek/) | `https://api.deepseek.com/anthropic` | `deepseek-flash[1m]` | `deepseek-flash` | `3000000` |
+| `mimo` | [Xiaomi MiMo](/providers/mimo/) | `https://api.xiaomimimo.com/anthropic` | `mimo-v2.6-pro[1m]` | `mimo-v2.6-flash[1m]` | `3000000` |
+| `mimo-token` | [Xiaomi MiMo](/providers/mimo/) | `https://token-plan-cn.xiaomimimo.com/anthropic` | `mimo-v2.6-pro[1m]` | `mimo-v2.6-flash[1m]` | `3000000` |
+| `kimi` | [Moonshot Kimi](/providers/kimi/) | `https://api.moonshot.ai/anthropic` | `kimi-k3.1-pro[1m]` | `kimi-k3.1-pro[1m]` | `3000000` |
+| `qwen` | [Alibaba Qwen](/providers/qwen/) | `https://dashscope-intl.aliyuncs.com/apps/anthropic` | `qwen3.8-max` | `qwen3.8-flash` | `3000000` |
+| `qwen-coding` | [Alibaba Qwen](/providers/qwen/) | `https://coding-intl.dashscope.aliyuncs.com/apps/anthropic` | `qwen3.7-plus` | `qwen3.7-plus` | `3000000` |
 
-```json
-{
-  "ANTHROPIC_AUTH_TOKEN": "",
-  "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
-  "API_TIMEOUT_MS": "3000000",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5-turbo",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.3-flash[1m]",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.3[1m]",
-  "ANTHROPIC_MODEL": "glm-5.3[1m]",
-  "ANTHROPIC_SMALL_FAST_MODEL": "glm-5-turbo",
-  "ENABLE_THINKING": "true",
-  "REASONING_EFFORT": "high",
-  "MAX_THINKING_TOKENS": "8000",
-  "ENABLE_STREAMING": "true",
-  "MAX_OUTPUT_TOKENS": "128000"
-}
-```
+The primary column shows `ANTHROPIC_MODEL`. The fast column shows `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Templates that set `CLAUDE_CODE_SUBAGENT_MODEL` point it at the fast model.
 
-The `glm` template maps opus to `glm-5.3[1m]`, sonnet to `glm-5.3-flash[1m]`, and haiku/small-fast to `glm-5-turbo` (200K). Both `glm-5.3[1m]` and the flash variant use the `[1m]` suffix for their 1M context window; GLM-5.3-Flash is natively multimodal with 3x the GLM-5.3 quota on the Coding Plan. Requests for `glm-5.2` or `glm-5.1` are automatically routed to `glm-5.3` on the Coding Plan endpoint, so existing configs keep working.
+Other defaults that differ by template:
 
-### MiniMax (`minimax`)
+| Template | Output and reasoning defaults |
+|----------|-------------------------------|
+| `glm` | `CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`, `CLAUDE_CODE_EFFORT_LEVEL=high`, `MAX_THINKING_TOKENS=8000`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` |
+| `minimax` | `CLAUDE_CODE_AUTO_COMPACT_WINDOW=524288`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`, `CLAUDE_CODE_EFFORT_LEVEL=max`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` |
+| `deepseek` | `CLAUDE_CODE_AUTO_COMPACT_WINDOW=786432`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`, `CLAUDE_CODE_EFFORT_LEVEL=max`, `MAX_THINKING_TOKENS=32000` |
+| `mimo` | `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000` |
+| `mimo-token` | `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000` |
+| `kimi` | `CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`, `CLAUDE_CODE_EFFORT_LEVEL=max`, `MAX_THINKING_TOKENS=16000` |
+| `qwen` | `CLAUDE_CODE_MAX_CONTEXT_TOKENS=983616`, `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=75`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`, `MAX_THINKING_TOKENS=16000` |
+| `qwen-coding` | `CLAUDE_CODE_MAX_CONTEXT_TOKENS=983616`, `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=75`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=128000`, `MAX_THINKING_TOKENS=16000` |
 
-```json
-{
-  "ANTHROPIC_BASE_URL": "https://api.minimax.io/anthropic",
-  "ANTHROPIC_MODEL": "MiniMax-M3",
-  "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M3",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M3",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M3",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M3",
-  "CLAUDE_CODE_SUBAGENT_MODEL": "MiniMax-M3",
-  "CLAUDE_CODE_EFFORT_LEVEL": "max"
-}
-```
+The `mimo-token` base URL depends on the region you picked at creation. `cn` uses `token-plan-cn.xiaomimimo.com`, `sgp` uses `token-plan-sgp.xiaomimimo.com`, and `ams` uses `token-plan-ams.xiaomimimo.com`. All three keep the `/anthropic` path.
 
-### DeepSeek (`deepseek`)
+## Template status
 
-```json
-{
-  "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-  "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]",
-  "ANTHROPIC_SMALL_FAST_MODEL": "deepseek-v4-flash",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-flash",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
-  "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash",
-  "CLAUDE_CODE_EFFORT_LEVEL": "max",
-  "API_TIMEOUT_MS": "600000"
-}
-```
+The 0.13.x templates match the current vendor model lists. The notes below cover plan coverage and model availability where they affect a slot.
 
-### Xiaomi MiMo (`mimo`)
+### Alibaba Qwen
 
-```json
-{
-  "ANTHROPIC_BASE_URL": "https://api.xiaomimimo.com/anthropic",
-  "ANTHROPIC_MODEL": "mimo-v2.5-pro",
-  "ANTHROPIC_SMALL_FAST_MODEL": "mimo-v2.5",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "mimo-v2.5",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "mimo-v2.5-pro",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "mimo-v2.5",
-  "API_TIMEOUT_MS": "600000"
-}
-```
+The `qwen` template maps `qwen3.8-max` to the primary and opus slots, `qwen3.7-plus` to sonnet, and `qwen3.8-flash` to haiku and subagents. It sets `CLAUDE_CODE_MAX_CONTEXT_TOKENS=983616` and compacts at 75 percent.
 
-The `mimo-token` template uses the same models but a different base URL (`token-plan-cn.xiaomimimo.com`). Replace it with your regional endpoint from the subscription console.
+The `qwen-coding` template uses `qwen3.7-plus` in every slot. The Coding Plan includes Qwen3.7-Plus but not Qwen3.8-Max or Qwen3.8-Flash. That is a plan limit, not an endpoint limit. If the plan rejects requests above 200K, lower `CLAUDE_CODE_MAX_CONTEXT_TOKENS` to `200000`.
 
-### Moonshot Kimi (`kimi`)
+`qwen3-coder-next` and `qwen3-coder-plus` are absent from the current Anthropic-compatible model matrix. Only `qwen3-coder-flash` remains as a legacy Coder model.
 
-```json
-{
-  "ANTHROPIC_BASE_URL": "https://api.moonshot.ai/anthropic",
-  "ANTHROPIC_MODEL": "kimi-k2.6",
-  "ANTHROPIC_SMALL_FAST_MODEL": "kimi-k2.5",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k2.6",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k2.7-code",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k2.5",
-  "API_TIMEOUT_MS": "600000"
-}
-```
+### MiniMax
 
-### Alibaba Qwen (`qwen`)
+The `minimax` template uses `MiniMax-M3.1-Flash[1m]` in every slot, including subagents, with a 524288 auto-compact window. M3 is the previous generation and remains available. M3.1 Pro is announced but not released.
 
-```json
-{
-  "ANTHROPIC_BASE_URL": "https://dashscope-intl.aliyuncs.com/apps/anthropic",
-  "ANTHROPIC_MODEL": "qwen3-coder-next",
-  "ANTHROPIC_SMALL_FAST_MODEL": "qwen3-coder-flash",
-  "ANTHROPIC_DEFAULT_SONNET_MODEL": "qwen3-coder-plus",
-  "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3-coder-next",
-  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "qwen3-coder-flash",
-  "API_TIMEOUT_MS": "600000"
-}
-```
+### DeepSeek
 
-The `qwen-coding` template uses the same models but a different base URL (`coding-intl.dashscope.aliyuncs.com`).
+The `deepseek` template uses `deepseek-flash[1m]` for primary, opus, and sonnet, and `deepseek-flash` for haiku and subagents, with a 786432 auto-compact window. `deepseek-flash` serves V4.1-Flash-1017. `deepseek-v4-pro` is V4-Pro-0813, the previous generation, and remains available as an optional model. There is no released V4.1 Pro.
 
----
+### Xiaomi MiMo
+
+The `mimo` and `mimo-token` templates use `mimo-v2.6-pro[1m]` for opus and sonnet, and `mimo-v2.6-flash[1m]` for haiku and subagents. Both models have a 1M context window and 128K output. See [Xiaomi MiMo](/providers/mimo/) for setup details.
+
+### Moonshot Kimi
+
+The `kimi` template uses `kimi-k3.1-pro[1m]` in every slot. Standard speed is the default. Highspeed is optional and costs more per token. See [Moonshot Kimi](/providers/kimi/) for setup details.
+
+### GLM
+
+The `glm` template maps `glm-5.3[1m]` to the primary, opus, and sonnet slots and `glm-5.3-flash[1m]` to haiku. This is the mapping Z.ai documents for Claude Code. GLM-5-Turbo is not a Coding Plan model and is not a template tier.
+
+If you created an instance before 0.13.0, run `claude-multi doctor check`, then `claude-multi doctor fix`. The sync updates model slots and known legacy defaults while keeping your API key and custom values.
 
 ## Where to set variables
 
-**claude-multi variables:** Set in your shell profile (`.zshrc`, `.bashrc`, `.profile`) or export them before running `claude-multi`.
+claude-multi variables go in your shell profile (`.zshrc`, `.bashrc`, `.profile`) or in the environment before you run `claude-multi`.
 
-**Instance variables:** Edit `~/.claude-<name>/settings.json` directly, or let the provider template fill them in when you create the instance. They apply to that instance only and do not affect other instances or your default `~/.claude` setup.
+Instance variables go in `~/.claude-<name>/settings.json` under `env`. The provider template fills them when you create the instance, and they apply to that instance only. They do not affect other instances or your default `~/.claude` setup. See [Configuration](/docs/configuration/) for the file layout and [Plugins and MCP](/docs/plugins-mcp/) for MCP server settings.
+
+Reviewed 2026-10-31
+
+## Related
+
+- [Configuration](/docs/configuration/)
+- [Plugins and MCP](/docs/plugins-mcp/)
+- [Troubleshooting](/docs/troubleshooting/)
+- [Providers](/providers/)

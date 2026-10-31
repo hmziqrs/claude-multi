@@ -5,7 +5,7 @@ category: "Usage"
 order: 12
 ---
 
-Yes. Open two (or more) terminals and run different aliases:
+Yes. Open two terminals and run different aliases:
 
 ```sh
 # Terminal 1
@@ -17,9 +17,6 @@ claude-glm
 
 Each instance has its own config directory, so settings, conversation history, and MCP servers stay separate. You can point two instances at the same provider if you want isolated contexts for different projects.
 
-Instances share no state, so there are no lock files or port conflicts. Each `claude-<name>` command sets `CLAUDE_CONFIG_DIR` and launches the real `claude` binary. For why that's safe and the common multi-instance workflows, see how it works.
+Instances don't share config or conversation state, so there are no per-instance lock files or port conflicts. Each `claude-<name>` wrapper sets `CLAUDE_CONFIG_DIR` and launches the real `claude` binary. The [how it works guide](/docs/how-it-works/) covers the wrapper and common multi-instance workflows.
 
-## Related questions
-
-- [What is claude-multi?](/faq/#what-is-claude-multi): the full overview
-- [Which providers are supported?](/faq/#supported-providers): pick your models
+If you want both instances to share plugins, enable auto-sync on each. If you want them isolated, leave sync in full-manual mode. The [plugin syncing answer](/faq/#plugin-syncing) covers the modes.

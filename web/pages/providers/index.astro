@@ -2,36 +2,14 @@
 import { getCollection } from 'astro:content';
 import Layout from '@/web/layouts/ContentLayout.astro';
 
-const SITE = 'https://claude-multi.hmziq.xyz';
-
 const entries = (await getCollection('providers')).toSorted(
   (a, b) => a.data.order - b.data.order
 );
-
-const breadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    {
-      '@type': 'ListItem',
-      position: 1,
-      name: 'Home',
-      item: SITE,
-    },
-    {
-      '@type': 'ListItem',
-      position: 2,
-      name: 'Providers',
-      item: `${SITE}/providers/`,
-    },
-  ],
-};
 ---
 
 <Layout
-  title="Providers - claude-multi"
-  description="Browse every AI provider claude-multi supports for Claude Code: GLM, DeepSeek, Kimi, Qwen, MiniMax, MiMo and more. Setup commands, pricing, and use cases for each."
-  jsonLd={breadcrumbSchema}
+  title="Claude Code providers: six integrations, eight templates"
+  description="Compare six AI providers and eight templates for Claude Code: GLM, MiniMax, DeepSeek, Xiaomi MiMo, Kimi, and Qwen. Setup, pricing, and model details."
 >
   <section class="relative z-10 pt-36 pb-12 px-6">
     <div class="max-w-4xl mx-auto">
@@ -44,6 +22,48 @@ const breadcrumbSchema = {
         claude-multi routes Claude Code to the provider you pick. Each provider
         exposes a native Anthropic-compatible endpoint, so setup is a single
         command. Each page below lists setup steps, pricing, and use cases.
+      </p>
+      <p class="reveal mt-4 text-text-mute text-sm font-mono">
+        Six providers, eight templates. Last verified 2026-10-31.
+      </p>
+    </div>
+  </section>
+
+  <section class="relative z-10 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="reveal text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">
+        How to choose
+      </h2>
+      <p class="reveal text-text-dim max-w-3xl leading-relaxed">
+        Start with how you pay. GLM is subscription-only: the Anthropic endpoint
+        requires a Coding Plan, and there is no metered equivalent. DeepSeek and
+        Kimi sell API tokens only. MiniMax sells both from the same URL, so the
+        key type decides which quota is billed. MiMo and Qwen each have a second
+        template for their subscription plans because those plans use a
+        different endpoint, which is why six providers produce eight templates.
+      </p>
+      <p class="reveal mt-4 text-text-dim max-w-3xl leading-relaxed">
+        Context is no longer the main filter. Every template now maps a
+        1M-context model: GLM-5.3 and GLM-5.3-Flash, MiniMax-M3.1-Flash,
+        DeepSeek Flash, MiMo V2.6, Kimi K3.1 Pro, and the Qwen 3.8 and 3.7
+        models. Claude Code caps output at 128,000 tokens for these
+        unrecognized model IDs, so larger model maximums do not change the
+        practical ceiling.
+      </p>
+      <p class="reveal mt-4 text-text-dim max-w-3xl leading-relaxed">
+        Price and plan coverage are the real differences. MiniMax and DeepSeek
+        put a cheap Flash model in every slot. MiMo's Flash is cheaper still.
+        Kimi charges flagship rates and offers Highspeed at double the price,
+        so standard speed stays the default. Qwen's pay-as-you-go route reaches
+        Qwen3.8-Max and Qwen3.8-Flash, while the Coding Plan covers only
+        qwen3.7-plus among current Qwen models. GLM is a fixed credit plan.
+        Pick the route that matches the models you need, not just the lowest
+        headline rate.
+      </p>
+      <p class="reveal mt-4 text-text-dim max-w-3xl leading-relaxed">
+        Then check geography. The MiMo Token Plan has CN, SG, and EU endpoints,
+        and Qwen has separate international and China hosts. Pick the endpoint
+        that matches your account and latency, not the one in the example.
       </p>
     </div>
   </section>
@@ -99,21 +119,27 @@ const breadcrumbSchema = {
               <th class="p-3">Display name</th>
               <th class="p-3">Endpoint</th>
               <th class="p-3">Opus model</th>
-              <th class="p-3">Sonnet/Haiku model</th>
+              <th class="p-3">Sonnet model</th>
+              <th class="p-3">Haiku model</th>
             </tr>
           </thead>
           <tbody class="text-text-dim">
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">glm</td><td class="p-3">GLM Coding Plan</td><td class="p-3 font-mono text-xs">api.z.ai</td><td class="p-3 font-mono text-xs">glm-5.3[1m], glm-5.3-flash</td><td class="p-3 font-mono text-xs">glm-5-turbo</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">minimax</td><td class="p-3">MiniMax</td><td class="p-3 font-mono text-xs">api.minimax.io</td><td class="p-3 font-mono text-xs">MiniMax-M3</td><td class="p-3 font-mono text-xs">MiniMax-M3</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">deepseek</td><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">api.deepseek.com</td><td class="p-3 font-mono text-xs">deepseek-v4-pro[1m]</td><td class="p-3 font-mono text-xs">deepseek-v4-flash</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">mimo</td><td class="p-3">Xiaomi MiMo</td><td class="p-3 font-mono text-xs">api.xiaomimimo.com</td><td class="p-3 font-mono text-xs">mimo-v2.5-pro</td><td class="p-3 font-mono text-xs">mimo-v2.5</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">mimo-token</td><td class="p-3">Xiaomi MiMo (Token Plan)</td><td class="p-3 font-mono text-xs">token-plan-cn.xiaomimimo.com</td><td class="p-3 font-mono text-xs">mimo-v2.5-pro</td><td class="p-3 font-mono text-xs">mimo-v2.5</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">kimi</td><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">api.moonshot.ai</td><td class="p-3 font-mono text-xs">kimi-k2.7-code</td><td class="p-3 font-mono text-xs">kimi-k2.6, kimi-k2.5</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">qwen</td><td class="p-3">Alibaba Qwen</td><td class="p-3 font-mono text-xs">dashscope-intl.aliyuncs.com</td><td class="p-3 font-mono text-xs">qwen3-coder-next</td><td class="p-3 font-mono text-xs">qwen3-coder-flash</td></tr>
-            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">qwen-coding</td><td class="p-3">Alibaba Qwen Coding Plan</td><td class="p-3 font-mono text-xs">coding-intl.dashscope.aliyuncs.com</td><td class="p-3 font-mono text-xs">qwen3-coder-next</td><td class="p-3 font-mono text-xs">qwen3-coder-flash</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">glm</td><td class="p-3">GLM Coding Plan</td><td class="p-3 font-mono text-xs">api.z.ai</td><td class="p-3 font-mono text-xs">glm-5.3[1m]</td><td class="p-3 font-mono text-xs">glm-5.3[1m]</td><td class="p-3 font-mono text-xs">glm-5.3-flash[1m]</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">minimax</td><td class="p-3">MiniMax</td><td class="p-3 font-mono text-xs">api.minimax.io</td><td class="p-3 font-mono text-xs">MiniMax-M3.1-Flash[1m]</td><td class="p-3 font-mono text-xs">MiniMax-M3.1-Flash[1m]</td><td class="p-3 font-mono text-xs">MiniMax-M3.1-Flash[1m]</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">deepseek</td><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">api.deepseek.com</td><td class="p-3 font-mono text-xs">deepseek-flash[1m]</td><td class="p-3 font-mono text-xs">deepseek-flash[1m]</td><td class="p-3 font-mono text-xs">deepseek-flash</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">mimo</td><td class="p-3">Xiaomi MiMo</td><td class="p-3 font-mono text-xs">api.xiaomimimo.com</td><td class="p-3 font-mono text-xs">mimo-v2.6-pro[1m]</td><td class="p-3 font-mono text-xs">mimo-v2.6-pro[1m]</td><td class="p-3 font-mono text-xs">mimo-v2.6-flash[1m]</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">mimo-token</td><td class="p-3">Xiaomi MiMo (Token Plan)</td><td class="p-3 font-mono text-xs">token-plan-cn.xiaomimimo.com</td><td class="p-3 font-mono text-xs">mimo-v2.6-pro[1m]</td><td class="p-3 font-mono text-xs">mimo-v2.6-pro[1m]</td><td class="p-3 font-mono text-xs">mimo-v2.6-flash[1m]</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">kimi</td><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">api.moonshot.ai</td><td class="p-3 font-mono text-xs">kimi-k3.1-pro[1m]</td><td class="p-3 font-mono text-xs">kimi-k3.1-pro[1m]</td><td class="p-3 font-mono text-xs">kimi-k3.1-pro[1m]</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">qwen</td><td class="p-3">Alibaba Qwen</td><td class="p-3 font-mono text-xs">dashscope-intl.aliyuncs.com</td><td class="p-3 font-mono text-xs">qwen3.8-max</td><td class="p-3 font-mono text-xs">qwen3.7-plus</td><td class="p-3 font-mono text-xs">qwen3.8-flash</td></tr>
+            <tr class="border-t border-edge"><td class="p-3 font-mono text-lime">qwen-coding</td><td class="p-3">Alibaba Qwen Coding Plan</td><td class="p-3 font-mono text-xs">coding-intl.dashscope.aliyuncs.com</td><td class="p-3 font-mono text-xs">qwen3.7-plus</td><td class="p-3 font-mono text-xs">qwen3.7-plus</td><td class="p-3 font-mono text-xs">qwen3.7-plus</td></tr>
           </tbody>
         </table>
       </div>
+
+      <p class="text-text-dim text-sm max-w-3xl mb-10">
+        The table reflects the 0.13.0 templates. Each provider page lists the
+        live env vars and any manual options, such as DeepSeek V4-Pro.
+      </p>
 
       <h3 class="text-xl font-bold tracking-tight mb-4">Pay per token vs. subscription</h3>
       <p class="text-text-dim mb-6 max-w-2xl">
@@ -133,7 +159,7 @@ const breadcrumbSchema = {
           <tbody class="text-text-dim">
             <tr class="border-t border-edge"><td class="p-3">Xiaomi MiMo</td><td class="p-3 font-mono text-xs">mimo</td><td class="p-3 font-mono text-xs">mimo-token (regional URL)</td></tr>
             <tr class="border-t border-edge"><td class="p-3">Alibaba Qwen</td><td class="p-3 font-mono text-xs">qwen</td><td class="p-3 font-mono text-xs">qwen-coding</td></tr>
-            <tr class="border-t border-edge"><td class="p-3">GLM (Z.ai)</td><td class="p-3 font-mono text-xs">no Anthropic URL</td><td class="p-3 font-mono text-xs">glm (coding-plan-only)</td></tr>
+            <tr class="border-t border-edge"><td class="p-3">GLM (Z.ai)</td><td class="p-3 font-mono text-xs">no pay-per-token template</td><td class="p-3 font-mono text-xs">glm (coding-plan-only)</td></tr>
             <tr class="border-t border-edge"><td class="p-3">MiniMax</td><td class="p-3 font-mono text-xs">minimax</td><td class="p-3 font-mono text-xs">same URL, different key type</td></tr>
             <tr class="border-t border-edge"><td class="p-3">Moonshot Kimi</td><td class="p-3 font-mono text-xs">kimi</td><td class="p-3 font-mono text-xs">pay per token only</td></tr>
             <tr class="border-t border-edge"><td class="p-3">DeepSeek</td><td class="p-3 font-mono text-xs">deepseek</td><td class="p-3 font-mono text-xs">pay per token only</td></tr>
@@ -142,9 +168,12 @@ const breadcrumbSchema = {
       </div>
 
       <ul class="text-text-dim text-sm space-y-2 max-w-2xl list-disc pl-5">
-        <li><b class="text-text">GLM</b>: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The metered API only exposes an OpenAI-compatible URL.</li>
-        <li><b class="text-text">MiMo Token Plan</b>: defaults to the CN regional endpoint. If your subscription is SG or EU, update <code class="font-mono text-lime text-xs">ANTHROPIC_BASE_URL</code> with the endpoint shown in your subscription console.</li>
-        <li><b class="text-text">MiniMax</b>: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. MiniMax-M3 has a 1M token context window and accepts text, image, and video inputs.</li>
+        <li>GLM: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The metered API only exposes an OpenAI-compatible URL. GLM-5.3 fills primary, opus, and sonnet; GLM-5.3-Flash fills haiku. Both use the 1M hint and a 1M compaction window.</li>
+        <li>DeepSeek: the template uses <code class="font-mono text-lime text-xs">deepseek-flash</code> in every slot. V4-Pro is the previous generation and remains a manual option. There is no released V4.1 Pro.</li>
+        <li>MiMo Token Plan: defaults to the CN regional endpoint. If your subscription is SG or EU, update <code class="font-mono text-lime text-xs">ANTHROPIC_BASE_URL</code> with the endpoint shown in your subscription console. Both MiMo templates use the V2.6 model IDs.</li>
+        <li>MiniMax: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. M3.1 Flash fills every slot, has a 1M token context window and a 512K output maximum, and always thinks. M3 remains available as the previous generation. M3.1 Flash costs $0.15/$0.60 per 1M tokens.</li>
+        <li>Kimi: K2.5 was retired on 2026-08-31 and returns an error. K2.6 and K2.7 close to new users on 2026-10-31 and retire by the end of December. The template uses K3.1 Pro in every slot at standard speed. Highspeed is optional and costs double. K3.1 Pro costs $2/$10 per 1M tokens.</li>
+        <li>Qwen: pay-as-you-go uses Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Flash with a 983616 thinking-mode context setting and a 128000 output ceiling. The Coding Plan uses <code class="font-mono text-lime text-xs">qwen3.7-plus</code> in every slot and does not cover Qwen3.8-Max or Qwen3.8-Flash among current Qwen models. Qwen3-Coder-Next and Qwen3-Coder-Plus are not on the Anthropic-compatible matrix.</li>
       </ul>
     </div>
   </section>

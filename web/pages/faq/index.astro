@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '@/web/layouts/ContentLayout.astro';
+// oxlint-disable-next-line import/no-unassigned-import
 import '../../styles/prose.css';
 
 const entries = (await getCollection('faq')).toSorted(
@@ -16,19 +17,49 @@ const rendered = await Promise.all(
 
 const categories = [...new Set(entries.map((e) => e.data.category))];
 
+function markdownToPlainText(markdown: string): string {
+  return markdown
+    .replace(/```[^\n]*\n([\s\S]*?)```/g, (_match, code: string) => {
+      const text = code
+        .split('\n')
+        .filter((line) => !/^\s*#\s+/.test(line))
+        .join(' ')
+        .trim();
+      return text ? ` ${text}. ` : ' ';
+    })
+    .replace(/^#{1,6}\s+(.+)$/gm, (_match, heading: string) =>
+      /[.!?:]$/.test(heading) ? `${heading} ` : `${heading}. `
+    )
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^\s{0,3}>\s?/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*([-*_])\1{2,}\s*$/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: entries.map((entry) => ({
+  dateModified: '2026-10-31',
+  mainEntity: rendered.map(({ entry }) => ({
     '@type': 'Question',
     name: entry.data.question,
-    acceptedAnswer: { '@type': 'Answer', text: entry.data.description },
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: markdownToPlainText(entry.body ?? entry.data.description),
+    },
   })),
 };
 ---
 
 <Layout
-  title="FAQ - claude-multi"
+  title="claude-multi FAQ: Claude Code providers and setup"
   description="Common questions about claude-multi: installation, providers, plugin syncing, MCP servers, troubleshooting, and more."
   jsonLd={faqSchema}
 >
@@ -40,8 +71,28 @@ const faqSchema = {
         Frequently asked <span class="gradient-text">questions.</span>
       </h1>
       <p class="reveal mt-5 text-text-dim max-w-2xl text-lg leading-relaxed">
-        Answers with links to the docs, blog posts, source code, and the
-        relevant TUI screens.
+        Answers with links to the docs, source code, and the relevant TUI
+        screens. New here? Start with the
+        <a
+          href="/docs/"
+          class="text-lime underline decoration-lime/30 underline-offset-2 hover:decoration-lime"
+          >docs</a
+        >, compare
+        <a
+          href="/providers/"
+          class="text-lime underline decoration-lime/30 underline-offset-2 hover:decoration-lime"
+          >providers</a
+        >, or read the
+        <a
+          href="/blog/"
+          class="text-lime underline decoration-lime/30 underline-offset-2 hover:decoration-lime"
+          >blog</a
+        >.
+      </p>
+      <p
+        class="reveal mt-4 text-xs font-mono tracking-widest text-text-mute"
+      >
+        Reviewed <time datetime="2026-10-31">2026-10-31</time>
       </p>
 
       <nav class="reveal mt-8 flex flex-wrap gap-2">
@@ -73,7 +124,7 @@ const faqSchema = {
                 .map(({ entry, Content }) => (
                   <details id={entry.id} class="faq-item reveal scroll-mt-28 border-b border-edge">
                     <summary class="faq-summary">
-                      <span class="text-[1.05rem] font-semibold tracking-[-0.01em] leading-[1.4]">{entry.data.question}</span>
+                      <h3 class="m-0 text-[1.05rem] font-semibold tracking-[-0.01em] leading-[1.4]">{entry.data.question}</h3>
                       <svg
                         class="faq-chevron"
                         width="16"
@@ -182,6 +233,19 @@ const faqSchema = {
 
   .faq-answer {
     padding: 0 2.5rem 1.5rem 0;
+  }
+
+  .faq-answer :global(h4) {
+    color: var(--color-text);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-top: 1.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .faq-answer :global(h4:first-child) {
+    margin-top: 0;
   }
 
   @media (max-width: 640px) {

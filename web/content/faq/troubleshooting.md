@@ -5,25 +5,26 @@ category: "Troubleshooting"
 order: 9
 ---
 
-claude-multi has a health monitor. Press `!` in the TUI, watch for the warning banner on the main menu, or run `claude-multi list`. It reports missing config directories, deleted wrapper scripts, broken symlinks, corrupted `settings.json`, and failed migrations, each with a suggested fix. It won't change anything without asking.
-
-Broken symlinks are the most common problem. Repair them across every instance:
+claude-multi has a health monitor. Press `!` in the TUI when the warning banner appears, or run:
 
 ```sh
-claude-multi fix-symlinks
+claude-multi doctor check
 ```
 
-You can also target specific instances: `claude-multi fix-symlinks deepseek glm`.
+It reports missing config directories, deleted wrapper scripts, broken symlinks, corrupted `settings.json`, and failed migrations, each with a suggested fix. It does not change anything unless you run `claude-multi doctor fix`.
 
-The troubleshooting guide covers every check, the recovery steps, and how migrations roll back from `.bak` files.
+Broken symlinks are a common problem. Repair them across every instance:
 
-## Related questions
+```sh
+claude-multi fix-symlinks --all
+```
 
-- [How does plugin syncing work?](/faq/#plugin-syncing): understanding symlinks and auto-sync
-- [How do I create a new instance?](/faq/#create-instance): recreating a corrupted instance
+To target specific instances:
 
-## More info
+```sh
+claude-multi fix-symlinks deepseek glm
+```
 
-- [/docs/troubleshooting/](/docs/troubleshooting/): full troubleshooting guide
-- [/blog/inside-claude-multi-every-menu/](/blog/inside-claude-multi-every-menu/): health warnings and fix-symlinks sections
-- [src/health.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/health.ts): health check implementation
+With no arguments, `fix-symlinks` opens a multiselect prompt. Full-manual instances have no symlinks to repair, so the command reports nothing to fix.
+
+The [troubleshooting guide](/docs/troubleshooting/) covers every check, the recovery steps, and how to restore a migration backup from `~/.claude-multi/backups/`. The checks are implemented in [src/health.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/health.ts).

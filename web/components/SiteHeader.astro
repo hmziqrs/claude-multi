@@ -3,12 +3,14 @@
  * One header for marketing + docs: the page <header> (own sticky chrome) on marketing, a
  * <div> inside Starlight's sticky header shell in docs. Slot `search` takes the docs search trigger.
  */
+import { latestVersion } from '../util/changelog';
+
 interface Props {
   variant?: 'marketing' | 'docs';
   version?: string;
 }
 
-const { variant = 'marketing', version = 'v0.12.0' } = Astro.props;
+const { variant = 'marketing', version = `v${latestVersion}` } = Astro.props;
 const Tag = variant === 'docs' ? 'div' : 'header';
 
 const links = [
