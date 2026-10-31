@@ -138,7 +138,7 @@ Found 1 instance(s):
   Created: 10/31/2026, 10:00:00 AM
   Provider: glm
   Sync mode: Auto-sync (symlink dirs)
-  Version:  0.13.0
+  Version:  0.13.1
 ```
 
 The date format follows your locale. Then check that the wrapper reaches Claude Code:
@@ -153,7 +153,7 @@ The output is Claude Code's version, in the form `2.x.x (Claude Code)`. claude-m
 claude-multi --version
 ```
 
-It prints `0.13.0` on this release.
+It prints `0.13.1` on this release.
 
 ## Add `~/.local/bin` to your PATH
 

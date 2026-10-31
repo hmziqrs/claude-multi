@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.1] - 2026-10-31
+
+### Changed
+- Removed the remaining Deno code paths. Package-manager detection, version lookup, upgrade commands, Claude Code update commands, and the Windows wrapper path lookup now cover Bun, npm, and pnpm only. This is internal cleanup; the user-facing Deno removal shipped in 0.13.0.
+- Sitemap `lastmod` values are now derived from git history at build time instead of a hardcoded date. Static pages use the last commit that touched their source files, and blog and provider pages keep using their frontmatter dates. The docs deploy checks out full history so the dates are accurate.
+- Updated GitHub Actions to current Node 24 releases: `actions/checkout@v7`, `actions/setup-node@v7`, `oven-sh/setup-bun@v2`, `softprops/action-gh-release@v3`, `actions/github-script@v9`, `actions/upload-artifact@v7`, and `actions/download-artifact@v8`. This removes the Node 20 deprecation warnings from CI.
+
+### Added
+- Monthly provider model review workflow. On the first of each month it opens a GitHub issue with the current expected models, official vendor documentation links, and the verification commands. It does not create duplicates while an earlier review issue is open.
+
+### Blog
+- Blog post: [claude-multi drops Deno support](https://claude-multi.hmziq.xyz/blog/deno-support-removed/)
+
 ## [0.13.0] - 2026-10-31
 
 ### Changed
@@ -526,6 +539,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for custom config and binary paths
 - Command-line interface built with Commander.js
 
+[0.13.1]: https://github.com/hmziqrs/claude-multi/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/hmziqrs/claude-multi/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/hmziqrs/claude-multi/compare/v0.11.1...v0.12.0
 [0.11.0]: https://github.com/hmziqrs/claude-multi/compare/v0.10.0...v0.11.0

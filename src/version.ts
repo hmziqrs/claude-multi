@@ -56,7 +56,6 @@ export function upgradeClaudeMulti(): void {
     bun: "bun upgrade -g claude-multi",
     npm: "npm update -g claude-multi",
     pnpm: "pnpm update -g claude-multi",
-    deno: "deno install --reload -g npm:claude-multi",
   };
   try {
     execSync(commands[pm], { stdio: "inherit" });
@@ -72,14 +71,12 @@ export function upgradeClaudeMulti(): void {
 function getCurrentVersion(): string | null {
   const pm = detectPackageManager();
   try {
-    if (pm === "deno") return null;
-
-    const commands: Record<Exclude<typeof pm, "deno">, string> = {
+    const commands: Record<typeof pm, string> = {
       bun: "bun pm ls -g --json",
       npm: "npm ls -g --json @anthropic-ai/claude-code",
       pnpm: "pnpm ls -g --json",
     };
-    const output = execSync(commands[pm as Exclude<typeof pm, "deno">], {
+    const output = execSync(commands[pm], {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "ignore"],
     });
@@ -122,7 +119,6 @@ export function updateClaudeCode(): void {
     bun: "bun install -g @anthropic-ai/claude-code@latest",
     npm: "npm install -g @anthropic-ai/claude-code@latest",
     pnpm: "pnpm add -g @anthropic-ai/claude-code@latest",
-    deno: "deno install --reload -g npm:@anthropic-ai/claude-code@latest",
   };
   try {
     console.log("Updating @anthropic-ai/claude-code...");

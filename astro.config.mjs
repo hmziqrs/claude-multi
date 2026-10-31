@@ -7,6 +7,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import { getSiteFooterHtml } from './web/util/site-footer-html';
 import { latestVersion } from './web/util/changelog';
+import { getCommitDateForPaths, getLatestCommitDate } from './web/util/lastmod';
 import {
   DEFAULT_DESC,
   DEFAULT_OG_IMAGE_ALT as OG_IMAGE_ALT,
@@ -16,7 +17,8 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
 
-const DEFAULT_LASTMOD = '2026-10-31';
+const LAST_RESORT_LASTMOD = '2026-10-31';
+const LATEST_REPO_LASTMOD = getLatestCommitDate() ?? LAST_RESORT_LASTMOD;
 
 function readFrontmatterDate(raw, field) {
   const frontmatter = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
@@ -36,6 +38,36 @@ function buildLastmodMap(dir, prefix, getDate) {
   return map;
 }
 
+const STATIC_PATHS = {
+  '/': [
+    'web/pages/index.astro',
+    'web/components/Hero.astro',
+    'web/components/Features.astro',
+    'web/components/Providers.astro',
+    'web/components/Install.astro',
+  ],
+  '/about/': ['web/pages/about.astro'],
+  '/blog/': ['web/pages/blog/index.astro'],
+  '/changelog/': ['CHANGELOG.md', 'web/pages/changelog.astro'],
+  '/faq/': ['web/content/faq', 'web/pages/faq/index.astro'],
+  '/providers/': ['web/content/providers', 'web/pages/providers/index.astro'],
+  '/docs/': ['web/content/docs/docs/index.md'],
+  '/docs/configuration/': ['web/content/docs/docs/configuration.md'],
+  '/docs/environment-variables/': ['web/content/docs/docs/environment-variables.md'],
+  '/docs/getting-started/': ['web/content/docs/docs/getting-started.md'],
+  '/docs/how-it-works/': ['web/content/docs/docs/how-it-works.md'],
+  '/docs/plugins-mcp/': ['web/content/docs/docs/plugins-mcp.md'],
+  '/docs/troubleshooting/': ['web/content/docs/docs/troubleshooting.md'],
+  '/docs/usage/': ['web/content/docs/docs/usage.md'],
+};
+
+const STATIC_LASTMOD = new Map(
+  Object.entries(STATIC_PATHS).map(([pathname, paths]) => [
+    pathname,
+    getCommitDateForPaths(paths) ?? LATEST_REPO_LASTMOD,
+  ])
+);
+
 const LASTMOD_BY_PATH = new Map([
   ...buildLastmodMap(
     './web/content/blog',
@@ -45,7 +77,7 @@ const LASTMOD_BY_PATH = new Map([
   ...buildLastmodMap(
     './web/content/providers',
     '/providers',
-    (raw) => readFrontmatterDate(raw, 'updated') ?? DEFAULT_LASTMOD
+    (raw) => readFrontmatterDate(raw, 'updated') ?? LATEST_REPO_LASTMOD
   ),
 ]);
 
@@ -113,7 +145,10 @@ export default defineConfig({
       filter: (page) => !page.endsWith('/privacy/') && !page.endsWith('/terms/') && !page.endsWith('/feed.xml'),
       serialize(item) {
         const pathname = new URL(item.url).pathname.replace(/\/?$/, '/');
-        item.lastmod = LASTMOD_BY_PATH.get(pathname) ?? DEFAULT_LASTMOD;
+        item.lastmod =
+          LASTMOD_BY_PATH.get(pathname) ??
+          STATIC_LASTMOD.get(pathname) ??
+          LATEST_REPO_LASTMOD;
         return item;
       },
     }),

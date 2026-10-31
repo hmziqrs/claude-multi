@@ -117,7 +117,6 @@ export function getDefaultBinaryPath(name: string): string {
     const appData = process.env.APPDATA || "";
     const windowsBinDirs: Record<typeof pm, string> = {
       bun: resolve(home, ".bun", "bin"),
-      deno: resolve(home, ".deno", "bin"),
       npm: resolve(appData, "npm"),
       pnpm: resolve(appData, "npm"),
     };

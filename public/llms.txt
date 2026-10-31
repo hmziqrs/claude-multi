@@ -54,8 +54,9 @@ Existing instances do not update their provider settings in the background. Afte
 ## Key concepts
 
 - **Instances**: Named Claude Code configs stored in `~/.claude-<name>/`
-- **Auto-sync**: Symlinks `plugins/` and `skills/` from `~/.claude/` into each instance (toggleable)
-- **Manual mode**: Copies files instead of symlinking for full isolation
+- **Auto-sync**: Symlinks entire `plugins/` and `skills/` directories from `~/.claude/` into each instance
+- **Half-manual**: Symlinks individual plugins and skills, so new installs stay isolated
+- **Full-manual**: Copies files instead of symlinking for full isolation
 - **Plugin management**: Install/remove individual plugins with MCP collision detection and rollback
 - **Health checks**: Detects broken symlinks, missing dirs, corrupted settings, failed migrations
 - **Migration system**: Version and provider template checks with backups and file locking
@@ -71,7 +72,7 @@ Existing instances do not update their provider settings in the background. Afte
 
 ## Tech stack
 
-TypeScript (ESNext, strict, ESM) · Bun bundler · Commander.js CLI · Ink v7 TUI (React for terminals) · 249 tests across unit/integration/e2e · Cross-platform (macOS, Linux, Windows)
+TypeScript (ESNext, strict, ESM) · Bun bundler · Commander.js CLI · Ink v7 TUI (React for terminals) · Unit, integration, and end-to-end tests · Cross-platform (macOS, Linux, Windows)
 
 ## Links
 

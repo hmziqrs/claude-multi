@@ -108,7 +108,8 @@ The project uses GitHub Actions for:
 - **ci.yml**, Cross-platform build + test on push to master and PRs
 - **publish.yml**, npm publish with OIDC trusted publishing
 - **deploy-docs.yml**, Docs site deployment to Cloudflare Pages
-- **test-install.yml**, Cross-platform install verification (bun/node/deno × Linux/Windows/macOS)
+- **test-install.yml**, Cross-platform install verification for Bun and Node.js on Linux, Windows, and macOS
+- **model-review.yml**, Monthly GitHub issue with provider model sources and verification steps
 
 ## Adding a provider template
 

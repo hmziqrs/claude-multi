@@ -1,0 +1,74 @@
+name: Monthly model review
+
+on:
+  schedule:
+    - cron: "0 9 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-review-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Create monthly review issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          existing=$(gh issue list --state open --search 'Monthly provider model review in:title' --json number --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "An open monthly review issue already exists. Skipping."
+            exit 0
+          fi
+
+          title="Monthly provider model review: $(date -u +%Y-%m)"
+          body_file=$(mktemp)
+          trap 'rm -f "$body_file"' EXIT
+
+          cat > "$body_file" <<'EOF'
+          # Monthly provider model review
+
+          Monthly re-verification checklist for the eight provider templates.
+
+          ## Templates
+
+          - [ ] **GLM**: confirm `glm-5.3[1m]` and `glm-5.3-flash[1m]` against the [official source](https://docs.z.ai/devpack/overview).
+          - [ ] **MiniMax**: confirm `MiniMax-M3.1-Flash[1m]` against the [official source](https://platform.minimax.io/docs/token-plan/claude-code).
+          - [ ] **DeepSeek**: confirm `deepseek-flash[1m]` and the optional `deepseek-v4-pro` against the [official source](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code).
+          - [ ] **MiMo**: confirm `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` against the [official source](https://mimo.mi.com/docs/en-US/integration/claudecode).
+          - [ ] **MiMo Token**: confirm the same `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` lineup against the [official source](https://mimo.mi.com/docs/en-US/integration/claudecode).
+          - [ ] **Kimi**: confirm `kimi-k3.1-pro[1m]` against the [official source](https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart).
+          - [ ] **Qwen**: confirm `qwen3.8-max`, `qwen3.7-plus`, and `qwen3.8-flash` against the [official source](https://www.alibabacloud.com/help/en/model-studio/anthropic-api-messages).
+          - [ ] **Qwen Coding Plan**: confirm `qwen3.7-plus` against the [official source](https://www.alibabacloud.com/help/en/model-studio/anthropic-api-messages).
+          - [ ] **Claude Code env vars**: confirm the environment variable names and behavior against the [official reference](https://code.claude.com/docs/en/env-vars).
+
+          ## Verification
+
+          Run these commands from a clean checkout:
+
+          - [ ] `bun install`
+          - [ ] `bun test`
+          - [ ] `bun run typecheck`
+          - [ ] `bun run lint`
+          - [ ] `bun run build`
+          - [ ] `bun run docs:build`
+          - [ ] `npm pack --dry-run`
+
+          ## Compatibility
+
+          - [ ] Confirm Node.js 22+ and Bun 1+ are still the supported runtimes.
+          - [ ] Confirm npm, pnpm, and Bun are still the supported install paths.
+
+          ## When a model changes
+
+          If a model changed, update `src/templates.ts`, the provider page, the docs environment-variable table, and the tests in the same PR.
+          EOF
+
+          gh issue create --title "$title" --body-file "$body_file"
