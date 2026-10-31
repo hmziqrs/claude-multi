@@ -27,7 +27,7 @@ export async function GET(context: APIContext) {
         };
         if (post.data.audio) {
           item.enclosure = {
-            url: "https://claude-multi.hmziq.xyz/audio/" + post.data.audio,
+            url: post.data.audio,
             length: 0,
             type: "audio/mpeg",
           };
