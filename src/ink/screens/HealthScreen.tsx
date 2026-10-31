@@ -94,7 +94,7 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({
 
       {step === "list" && (
         <Box flexDirection="column" gap={1}>
-          <Text bold>{issues.length} issue(s) found — select one to view:</Text>
+          <Text bold>{issues.length} issue(s) found: select one to view:</Text>
           <Select
             options={issueOptions}
             visibleOptionCount={issueOptions.length}

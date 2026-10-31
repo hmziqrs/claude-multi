@@ -29,11 +29,11 @@ export const CopyOption = {
 export type CopyOption = (typeof CopyOption)[keyof typeof CopyOption];
 
 export const SyncMode = {
-  /** Symlink entire plugins/skills directories — instant sync, blocks individual plugin ops */
+  /** Symlink entire plugins/skills directories: instant sync, blocks individual plugin ops */
   Auto: "auto",
-  /** Symlink individual plugins/skills/MCPs — shares existing items, new installs stay isolated */
+  /** Symlink individual plugins/skills/MCPs: shares existing items, new installs stay isolated */
   HalfManual: "half-manual",
-  /** Full copy — completely independent, no symlinks at all */
+  /** Full copy: completely independent, no symlinks at all */
   FullManual: "full-manual",
 } as const;
 export type SyncMode = (typeof SyncMode)[keyof typeof SyncMode];

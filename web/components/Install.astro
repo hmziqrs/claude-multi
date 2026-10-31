@@ -6,11 +6,10 @@ const installTabs = [
   { label: 'bun', code: 'bun add -g claude-multi' },
   { label: 'npm', code: 'npm install -g claude-multi' },
   { label: 'pnpm', code: 'pnpm add -g claude-multi' },
-  { label: 'deno', code: 'deno install -g -A -n claude-multi npm:claude-multi' },
 ];
 
 const requirements = [
-  { icon: 'cpu', label: 'Node 18+ or Bun 1+' },
+  { icon: 'cpu', label: 'Node 22+ or Bun 1+' },
   { icon: 'monitor', label: 'macOS, Linux, Windows' },
 ];
 ---
@@ -22,7 +21,7 @@ const requirements = [
     <div class="install__lead flex max-w-[560px] flex-col gap-4">
       <h2 class="ui-section-title">Install</h2>
       <p class="ui-section-sub">
-        Install with npm, bun, pnpm, or Deno. Then add a provider.
+        Install with npm, bun, or pnpm. Then add a provider.
       </p>
       <p class="m-0 text-[14.5px] leading-[1.7] text-text-dim">
         Run <span class="ui-inline-code">claude-multi</span> to open the menu, or

@@ -51,7 +51,7 @@ Plugins can ship their own MCP servers in a `.mcp.json` file. Those arrive with 
 
 ## Quick start
 
-1. Install the CLI. Claude Code must already be installed globally, and Node.js 18+, Bun 1+, or Deno 1+ must be available.
+1. Install the CLI. Claude Code must already be installed globally, and Node.js 22+ or Bun 1+ must be available.
 
    ```bash
    npm install -g claude-multi

@@ -14,7 +14,6 @@ The wrapper directory depends on the platform and, on Windows, the package manag
 | macOS and Linux | `~/.local/bin/` |
 | Windows with npm or pnpm | `%APPDATA%\npm` |
 | Windows with Bun | `%USERPROFILE%\.bun\bin` |
-| Windows with Deno | `%USERPROFILE%\.deno\bin` |
 
 A custom `--binary` path overrides these defaults.
 

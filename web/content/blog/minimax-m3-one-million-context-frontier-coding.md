@@ -97,9 +97,9 @@ M3 beats GPT-5.5 on SWE-Bench Pro (59.0 vs 58.6) and edges past Opus 4.7 on SVG-
 
 | Benchmark | M3 | Opus 4.7 | GPT-5.5 | M2.7 |
 |---|---|---|---|---|
-| Claw-Eval | **74.5** | 71.6 | -- | 49.7 |
+| Claw-Eval | **74.5** | 71.6 | n/a | 49.7 |
 | MCP Atlas | 74.2 | **77.0** | 75.3 | 49.4 |
-| DRACO | 73.2 | **77.7** | -- | 66.8 |
+| DRACO | 73.2 | **77.7** | n/a | 66.8 |
 | BankerToolBench | 76.1 | **81.3** | 70.0 | 63.9 |
 
 Claw-Eval is the end-to-end autonomous agent evaluation. M3 takes the top spot at 74.5, ahead of Opus 4.7 at 71.6. That benchmark is the closest match to what Claude Code does: sustained multi-step tool use in a real environment. MiniMax says it trained M3 for multi-turn collaboration with an interactive user simulator.

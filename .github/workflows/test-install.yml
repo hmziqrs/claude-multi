@@ -93,7 +93,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
 
       - uses: actions/download-artifact@v4
         with:
@@ -110,32 +110,6 @@ jobs:
           npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
           claude-multi --version
           claude-multi --help
-
-  # ─────────────────────────────────────────────
-  # Linux / deno — run dist/cli.js directly with deno
-  # ─────────────────────────────────────────────
-  linux-deno:
-    name: Linux / deno
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: tarball
-          path: artifact
-
-      - name: Extract + run dist/cli.js via deno
-        run: |
-          mkdir pkg
-          tar -xzf "artifact/${{ needs.build.outputs.tgz }}" -C pkg --strip-components=1
-          deno run -A pkg/dist/cli.js --version
-          deno run -A pkg/dist/cli.js --help
-
   # ─────────────────────────────────────────────
   # Linux / npm global — bun wins over node
   # ─────────────────────────────────────────────
@@ -151,7 +125,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
 
       - uses: actions/download-artifact@v4
         with:
@@ -227,7 +201,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
 
       - uses: actions/download-artifact@v4
         with:
@@ -243,33 +217,6 @@ jobs:
       - name: Run --version (Git Bash)
         run: claude-multi --version
         shell: bash
-
-  # ─────────────────────────────────────────────
-  # Windows / deno — run dist/cli.js directly with deno
-  # ─────────────────────────────────────────────
-  windows-deno:
-    name: Windows / deno
-    needs: build
-    runs-on: windows-latest
-
-    steps:
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: tarball
-          path: artifact
-
-      - name: Extract + run dist/cli.js via deno
-        run: |
-          mkdir pkg
-          tar -xzf "artifact/${{ needs.build.outputs.tgz }}" -C pkg --strip-components=1
-          deno run -A pkg/dist/cli.js --version
-          deno run -A pkg/dist/cli.js --help
-        shell: bash
-
   # ─────────────────────────────────────────────
   # Windows / local npm install
   # ─────────────────────────────────────────────
@@ -285,7 +232,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
 
       - uses: actions/download-artifact@v4
         with:
@@ -341,7 +288,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
 
       - uses: actions/download-artifact@v4
         with:
@@ -358,28 +305,3 @@ jobs:
           npm install -g "$(pwd)/artifact/${{ needs.build.outputs.tgz }}"
           claude-multi --version
           claude-multi --help
-
-  # ─────────────────────────────────────────────
-  # macOS / deno — run dist/cli.js directly with deno
-  # ─────────────────────────────────────────────
-  macos-deno:
-    name: macOS / deno
-    needs: build
-    runs-on: macos-latest
-
-    steps:
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: tarball
-          path: artifact
-
-      - name: Extract + run dist/cli.js via deno
-        run: |
-          mkdir pkg
-          tar -xzf "artifact/${{ needs.build.outputs.tgz }}" -C pkg --strip-components=1
-          deno run -A pkg/dist/cli.js --version
-          deno run -A pkg/dist/cli.js --help

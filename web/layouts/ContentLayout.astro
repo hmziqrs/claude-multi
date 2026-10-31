@@ -22,6 +22,7 @@ interface Props {
   articleTags?: string[];
   jsonLd?: Record<string, unknown>;
   noindex?: boolean;
+  breadcrumbLabel?: string;
 }
 
 const {
@@ -33,6 +34,7 @@ const {
   articleTags,
   jsonLd,
   noindex = false,
+  breadcrumbLabel,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE).toString();
@@ -41,7 +43,10 @@ const breadcrumbs = pathSegments.length > 0 && pathSegments[0] !== ''
   ? [
       { name: 'Home', url: SITE },
       ...pathSegments.map((seg, i) => ({
-        name: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/[-_]/g, ' '),
+        name:
+          i === pathSegments.length - 1 && breadcrumbLabel
+            ? breadcrumbLabel
+            : seg.charAt(0).toUpperCase() + seg.slice(1).replace(/[-_]/g, ' '),
         url: `${SITE}/${pathSegments.slice(0, i + 1).join('/')}/`,
       })),
     ]

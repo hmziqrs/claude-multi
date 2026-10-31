@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - 'web/**'
+      - 'public/**'
       - 'astro.config.mjs'
       - 'package.json'
       - 'CHANGELOG.md'

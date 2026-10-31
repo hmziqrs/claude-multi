@@ -246,7 +246,7 @@ export function loadHealthStatus(): HealthStatus {
   }
 }
 
-/** Atomic write (temp file + rename) — survives crashes and concurrent writers. */
+/** Atomic write (temp file + rename): survives crashes and concurrent writers. */
 export function saveHealthStatus(status: HealthStatus): void {
   const dir = join(getBaseDir(), ".claude-multi");
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });

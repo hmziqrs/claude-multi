@@ -38,7 +38,7 @@ function tryResolveRegionalTemplate(
   return undefined;
 }
 
-/** Structural-var comparison only — the API key and tunable preference vars are excluded by design. */
+/** Structural-var comparison only: the API key and tunable preference vars are excluded by design. */
 export function detectTemplateMismatch(instance: Instance): TemplateDiagnostic {
   const providerName = instance.providerTemplate ?? detectProvider(instance.configDir);
   if (!providerName) {

@@ -14,9 +14,7 @@ if command -v bun >/dev/null 2>&1; then
   exec bun "$CLI" "$@"
 elif command -v node >/dev/null 2>&1; then
   exec node "$CLI" "$@"
-elif command -v deno >/dev/null 2>&1; then
-  exec deno run -A "$CLI" "$@"
 else
-  echo "claude-multi: no JavaScript runtime found (install bun, node, or deno)" >&2
+  echo "claude-multi: no JavaScript runtime found (install bun or node 22+)" >&2
   exit 1
 fi

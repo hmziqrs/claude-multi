@@ -58,7 +58,7 @@ The wrapper records the resolved `claude` path at creation time. If you move or 
 | `~/.claude-<name>/projects/` | Conversation history for that instance |
 | `~/.local/bin/claude-<name>` | Generated wrapper on macOS and Linux |
 
-On Windows, the wrapper is `claude-<name>.cmd` and lives in the package manager's global bin directory: `%APPDATA%\npm` for npm and pnpm, `%USERPROFILE%\.bun\bin` for Bun, or `%USERPROFILE%\.deno\bin` for Deno.
+On Windows, the wrapper is `claude-<name>.cmd` and lives in the package manager's global bin directory: `%APPDATA%\npm` for npm and pnpm, or `%USERPROFILE%\.bun\bin` for Bun.
 
 ## Instance isolation
 
@@ -162,7 +162,7 @@ Migrations take a PID-based lock so two cannot run at once. A failed migration s
 
 ## The launcher
 
-The `claude-multi` binary in `bin/claude-multi.js` is a short POSIX shell script, not JavaScript. It resolves symlinks, locates `build/cli.js`, and execs the first runtime it finds: Bun, then Node, then Deno. If none is installed, it prints an error and exits.
+The `claude-multi` binary in `bin/claude-multi.js` is a short POSIX shell script, not JavaScript. It resolves symlinks, locates `build/cli.js`, and execs the first runtime it finds: Bun, then Node. If none is installed, it prints an error and exits.
 
 The generated instance wrappers are separate. They are `/bin/sh` scripts on macOS and Linux and `.cmd` batch files on Windows. They need no JavaScript runtime at launch.
 

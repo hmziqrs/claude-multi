@@ -101,9 +101,7 @@ program
 program
   .command("add <name>")
   .description("Add a new Claude Code instance")
-  .option("-c, --config <dir>", "Config directory path", (name: string) =>
-    join(homedir(), `.claude-${name}`),
-  )
+  .option("-c, --config <dir>", "Config directory path")
   .option("-b, --binary <path>", "Binary path (default: ~/.local/bin/claude-<name>)")
   .option("--copy-settings", "Copy settings.json from default Claude")
   .option("--copy-all", "Copy all files from default Claude")
@@ -1184,7 +1182,7 @@ async function handleFixSymlinks(names: string[], fixAll: boolean): Promise<void
       if (fixed) {
         console.log(chalk.green(`  ✅ Fixed: ${diagnosis.broken.join(", ")}`));
       } else if (mode === SyncMode.FullManual) {
-        console.log(chalk.yellow("  ⚠ Full-manual mode — no symlinks to repair."));
+        console.log(chalk.yellow("  ⚠ Full-manual mode: no symlinks to repair."));
       } else {
         console.log(
           chalk.yellow("  ⚠ Could not auto-repair. Try re-syncing via 'claude-multi auto-sync'."),

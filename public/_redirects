@@ -41,11 +41,11 @@
 /compare/ / 301
 
 # --- SEO cleanup: removed /for/ (personas, orphaned + no search intent) ---
-/for/freelancers/ /#who-its-for 301
-/for/indie-developers/ /#who-its-for 301
-/for/researchers/ /#who-its-for 301
-/for/students/ /#who-its-for 301
-/for/teams/ /#who-its-for 301
+/for/freelancers/ /#why 301
+/for/indie-developers/ /#why 301
+/for/researchers/ /#why 301
+/for/students/ /#why 301
+/for/teams/ /#why 301
 /for/ / 301
 
 # --- SEO cleanup: removed /glossary/ entirely, terms already live in /docs/ prose ---
@@ -74,7 +74,7 @@
 /faq/plugin-syncing/ /faq/#plugin-syncing 301
 /faq/pricing/ /faq/#pricing 301
 /faq/remove-instance/ /faq/#remove-instance 301
-/faq/runtime-compatibility/ /faq/#runtime-compatibility 301
+/faq/runtime-compatibility/ /faq/#windows-support 301
 /faq/supported-providers/ /faq/#supported-providers 301
 /faq/troubleshooting/ /faq/#troubleshooting 301
 /faq/updating/ /faq/#updating 301

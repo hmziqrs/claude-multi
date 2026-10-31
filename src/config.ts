@@ -51,7 +51,7 @@ export interface Instance {
   configDir: string;
   binaryPath: string;
   createdAt: string;
-  /** @deprecated Use syncMode instead. Kept for backward compat — resolved via getSyncMode(). */
+  /** @deprecated Use syncMode instead. Kept for backward compat: resolved via getSyncMode(). */
   autoSync?: boolean;
   syncMode?: SyncModeType;
   createdWithVersion: string;
@@ -413,7 +413,7 @@ export function hasDefaultClaudeConfig(): boolean {
 }
 
 /**
- * SECURITY: whitelist-only copy — the "env" key and all other non-whitelisted
+ * SECURITY: whitelist-only copy: the "env" key and all other non-whitelisted
  * (potentially sensitive) data are never copied, preventing API key exposure.
  */
 export async function copySettingsFromDefault(targetConfigDir: string): Promise<void> {
@@ -1497,7 +1497,7 @@ export async function removeSinglePlugin(
     try {
       renameSync(backupPath, pluginPath);
     } catch {
-      console.error(chalk.red("Rollback attempt failed — backup may need manual recovery"));
+      console.error(chalk.red("Rollback attempt failed: backup may need manual recovery"));
     }
     throw new ClaudeMultiError(
       ErrorCode.PLUGIN_REMOVE_FAILED,

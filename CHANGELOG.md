@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Output and context variables corrected.** Templates now use `CLAUDE_CODE_MAX_OUTPUT_TOKENS` instead of the inert `MAX_OUTPUT_TOKENS`, set `CLAUDE_CODE_MAX_CONTEXT_TOKENS` where needed, and use `CLAUDE_CODE_EFFORT_LEVEL` instead of undocumented effort variables. Deprecated `ANTHROPIC_SMALL_FAST_MODEL` entries are removed during sync.
 - Existing instances pick up the new mappings through the template drift check. Run `claude-multi doctor check` to see the change, then `claude-multi doctor fix` to apply it. API keys and user-tuned values are preserved.
 - Provider pages, docs, FAQ, and the environment-variable reference now match the shipped templates.
+- **Node.js 22 or newer is required.** Ink 7 does not support Node 18 or 20. Bun 1+ remains supported, and npm and pnpm work on Node 22+. The advertised Deno install path was removed because the package launcher is a POSIX shell script and `deno install -g npm:claude-multi` cannot execute it.
+- The npm package no longer installs the Astro site dependencies. They moved to `devDependencies`, so a global install pulls only the CLI bundle.
+- Added a `prepack` build and a test gate to the publish workflow, so a manual publish cannot ship an untested or unbuilt tarball.
+
+### Fixed
+- `claude-multi add --config <dir>` now uses the supplied directory. It previously joined the path under `~/.claude-` and created an unintended nested directory.
 
 ### Blog
 - Blog post: [A Claude Code MCP workflow that actually runs](https://claude-multi.hmziq.xyz/blog/claude-code-mcp-workflow-automation/)

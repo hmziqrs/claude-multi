@@ -1,6 +1,6 @@
 ---
 question: "Does it work on Windows?"
-description: "Yes. On Windows claude-multi writes .cmd batch files instead of shell wrappers, and the polyglot entry point works across Bun, Node.js, and Deno."
+description: "Yes. On Windows claude-multi writes .cmd batch files instead of shell wrappers, and the POSIX shell launcher needs sh on PATH (Git Bash provides it)."
 category: "Compatibility"
 order: 13
 ---
@@ -28,14 +28,15 @@ Use PowerShell or Command Prompt with the runtime you already have:
 npm install -g claude-multi
 ```
 
-Bun and Deno work too:
+Bun works too:
 
 ```powershell
 bun add -g claude-multi
-deno install -g -A -n claude-multi npm:claude-multi
 ```
 
 After install, run `claude-multi` to open the TUI. Instance names become commands such as `claude-deepseek.cmd`, written to your package manager's global bin directory.
+
+The `claude-multi` launcher is a POSIX shell script, so Windows needs an `sh` on `PATH`. Git Bash provides one.
 
 #### `claude-<name>` not recognized
 
@@ -53,6 +54,6 @@ claude-multi writes native `.cmd` wrappers, so calling `claude-deepseek` from Gi
 
 #### CI testing
 
-CI runs install and smoke tests on Windows, macOS, and Linux for Bun, Node.js, and Deno on pull requests that touch the CLI, packaging, or the workflow file.
+CI runs install and smoke tests on Windows, macOS, and Linux for Bun and Node.js on pull requests that touch the CLI, packaging, or the workflow file.
 
 The cross-platform matrix is in [.github/workflows/test-install.yml](https://github.com/hmziqrs/claude-multi/blob/master/.github/workflows/test-install.yml). Wrapper generation is in [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts).

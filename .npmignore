@@ -1,4 +1,4 @@
-# Source files (only publish dist/)
+# Source files (the published tarball is controlled by package.json files)
 src/
 *.ts
 !*.d.ts

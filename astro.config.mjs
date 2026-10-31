@@ -7,7 +7,11 @@ import { readFileSync, readdirSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import { getSiteFooterHtml } from './web/util/site-footer-html';
 import { latestVersion } from './web/util/changelog';
-import { DEFAULT_OG_IMAGE_ALT as OG_IMAGE_ALT } from './web/util/seo';
+import {
+  DEFAULT_DESC,
+  DEFAULT_OG_IMAGE_ALT as OG_IMAGE_ALT,
+  SITE_URL,
+} from './web/util/seo';
 import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
@@ -206,6 +210,25 @@ export default defineConfig({
         {
           tag: 'meta',
           attrs: { property: 'og:image:alt', content: OG_IMAGE_ALT },
+        },
+        {
+          tag: 'script',
+          attrs: { type: 'application/ld+json' },
+          content: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'claude-multi',
+            url: SITE_URL,
+            description: DEFAULT_DESC,
+            applicationCategory: 'DeveloperApplication',
+            operatingSystem: 'macOS, Linux, Windows',
+            offers: { '@type': 'Offer', price: '0.00', priceCurrency: 'USD' },
+            author: { '@type': 'Person', name: 'hmziqrs', url: 'https://hmziq.rs' },
+            license: 'https://opensource.org/licenses/MIT',
+            codeRepository: 'https://github.com/hmziqrs/claude-multi',
+            programmingLanguage: 'TypeScript',
+            installUrl: 'https://www.npmjs.com/package/claude-multi',
+          }),
         },
         {
           tag: 'meta',

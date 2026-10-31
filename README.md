@@ -44,12 +44,14 @@ claude-minimax
 
 ## Install
 
-Requires Node.js 18+ or Bun 1+, and Claude Code installed globally (`npm install -g @anthropic-ai/claude-code`).
+Requires Node.js 22+ or Bun 1+, and Claude Code installed globally (`npm install -g @anthropic-ai/claude-code`).
 
-claude-multi installs globally with bun, npm, pnpm, or deno.
+claude-multi installs globally with bun, npm, or pnpm.
 
 ```bash
 bun add -g claude-multi
+# or: npm install -g claude-multi
+# or: pnpm add -g claude-multi
 ```
 
 ---

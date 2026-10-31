@@ -266,7 +266,7 @@ const ProviderRegionStep: React.FC<{
         options={
           regions
             ? Object.entries(regions).map(([key, val]) => ({
-                label: `${val.label} — ${val.baseUrl}`,
+                label: `${val.label}: ${val.baseUrl}`,
                 value: key,
               }))
             : []
@@ -327,15 +327,15 @@ const SyncModeStep: React.FC<{
 }> = ({ onSelect }) => {
   const syncModeOptions = [
     {
-      label: "Auto-sync — symlink entire plugins/skills dirs (instant sync)",
+      label: "Auto-sync: symlink entire plugins/skills dirs (instant sync)",
       value: SyncMode.Auto,
     },
     {
-      label: "Half-manual — symlink individual items (new installs stay isolated)",
+      label: "Half-manual: symlink individual items (new installs stay isolated)",
       value: SyncMode.HalfManual,
     },
     {
-      label: "Full-manual — copy everything (completely independent)",
+      label: "Full-manual: copy everything (completely independent)",
       value: SyncMode.FullManual,
     },
   ];
@@ -572,14 +572,14 @@ export const AddInstance: React.FC<{ onBack: () => void; initialName?: string }>
 
   const providerOptions = [
     ...cfg.getAvailableProviders().map((p) => ({
-      label: `${p.displayName} — ${p.description}`,
+      label: `${p.displayName}: ${p.description}`,
       value: p.name,
     })),
     { label: "None / Custom", value: CopyOption.None },
   ];
 
   const copyOptions = [
-    { label: "Nothing — start fresh", value: CopyOption.None },
+    { label: "Nothing: start fresh", value: CopyOption.None },
     { label: "Only settings.json", value: CopyOption.Settings },
     { label: "Select plugins to install", value: CopyOption.SelectPlugins },
     { label: "All files (settings, CLAUDE.md, plugins, etc.)", value: CopyOption.All },

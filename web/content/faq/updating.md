@@ -36,12 +36,9 @@ npm update -g claude-multi
 
 # pnpm
 pnpm update -g claude-multi
-
-# Deno
-deno install --reload -g -A -n claude-multi npm:claude-multi
 ```
 
-The Deno command reinstalls the package. With bun, npm, and pnpm, `update -g` pulls the latest published version.
+With bun, npm, and pnpm, `update -g` pulls the latest published version.
 
 #### What happens to instances during updates
 

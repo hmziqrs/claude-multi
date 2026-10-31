@@ -4,7 +4,7 @@
   "description": "Manage multiple Claude Code instances with different aliases and configurations",
   "type": "module",
   "bin": {
-    "claude-multi": "./bin/claude-multi.js"
+    "claude-multi": "bin/claude-multi.js"
   },
   "files": [
     "bin/",
@@ -15,6 +15,7 @@
     "build": "bun build src/cli.ts --outdir build --target node --format esm && chmod +x bin/claude-multi.js",
     "dev": "bun run src/cli.ts",
     "test": "bun test",
+    "prepack": "bun run build",
     "prepublishOnly": "bun run build",
     "test:binary": "./bin/claude-multi.js",
     "install:global": "bun link",
@@ -70,19 +71,17 @@
     "react": "^19.2.6",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "vite-plus": "0.3.3"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "bun": ">=1.0.0"
-  },
-  "dependencies": {
+    "vite-plus": "0.3.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@iconify-json/lucide": "^1.2.109",
     "@iconify-json/simple-icons": "^1.2.83",
     "astro-icon": "^1.2.0",
     "semver": "^7.8.1"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "bun": ">=1.0.0"
   },
   "trustedDependencies": [
     "onnxruntime-node",

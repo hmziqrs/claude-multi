@@ -10,7 +10,7 @@ Applies to claude-multi 0.13.x.
 You need two things:
 
 1. Claude Code installed globally
-2. A JavaScript runtime: Node.js 18+, Bun 1+, or Deno 1+
+2. A JavaScript runtime: Node.js 22+ or Bun 1+
 
 If you don't have Claude Code yet:
 
@@ -31,12 +31,9 @@ npm install -g claude-multi
 
 # pnpm
 pnpm add -g claude-multi
-
-# Deno
-deno install -g npm:claude-multi
 ```
 
-The `claude-multi` launcher is a short shell script. It finds Bun, Node, or Deno and runs the CLI with the first runtime available. It does not bundle a runtime.
+The `claude-multi` launcher is a short shell script. It finds Bun or Node and runs the CLI with the first runtime available. It does not bundle a runtime.
 
 ## Windows install and PATH
 
@@ -51,7 +48,6 @@ The generated wrapper is a `.cmd` file, and its directory depends on the package
 | npm | `%APPDATA%\npm` |
 | pnpm | `%APPDATA%\npm` |
 | Bun | `%USERPROFILE%\.bun\bin` |
-| Deno | `%USERPROFILE%\.deno\bin` |
 
 If `claude-glm` is not found after creation, add the directory to your user `PATH` and open a new terminal:
 
@@ -60,7 +56,7 @@ $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
 [Environment]::SetEnvironmentVariable("Path", "$userPath;$env:APPDATA\npm", "User")
 ```
 
-Replace `$env:APPDATA\npm` with `$env:USERPROFILE\.bun\bin` or `$env:USERPROFILE\.deno\bin` if you installed with Bun or Deno.
+Replace `$env:APPDATA\npm` with `$env:USERPROFILE\.bun\bin` if you installed with Bun.
 
 If wrapper creation cannot find `claude`, set `CLAUDE_MULTI_CLAUDE_PATH` to the full path of `claude.exe` or `claude.cmd` before you run `claude-multi add`:
 
@@ -206,9 +202,6 @@ bun remove -g claude-multi
 
 # pnpm
 pnpm remove -g claude-multi
-
-# Deno
-deno uninstall -g claude-multi
 ```
 
 After removing every instance, you can delete the central state:

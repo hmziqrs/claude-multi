@@ -14,10 +14,9 @@ This lets you run Claude Code against different providers (GLM/Z.ai, MiniMax, De
 bun install -g claude-multi
 # or: npm install -g claude-multi
 # or: pnpm install -g claude-multi
-# or: deno install -g npm:claude-multi
 ```
 
-Requires Node.js 18+, Bun 1+, or Deno 1+, and Claude Code installed globally.
+Requires Node.js 22+ or Bun 1+, and Claude Code installed globally.
 
 ## Commands
 
@@ -30,7 +29,7 @@ Requires Node.js 18+, Bun 1+, or Deno 1+, and Claude Code installed globally.
 - `claude-multi doctor fix`: Back up and apply pending instance migrations
 - `claude-multi version`: Check for Claude Code updates
 - `claude-multi update`: Update Claude Code to latest
-- `claude-multi auto-sync <name> <on|off>`: Toggle symlink-based plugin/skill sync
+- `claude-multi auto-sync <name> <mode>`: Set plugin/skill sync mode (`auto`, `half-manual`, or `full-manual`)
 - `claude-multi fix-symlinks`: Fix broken symlinks (`-a` for all)
 - `claude-multi plugins <action>`: Plugin management (list, enable, disable, copy, install, remove, list-defaults, list-installed, check-collisions)
 - `claude-multi mcp <action>`: MCP management (list, copy, verify)

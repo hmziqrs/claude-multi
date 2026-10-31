@@ -1,6 +1,6 @@
 ---
 question: "How do I install claude-multi?"
-description: "Install with bun, npm, pnpm, or Deno, then run claude-multi to launch the interactive TUI."
+description: "Install with bun, npm, or pnpm, then run claude-multi to launch the interactive TUI."
 category: "Getting Started"
 order: 2
 ---
@@ -16,9 +16,6 @@ npm install -g claude-multi
 
 # pnpm
 pnpm add -g claude-multi
-
-# Deno
-deno install -g -A -n claude-multi npm:claude-multi
 ```
 
 Then run `claude-multi` to open the TUI, or create an instance directly:
@@ -33,6 +30,6 @@ The CLI writes a wrapper script for each instance. On macOS and Linux the defaul
 
 #### Before you start
 
-You need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a runtime (Bun 1+, Node.js 18+, or Deno 1+), and an API key for at least one provider.
+You need Claude Code installed (`npm install -g @anthropic-ai/claude-code`), a runtime (Bun 1+ or Node.js 22+), and an API key for at least one provider.
 
 The [getting started guide](/docs/getting-started/) walks through the first instance. The [providers page](/providers/) lists endpoints and model mappings. Wrapper generation lives in [src/wrapper.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/wrapper.ts).

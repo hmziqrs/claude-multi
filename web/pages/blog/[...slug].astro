@@ -51,6 +51,7 @@ const olderPost = currentIndex > 0 ? chronological[currentIndex - 1] : null;
   ogType="article"
   articlePublishedTime={post.data.date}
   articleTags={post.data.tags}
+  breadcrumbLabel={post.data.title}
   jsonLd={{
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',

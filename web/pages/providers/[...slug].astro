@@ -42,6 +42,7 @@ const related = allProviders.filter((e) => e.id !== entry.id).slice(0, 3);
   description={entry.data.description}
   ogType="article"
   jsonLd={pageSchema}
+  breadcrumbLabel={entry.data.title}
 >
   <article class="relative z-10 pt-36 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
