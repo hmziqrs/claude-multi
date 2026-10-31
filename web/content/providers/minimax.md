@@ -14,7 +14,7 @@ order: 2
 updated: 2026-10-31
 ---
 
-MiniMax-M3.1-Flash is MiniMax's current model for Claude Code, [released October 19, 2026](https://www.minimax.io/blog/minimax-m31f). It has a 1M token context window, a 524,288 token output ceiling, and thinking that is always on. M3 is the previous generation and remains available. M3.1 Pro has been announced but not released, so the template does not list it.
+MiniMax-M3.1-Flash is MiniMax's current model for Claude Code, [released October 19, 2026](https://www.minimax.io/blog/minimax-m31f). It has a 1M token context window, a 524,288 token output ceiling, and thinking that is always on. M3 is the previous generation and remains available. MiniMax says a Pro model will follow, but it has not published an ID or date, so the template does not list one.
 
 ## Model specs
 
@@ -35,7 +35,7 @@ The 0.13.0 template pins `MiniMax-M3.1-Flash[1m]` in primary, opus, sonnet, haik
 
 MiniMax's [Claude Code guide](https://platform.minimax.io/docs/token-plan/claude-code) uses the same model name in every role, the same 524288 compaction window, and effort `max`. The template follows that setup and adds the subagent slot.
 
-To use M3 instead, change the model IDs in `~/.claude-<name>/settings.json` to `MiniMax-M3[1m]` and keep the 524288 window. M3.1 Pro is not available yet, so there is no ID to set.
+To use M3 instead, change the model IDs in `~/.claude-<name>/settings.json` to `MiniMax-M3[1m]` and keep the 524288 window. The Pro model is not available yet, so there is no ID to set.
 
 ## Setup
 

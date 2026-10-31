@@ -137,7 +137,7 @@ The `qwen-coding` template uses `qwen3.7-plus` in every slot. The Coding Plan in
 
 ### MiniMax
 
-The `minimax` template uses `MiniMax-M3.1-Flash[1m]` in every slot, including subagents, with a 524288 auto-compact window. M3 is the previous generation and remains available. M3.1 Pro is announced but not released.
+The `minimax` template uses `MiniMax-M3.1-Flash[1m]` in every slot, including subagents, with a 524288 auto-compact window. M3 is the previous generation and remains available. MiniMax says a Pro model will follow, but no ID or date is published.
 
 ### DeepSeek
 

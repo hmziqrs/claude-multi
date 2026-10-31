@@ -8,7 +8,7 @@ tags: [providers, models, minimax, benchmark, claude-code]
 
 MiniMax released M3.1 Flash on 2026-10-19. It is the default in the claude-multi `minimax` template, in the main, Opus, Sonnet, Haiku, and subagent slots. The template pins `MiniMax-M3.1-Flash[1m]` and sets a 524288 compaction window, effort `max`, and a 128000 output cap. Existing instances can sync with `claude-multi doctor fix`.
 
-M3, released 2026-06-01, is the previous generation and remains available. MiniMax has announced M3.1 Pro but has not released it, so there is no Pro model to configure. The M3 sections below are kept as historical context.
+M3, released 2026-06-01, is the previous generation and remains available. MiniMax says a Pro model will follow, but it has not published an ID or date, so there is no Pro model to configure. The M3 sections below are kept as historical context.
 
 ## What the template sets
 
@@ -161,7 +161,7 @@ claude-multi doctor fix     # re-applies the latest template
 
 Or from the TUI: press `!` to open the health screen, then `f` to fix. The sync preserves your API key and any custom env vars.
 
-The template is current. You do not need to add the `[1m]` suffix or edit the model ID by hand. To use M3 instead of M3.1 Flash, change the model slots to `MiniMax-M3[1m]` and keep the 524288 window. M3 bills at the rates in the pricing section. M3.1 Pro is announced but not released, so there is nothing to configure for it.
+The template is current. You do not need to add the `[1m]` suffix or edit the model ID by hand. To use M3 instead of M3.1 Flash, change the model slots to `MiniMax-M3[1m]` and keep the 524288 window. M3 bills at the rates in the pricing section. MiniMax says a Pro model will follow, but there is no ID or date to configure yet.
 
 ---
 

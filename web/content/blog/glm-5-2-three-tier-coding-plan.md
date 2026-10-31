@@ -46,7 +46,7 @@ Do not follow the setup instructions from the original version of this post. The
 claude-multi doctor fix
 ```
 
-The sync rewrites the model IDs, the compaction window, and the output cap, and it preserves your API key and any custom env vars. The old `glm-5.2` and `glm-5.1` IDs still route to 5.3, so a stale instance will not fail immediately. A 0.10.0 instance keeps the old 64,000 output cap. A 0.11.0 instance has the new cap but still points sonnet at 5.3. A 0.12.0 instance has Flash in sonnet and needs the haiku slot moved to Flash.
+The sync rewrites the model IDs, the compaction window, and the output cap, and it preserves your API key and any custom env vars. The old `glm-5.2` and `glm-5.1` IDs still route to 5.3, so a stale instance will not fail immediately. A 0.10.0 instance keeps the old 64,000 output cap. A 0.11.0 instance has the new cap but still points sonnet at 5.3. A 0.12.0 instance has Flash in sonnet; the 0.13.0 sync moves sonnet back to GLM-5.3 and puts Flash in haiku.
 
 The original post also described the 3x peak / 2x off-peak quota and a promo through September 2026. Z.ai discontinued that system for new users on 2026-07-30 and moved the plan to credits. The [GLM-5.3 post](/blog/glm-5-3-coding-plan/) has the current formula and plan limits.
 
