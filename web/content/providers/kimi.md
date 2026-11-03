@@ -11,7 +11,7 @@ useCases:
   - "API integration and glue code"
 pricing: "Pay-per-token via platform.kimi.ai"
 order: 5
-updated: 2026-10-31
+updated: 2026-11-03
 ---
 
 [Kimi K3.1 Pro](https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart) is Moonshot's current flagship: 1M token context, vision input, tool calling, and thinking that cannot be turned off. K2.7 Code is the older coding specialist with a 256K window and closes to new users on October 31, 2026. Both connect through the Anthropic-compatible endpoint at `api.moonshot.ai/anthropic`.
@@ -20,7 +20,7 @@ updated: 2026-10-31
 
 | Role | Model | Context | Max output |
 |------|-------|---------|------------|
-| Primary, opus, sonnet, haiku, subagents | `kimi-k3.1-pro[1m]` | 1M | 131K default, up to 1M |
+| Primary, opus, sonnet, fable, haiku, subagents | `kimi-k3.1-pro[1m]` | 1M | 131K default, up to 1M |
 | Optional faster variant | `kimi-k3.1-pro-highspeed[1m]` | 1M | 131K default, up to 1M |
 | Legacy | `kimi-k2.7-code` | 256K | 32K default |
 | Legacy | `kimi-k2.6` | 256K | 32K default |
@@ -34,7 +34,9 @@ K2.7 Code does not support non-thinking mode and fixes temperature at 1.0. It re
 
 ## Template status: current
 
-The 0.13.0 template ships `kimi-k3.1-pro[1m]` for primary, opus, sonnet, haiku, and subagents. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 1000000, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, and `MAX_THINKING_TOKENS` to 16000. No manual override is needed for a new instance.
+The 0.13.0 template ships `kimi-k3.1-pro[1m]` for primary, opus, sonnet, fable, haiku, and subagents. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 1000000, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, and `MAX_THINKING_TOKENS` to 16000. No manual override is needed for a new instance.
+
+Kimi always thinks and has no thinking-budget parameter, so `MAX_THINKING_TOKENS` is a client-side hint; reasoning depth follows the effort level.
 
 The 1M compaction window matches the model window. Claude Code caps output at 128,000 for an unrecognized model ID, so the template's 128000 output setting is the effective ceiling even though K3.1 Pro accepts more.
 

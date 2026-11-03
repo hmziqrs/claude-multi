@@ -11,7 +11,7 @@ useCases:
   - "Multimodal coding with image understanding"
 pricing: "Pay-per-token via minimax.io"
 order: 2
-updated: 2026-10-31
+updated: 2026-11-03
 ---
 
 MiniMax-M3.1-Flash is MiniMax's current model for Claude Code, [released October 19, 2026](https://www.minimax.io/blog/minimax-m31f). It has a 1M token context window, a 524,288 token output ceiling, and thinking that is always on. M3 is the previous generation and remains available. MiniMax says a Pro model will follow, but it has not published an ID or date, so the template does not list one.
@@ -20,7 +20,7 @@ MiniMax-M3.1-Flash is MiniMax's current model for Claude Code, [released October
 
 | Role | Model | Context | Max output |
 |------|-------|---------|------------|
-| Primary, opus, sonnet, haiku, subagents | `MiniMax-M3.1-Flash[1m]` | 1M | 512K, 128K recommended |
+| Primary, opus, sonnet, fable, haiku, subagents | `MiniMax-M3.1-Flash[1m]` | 1M | 512K, 128K recommended |
 | Previous generation | `MiniMax-M3` | 1M | 512K |
 
 The template maps M3.1 Flash to every role, including subagents. There is one model in the shipped config, so quick shell commands and complex multi-step reasoning both go to M3.1 Flash.
@@ -31,7 +31,7 @@ MiniMax positions M3.1 Flash as its current Flash model for agentic coding. M3 r
 
 ## Template status
 
-The 0.13.0 template pins `MiniMax-M3.1-Flash[1m]` in primary, opus, sonnet, haiku, and subagent slots. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 524288, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `API_TIMEOUT_MS` to 3000000, and disables nonessential traffic. No manual edit is needed.
+The 0.13.0 template pins `MiniMax-M3.1-Flash[1m]` in primary, opus, sonnet, fable, haiku, and subagent slots. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 524288, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `API_TIMEOUT_MS` to 3000000, and disables nonessential traffic. No manual edit is needed.
 
 MiniMax's [Claude Code guide](https://platform.minimax.io/docs/token-plan/claude-code) uses the same model name in every role, the same 524288 compaction window, and effort `max`. The template follows that setup and adds the subagent slot.
 

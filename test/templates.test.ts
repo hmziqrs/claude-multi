@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
+  getAvailableProviders,
   getProviderByBaseUrl,
   getProviderTemplate,
   detectProvider,
@@ -37,10 +38,12 @@ describe("Provider detection", () => {
       expect(env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
       expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
+      expect(env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("glm-5.3[1m]");
       expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5.3-flash[1m]");
       expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("1000000");
       expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("high");
+      expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
       expect(env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
     });
@@ -51,6 +54,7 @@ describe("Provider detection", () => {
         "ANTHROPIC_MODEL",
         "ANTHROPIC_DEFAULT_OPUS_MODEL",
         "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "ANTHROPIC_DEFAULT_FABLE_MODEL",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL",
         "CLAUDE_CODE_SUBAGENT_MODEL",
       ]) {
@@ -58,6 +62,7 @@ describe("Provider detection", () => {
       }
       expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("524288");
       expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("max");
+      expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
@@ -67,10 +72,12 @@ describe("Provider detection", () => {
       expect(env.ANTHROPIC_MODEL).toBe("deepseek-flash[1m]");
       expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("deepseek-flash[1m]");
       expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("deepseek-flash[1m]");
+      expect(env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("deepseek-flash[1m]");
       expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("deepseek-flash");
       expect(env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("deepseek-flash");
       expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("786432");
       expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("max");
+      expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
@@ -81,6 +88,7 @@ describe("Provider detection", () => {
         expect(env.ANTHROPIC_MODEL).toBe("mimo-v2.6-pro[1m]");
         expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("mimo-v2.6-pro[1m]");
         expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("mimo-v2.6-pro[1m]");
+        expect(env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("mimo-v2.6-pro[1m]");
         expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("mimo-v2.6-flash[1m]");
         expect(env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("mimo-v2.6-flash[1m]");
         expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
@@ -94,6 +102,7 @@ describe("Provider detection", () => {
         "ANTHROPIC_MODEL",
         "ANTHROPIC_DEFAULT_OPUS_MODEL",
         "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "ANTHROPIC_DEFAULT_FABLE_MODEL",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL",
         "CLAUDE_CODE_SUBAGENT_MODEL",
       ]) {
@@ -101,6 +110,7 @@ describe("Provider detection", () => {
       }
       expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe("1000000");
       expect(env.CLAUDE_CODE_EFFORT_LEVEL).toBe("max");
+      expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
@@ -110,6 +120,7 @@ describe("Provider detection", () => {
       expect(env.ANTHROPIC_MODEL).toBe("qwen3.8-max");
       expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("qwen3.8-max");
       expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("qwen3.7-plus");
+      expect(env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("qwen3.8-max");
       expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("qwen3.8-flash");
       expect(env.CLAUDE_CODE_SUBAGENT_MODEL).toBe("qwen3.8-flash");
       expect(env.CLAUDE_CODE_MAX_CONTEXT_TOKENS).toBe("983616");
@@ -121,6 +132,7 @@ describe("Provider detection", () => {
         "ANTHROPIC_MODEL",
         "ANTHROPIC_DEFAULT_OPUS_MODEL",
         "ANTHROPIC_DEFAULT_SONNET_MODEL",
+        "ANTHROPIC_DEFAULT_FABLE_MODEL",
         "ANTHROPIC_DEFAULT_HAIKU_MODEL",
         "CLAUDE_CODE_SUBAGENT_MODEL",
       ]) {
@@ -128,6 +140,16 @@ describe("Provider detection", () => {
       }
       expect(coding.CLAUDE_CODE_MAX_CONTEXT_TOKENS).toBe("983616");
       expect(coding.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
+    });
+
+    test("every template maps the Fable alias and enables effort when it sets a level", () => {
+      for (const template of getAvailableProviders()) {
+        const env = template.settings.env;
+        expect(env.ANTHROPIC_DEFAULT_FABLE_MODEL, template.name).toBe(env.ANTHROPIC_MODEL);
+        if (env.CLAUDE_CODE_EFFORT_LEVEL) {
+          expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT, template.name).toBe("1");
+        }
+      }
     });
 
     test("LEGACY_ENV_DEFAULTS pins the stale defaults the migrations upgrade", () => {

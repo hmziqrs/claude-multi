@@ -1757,7 +1757,9 @@ describe("Migration", () => {
       expect(settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("glm-5.3[1m]");
       expect(settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe("glm-5.3-flash[1m]");
+      expect(settings.env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
       expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
@@ -1818,11 +1820,13 @@ describe("Migration", () => {
             ANTHROPIC_MODEL: "glm-5.3[1m]",
             ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-5.3[1m]",
             ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-5.3[1m]",
+            ANTHROPIC_DEFAULT_FABLE_MODEL: "glm-5.3[1m]",
             ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-5.3-flash[1m]",
             API_TIMEOUT_MS: "3000000",
             CLAUDE_CODE_AUTO_COMPACT_WINDOW: "1000000",
             CLAUDE_CODE_MAX_OUTPUT_TOKENS: "128000",
             CLAUDE_CODE_EFFORT_LEVEL: "high",
+            CLAUDE_CODE_ALWAYS_ENABLE_EFFORT: "1",
             MAX_THINKING_TOKENS: "8000",
             CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
           },

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Provider templates now map the Fable alias.** Claude Code resolves `fable` to `claude-fable-5-1` unless `ANTHROPIC_DEFAULT_FABLE_MODEL` is set, and third-party Anthropic-compatible endpoints reject that ID. Every template maps the alias to its primary model.
+- **Effort now reaches custom model IDs.** GLM, MiniMax, DeepSeek, and Kimi set `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1` alongside `CLAUDE_CODE_EFFORT_LEVEL` so Claude Code sends the effort parameter for model names it does not recognize.
+
+### Fixed
+- The monthly model-review workflow now links to the live Xiaomi MiMo Claude Code page and includes the Fable and effort checks.
+- Environment-variable documentation now matches current Claude Code behavior for `API_TIMEOUT_MS`, `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`, `CLAUDE_CODE_MAX_CONTEXT_TOKENS`, `CLAUDE_CODE_SUBAGENT_MODEL`, and `ANTHROPIC_AUTH_TOKEN`. DeepSeek and Kimi notes no longer claim their fixed thinking budgets are provider-side limits.
+
 ## [0.13.1] - 2026-10-31
 
 ### Changed

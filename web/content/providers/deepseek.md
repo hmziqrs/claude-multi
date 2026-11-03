@@ -11,7 +11,7 @@ useCases:
   - "Development work on a per-token budget"
 pricing: "Pay-per-token via deepseek.com"
 order: 3
-updated: 2026-10-31
+updated: 2026-11-03
 ---
 
 DeepSeek serves two Anthropic-compatible models: `deepseek-flash`, the DeepSeek-V4.1-Flash-1017 checkpoint, and `deepseek-v4-pro`, the DeepSeek-V4-Pro-0813 checkpoint. Both have a 1M token context window and up to 384K output. There is no released V4.1 Pro. The endpoint at `api.deepseek.com/anthropic` connects to Claude Code without an adapter.
@@ -20,7 +20,7 @@ DeepSeek serves two Anthropic-compatible models: `deepseek-flash`, the DeepSeek-
 
 | Role | Model | Context | Max output |
 |------|-------|---------|------------|
-| Primary, opus, sonnet | `deepseek-flash[1m]` | 1M | 384K |
+| Primary, opus, sonnet, fable | `deepseek-flash[1m]` | 1M | 384K |
 | Haiku, subagents | `deepseek-flash` | 1M | 384K |
 | Custom option | `deepseek-v4-pro[1m]` | 1M | 384K |
 | Legacy alias | `deepseek-v4-flash` | 1M | 384K |
@@ -31,11 +31,11 @@ Flash is the official Claude Code default. [DeepSeek's Claude Code guide](https:
 
 `deepseek-v4-flash` is a legacy name. DeepSeek still accepts it, but requests route to V4.1-Flash-1017 and bill at the Flash rate. The old model behind that ID is retired. Use `deepseek-flash` in new configs.
 
-Thinking is enabled by default. Both models support thinking and non-thinking modes, and the template sets `CLAUDE_CODE_EFFORT_LEVEL` to `max` with 32,000 thinking tokens.
+Thinking is enabled by default. Both models support thinking and non-thinking modes. The template sets `CLAUDE_CODE_EFFORT_LEVEL` to `max` and `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, so Claude Code sends the effort level for the custom model ID. DeepSeek's Anthropic endpoint ignores `budget_tokens`, so the template's `MAX_THINKING_TOKENS=32000` is a client-side hint, not a provider budget.
 
 ## Template status: current
 
-The 0.13.0 template points primary, opus, and sonnet at `deepseek-flash[1m]` and haiku and subagents at `deepseek-flash`. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 786432, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, effort to `max`, and thinking to 32,000 tokens. No manual edit is required.
+The 0.13.0 template points primary, opus, sonnet, and fable at `deepseek-flash[1m]` and haiku and subagents at `deepseek-flash`. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 786432, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, effort to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, and `MAX_THINKING_TOKENS` to 32000. No manual edit is required.
 
 The Pro model is not the default. To use it, set the main slots to `deepseek-v4-pro[1m]` in `~/.claude-<name>/settings.json` and expect the Pro rate. DeepSeek's server also maps request model names that start with `claude-opus` to `deepseek-v4-pro`. That mapping applies to clients that send Claude model names rather than the explicit IDs above.
 

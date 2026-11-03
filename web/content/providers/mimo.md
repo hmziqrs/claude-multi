@@ -11,18 +11,18 @@ useCases:
   - "Teams working to a tight API budget"
 pricing: "Pay-per-token via xiaomimimo.com"
 order: 4
-updated: 2026-10-31
+updated: 2026-11-03
 ---
 
 MiMo-V2.6-Pro is Xiaomi's flagship reasoning model, with a 1M token context window and support for text, image, video, and audio input. MiMo-V2.6-Flash is the cheaper tier for high-volume work. Both use the Anthropic-compatible endpoint at `api.xiaomimimo.com/anthropic`, so Claude Code connects directly.
 
-> Template status: current. claude-multi 0.13.0 ships `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` in both the pay-as-you-go and Token Plan templates. It sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000 and `API_TIMEOUT_MS` to 3000000. Existing instances pick up the change with `claude-multi doctor fix`.
+> Template status: current. claude-multi 0.13.0 ships `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` in both the pay-as-you-go and Token Plan templates. The Fable alias maps to Pro. The templates set `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000 and `API_TIMEOUT_MS` to 3000000. Existing instances pick up the change with `claude-multi doctor fix`.
 
 ## Model specs
 
 | Role | Model | Context | Max output |
 |------|-------|---------|------------|
-| Primary (Opus/Sonnet) | `mimo-v2.6-pro[1m]` | 1M | 128K |
+| Primary (Opus/Sonnet/Fable) | `mimo-v2.6-pro[1m]` | 1M | 128K |
 | Fast (Haiku/subagents) | `mimo-v2.6-flash[1m]` | 1M | 128K |
 
 V2.6 Pro handles complex projects, long-horizon agent tasks, and multimodal analysis. V2.6 Flash handles high-frequency calls, large batch work, and subagent traffic. Both output text only.

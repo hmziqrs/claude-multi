@@ -11,7 +11,7 @@ useCases:
   - "Multi-language codebase navigation"
 pricing: "Pay-per-token via Alibaba Cloud Model Studio"
 order: 6
-updated: 2026-10-31
+updated: 2026-11-03
 ---
 
 Alibaba Cloud Model Studio recommends Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Flash for text and coding work. The claude-multi template maps those three models across the Claude Code roles. The Anthropic-compatible endpoint at `dashscope-intl.aliyuncs.com/apps/anthropic` accepts the models directly.
@@ -20,7 +20,7 @@ Alibaba Cloud Model Studio recommends Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Fla
 
 | Role | Model | Context | Max output |
 |------|-------|---------|------------|
-| Primary, opus | `qwen3.8-max` | 1M | 131K |
+| Primary, opus, fable | `qwen3.8-max` | 1M | 131K |
 | Sonnet | `qwen3.7-plus` | 1M | 131K |
 | Haiku, subagents | `qwen3.8-flash` | 1M | 131K |
 
@@ -42,7 +42,7 @@ The template sets `CLAUDE_CODE_MAX_CONTEXT_TOKENS` to 983616, `CLAUDE_AUTOCOMPAC
 
 ## Template status: current
 
-The 0.13.0 template uses Qwen3.8-Max for primary and opus, Qwen3.7-Plus for sonnet, and Qwen3.8-Flash for haiku and subagents. The Coding Plan template uses `qwen3.7-plus` in every slot, with the same context and output variables. No manual edit is needed after `claude-multi add qwen` or `claude-multi add qwen-coding`.
+The 0.13.0 template uses Qwen3.8-Max for primary, opus, and fable, Qwen3.7-Plus for sonnet, and Qwen3.8-Flash for haiku and subagents. The Coding Plan template uses `qwen3.7-plus` in every slot, including fable, with the same context and output variables. No manual edit is needed after `claude-multi add qwen` or `claude-multi add qwen-coding`.
 
 ## Setup
 
