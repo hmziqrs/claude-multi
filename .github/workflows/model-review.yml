@@ -40,14 +40,15 @@ jobs:
           ## Templates
 
           - [ ] **GLM**: confirm `glm-5.3[1m]` and `glm-5.3-flash[1m]` against the [official source](https://docs.z.ai/devpack/overview).
-          - [ ] **MiniMax**: confirm `MiniMax-M3.1-Flash[1m]` against the [official source](https://platform.minimax.io/docs/token-plan/claude-code).
-          - [ ] **DeepSeek**: confirm `deepseek-flash[1m]` and the optional `deepseek-v4-pro` against the [official source](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code).
+          - [ ] **MiniMax**: confirm `MiniMax-M3.1-Flash[1m]` against the [official source](https://platform.minimax.io/docs/m-plan/claude-code).
+          - [ ] **DeepSeek**: confirm `deepseek-flash[1m]` for primary, opus, sonnet, and fable, `deepseek-flash` for haiku and subagents, and the optional `deepseek-v4-pro[1m]` against the [official source](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code/).
           - [ ] **MiMo**: confirm `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` against the [official source](https://mimo.mi.com/docs/en-US/tokenplan/integration/claudecode).
           - [ ] **MiMo Token**: confirm the same `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` lineup against the [official source](https://mimo.mi.com/docs/en-US/tokenplan/integration/claudecode).
           - [ ] **Kimi**: confirm `kimi-k3.1-pro[1m]` against the [official source](https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart).
           - [ ] **Qwen**: confirm `qwen3.8-max`, `qwen3.7-plus`, and `qwen3.8-flash` against the [official source](https://www.alibabacloud.com/help/en/model-studio/anthropic-api-messages).
           - [ ] **Qwen Coding Plan**: confirm `qwen3.7-plus` against the [official source](https://www.alibabacloud.com/help/en/model-studio/anthropic-api-messages).
           - [ ] **Claude Code env vars**: confirm the environment variable names and behavior against the [official reference](https://code.claude.com/docs/en/env-vars). Include the `ANTHROPIC_DEFAULT_FABLE_MODEL` alias and the `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` opt-in for custom model IDs.
+          - [ ] **Fable slot**: confirm every template maps `ANTHROPIC_DEFAULT_FABLE_MODEL` to its primary model (`glm-5.3[1m]`, `MiniMax-M3.1-Flash[1m]`, `deepseek-flash[1m]`, `mimo-v2.6-pro[1m]`, `kimi-k3.1-pro[1m]`, `qwen3.8-max`, `qwen3.7-plus`); `mimo-token` matches `mimo`.
 
           ## Verification
 
@@ -68,7 +69,7 @@ jobs:
 
           ## When a model changes
 
-          If a model changed, update `src/templates.ts`, the provider page, the docs environment-variable table, and the tests in the same PR.
+          If a model changed, update `src/templates.ts`, the provider table in `web/pages/providers/index.astro`, the provider page under `web/content/providers/`, `public/llms.txt`, the docs environment-variable table, and the tests in the same PR.
           EOF
 
           gh issue create --title "$title" --body-file "$body_file"

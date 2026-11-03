@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: "Configuration reference for claude-multi 0.13.x: the instance registry, settings.json, .claude.json, plugin tracking, health status, and migration backups."
+description: "Configuration reference for claude-multi 0.13.2: the instance registry, settings.json, .claude.json, plugin tracking, health status, and migration backups."
 ---
 
 ## Config registry
@@ -17,7 +17,7 @@ claude-multi tracks all instances in a central registry at `~/.claude-multi/conf
       "createdAt": "2026-10-31T10:00:00.000Z",
       "autoSync": false,
       "syncMode": "full-manual",
-      "createdWithVersion": "0.13.0",
+      "createdWithVersion": "0.13.2",
       "providerTemplate": "deepseek"
     },
     {
@@ -27,13 +27,13 @@ claude-multi tracks all instances in a central registry at `~/.claude-multi/conf
       "createdAt": "2026-10-31T10:05:00.000Z",
       "autoSync": true,
       "syncMode": "auto",
-      "createdWithVersion": "0.13.0",
+      "createdWithVersion": "0.13.2",
       "providerTemplate": "mimo-token",
       "providerRegion": "sgp"
     }
   ],
   "version": "2.0.0",
-  "instanceMigrationVersion": "0.13.0"
+  "instanceMigrationVersion": "0.13.2"
 }
 ```
 
@@ -253,7 +253,7 @@ The directory name includes the timestamp, a short random suffix, and the source
 
 See [How it works](/docs/how-it-works/) for the full layout, including Windows paths.
 
-Reviewed 2026-10-31
+Reviewed 2026-11-03
 
 ## Related
 

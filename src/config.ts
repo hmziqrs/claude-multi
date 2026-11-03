@@ -809,7 +809,7 @@ export async function syncProviderTemplateForInstance(instance: Instance): Promi
       inst.providerTemplate = result.providerName;
       needsSave = true;
     }
-    if (result.region && !inst.providerRegion) {
+    if (result.region && inst.providerRegion !== result.region) {
       inst.providerRegion = result.region;
       needsSave = true;
     }

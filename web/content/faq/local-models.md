@@ -22,12 +22,13 @@ Then create or edit `~/.claude-local/settings.json` and add the env vars:
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:11434",
     "ANTHROPIC_MODEL": "your-model-name",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "your-model-name",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "your-fast-model"
   }
 }
 ```
 
-Replace the URL and model names with what your server exposes. Use the base URL for its Anthropic API. Claude Code appends `/v1/messages` to it. Provider templates show how base URLs and model mappings are set in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts).
+Replace the URL and model names with what your server exposes. Use the base URL for its Anthropic API. Claude Code appends `/v1/messages` to it. If the server supports effort levels, also set `CLAUDE_CODE_EFFORT_LEVEL` and `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`. Provider templates show how base URLs and model mappings are set in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts).
 
 #### What works
 

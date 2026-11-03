@@ -1,18 +1,18 @@
 ---
 title: "GLM-5.3 for Claude Code: the two-model mapping"
-description: "The claude-multi GLM template maps glm-5.3 to primary, opus, and sonnet, and glm-5.3-flash to haiku. Setup, credits, and vendor benchmarks."
+description: "The claude-multi GLM template maps glm-5.3 to primary, opus, sonnet, and fable, and glm-5.3-flash to haiku. Setup, credits, and vendor benchmarks."
 date: 2026-08-14
-updated: 2026-10-31
+updated: 2026-11-03
 tags: [providers, models, glm, benchmark, claude-code]
 ---
 
 Z.ai released GLM-5.3 on 2026-08-14. It uses the same base model as GLM-5.2, and Z.ai says every gain comes from post-training. It takes text in and returns text out. GLM-5.3-Flash, released on 2026-08-26, is the multimodal member of the family.
 
-The claude-multi GLM template is now two models. Version 0.13.0 maps `glm-5.3[1m]` to primary, opus, and sonnet, and `glm-5.3-flash[1m]` to haiku. That is the mapping in Z.ai's Claude Code example. Version 0.11.0 put GLM-5.3 in both the opus and sonnet slots. Version 0.12.0 moved sonnet to Flash. Version 0.13.0 moved Flash to haiku and returned GLM-5.3 to sonnet.
+The claude-multi GLM template is now two models. The current template maps `glm-5.3[1m]` to primary, opus, sonnet, and fable, and `glm-5.3-flash[1m]` to haiku. That is the mapping in Z.ai's Claude Code example. Version 0.11.0 put GLM-5.3 in both the opus and sonnet slots. Version 0.12.0 moved sonnet to Flash. Version 0.13.0 moved Flash to haiku and returned GLM-5.3 to sonnet. Version 0.13.2 added the Fable slot.
 
-| Role | 0.13.0 model | Context |
+| Role | Current model | Context |
 |---|---|---|
-| Primary, opus, sonnet | `glm-5.3[1m]` | 1M |
+| Primary, opus, sonnet, fable | `glm-5.3[1m]` | 1M |
 | Haiku | `glm-5.3-flash[1m]` | 1M |
 
 Z.ai no longer serves `glm-5.2` or `glm-5.1` on the Coding Plan endpoint. Requests for either ID route to `glm-5.3`. Requests for `glm-4.7` route to `glm-5.3-flash`. The plan lists GLM-5.3 and GLM-5.3-Flash as its models, so those are the only two IDs the template needs.
@@ -23,9 +23,9 @@ The details are in [Z.ai's GLM-5.3 announcement](https://z.ai/blog/glm-5.3), the
 
 The output cap stays at 128,000 tokens, up from 64,000 in 0.10.0. Z.ai documents 128K max output for GLM-5.3 and GLM-5.3-Flash, and the template sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000. The endpoint stays at `https://api.z.ai/api/anthropic`.
 
-The haiku slot gets Flash. Z.ai says Flash carries three times the plan quota of GLM-5.3 and accepts image input, which matters for the short calls and subagents that read screenshots. Primary, opus, and sonnet run on GLM-5.3 for long refactors and hard debugging.
+The haiku slot gets Flash. Z.ai says Flash carries three times the plan quota of GLM-5.3 and accepts image input, which matters for the short calls and subagents that read screenshots. Primary, opus, sonnet, and fable run on GLM-5.3 for long refactors and hard debugging.
 
-Thinking stays on, and it is no longer optional. GLM-5.3 rejects `thinking.type: "disabled"`. `reasoning_effort` accepts `low`, `high`, or `max`, defaults to `max`, and Z.ai recommends `max` for coding. The template sets `CLAUDE_CODE_EFFORT_LEVEL` to `high` with 8,000 thinking tokens. Thinking bills as output at the 24x multiplier, so `max` is a quota decision as much as a quality one.
+Thinking stays on, and it is no longer optional. GLM-5.3 rejects `thinking.type: "disabled"`. `reasoning_effort` accepts `low`, `high`, or `max`, defaults to `max`, and Z.ai recommends `max` for coding. The template sets `CLAUDE_CODE_EFFORT_LEVEL` to `high`, adds `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1` so Claude Code sends it for the custom model ID, and uses 8,000 thinking tokens as a client-side hint. Thinking bills as output at the 24x multiplier, so `max` is a quota decision as much as a quality one.
 
 Context is simpler now. Both models support 1M, so the template adds the `[1m]` suffix to both and sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 1000000. Unsuffixed `glm-5.3` defaults to roughly 200K in Claude Code. One global window fits both slots.
 
@@ -94,7 +94,7 @@ If you have an older instance, nothing breaks today: the endpoint routes `glm-5.
 claude-multi add glm
 ```
 
-Paste your Z.ai API key when prompted. The template fills in the endpoint, the two model mappings, thinking, and the 128K output cap. The instance is ready.
+Paste your Z.ai API key when prompted. The template fills in the endpoint, the model mappings, thinking, and the 128K output cap. The instance is ready.
 
 ---
 

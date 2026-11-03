@@ -10,7 +10,7 @@ Claude Code reads its configuration from one directory, `~/.claude` by default. 
 
 claude-multi gives each provider its own directory and its own command. A `claude-glm` session reads `~/.claude-glm/`. A `claude-deepseek` session reads `~/.claude-deepseek/`. Your normal `~/.claude` setup keeps working, with the same Claude Code binary and the plugins you already installed.
 
-The CLI is `claude-multi` 0.13.x, MIT licensed, and runs no daemon. Each instance is a directory plus a small wrapper script that sets `CLAUDE_CONFIG_DIR` and execs the official `claude` binary. Nothing is forked or patched.
+The CLI is `claude-multi` 0.13.2, MIT licensed, and runs no daemon. Each instance is a directory plus a small wrapper script that sets `CLAUDE_CONFIG_DIR` and execs the official `claude` binary. Nothing is forked or patched.
 
 Instances share the Claude Code executable, not its state. Upgrading Claude Code updates every instance at once. Changing a model in one instance's `settings.json` changes only that instance.
 
@@ -22,14 +22,14 @@ Six providers ship as eight templates. `claude-multi add <name>` asks which temp
 |----------|----------|--------|---------|----------|---------|----------|
 | GLM (Z.ai) | `glm` | `glm-5.3[1m]`, `glm-5.3-flash[1m]` | Coding Plan subscription | `https://api.z.ai/api/anthropic` | 1M, 128K cap | Predictable monthly budget, agentic coding |
 | MiniMax | `minimax` | `MiniMax-M3.1-Flash[1m]` | Pay per token | `https://api.minimax.io/anthropic` | 1M, 128K cap | Large refactors that need a long window |
-| DeepSeek | `deepseek` | `deepseek-flash[1m]` (V4.1 Flash), `deepseek-v4-pro` optional | Pay per token | `https://api.deepseek.com/anthropic` | 1M, 128K cap | Routine work at low per-token cost |
+| DeepSeek | `deepseek` | `deepseek-flash[1m]` (V4.1 Flash; unsuffixed in fast slots), `deepseek-v4-pro[1m]` optional | Pay per token | `https://api.deepseek.com/anthropic` | 1M, 128K cap | Routine work at low per-token cost |
 | Xiaomi MiMo | `mimo` | `mimo-v2.6-pro[1m]`, `mimo-v2.6-flash[1m]` | Pay per token | `https://api.xiaomimimo.com/anthropic` | 1M, 128K cap | Cost-sensitive coding |
 | Xiaomi MiMo Token Plan | `mimo-token` | `mimo-v2.6-pro[1m]`, `mimo-v2.6-flash[1m]` | Subscription credit pool | `https://token-plan-cn.xiaomimimo.com/anthropic` | 1M, 128K cap | Fixed monthly spend in China, Singapore, or Europe |
 | Moonshot Kimi | `kimi` | `kimi-k3.1-pro[1m]` | Pay per token | `https://api.moonshot.ai/anthropic` | 1M, 128K cap | Tool-heavy agent work |
 | Alibaba Qwen | `qwen` | `qwen3.8-max`, `qwen3.7-plus`, `qwen3.8-flash` | Pay per token | `https://dashscope-intl.aliyuncs.com/apps/anthropic` | 1M, 128K cap | General coding on DashScope |
 | Alibaba Qwen Coding Plan | `qwen-coding` | `qwen3.7-plus` | Coding Plan subscription | `https://coding-intl.dashscope.aliyuncs.com/apps/anthropic` | 1M, 128K cap | Subscription coding on DashScope |
 
-All eight templates match the current model lists. Qwen coverage differs by plan, not by endpoint. The `qwen` template maps Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Flash. The `qwen-coding` template uses Qwen3.7-Plus in every slot because the Coding Plan does not include Qwen3.8-Max or Qwen3.8-Flash.
+All eight templates match the current model lists. Every template also maps `ANTHROPIC_DEFAULT_FABLE_MODEL` to its primary model, and the effort-capable templates set `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`. Qwen coverage differs by plan, not by endpoint. The `qwen` template maps Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Flash. The `qwen-coding` template uses Qwen3.7-Plus in every slot because the Coding Plan does not include Qwen3.8-Max or Qwen3.8-Flash.
 
 Run `claude-multi doctor check` after upgrading claude-multi. It reports pending instance migrations, and `claude-multi doctor fix` refreshes model slots and known legacy defaults. Your API keys and values you changed yourself survive.
 
@@ -98,7 +98,7 @@ Keep your single-provider setup if you use one provider. Edit `~/.claude/setting
 - [Troubleshooting](/docs/troubleshooting/) covers PATH, auth, symlink, and migration failures.
 - [Providers](/providers/) has the per-provider setup pages and model details.
 
-Reviewed 2026-10-31
+Reviewed 2026-11-03
 
 ## Related
 

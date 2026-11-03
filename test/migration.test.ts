@@ -1098,6 +1098,51 @@ describe("Migration", () => {
       expect(result.instances[0]!.providerRegion).toBe("ams");
     });
 
+    test("repairs a stale providerRegion when the env already matches the URL", async () => {
+      const { getProviderTemplate, resolveRegionTemplate } = await import("@/templates");
+      const { needsInstanceMigration, runInstanceMigrations } = await import("@/migration");
+
+      const cmDir = join(testDir, ".claude-multi");
+      mkdirSync(cmDir, { recursive: true });
+
+      const instDir = join(testDir, ".claude-stale-region-only");
+      mkdirSync(instDir, { recursive: true });
+
+      const template = resolveRegionTemplate(getProviderTemplate("mimo-token")!, "ams");
+      writeFileSync(
+        join(instDir, "settings.json"),
+        JSON.stringify({
+          env: {
+            ...template.settings.env,
+            ANTHROPIC_AUTH_TOKEN: "tp_test-key",
+          },
+          includeCoAuthoredBy: false,
+          alwaysThinkingEnabled: false,
+        }),
+      );
+
+      const config = makeConfig({
+        instanceMigrationVersion: getClaudeMultiVersion(),
+        instances: [
+          {
+            name: "stale-region-only",
+            configDir: instDir,
+            binaryPath: join(testDir, "bin", "stale-region-only"),
+            createdAt: new Date().toISOString(),
+            createdWithVersion: getClaudeMultiVersion(),
+            providerTemplate: "mimo-token",
+            providerRegion: "sgp",
+          },
+        ],
+      });
+
+      expect(needsInstanceMigration(config)).toBe(true);
+
+      const result = await runInstanceMigrations(config);
+
+      expect(result.instances[0]!.providerRegion).toBe("ams");
+    });
+
     test("handles trailing slash in base URL (V01)", async () => {
       const { runInstanceMigrations } = await import("@/migration");
 
@@ -1471,6 +1516,8 @@ describe("Migration", () => {
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();
     });
@@ -1535,6 +1582,8 @@ describe("Migration", () => {
       expect(existsSync(join(testDir, ".claude-multi", "backups"))).toBe(true);
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("glm-5.3[1m]");
+      expect(settings.env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(settings.env.API_TIMEOUT_MS).toBe("3000000");
     });
 
@@ -1715,6 +1764,8 @@ describe("Migration", () => {
 
       const settings = JSON.parse(readFileSync(join(instDir, "settings.json"), "utf-8"));
       expect(settings.env.ANTHROPIC_MODEL).toBe("MiniMax-M3.1-Flash[1m]");
+      expect(settings.env.ANTHROPIC_DEFAULT_FABLE_MODEL).toBe("MiniMax-M3.1-Flash[1m]");
+      expect(settings.env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT).toBe("1");
       expect(settings.env.ANTHROPIC_SMALL_FAST_MODEL).toBeUndefined();
       expect(settings.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
       expect(settings.env.MAX_OUTPUT_TOKENS).toBeUndefined();

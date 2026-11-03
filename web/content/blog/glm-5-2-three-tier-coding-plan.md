@@ -2,11 +2,11 @@
 title: "GLM-5.2's three-tier mapping, and why it ended"
 description: "How the GLM-5.2 template split opus, sonnet, and haiku across three models, why GLM-5.3 collapsed it, and the two-model mapping that replaced it."
 date: 2026-06-13
-updated: 2026-10-31
+updated: 2026-11-03
 tags: [providers, models, glm, benchmark, claude-code]
 ---
 
-> **Superseded by GLM-5.3.** This post documents the June 2026 GLM-5.2 template. The current template maps `glm-5.3[1m]` to primary, opus, and sonnet, and `glm-5.3-flash[1m]` to haiku. See the [GLM-5.3 post](/blog/glm-5-3-coding-plan/) for the current setup.
+> **Superseded by GLM-5.3.** This post documents the June 2026 GLM-5.2 template. The current template maps `glm-5.3[1m]` to primary, opus, sonnet, and fable, and `glm-5.3-flash[1m]` to haiku. See the [GLM-5.3 post](/blog/glm-5-3-coding-plan/) for the current setup.
 
 GLM-5.2 arrived on the Coding Plan in June 2026 with a 1,000,000-token context window. For a few weeks, claude-multi had a real three-tier spread: GLM-5.2 for opus, GLM-5.1 for sonnet, and GLM-5-Turbo for haiku. It was the first time each Claude Code tier got a different GLM model.
 
@@ -32,11 +32,11 @@ The sources are [Z.ai's GLM-5.3 announcement](https://z.ai/blog/glm-5.3) and the
 
 | Claude Code tier | GLM model | Context window |
 |---|---|---|
-| Primary, opus | `glm-5.3[1m]` | 1M |
+| Primary, opus, fable | `glm-5.3[1m]` | 1M |
 | Sonnet | `glm-5.3[1m]` | 1M |
 | Haiku | `glm-5.3-flash[1m]` | 1M |
 
-The two top slots share GLM-5.3. Flash carries three times the plan quota of GLM-5.3 and accepts image input, so it fits the frequent, short calls in the haiku slot. The full spec is on the [GLM provider page](/providers/glm/).
+Primary, opus, sonnet, and fable share GLM-5.3. Flash carries three times the plan quota of GLM-5.3 and accepts image input, so it fits the frequent, short calls in the haiku slot. The full spec is on the [GLM provider page](/providers/glm/).
 
 ## What to do with an old instance
 
@@ -52,7 +52,7 @@ The original post also described the 3x peak / 2x off-peak quota and a promo thr
 
 ## What still applies
 
-The mechanics did not change. The `[1m]` suffix opts a model into the million-token window, and Claude Code compacts around the window it reads from the model name. That was true for GLM-5.2, and it is true for GLM-5.3 and Flash. When the tiers had different windows, the template had to set context per model. Both current models are 1M, so 0.13.0 uses one global window at 1000000.
+The mechanics did not change. The `[1m]` suffix opts a model into the million-token window, and Claude Code compacts around the window it reads from the model name. That was true for GLM-5.2, and it is true for GLM-5.3 and Flash. When the tiers had different windows, the template had to set context per model. Both current models are 1M, so the current template uses one global window at 1000000.
 
 ---
 

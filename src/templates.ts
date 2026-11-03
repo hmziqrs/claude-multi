@@ -97,7 +97,7 @@ const PROVIDER_TEMPLATES: Record<string, ProviderTemplate> = {
   mimo: {
     name: "mimo",
     displayName: "Xiaomi MiMo",
-    description: "MiMo-V2.6-Pro and MiMo-V2.6-Flash via xiaomimimo.com, pay-per-token API",
+    description: "MiMo-V2.6-Pro and MiMo-V2.6-Flash via platform.xiaomimimo.com, pay-per-token API",
     settings: {
       env: {
         ANTHROPIC_AUTH_TOKEN: "",
@@ -382,8 +382,9 @@ export const LEGACY_ENV_DEFAULTS: Readonly<
 export type TunableEnvPolicy = "preserve-custom" | "overwrite-legacy-defaults";
 
 /**
- * Variables that older templates wrote and the current templates no longer set. Remove them on
- * sync so a migrated instance does not keep a dead override around.
+ * Variables that older templates wrote but some current templates no longer set. Remove them on
+ * sync only when the target template does not set the variable, so a migrated instance does not
+ * keep a dead override around.
  */
 const STALE_ENV_VARS = new Set([
   "ANTHROPIC_SMALL_FAST_MODEL",
@@ -514,12 +515,16 @@ export function needsProviderTemplateSync(
   options: Omit<ProviderEnvSyncOptions, "dryRun"> = {},
 ): boolean {
   try {
+    const result = syncProviderEnvToSettings(configDir, {
+      ...options,
+      tunablePolicy: options.tunablePolicy ?? "overwrite-legacy-defaults",
+      dryRun: true,
+    });
     return (
-      syncProviderEnvToSettings(configDir, {
-        ...options,
-        tunablePolicy: options.tunablePolicy ?? "overwrite-legacy-defaults",
-        dryRun: true,
-      }).status === "synced"
+      result.status === "synced" ||
+      (result.region !== null &&
+        result.providerName !== null &&
+        result.region !== options.providerRegion)
     );
   } catch {
     return false;

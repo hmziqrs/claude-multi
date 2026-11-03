@@ -95,7 +95,7 @@ The templates set this window at or below the model's context limit. Values belo
 
 ## Per-provider defaults
 
-Each template writes its own base URL, model slots, timeout, and tuning values. This table matches `src/templates.ts` in 0.13.x.
+Each template writes its own base URL, model slots, timeout, and tuning values. This table matches `src/templates.ts` in 0.13.2.
 
 | Template | Provider page | Base URL | Primary slot | Fable slot | Fast slot | Timeout |
 |----------|---------------|----------|--------------|------------|-----------|---------|
@@ -129,7 +129,7 @@ The `mimo-token` base URL depends on the region you picked at creation. `cn` use
 
 ## Template status
 
-The 0.13.x templates match the current vendor model lists as of 2026-11-03. The notes below cover plan coverage and model availability where they affect a slot.
+The 0.13.2 templates match the current vendor model lists as of 2026-11-03. The notes below cover plan coverage and model availability where they affect a slot.
 
 ### Alibaba Qwen
 
@@ -161,7 +161,7 @@ The `kimi` template uses `kimi-k3.1-pro[1m]` in every slot, including Fable. Sta
 
 The `glm` template maps `glm-5.3[1m]` to the primary, opus, sonnet, and Fable slots and `glm-5.3-flash[1m]` to haiku. It sets effort to `high` and adds `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`. Z.ai's current default configuration maps opus, sonnet, and haiku to `glm-5.3-flash[1m]`; the template keeps the manual split so the main slots use the flagship model. GLM-5-Turbo is not a Coding Plan model and is not a template tier.
 
-If you created an instance before 0.13.0, run `claude-multi doctor check`, then `claude-multi doctor fix`. The sync updates model slots and known legacy defaults while keeping your API key and custom values.
+If you created an instance before 0.13.2 (including 0.13.0 and 0.13.1), run `claude-multi doctor check`, then `claude-multi doctor fix`. The sync updates model slots, the Fable alias, the effort opt-in, and known legacy defaults while keeping your API key and custom values.
 
 ## Where to set variables
 

@@ -31,9 +31,9 @@ MiniMax positions M3.1 Flash as its current Flash model for agentic coding. M3 r
 
 ## Template status
 
-The 0.13.0 template pins `MiniMax-M3.1-Flash[1m]` in primary, opus, sonnet, fable, haiku, and subagent slots. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 524288, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `API_TIMEOUT_MS` to 3000000, and disables nonessential traffic. No manual edit is needed.
+The 0.13.2 template pins `MiniMax-M3.1-Flash[1m]` in primary, opus, sonnet, fable, haiku, and subagent slots. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 524288, `CLAUDE_CODE_EFFORT_LEVEL` to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, `API_TIMEOUT_MS` to 3000000, and disables nonessential traffic. No manual edit is needed.
 
-MiniMax's [Claude Code guide](https://platform.minimax.io/docs/token-plan/claude-code) uses the same model name in every role, the same 524288 compaction window, and effort `max`. The template follows that setup and adds the subagent slot.
+MiniMax's [Claude Code guide](https://platform.minimax.io/docs/m-plan/claude-code) uses the same model name in every role, the same 524288 compaction window, and effort `max`. The template follows that setup and adds the Fable and subagent slots.
 
 To use M3 instead, change the model IDs in `~/.claude-<name>/settings.json` to `MiniMax-M3[1m]` and keep the 524288 window. The Pro model is not available yet, so there is no ID to set.
 

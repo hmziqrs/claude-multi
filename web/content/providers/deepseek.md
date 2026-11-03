@@ -25,7 +25,7 @@ DeepSeek serves two Anthropic-compatible models: `deepseek-flash`, the DeepSeek-
 | Custom option | `deepseek-v4-pro[1m]` | 1M | 384K |
 | Legacy alias | `deepseek-v4-flash` | 1M | 384K |
 
-Flash is the official Claude Code default. [DeepSeek's Claude Code guide](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code) sets the main model, opus, and sonnet to `deepseek-flash[1m]`, and haiku and subagents to `deepseek-flash`. The template follows that mapping.
+Flash is the official Claude Code default. [DeepSeek's Claude Code guide](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code/) sets the main model, opus, and sonnet to `deepseek-flash[1m]`, and haiku and subagents to `deepseek-flash`. The template follows that mapping and adds the Fable slot.
 
 `deepseek-v4-pro` is the previous generation and remains available as a manual or custom option. There is no released V4.1 Pro, so `deepseek-v4-pro` is still the Pro model. It handles complex reasoning and long analysis. Flash handles main work, background calls, subagent traffic, and quick edits. Flash also accepts image input; Pro does not.
 
@@ -35,9 +35,9 @@ Thinking is enabled by default. Both models support thinking and non-thinking mo
 
 ## Template status: current
 
-The 0.13.0 template points primary, opus, sonnet, and fable at `deepseek-flash[1m]` and haiku and subagents at `deepseek-flash`. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 786432, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, effort to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, and `MAX_THINKING_TOKENS` to 32000. No manual edit is required.
+The 0.13.2 template points primary, opus, sonnet, and fable at `deepseek-flash[1m]` and haiku and subagents at `deepseek-flash`. It sets `CLAUDE_CODE_AUTO_COMPACT_WINDOW` to 786432, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, effort to `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, and `MAX_THINKING_TOKENS` to 32000. No manual edit is required.
 
-The Pro model is not the default. To use it, set the main slots to `deepseek-v4-pro[1m]` in `~/.claude-<name>/settings.json` and expect the Pro rate. DeepSeek's server also maps request model names that start with `claude-opus` to `deepseek-v4-pro`. That mapping applies to clients that send Claude model names rather than the explicit IDs above.
+The Pro model is not the default. To use it, set the primary, opus, sonnet, and fable slots to `deepseek-v4-pro[1m]` in `~/.claude-<name>/settings.json` and expect the Pro rate. DeepSeek's server also maps request model names that start with `claude-opus` to `deepseek-v4-pro`. That mapping applies to clients that send Claude model names rather than the explicit IDs above.
 
 The `[1m]` suffix is a Claude Code context hint, not part of the vendor model name. It tells Claude Code the real 1M window. Without it, the client assumes 200K and compacts early.
 
@@ -74,7 +74,7 @@ Peak:
 | `deepseek-flash` | $0.006 | $0.30 | $1.20 |
 | `deepseek-v4-pro` | $0.044 | $1.32 | $3.96 |
 
-All rates are per 1M tokens. [DeepSeek's pricing page](https://api-docs.deepseek.com/quick_start/pricing) is the source for both tables.
+All rates are per 1M tokens. [DeepSeek's pricing page](https://api-docs.deepseek.com/quick_start/pricing/) is the source for both tables.
 
 ## Cache pricing
 

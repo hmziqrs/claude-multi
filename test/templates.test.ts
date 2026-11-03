@@ -142,13 +142,14 @@ describe("Provider detection", () => {
       expect(coding.CLAUDE_CODE_MAX_OUTPUT_TOKENS).toBe("128000");
     });
 
-    test("every template maps the Fable alias and enables effort when it sets a level", () => {
+    test("every template maps the Fable alias and enables effort only where configured", () => {
+      const effortProviders = new Set(["glm", "minimax", "deepseek", "kimi"]);
       for (const template of getAvailableProviders()) {
         const env = template.settings.env;
         expect(env.ANTHROPIC_DEFAULT_FABLE_MODEL, template.name).toBe(env.ANTHROPIC_MODEL);
-        if (env.CLAUDE_CODE_EFFORT_LEVEL) {
-          expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT, template.name).toBe("1");
-        }
+        expect(env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT, template.name).toBe(
+          effortProviders.has(template.name) ? "1" : undefined,
+        );
       }
     });
 

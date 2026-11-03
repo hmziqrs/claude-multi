@@ -17,7 +17,7 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 
 const FOOTER_HTML = getSiteFooterHtml(latestVersion);
 
-const LAST_RESORT_LASTMOD = '2026-10-31';
+const LAST_RESORT_LASTMOD = '2026-11-03';
 const LATEST_REPO_LASTMOD = getLatestCommitDate() ?? LAST_RESORT_LASTMOD;
 
 function readFrontmatterDate(raw, field) {

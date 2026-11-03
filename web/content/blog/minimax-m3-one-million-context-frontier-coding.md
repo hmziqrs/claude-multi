@@ -2,11 +2,11 @@
 title: "MiniMax M3.1 Flash in Claude Code: 1M context, flat pricing"
 description: "MiniMax M3.1 Flash is now the minimax template default: 1M context, 512K max output, always-on thinking, and flat $0.15/$0.60 pricing. M3 stays available."
 date: 2026-06-01
-updated: 2026-10-31
+updated: 2026-11-03
 tags: [providers, models, minimax, benchmark, claude-code]
 ---
 
-MiniMax released M3.1 Flash on 2026-10-19. It is the default in the claude-multi `minimax` template, in the main, Opus, Sonnet, Haiku, and subagent slots. The template pins `MiniMax-M3.1-Flash[1m]` and sets a 524288 compaction window, effort `max`, and a 128000 output cap. Existing instances can sync with `claude-multi doctor fix`.
+MiniMax released M3.1 Flash on 2026-10-19. It is the default in the claude-multi `minimax` template, in the primary, Opus, Sonnet, Fable, Haiku, and subagent slots. The template pins `MiniMax-M3.1-Flash[1m]` and sets a 524288 compaction window, effort `max`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`, and a 128000 output cap. Existing instances can sync with `claude-multi doctor fix`.
 
 M3, released 2026-06-01, is the previous generation and remains available. MiniMax says a Pro model will follow, but it has not published an ID or date, so there is no Pro model to configure. The M3 sections below are kept as historical context.
 
@@ -21,17 +21,19 @@ The model and context settings in `~/.claude-<name>/settings.json`:
     "ANTHROPIC_MODEL": "MiniMax-M3.1-Flash[1m]",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M3.1-Flash[1m]",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M3.1-Flash[1m]",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "MiniMax-M3.1-Flash[1m]",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M3.1-Flash[1m]",
     "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "524288",
     "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_CODE_ALWAYS_ENABLE_EFFORT": "1",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000"
   }
 }
 ```
 
-The shipped settings also point the subagent slot at the same model, set `API_TIMEOUT_MS` to 3000000, and set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` to 1. All model slots use one model, so there is no separate cheap tier inside the instance.
+The shipped settings also point the Fable and subagent slots at the same model, set `API_TIMEOUT_MS` to 3000000, and set `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` to 1. All model slots use one model, so there is no separate cheap tier inside the instance.
 
-The 524288 compaction window is MiniMax's recommended setting for Claude Code even though the model supports 1M tokens. The same guide sets effort to `max`.
+The 524288 compaction window is MiniMax's recommended setting for Claude Code even though the model supports 1M tokens. The same guide sets effort to `max`; the template adds `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1` so Claude Code sends it for the custom model ID.
 
 ## M3.1 Flash specs
 

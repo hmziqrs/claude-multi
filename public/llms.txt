@@ -21,12 +21,12 @@ Requires Node.js 22+ or Bun 1+, and Claude Code installed globally.
 ## Commands
 
 - `claude-multi`: Launch interactive terminal UI (default)
-- `claude-multi add <name>`: Create instance (flags: `--provider`, `--api-key`, `--copy-settings`, `--copy-all`, `--auto-sync`)
+- `claude-multi add <name>`: Create instance (flags: `--provider`, `--api-key`, `--region`, `--copy-settings`, `--copy-mcp`, `--copy-all`, `--skip-prompts`, `--sync-mode`; legacy aliases `--auto-sync`, `--half-manual`, `--manual`)
 - `claude-multi remove <name>`: Remove instance (`--force` to skip confirm)
 - `claude-multi list`: List all instances
 - `claude-multi info <name>`: Show instance details
 - `claude-multi doctor check`: Find wrapper, settings, and provider template issues
-- `claude-multi doctor fix`: Back up and apply pending instance migrations
+- `claude-multi doctor fix`: Back up, apply pending instance migrations, and refresh provider template env vars
 - `claude-multi version`: Check for Claude Code updates
 - `claude-multi update`: Update Claude Code to latest
 - `claude-multi auto-sync <name> <mode>`: Set plugin/skill sync mode (`auto`, `half-manual`, or `full-manual`)
@@ -40,7 +40,7 @@ Requires Node.js 22+ or Bun 1+, and Claude Code installed globally.
 |----------|----------|--------|
 | GLM Coding Plan | api.z.ai | glm-5.3[1m], glm-5.3-flash[1m] |
 | MiniMax | api.minimax.io | MiniMax-M3.1-Flash[1m] |
-| DeepSeek | api.deepseek.com | deepseek-flash[1m], deepseek-v4-pro[1m] (optional) |
+| DeepSeek | api.deepseek.com | deepseek-flash[1m] (primary/opus/sonnet/fable), deepseek-flash (haiku/subagents), deepseek-v4-pro[1m] (optional) |
 | Xiaomi MiMo | api.xiaomimimo.com | mimo-v2.6-pro[1m], mimo-v2.6-flash[1m] |
 | Xiaomi MiMo (Token Plan) | token-plan-cn.xiaomimimo.com | mimo-v2.6-pro[1m], mimo-v2.6-flash[1m] |
 | Moonshot Kimi | api.moonshot.ai | kimi-k3.1-pro[1m] |
@@ -48,6 +48,8 @@ Requires Node.js 22+ or Bun 1+, and Claude Code installed globally.
 | Alibaba Qwen Coding Plan | coding-intl.dashscope.aliyuncs.com | qwen3.7-plus |
 
 All providers use the Anthropic-compatible API format with their own base URL.
+
+Every template maps `ANTHROPIC_DEFAULT_FABLE_MODEL` to its primary model so the `fable` alias never sends `claude-fable-5-1` to a third-party endpoint. GLM, MiniMax, DeepSeek, and Kimi also set `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1` so their effort level reaches Claude Code for custom model IDs.
 
 Existing instances do not update their provider settings in the background. After upgrading claude-multi, run `claude-multi doctor check`, then `claude-multi doctor fix` to apply pending template changes. The sync updates model slots and other template settings, while keeping API keys and custom tunables unless a documented legacy default needs an upgrade.
 

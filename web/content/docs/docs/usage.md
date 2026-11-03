@@ -1,6 +1,6 @@
 ---
 title: Usage
-description: "CLI command reference for claude-multi 0.13.x: add, remove, list, sync, doctor, plugins, and MCP commands."
+description: "CLI command reference for claude-multi 0.13.2: add, remove, list, sync, doctor, plugins, and MCP commands."
 ---
 
 ## Default action
@@ -280,7 +280,7 @@ claude-multi add team --provider glm --api-key "$GLM_API_KEY" --copy-all --skip-
 
 `--copy-all` copies settings, `CLAUDE.md`, plugins, and skills from `~/.claude`. It also copies the default `settings.json`, including its `env` block. Review `~/.claude-team/settings.json` after creation and remove keys you do not want to carry over. The provider template replaces the provider env keys with the values for the key passed on the command line. Store the non-secret parts of the setup in your dotfiles repo and let each person supply their own key.
 
-Reviewed 2026-10-31
+Reviewed 2026-11-03
 
 ## Related
 

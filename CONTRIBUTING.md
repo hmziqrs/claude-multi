@@ -61,7 +61,7 @@ bun test test/config.test.ts
 bun test --grep "symlink"
 ```
 
-The test suite has 244 tests across 16 files covering config management, plugin operations, health checks, migration, wrapper generation, Ink components, CLI commands, and end-to-end flows.
+The test suite covers config management, plugin operations, health checks, migration, wrapper generation, Ink components, CLI commands, and end-to-end flows.
 
 Tests use `CLAUDE_MULTI_HOME` to isolate from your real config, they create temporary directories and clean up after themselves.
 
@@ -114,10 +114,10 @@ The project uses GitHub Actions for:
 ## Adding a provider template
 
 1. Open `src/templates.ts`
-2. Add a new entry to the `providerTemplates` object following the existing pattern
-3. Set `name`, `displayName`, `description`, and the `settings.env` block
+2. Add a new entry to the `PROVIDER_TEMPLATES` object following the existing pattern
+3. Set `name`, `displayName`, `description`, and the `settings.env` block. Every template must set `ANTHROPIC_DEFAULT_FABLE_MODEL` to its primary model; if it sets `CLAUDE_CODE_EFFORT_LEVEL`, also set `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`
 4. Run tests: `bun test`
-5. Update the provider table in `web/pages/providers/index.astro` and add a matching entry to `web/content/providers/`
+5. Update the provider table in `web/pages/providers/index.astro`, add a matching entry to `web/content/providers/`, and refresh `public/llms.txt`, `.github/workflows/model-review.yml`, and `web/content/docs/docs/environment-variables.md`
 
 ## Submitting changes
 

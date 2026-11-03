@@ -14,7 +14,7 @@ order: 1
 updated: 2026-11-03
 ---
 
-GLM-5.3 is Z.ai's flagship coding model, sold through the GLM Coding Plan instead of a metered Anthropic API. Z.ai documents [GLM-5.3](https://docs.z.ai/guides/llm/glm-5.3) and [GLM-5.3-Flash](https://docs.z.ai/guides/llm/glm-5.3-flash) as the two models on the plan. Requests for GLM-5.2 and GLM-5.1 route to GLM-5.3, and GLM-4.7 requests route to GLM-5.3-Flash. The endpoint at `api.z.ai/api/anthropic` speaks Anthropic Messages directly, so Claude Code connects without an adapter.
+GLM-5.3 is Z.ai's flagship coding model, sold through the GLM Coding Plan instead of a metered Anthropic API. Z.ai documents [GLM-5.3](https://docs.z.ai/guides/llm/glm-5.3) and [GLM-5.3-Flash](https://docs.z.ai/guides/vlm/glm-5.3-flash) as the two models on the plan. Requests for GLM-5.2 and GLM-5.1 route to GLM-5.3, and GLM-4.7 requests route to GLM-5.3-Flash. The endpoint at `api.z.ai/api/anthropic` speaks Anthropic Messages directly, so Claude Code connects without an adapter.
 
 ## Model specs
 
@@ -33,7 +33,7 @@ Thinking cannot be disabled on GLM-5.3 or Flash. `reasoning_effort` accepts `low
 
 ## Template status: current
 
-The 0.13.0 template uses the mapping from Z.ai's manual Claude Code configuration: `glm-5.3[1m]` in primary, opus, sonnet, and fable, `glm-5.3-flash[1m]` in haiku, and the Coding Plan endpoint. It sets auto-compact to 1000000, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, effort to `high`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, `MAX_THINKING_TOKENS` to 8000, and disables nonessential traffic. No manual edits are needed after `claude-multi add glm`.
+The 0.13.2 template uses the mapping from Z.ai's manual Claude Code configuration: `glm-5.3[1m]` in primary, opus, sonnet, and fable, `glm-5.3-flash[1m]` in haiku, and the Coding Plan endpoint. It sets auto-compact to 1000000, `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000, effort to `high`, `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT` to `1`, `MAX_THINKING_TOKENS` to 8000, and disables nonessential traffic. No manual edits are needed after `claude-multi add glm`.
 
 Z.ai's current default configuration maps opus, sonnet, and haiku to `glm-5.3-flash[1m]`. The template keeps the manual split so the main slots use the flagship model. `MAX_THINKING_TOKENS` is a client-side hint; Z.ai derives thinking depth from the effort level.
 

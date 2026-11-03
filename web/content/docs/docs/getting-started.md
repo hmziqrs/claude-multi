@@ -3,7 +3,7 @@ title: Getting started
 description: Install claude-multi, add your first provider instance, verify the wrapper, and launch an isolated Claude Code session on macOS, Linux, or Windows.
 ---
 
-Applies to claude-multi 0.13.x.
+Applies to claude-multi 0.13.2.
 
 ## Prerequisites
 
@@ -138,7 +138,7 @@ Found 1 instance(s):
   Created: 10/31/2026, 10:00:00 AM
   Provider: glm
   Sync mode: Auto-sync (symlink dirs)
-  Version:  0.13.1
+  Version:  0.13.2
 ```
 
 The date format follows your locale. Then check that the wrapper reaches Claude Code:
@@ -153,7 +153,7 @@ The output is Claude Code's version, in the form `2.x.x (Claude Code)`. claude-m
 claude-multi --version
 ```
 
-It prints `0.13.1` on this release.
+It prints `0.13.2` on this release.
 
 ## Add `~/.local/bin` to your PATH
 
@@ -229,7 +229,7 @@ Downgrading the CLI does not downgrade instance config. Back up `~/.claude-multi
 - [Configuration](/docs/configuration/): settings file reference
 - [Troubleshooting](/docs/troubleshooting/): PATH, auth, symlink, and migration fixes
 
-Reviewed 2026-10-31
+Reviewed 2026-11-03
 
 ## Related
 

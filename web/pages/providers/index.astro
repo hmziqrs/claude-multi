@@ -24,7 +24,7 @@ const entries = (await getCollection('providers')).toSorted(
         command. Each page below lists setup steps, pricing, and use cases.
       </p>
       <p class="reveal mt-4 text-text-mute text-sm font-mono">
-        Six providers, eight templates. Last verified 2026-10-31.
+        Six providers, eight templates. Last verified 2026-11-03.
       </p>
     </div>
   </section>
@@ -138,8 +138,11 @@ const entries = (await getCollection('providers')).toSorted(
       </div>
 
       <p class="text-text-dim text-sm max-w-3xl mb-10">
-        The table reflects the current templates. Each provider page lists the
-        live env vars and any manual options, such as DeepSeek V4-Pro.
+        The table reflects the current templates. Every template also maps the
+        Fable alias to its primary model, and the effort-capable templates set
+        <code class="font-mono text-lime text-xs">CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1</code>.
+        Each provider page lists the live env vars and any manual options, such
+        as DeepSeek V4-Pro.
       </p>
 
       <h3 class="text-xl font-bold tracking-tight mb-4">Pay per token vs. subscription</h3>
@@ -170,10 +173,10 @@ const entries = (await getCollection('providers')).toSorted(
 
       <ul class="text-text-dim text-sm space-y-2 max-w-2xl list-disc pl-5">
         <li>GLM: the Anthropic-compatible endpoint (<code class="font-mono text-lime text-xs">api.z.ai/api/anthropic</code>) is exclusive to the Z.ai Coding Plan subscription. The metered API only exposes an OpenAI-compatible URL. GLM-5.3 fills primary, opus, sonnet, and fable; GLM-5.3-Flash fills haiku. Both use the 1M hint and a 1M compaction window.</li>
-        <li>DeepSeek: the template uses <code class="font-mono text-lime text-xs">deepseek-flash</code> in every slot. V4-Pro is the previous generation and remains a manual option. There is no released V4.1 Pro.</li>
+        <li>DeepSeek: the template uses <code class="font-mono text-lime text-xs">deepseek-flash[1m]</code> in primary, opus, sonnet, and fable, and <code class="font-mono text-lime text-xs">deepseek-flash</code> in haiku and subagents. V4-Pro is the previous generation and remains a manual option. There is no released V4.1 Pro.</li>
         <li>MiMo Token Plan: defaults to the CN regional endpoint. If your subscription is SG or EU, update <code class="font-mono text-lime text-xs">ANTHROPIC_BASE_URL</code> with the endpoint shown in your subscription console. Both MiMo templates use the V2.6 model IDs.</li>
         <li>MiniMax: both plans use the same <code class="font-mono text-lime text-xs">api.minimax.io</code> endpoint; the API key type determines which quota is consumed. M3.1 Flash fills every slot, has a 1M token context window and a 512K output maximum, and always thinks. M3 remains available as the previous generation. M3.1 Flash costs $0.15/$0.60 per 1M tokens.</li>
-        <li>Kimi: K2.5 was retired on 2026-08-31 and returns an error. K2.6 and K2.7 close to new users on 2026-10-31 and retire by the end of December. The template uses K3.1 Pro in every slot at standard speed. Highspeed is optional and costs double. K3.1 Pro costs $2/$10 per 1M tokens.</li>
+        <li>Kimi: K2.5 was retired on 2026-08-31 and returns an error. K2.6 and K2.7 closed to new users on 2026-10-31 and retire by the end of December. The template uses K3.1 Pro in every slot at standard speed. Highspeed is optional and costs double. K3.1 Pro costs $2/$10 per 1M tokens.</li>
         <li>Qwen: pay-as-you-go uses Qwen3.8-Max, Qwen3.7-Plus, and Qwen3.8-Flash with a 983616 thinking-mode context setting and a 128000 output ceiling. The Coding Plan uses <code class="font-mono text-lime text-xs">qwen3.7-plus</code> in every slot and does not cover Qwen3.8-Max or Qwen3.8-Flash among current Qwen models. Qwen3-Coder-Next and Qwen3-Coder-Plus are not on the Anthropic-compatible matrix.</li>
       </ul>
     </div>

@@ -34,4 +34,4 @@ Create an instance without a template and configure it yourself:
 claude-multi add my-provider --skip-prompts
 ```
 
-Then create or edit `~/.claude-my-provider/settings.json` and set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. The [configuration guide](/docs/configuration/) documents the settings format. Template definitions are in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts).
+Then create or edit `~/.claude-my-provider/settings.json` and set `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, `ANTHROPIC_DEFAULT_FABLE_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. If the provider supports effort levels, also set `CLAUDE_CODE_EFFORT_LEVEL` and `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`. The [configuration guide](/docs/configuration/) documents the settings format. Template definitions are in [src/templates.ts](https://github.com/hmziqrs/claude-multi/blob/master/src/templates.ts).

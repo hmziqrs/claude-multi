@@ -1,7 +1,7 @@
 {
   "name": "claude-multi",
-  "version": "0.13.1",
-  "description": "Manage multiple Claude Code instances with different aliases and configurations",
+  "version": "0.13.2",
+  "description": "Run isolated Claude Code instances with separate providers, configs, plugins, MCP servers, and aliases",
   "type": "module",
   "bin": {
     "claude-multi": "bin/claude-multi.js"
@@ -38,9 +38,17 @@
   "keywords": [
     "claude",
     "claude-code",
+    "claude-ai",
     "cli",
     "multi-instance",
-    "wrapper"
+    "wrapper",
+    "provider-templates",
+    "deepseek",
+    "glm",
+    "kimi",
+    "minimax",
+    "qwen",
+    "xiaomi-mimo"
   ],
   "author": "hmziqrs",
   "license": "MIT",
@@ -57,7 +65,7 @@
     "@astrojs/starlight": "^0.41.9",
     "@inkjs/ui": "^2.0.0",
     "@tailwindcss/vite": "^4.3.0",
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "@types/prompts": "^2.4.9",
     "@types/react": "^19.2.14",
     "@types/semver": "^7.7.1",

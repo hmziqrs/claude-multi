@@ -78,7 +78,7 @@ See [Sync modes](/docs/usage/#sync-modes) for the full comparison and [Plugins a
 
 A provider template is a bundle of environment variables (base URL, model slots, thinking settings, output limits) and a few Claude Code settings. claude-multi merges the template into an instance's `settings.json` when it creates the instance. You supply the API key.
 
-This is what the `deepseek` template writes into `settings.json` in 0.13.x, with the key filled in:
+This is what the `deepseek` template writes into `settings.json` in 0.13.2, with the key filled in:
 
 ```json
 {
@@ -168,7 +168,7 @@ The `claude-multi` binary in `bin/claude-multi.js` is a short POSIX shell script
 
 The generated instance wrappers are separate. They are `/bin/sh` scripts on macOS and Linux and `.cmd` batch files on Windows. They need no JavaScript runtime at launch.
 
-Reviewed 2026-10-31
+Reviewed 2026-11-03
 
 ## Related
 

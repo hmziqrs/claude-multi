@@ -67,7 +67,7 @@ That's the only command to remember. Everything else happens in the terminal UI:
 Two things worth knowing:
 
 - If the menu shows a `!` health hint, press `!` to see what's wrong and fix it.
-- After upgrading claude-multi, run `claude-multi doctor check` to apply provider template updates. It backs up `settings.json` first and keeps any values you changed yourself.
+- After upgrading claude-multi, run `claude-multi doctor check` to see pending provider template updates, then `claude-multi doctor fix` to apply them. `doctor fix` backs up `settings.json` first and keeps any values you changed yourself.
 
 Full documentation: **https://claude-multi.hmziq.xyz**
 
@@ -86,7 +86,7 @@ Full documentation: **https://claude-multi.hmziq.xyz**
 | Alibaba Qwen | `dashscope-intl.aliyuncs.com` | `qwen` |
 | Alibaba Qwen Coding Plan | `coding-intl.dashscope.aliyuncs.com` | `qwen-coding` |
 
-Templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. Provider sync keeps values you changed yourself and restores model slots to the current template.
+Templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars into `~/.claude-<name>/settings.json`. Every template maps `ANTHROPIC_DEFAULT_FABLE_MODEL` to its primary model, and the templates that set an effort level also set `CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1`. Provider sync keeps values you changed yourself and restores model slots to the current template.
 
 ---
 
@@ -94,10 +94,10 @@ Templates write `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL`, and related env vars in
 
 Each instance is a config dir at `~/.claude-<name>/` plus a wrapper script at `~/.local/bin/claude-<name>` that sets `CLAUDE_CONFIG_DIR` and runs the unmodified `claude` binary. No fork, no patch. The instance registry lives in `~/.claude-multi/config.json`.
 
-```js
-#!/usr/bin/env bun
-process.env.CLAUDE_CONFIG_DIR = "/Users/you/.claude-glm"
-spawn("claude", process.argv.slice(2), { stdio: "inherit", env: process.env })
+```sh
+#!/bin/sh
+export CLAUDE_CONFIG_DIR="/Users/you/.claude-glm"
+exec "/Users/you/.local/bin/claude" "$@"
 ```
 
 Auto-sync symlinks `plugins/` and `skills/` back to `~/.claude/`, so a plugin you install once shows up in every instance that opted in. Skip it (or toggle it later in the menu) if you want an instance fully independent.

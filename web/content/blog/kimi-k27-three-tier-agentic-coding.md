@@ -2,13 +2,13 @@
 title: "Kimi K2.7 Code: launch tiers and the K3.1 shift"
 description: "Kimi K2.7 Code launched with three tiers. K3.1 Pro now fills every slot, the K2 series is closing, and Highspeed is an optional upgrade."
 date: 2026-06-12
-updated: 2026-10-31
+updated: 2026-11-03
 tags: [providers, models, kimi, benchmark, claude-code]
 ---
 
 Moonshot released [Kimi K2.7 Code](https://huggingface.co/moonshotai/Kimi-K2.7-Code) on 2026-06-12. It is a coding-focused model built on K2.6, with double-digit gains on coding and agent benchmarks and about 30% fewer thinking tokens. The claude-multi kimi template mapped K2.7 Code to opus, K2.6 to sonnet, and K2.5 to haiku at launch.
 
-> **Update (2026-10-31):** Kimi K3.1 Pro is now the template's only model. It has a 1,048,576-token context window and costs $2 input / $10 output per 1M. The standard model fills primary, opus, sonnet, haiku, and subagent slots. K2 series models close to newly registered users on October 31, 2026, and Moonshot plans to retire all of them by the end of December. K2.7 Code is still served at $0.95/$4.00 for existing users. See [Kimi's pricing page](https://platform.moonshot.ai/docs/pricing/chat).
+> **Update (2026-11-03):** Kimi K3.1 Pro is now the template's only model. It has a 1,048,576-token context window and costs $2 input / $10 output per 1M. The standard model fills primary, opus, sonnet, fable, haiku, and subagent slots. K2 series models closed to newly registered users on October 31, 2026, and Moonshot plans to retire all of them by the end of December. K2.7 Code is still served at $0.95/$4.00 for existing users. See [Kimi's pricing page](https://platform.kimi.ai/docs/pricing/chat).
 
 ## What changed at launch
 
@@ -34,11 +34,13 @@ If you are on 0.12.x or managing settings by hand, the env block is:
     "ANTHROPIC_MODEL": "kimi-k3.1-pro[1m]",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k3.1-pro[1m]",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k3.1-pro[1m]",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "kimi-k3.1-pro[1m]",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k3.1-pro[1m]",
     "CLAUDE_CODE_SUBAGENT_MODEL": "kimi-k3.1-pro[1m]",
     "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "1000000",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000",
     "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_CODE_ALWAYS_ENABLE_EFFORT": "1",
     "MAX_THINKING_TOKENS": "16000"
   }
 }
@@ -46,9 +48,9 @@ If you are on 0.12.x or managing settings by hand, the env block is:
 
 Highspeed is optional. It runs the same model 2 to 3 times faster and costs double: $4 input / $20 output per 1M against $2/$10 for standard. The template keeps standard speed. Haiku and subagent calls are frequent and short, so the premium adds up faster than the latency saving. If you want it, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` and `CLAUDE_CODE_SUBAGENT_MODEL` to `kimi-k3.1-pro-highspeed[1m]`, and keep the main slots on standard.
 
-Do not mix K3.1 Pro and a K2 model in the same instance. Claude Code applies one compaction window, so the 1M setting will let a 256K K2 model overflow. If you already have K2.7 access and want to keep the cheaper coding model while it lasts, use `kimi-k2.7-code` for opus and `kimi-k2.6` for the other slots, and keep the compaction window at `262144`.
+Do not mix K3.1 Pro and a K2 model in the same instance. Claude Code applies one compaction window, so the 1M setting will let a 256K K2 model overflow. If you already have K2.7 access and want to keep the cheaper coding model while it lasts, use `kimi-k2.7-code` for opus and `kimi-k2.6` for every other slot, including fable, haiku, and subagents, and keep the compaction window at `262144`.
 
-The K2 line also has an end date. K2.6 and K2.7 Code close to newly registered users on October 31, 2026, and Moonshot plans to retire all K2 models by the end of December. If you are setting up Kimi today, K3.1 Pro is the safer default.
+The K2 line also has an end date. K2.6 and K2.7 Code closed to newly registered users on October 31, 2026, and Moonshot plans to retire all K2 models by the end of December. If you are setting up Kimi today, K3.1 Pro is the safer default.
 
 ## Context and compaction
 
@@ -96,7 +98,7 @@ K2.7 Code also forces `preserve_thinking` mode, which keeps full reasoning conte
 
 ## Pricing
 
-K2.7 Code costs $0.95/MTok input on a cache miss, $0.19/MTok on a cache hit, and $4.00/MTok output on the [Kimi API platform](https://platform.moonshot.ai/docs/pricing/chat). A launch promotion ran through July 2, 2026. It has ended.
+K2.7 Code costs $0.95/MTok input on a cache miss, $0.19/MTok on a cache hit, and $4.00/MTok output on the [Kimi API platform](https://platform.kimi.ai/docs/pricing/chat). A launch promotion ran through July 2, 2026. It has ended.
 
 K3.1 Pro costs $2/MTok input and $10/MTok output with a 1M context. Highspeed costs $4/$20. K2.6 costs $0.95/$4.00 at 256K. Kimi is pay-per-token only. See [pricing details on the Kimi provider page](/providers/kimi/#pricing-details).
 
@@ -113,4 +115,4 @@ The launch guidance still describes how the K2 models behave. K2.7 Code fits lon
 - [Kimi provider page](/providers/kimi/) for setup instructions and current pricing
 - [Supported providers FAQ](/faq/#supported-providers) for a comparison of all available templates
 - [Kimi K2.7 Code on Hugging Face](https://huggingface.co/moonshotai/Kimi-K2.7-Code) for the model card and weights
-- [Kimi API pricing](https://platform.moonshot.ai/docs/pricing/chat) for the current rate card and retirement notice
+- [Kimi API pricing](https://platform.kimi.ai/docs/pricing/chat) for the current rate card and retirement notice

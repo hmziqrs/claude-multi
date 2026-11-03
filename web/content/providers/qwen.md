@@ -32,7 +32,7 @@ The current [Anthropic-compatible model matrix](https://www.alibabacloud.com/hel
 
 | Role | Model |
 |------|-------|
-| Primary, opus | `qwen3.8-max` |
+| Primary, opus, fable | `qwen3.8-max` |
 | Sonnet | `qwen3.7-plus` |
 | Haiku, subagents | `qwen3.8-flash` |
 
@@ -42,7 +42,7 @@ The template sets `CLAUDE_CODE_MAX_CONTEXT_TOKENS` to 983616, `CLAUDE_AUTOCOMPAC
 
 ## Template status: current
 
-The 0.13.0 template uses Qwen3.8-Max for primary, opus, and fable, Qwen3.7-Plus for sonnet, and Qwen3.8-Flash for haiku and subagents. The Coding Plan template uses `qwen3.7-plus` in every slot, including fable, with the same context and output variables. No manual edit is needed after `claude-multi add qwen` or `claude-multi add qwen-coding`.
+The 0.13.2 template uses Qwen3.8-Max for primary, opus, and fable, Qwen3.7-Plus for sonnet, and Qwen3.8-Flash for haiku and subagents. The Coding Plan template uses `qwen3.7-plus` in every slot, including fable, with the same context and output variables. No manual edit is needed after `claude-multi add qwen` or `claude-multi add qwen-coding`.
 
 ## Setup
 

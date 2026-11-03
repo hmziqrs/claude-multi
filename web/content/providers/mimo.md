@@ -1,6 +1,6 @@
 ---
 title: "Xiaomi MiMo V2.6 Provider for Claude Code"
-description: "Run Claude Code with MiMo-V2.6-Pro and V2.6-Flash via xiaomimimo.com. 1M context, 128K output, multimodal input, pay-per-token or Token Plan."
+description: "Run Claude Code with MiMo-V2.6-Pro and V2.6-Flash via platform.xiaomimimo.com. 1M context, 128K output, multimodal input, pay-per-token or Token Plan."
 provider: "mimo"
 tagline: "1M context, multimodal input, two price tiers"
 setupCommand: "claude-multi add mimo"
@@ -9,14 +9,14 @@ useCases:
   - "Large-scale refactoring and code generation"
   - "Agentic workflows with image, video, or audio input"
   - "Teams working to a tight API budget"
-pricing: "Pay-per-token via xiaomimimo.com"
+pricing: "Pay-per-token via platform.xiaomimimo.com"
 order: 4
 updated: 2026-11-03
 ---
 
 MiMo-V2.6-Pro is Xiaomi's flagship reasoning model, with a 1M token context window and support for text, image, video, and audio input. MiMo-V2.6-Flash is the cheaper tier for high-volume work. Both use the Anthropic-compatible endpoint at `api.xiaomimimo.com/anthropic`, so Claude Code connects directly.
 
-> Template status: current. claude-multi 0.13.0 ships `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` in both the pay-as-you-go and Token Plan templates. The Fable alias maps to Pro. The templates set `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000 and `API_TIMEOUT_MS` to 3000000. Existing instances pick up the change with `claude-multi doctor fix`.
+> Template status: current. claude-multi 0.13.2 ships `mimo-v2.6-pro[1m]` and `mimo-v2.6-flash[1m]` in both the pay-as-you-go and Token Plan templates. The Fable alias maps to Pro. The templates set `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 128000 and `API_TIMEOUT_MS` to 3000000. Existing instances pick up the change with `claude-multi doctor fix`.
 
 ## Model specs
 
@@ -38,11 +38,11 @@ claude-multi doctor check
 claude-multi doctor fix
 ```
 
-The sync replaces the model slots and adds `mimo-v2.6-flash[1m]` for subagents. Both `mimo` and `mimo-token` instances use the same model IDs; only the base URL and key differ. The `[1m]` suffix is a Claude Code context hint, not part of the vendor model name. It tells the client the real 1M window instead of the 200K default.
+The sync replaces the model slots, adds `mimo-v2.6-flash[1m]` for subagents, and maps the Fable slot to Pro. Both `mimo` and `mimo-token` instances use the same model IDs; only the base URL and key differ. The `[1m]` suffix is a Claude Code context hint, not part of the vendor model name. It tells the client the real 1M window instead of the 200K default.
 
 ## Setup
 
-1. Create an account at [xiaomimimo.com](https://xiaomimimo.com) and generate an API key
+1. Create an account at [platform.xiaomimimo.com](https://platform.xiaomimimo.com) and generate an API key
 2. Run the setup command:
 
 ```sh
@@ -70,7 +70,7 @@ Rates come from Xiaomi's model pages for [V2.6-Pro](https://mimo.mi.com/models/e
 
 ## Token Plan
 
-Xiaomi also sells a [Token Plan subscription](https://platform.xiaomimimo.com/docs/en-US/tokenplan/Token%20Plan/subscription) with a monthly credit pool. Use the `mimo-token` template for that account type:
+Xiaomi also sells a [Token Plan subscription](https://mimo.mi.com/docs/en-US/tokenplan/Token%20Plan/subscription) with a monthly credit pool. Use the `mimo-token` template for that account type:
 
 ```sh
 claude-multi add mimo-token
